@@ -17,3 +17,28 @@ Route::get('/redirect', 'SocialAuthGoogleController@redirect');
 Route::get('/callback', 'SocialAuthGoogleController@callback');
 
 Auth::routes();
+
+use Oseintow\Shopify\Facades\Shopify;
+
+// @todo remove me when go live
+
+/**
+ * Get the access token request
+ */
+Route::get("install_shop",function()
+{
+	$shopUrl = "valedra.myshopify.com";
+	$scope = ["read_products","write_products","read_orders", "write_orders", "read_customers", "write_customers"];
+	$redirectUrl = "http://localhost:8000/process_oauth_result";
+
+	$shopify = Shopify::setShopUrl($shopUrl);
+	return redirect()->to($shopify->getAuthorizeUrl($scope,$redirectUrl));
+});
+
+Route::get("process_oauth_result",function(\Illuminate\Http\Request $request)
+{
+	$shopUrl = "valedra.myshopify.com";
+	$accessToken = Shopify::setShopUrl($shopUrl)->getAccessToken($request->code);
+
+	dd("Access token is " . $accessToken);
+});
