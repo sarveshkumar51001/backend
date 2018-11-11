@@ -11,7 +11,7 @@
 
     <div class="row justify-content-center col-md-10" style="float: right;">
             <div class="card">
-                <div class="card-header">Dashboard</div>
+                <div class="card-header">List Orders</div>
 
                 <div class="card-body">
                     @if (session('status'))

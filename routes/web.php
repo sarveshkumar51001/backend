@@ -16,6 +16,14 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/redirect', 'SocialAuthGoogleController@redirect');
 Route::get('/callback', 'SocialAuthGoogleController@callback');
 
+
+Route::get('/orders', 'OrderController@index');
+Route::get('/orders/create', 'OrderController@create');
+Route::post('/orders/create', 'OrderController@create');
+Route::get('/orders/update', 'OrderController@update');
+
+
+
 Auth::routes();
 
 use Oseintow\Shopify\Facades\Shopify;
