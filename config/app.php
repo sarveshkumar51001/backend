@@ -175,6 +175,8 @@ return [
 
 	    Laravel\Socialite\SocialiteServiceProvider::class,
 	    Oseintow\Shopify\ShopifyServiceProvider::class,
+
+	    Jenssegers\Mongodb\MongodbServiceProvider::class,
     ],
 
     /*
@@ -226,6 +228,8 @@ return [
 
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
         'Shopify' => Oseintow\Shopify\Facades\Shopify::class,
+
+        'Moloquent' => Jenssegers\Mongodb\Eloquent\Model::class,
 
     ],
 
