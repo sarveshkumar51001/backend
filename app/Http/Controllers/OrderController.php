@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+
 class OrderController extends Controller
 {
     public function __construct()
@@ -9,10 +11,12 @@ class OrderController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
-    {
-        return view('orders-list');
-    }
+	public function index() {
+		$limit = 100;
+		$data = Order::paginate($limit);
+
+		return view('orders-list', ['orders' => $data]);
+	}
 
 	public function create()
 	{

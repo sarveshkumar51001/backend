@@ -12,7 +12,7 @@
 <ul class="nav navbar-nav mr-2">
     <li class="nav-item dropdown">
         <a class="nav-link nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-            <span>Welcome, {{ \Auth::user()->name ?? '' }}</span>
+            <span>Welcome, {{ \Auth::user()->name ?? '' }} <i class="fa fa-angle-down"></i></span>
         </a>
         <div class="dropdown-menu dropdown-menu-right">
             <div class="dropdown-header text-center">

@@ -7,13 +7,13 @@
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-database"></i> Shopify orders</a>
                 <ul class="nav-dropdown-items">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ URL::to('/orders') }}"><i class="fa fa-sitemap"></i> List orders</a>
+                        <a class="nav-link" href="{{ URL::to('/products') }}"><i class="fa fa-shopping-cart"></i>Products</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ URL::to('/orders/create') }}"><i class="fa fa-users"></i> Create orders</a>
+                        <a class="nav-link" href="{{ URL::to('/customers') }}"><i class="icon-user"></i>Customers</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ URL::to('/orders/create') }}"><i class="fa fa-users"></i> Payment reminders</a>
+                        <a class="nav-link" href="{{ URL::to('/orders') }}"><i class="fa fa-sitemap"></i>Orders</a>
                     </li>
                 </ul>
             </li>
