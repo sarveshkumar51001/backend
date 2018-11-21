@@ -22,6 +22,7 @@ Route::get('/orders/create', 'OrderController@create');
 Route::post('/orders/create', 'OrderController@create');
 Route::get('/orders/update', 'OrderController@update');
 Route::get('/customers', 'CustomerController@index');
+Route::get('/customers/profiler', 'CustomerController@profiler');
 Route::get('/products', 'ProductController@index');
 
 
