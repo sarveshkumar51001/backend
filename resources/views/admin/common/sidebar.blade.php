@@ -17,6 +17,15 @@
                     </li>
                 </ul>
             </li>
+            <li class="nav-title">Customer profiler</li>
+            <li class="nav-item nav-dropdown">
+                <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-user"></i> Customer profiler</a>
+                <ul class="nav-dropdown-items">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ URL::to('/customers/profiler') }}"><i class="icon-user"></i>Profiler result</a>
+                    </li>
+                </ul>
+            </li>
         </li>
     </ul>
 </nav>
