@@ -7,8 +7,38 @@
 </button>
 <ul class="nav navbar-nav d-md-down-none mr-auto">
     <li class="nav-item px-3 pull-left">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="input-group custom-search-form">
+                        <form method="get" action="/search"><input value="{{ $query ?? '' }}" name="q" id="search" type="text" placeholder="Search anything here ..."></form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            .custom-search-form input {
+                border: 1px solid #ccc;
+                padding: 8px;
+                -moz-border-radius:50px;
+                -webkit-border-radius:50px;
+                border-radius:50px;
+                width:300px;
+                transition: 0.5s;
+            }
+            .custom-search-form input:focus {
+                width:500px;
+                transition: 0.5s;
+            }
+        </style>
     </li>
 </ul>
+<ul class="nav navbar-nav d-md-down-none mr-auto">
+    <li class="nav-item px-3 pull-left">
+    </li>
+</ul>
+
+
 <ul class="nav navbar-nav mr-2">
     <li class="nav-item dropdown">
         <a class="nav-link nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">

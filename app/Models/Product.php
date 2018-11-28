@@ -6,4 +6,5 @@ class Product extends Base
 {
 	protected $connection = 'mongodb';
 	protected $collection = 'products';
+	protected $guarded = [];
 }

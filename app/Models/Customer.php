@@ -6,4 +6,5 @@ class Customer extends Base
 {
 	protected $connection = 'mongodb';
 	protected $collection = 'customers';
+	protected $guarded = [];
 }

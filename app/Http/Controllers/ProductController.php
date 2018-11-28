@@ -4,12 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 
-class ProductController extends Controller
+class ProductController extends BaseController
 {
-    public function __construct() {
-        $this->middleware('auth');
-    }
-
     public function index() {
 	    $limit = 100;
 	    $data = Product::paginate($limit);

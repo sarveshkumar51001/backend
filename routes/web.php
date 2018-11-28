@@ -24,6 +24,7 @@ Route::get('/orders/update', 'OrderController@update');
 Route::get('/customers', 'CustomerController@index');
 Route::get('/customers/profiler', 'CustomerController@profiler');
 Route::get('/products', 'ProductController@index');
+Route::get('/search', 'SearchController@index');
 
 
 

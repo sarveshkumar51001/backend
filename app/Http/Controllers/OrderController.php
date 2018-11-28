@@ -4,13 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 
-class OrderController extends Controller
+class OrderController extends BaseController
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
 	public function index() {
 		$limit = 100;
 		$data = Order::paginate($limit);
