@@ -1,7 +1,7 @@
 <button class="navbar-toggler mobile-sidebar-toggler d-lg-none" type="button">
     <span class="navbar-toggler-icon"></span>
 </button>
-<a class="navbar-brand" href="/"></a>
+<a class="navbar-brand" href="{{action('HomeController@index')}}"></a>
 <button class="navbar-toggler sidebar-toggler d-md-down-none" type="button">
     <span class="navbar-toggler-icon"></span>
 </button>
@@ -11,7 +11,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="input-group custom-search-form">
-                        <form method="get" action="/search"><input value="{{ $query ?? '' }}" name="q" id="search" type="text" placeholder="Search anything here ..."></form>
+                        <form method="get" action="{{action('SearchController@index')}}"><input value="{{ $query ?? '' }}" name="q" id="search" type="text" placeholder="Search anything here ..."></form>
                     </div>
                 </div>
             </div>
@@ -48,7 +48,6 @@
             <div class="dropdown-header text-center">
                 <strong>Account</strong>
             </div>
-            <a class="dropdown-item" href="/admin/users"><i class="icon-user"></i> User Management</a>
             <a class="dropdown-item" href="{{ route('logout') }}"
                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fa fa-lock"></i> Logout
