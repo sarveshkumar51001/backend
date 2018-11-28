@@ -43,7 +43,7 @@
                                     @foreach($result['customers'] as $customer)
                                         <tr>
                                             <td>{{$loop->index + 1}}</td>
-                                            <td><a href="/customers/{{ $customer->id }}">{{ $customer->student_name }}</a></td>
+                                            <td><a href="{{ url('customers/'.$customer->id) }}">{{ $customer->student_name }}</a></td>
                                             <td>{{ $customer->student_id }}</td>
                                             <td>{{ $customer->contact_details['contact_no'] }} | {{ $customer->contact_details['contact_email'] }}</td>
                                             <td>{{ $customer->academic_details['school_name'] }}</td>
@@ -71,7 +71,7 @@
                                 @if(count($result['products']))
                                     @foreach($result['products'] as $product)
                                         <tr>
-                                            <td><a href="/products/{{ $product->id }}">{{ $product->product_id }}</a></td>
+                                            <td><a href="{{ url('products/'.$product->id) }}">{{ $product->product_id }}</a></td>
                                             <td>{{ $product->product_name }}</td>
                                             <td>{{ $product->product_category }}</td>
                                             <td>{{ $product->product_tags }}</td>
@@ -96,7 +96,7 @@
                                 @if(count($result['orders']))
                                     @foreach($result['orders'] as $order)
                                         <tr>
-                                            <td><a href="/orders/{{ $order->id }}">{{ $order->order_id }}</a></td>
+                                            <td><a href="{{ url('orders/'.$order->id) }}">{{ $order->order_id }}</a></td>
                                             <td>{{ $order->{'student name'} }}</td>
                                             <td>{{ $order->products_details['product_display_name'] }}</td>
                                             <td>{{ $order->products_details['product_price'] }}</td>

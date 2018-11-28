@@ -9,8 +9,9 @@ class OrderController extends BaseController
 	public function index() {
 		$limit = 100;
 		$data = Order::paginate($limit);
+		$breadcrumb = ['Orders' => ''];
 
-		return view('orders-list', ['orders' => $data]);
+		return view('orders-list', ['orders' => $data, 'breadcrumb' => $breadcrumb]);
 	}
 
 	public function create()

@@ -18,12 +18,15 @@ Route::get('/callback', 'SocialAuthGoogleController@callback');
 
 
 Route::get('/orders', 'OrderController@index');
+Route::get('/orders/{id}', 'OrderController@view');
 Route::get('/orders/create', 'OrderController@create');
 Route::post('/orders/create', 'OrderController@create');
 Route::get('/orders/update', 'OrderController@update');
 Route::get('/customers', 'CustomerController@index');
+Route::get('/customers/{id}', 'CustomerController@view');
 Route::get('/customers/profiler', 'CustomerController@profiler');
 Route::get('/products', 'ProductController@index');
+Route::get('/products/{id}', 'ProductController@view');
 Route::get('/search', 'SearchController@index');
 
 

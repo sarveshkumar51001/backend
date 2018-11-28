@@ -19,11 +19,11 @@
                 <tbody>
                 @foreach($products as $product)
                     <tr>
-                        <td><div>{{ $product->product_id }}</div></td>
-                        <td><div>{{ $product->product_name }}</div></td>
-                        <td><div>{{ $product->product_category }}</div></td>
-                        <td><div>{{ $product->product_tags }}</div></td>
-                        <td><div>{{ $product->product_price }}</div></td>
+                        <td><a href="{{ url('products/'.$product->id) }}">{{ $product->product_id }}</a></td>
+                        <td>{{ $product->product_name }}</td>
+                        <td>{{ $product->product_category }}</td>
+                        <td>{{ $product->product_tags }}</td>
+                        <td>{{ $product->product_price }}</td>
                     </tr>
                 @endforeach
                 </tbody>
