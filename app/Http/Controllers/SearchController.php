@@ -18,7 +18,7 @@ class SearchController extends BaseController
 		parent::__construct();
 
 		$this->query = request('q');
-		$this->limit = 50;
+		$this->limit = 250;
 	}
 
 	/**
