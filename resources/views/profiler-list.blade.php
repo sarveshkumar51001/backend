@@ -24,9 +24,10 @@
                         <td><div>
                                 <b>Name: </b> {{ $profile_data->name }}
                                 <br/><b>Email: </b> {{ $profile_data->email_id }}
-                                <br/><b>Contact: </b> {{ $profile_data->contact_no }}
+                                <br/><b>Contact: </b> {{ $profile_data->contact }}
                                 <br/><b>Address: </b> {{ $profile_data->address }}
                                 <br/><b>Income: </b> {{ $profile_data->income_org  }}
+                                <br/><b><a href="{{ url('customers/profiler/'.((array) $profile['_id'])['oid']) }}">View response</a></b>
                             </div></td>
                         <td><div>{{ $profile['parent_profiler']['text'] }}</div></td>
                         <td width="300">
