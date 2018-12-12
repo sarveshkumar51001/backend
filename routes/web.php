@@ -29,6 +29,8 @@ Route::get('/customers/{id}', 'CustomerController@view');
 Route::get('/products', 'ProductController@index');
 Route::get('/products/{id}', 'ProductController@view');
 Route::get('/search', 'SearchController@index');
+Route::get('/imagereco/search', 'ImageRecognitionController@index');
+Route::post('/imagereco/search', 'ImageRecognitionController@index');
 
 
 

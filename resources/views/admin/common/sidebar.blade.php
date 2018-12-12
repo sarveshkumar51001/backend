@@ -26,6 +26,16 @@
                     </li>
                 </ul>
             </li>
+
+            <li class="nav-title">Image Recognitions</li>
+            <li class="nav-item nav-dropdown">
+                <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-search"></i> Search</a>
+                <ul class="nav-dropdown-items">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ URL::to('/imagereco/search') }}"><i class="fa fa-search"></i>By image</a>
+                    </li>
+                </ul>
+            </li>
         </li>
     </ul>
 </nav>

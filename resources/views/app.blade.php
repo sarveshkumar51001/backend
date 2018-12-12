@@ -71,7 +71,7 @@
 -->
 
 {{--<body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">--}}
-<body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden pace-done sidebar-minimized brand-minimized">
+<body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden pace-done">
 
 <!-- Header -->
 <header class="app-header navbar">
