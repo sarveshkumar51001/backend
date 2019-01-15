@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Order;
 
 class CustomerController extends BaseController
 {
@@ -15,11 +16,19 @@ class CustomerController extends BaseController
 
 	public function view($id) {
 		$customer = Customer::find($id);
-		$customerDetails = \DB::collection('customer_details')->where('student_id', '=', $customer->student_id)->first();
+		if (!$customer) {
+			return view('admin.404');
+		}
 
-		$breadcrumb = ['Customers' => url('customers'), $customer->student_name => ''];
+		$customerDetails = \DB::collection('customer_details')->where('customer_id', '=', $customer->customer_id)->first();
+		$orders = Order::where('customer_id', $customer->customer_id)->get();
 
-		return view('customer-view', ['customer' => $customer, 'customer_details' => $customerDetails, 'breadcrumb' => $breadcrumb]);
+		$breadcrumb = ['Customers' => url('customers'), $customer->customer_name => ''];
+
+		return view('customer-view', ['customer' => $customer,
+		                              'customer_details' => $customerDetails,
+		                              'breadcrumb' => $breadcrumb,
+										'orders' => $orders]);
 	}
 
     public function profiler() {

@@ -18,8 +18,8 @@
                 <tbody>
                 @foreach($users as $user)
                     <tr>
-                        <td><a href="{{ url('customers/'.$user->id) }}">{{ $user->student_id }}</a></td>
-                        <td><a href="{{ url('customers/'.$user->id) }}">{{ $user->student_name }}</a></td>
+                        <td><a href="{{ url('customers/'.$user->id) }}">{{ $user->customer_id }}</a></td>
+                        <td><a href="{{ url('customers/'.$user->id) }}">{{ $user->customer_name }}</a></td>
                         <td>{{ json_encode($user->academic_details) }}</td>
                         <td>{{ json_encode($user->contact_details) }}</td>
                     </tr>

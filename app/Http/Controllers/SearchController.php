@@ -35,8 +35,8 @@ class SearchController extends BaseController
     }
 
     private function Customers() {
-	    return Customer::where('student_id', 'like', "%$this->query%")
-	                  ->orWhere('student_name', 'like', "%$this->query%")
+	    return Customer::where('customer_id', 'like', "%$this->query%")
+	                  ->orWhere('customer_name', 'like', "%$this->query%")
 	                  ->orWhere('contact_no', 'like', "%$this->query%")
 	                  ->orWhere('contact_email', 'like', "%$this->query%")
 	                  ->orWhere('address', 'like', "%$this->query%")

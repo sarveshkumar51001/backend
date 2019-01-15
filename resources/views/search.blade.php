@@ -43,8 +43,8 @@
                                     @foreach($result['customers'] as $customer)
                                         <tr>
                                             <td>{{$loop->index + 1}}</td>
-                                            <td><a href="{{ url('customers/'.$customer->id) }}">{{ $customer->student_name }}</a></td>
-                                            <td>{{ $customer->student_id }}</td>
+                                            <td><a href="{{ url('customers/'.$customer->id) }}">{{ $customer->customer_name }}</a></td>
+                                            <td>{{ $customer->customer_id }}</td>
                                             <td>{{ $customer->contact_details['contact_no'] }} | {{ $customer->contact_details['contact_email'] }}</td>
                                             <td>{{ $customer->academic_details['school_name'] }}</td>
                                             <td>{{ $customer->academic_details['class'] }}</td>

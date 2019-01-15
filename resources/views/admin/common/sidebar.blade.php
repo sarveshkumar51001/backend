@@ -4,7 +4,7 @@
             <a class="nav-link" href="{{ URL::to('/') }}"><i class="icon-speedometer"></i> Dashboard </a>
             <li class="nav-title">Shopify</li>
             <li class="nav-item nav-dropdown">
-                <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-database"></i> Shopify orders</a>
+                <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-database"></i> Shopify</a>
                 <ul class="nav-dropdown-items">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ URL::to('/products') }}"><i class="fa fa-shopping-cart"></i>Products</a>

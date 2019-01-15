@@ -15,8 +15,9 @@ class ProductController extends BaseController
     }
 
 	public function view($id) {
-    	$product = Product::find($id);
+    	$product = Product::where('product_id', $id)->first();
 		$breadcrumb = ['Products' => url('products'), $product->product_name => ''];
+
 
 		return view('product-view', ['product' => $product, 'breadcrumb' => $breadcrumb]);
 	}
