@@ -29,8 +29,16 @@ Route::get('/customers/{id}', 'CustomerController@view');
 Route::get('/products', 'ProductController@index');
 Route::get('/products/{id}', 'ProductController@view');
 Route::get('/search', 'SearchController@index');
-Route::get('/imagereco/search', 'ImageRecognitionController@index');
-Route::post('/imagereco/search', 'ImageRecognitionController@index');
+Route::prefix('imagereco')->group(function() {
+    Route::get('/search', 'ImageRecognitionController@index');
+    Route::post('/search', 'ImageRecognitionController@index');
+    Route::get('/', 'ImageRecognitionController@listAllPeople')->name('imagereco.list-all-people');
+    Route::post('/', 'ImageRecognitionController@listAllPeople_result')->name('imagereco.list-all-people-result');
+    Route::get('/search/name', 'ImageRecognitionController@searchByName')->name('imagereco.search-by-name');
+    Route::post('/search/name', 'ImageRecognitionController@searchByName_result')->name('imagereco.search-by-name-result');
+});
+
+
 
 
 
