@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use function GuzzleHttp\json_encode;
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Storage;
 
 class ImageRecognitionController extends BaseController
 {
@@ -34,15 +36,15 @@ class ImageRecognitionController extends BaseController
 
     public function searchByName_result(Request $request)
     {
+        
         try {
-
             $post_request = array(
                 "request_type" => "search",
                 "request_parameters" => array(
                     "search_type" => "text",
                     "text_type" => "$request->type",
                     "search_text" => "$request->name",
-                    "search_tag" => ""
+                    "search_tag" => "$request->tag"
                 )
             );
 
@@ -83,6 +85,74 @@ class ImageRecognitionController extends BaseController
         }
 
         return view('image-recognition.search-by-name');
+    }
+
+    public function searchByImage()
+    {
+        return view('image-recognition.search-by-image');
+    }
+
+    public function searchByImage_result(Request $request)
+    {
+        $label = join('_', explode(' ', $request->name));
+        $organization = join('_', explode(' ', $request->organization));
+        $ext = explode('.', $request->file->getClientOriginalName())[1];
+
+        $image_path = "primary_collection/"."$request->tag/"."$organization/"."$label".".$ext"; 
+        $file = request()->file->getPathName();
+
+        $response = $this->UploadToS3($image_path, $file);
+        $results = array($response);
+
+        try {
+
+            $post_request = array(
+                "request_type" => "search",
+                "request_parameters" => array(
+                    "search_type" => "image",
+                    "image_path" => array($image_path),
+                    "label" => array($label)
+                    )
+                );
+
+            $url = env('IMAGE_REKO_LAMBDA_API') . '/image_lambda/search-api';
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($post_request),
+                CURLOPT_HTTPHEADER => array(
+                    "Content-Type: application/json"
+                )
+            ));
+
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+
+            curl_close($curl);
+
+            if ($err) {
+                Log::error($err);
+                abort(500);
+            }
+
+            $response_arr = json_decode($response);
+            $results = array();
+
+            foreach ($response_arr as $response) {
+                $result = ($this->GetSignedURL(env('IMAGE_REKO_S3_BUCKET'), $response));
+                array_push($results, $result);
+            }
+
+            return view('image-recognition.search-by-image')->with('results', $results);
+            } catch (\Exception $e) {
+                Log::error($e);
+                abort(500);
+            }
+
+        return view('image-recognition.search-by-image');
     }
 
     public function listAllPeople()
@@ -142,32 +212,36 @@ class ImageRecognitionController extends BaseController
         }
     }
 
-    private function UploadToS3()
-    {
+    private function UploadToS3($key, $file)
+    {   
         $S3 = S3\S3Client::factory([
             'credentials' => [
-                'key' => env('S3_IMAGE_REKO_KEY'),
-                'secret' => env('S3_IMAGE_REKO_SECRET')
+                'key' => env('IMAGE_REKO_S3_KEY'),
+                'secret' => env('IMAGE_REKO_S3_SECRET')
             ],
             'version' => 'latest',
-            'region' => env('S3_IMAGE_REKO_REGION')
+            'region' => env('IMAGE_REKO_S3_REGION')
         ]);
 
-        $key = 'primary_collection/' . request()->file->getClientOriginalName();
-
         try {
+
             $S3->putObject([
-                'Bucket' => env('S3_IMAGE_REKO_BUCKET'),
+                'Bucket' => env('IMAGE_REKO_S3_BUCKET'),
                 'Key' => $key,
-                'SourceFile' => request()->file->getPathName(),
+                'SourceFile' => $file,
                 'StorageClass' => 'REDUCED_REDUNDANCY'
             ]);
 
             $url = $this->GetSignedURL($S3, $key);
+
         } catch (S3\Exception\S3Exception $e) {
             $url = $e->getMessage();
+            echo "S3 Exception";
+            dd($url);
         } catch (\Exception $e) {
+            echo "Exception";
             $url = $e->getMessage();
+            dd($url);
         }
 
         return $url;

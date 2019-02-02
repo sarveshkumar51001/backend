@@ -12,15 +12,25 @@
     <div class="card-body" >
        <div>     
           <label for="Tag" id="" class="">Tag : </label>
-          <input id="" name="tag" type="text" value=""> 
+          <select name="tag">
+            <option selected="selected"> Select Tag </option> 
+            <option value="employee"> Employee </option> 
+            <option value="alumni"> Alumni </option>
+        </select required> 
         </div>  
           
         <div>
           <label for="Organization" id="" class="">Organization : </label>
-          <input id="" name="organization" type="text" value="">
+          <select name="organization">
+            <option selected="selected"> Select Organization </option> 
+            <option value="valedra"> Valedra </option> 
+            <option value="apeejay education society"> Apeejay Education Society </option>
+            <option value="apeejay school, sheikh sarai"> Apeejay School, Sheikh Sarai </option> 
+            <option value="apeejay school, saket"> Apeejay School, Saket </option>            
+        </select required> 
         </div>
         <div>    
-          <button id="search-btn" type="submit" class="btn btn-sm btn-primary"><i class="icon-plus"></i> &nbsp; Search</button>    
+          <button id="search-btn" type="submit" class="btn btn-sm btn-primary"><i class="icon-plus"></i> &nbsp; Show </button>    
         </div>  
     </div>
   </form>
@@ -37,12 +47,10 @@
     <div class = "card">
     	<div class="card-body">
         @foreach($peoples as $people)
-        	<img src="{{ $people }}" width = "100">
+        	<img src="{{ $people }}" width = "150">
         @endforeach
 		</div>
 	</div>
 @endif 
     
-
-
 @endsection

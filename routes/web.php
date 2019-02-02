@@ -36,10 +36,9 @@ Route::prefix('imagereco')->group(function() {
     Route::post('/', 'ImageRecognitionController@listAllPeople_result')->name('imagereco.list-all-people-result');
     Route::get('/search/name', 'ImageRecognitionController@searchByName')->name('imagereco.search-by-name');
     Route::post('/search/name', 'ImageRecognitionController@searchByName_result')->name('imagereco.search-by-name-result');
+    Route::get('/search/image', 'ImageRecognitionController@searchByImage')->name('imagereco.search-by-image');
+    Route::post('/search/image', 'ImageRecognitionController@searchByImage_result')->name('imagereco.search-by-image-result');
 });
-
-
-
 
 
 Auth::routes();
