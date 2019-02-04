@@ -24,7 +24,7 @@
                     <select name="tag">
                         <option selected="selected"> Select Tag </option>
                         <option value="Ex-Employee"> Ex-Employee </option> 
-                        <option value="Empolyee"> Employee </option> 
+                        <option value="Employee"> Employee </option> 
                         <option value="Alumni"> Alumni </option>
                     </select required>
                 </div>

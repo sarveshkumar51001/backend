@@ -94,7 +94,7 @@ class ImageRecognitionController extends BaseController
     public function searchByImage_result(Request $request)
     {
         $label = join('_', explode(' ', $request->name));
-        $organization = join('_', explode(' ', $request->organization));
+        $organization = join(' ', explode(' ', $request->organization));
         $ext = explode('.', $request->file->getClientOriginalName())[1];
 
         $image_path = "primary_collection/"."$request->tag/"."$organization/"."$label".".$ext"; 
@@ -140,6 +140,8 @@ class ImageRecognitionController extends BaseController
             $response_arr = json_decode($response);
             $results = array();
 
+            $update_results = $this->UpdatelabelsforImageSearch($label, $response_arr);
+
             foreach ($response_arr as $response) {
                 $result = ($this->GetSignedURL(env('IMAGE_REKO_S3_BUCKET'), $response));
                 array_push($results, $result);
@@ -153,6 +155,40 @@ class ImageRecognitionController extends BaseController
 
         return view('image-recognition.search-by-image');
     }
+
+    public function UpdatelabelsforImageSearch($label, $list)
+    {   
+        $post_request = array(
+                "request_type" => "update_label",
+                "request_parameters" => array(
+                    "label" => $label,
+                    "image_path_list" => $list
+                    )
+                );
+
+        $url = env('IMAGE_REKO_LAMBDA_API') . '/image_lambda/search-api';
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($post_request),
+                CURLOPT_HTTPHEADER => array(
+                    "Content-Type: application/json"
+                )
+            ));
+
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+
+            curl_close($curl);
+
+            if ($err) {
+                Log::error($err);
+                abort(500);
+            }
+    } 
 
     public function listAllPeople()
     {
