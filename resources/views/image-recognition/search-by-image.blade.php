@@ -33,7 +33,9 @@
                     <select name="organization">
                         <option selected="selected"> Select Organization </option>
                         <option value="Apeejay Education Society"> Apeejay Education Society </option> 
-                        <option value="Valedra"> Valedra </option> 
+                        <option value="Valedra"> Valedra </option>
+                        <option value="Apeejay School, Sheikh Sarai"> Apeejay School, Sheikh Sarai </option> 
+                        <option value="Apeejay School, Saket"> Apeejay School, Saket </option> 
                     </select required>
                 </div>
                 <div>     
