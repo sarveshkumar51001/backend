@@ -75,6 +75,12 @@ class CustomerController extends BaseController
 			"options": {}
 		},
 		{
+			"title": "Address",
+			"key": "address",
+			"type": "text",
+			"options": {}
+		},
+		{
 			"title": "Contact Number",
 			"key": "contact",
 			"type": "text",
@@ -87,25 +93,40 @@ class CustomerController extends BaseController
 			"options": {}
 		},
 		{
+			"title": "Relationship",
+			"key": "relationship",
+			"type": "options",
+			"options": {
+				"A": "Father",
+				"B": "Mother"
+			}
+		},
+		{
 			"title": "Spouse Name",
 			"key": "spouse_name",
 			"type": "text",
 			"options": {}
 		},
 		{
-			"title": "Date of Birth",
+			"title": " Spouse Date of Birth",
 			"key": "spouse_dob",
 			"type": "text",
 			"options": {}
 		},
 		{
-			"title": "Age",
+			"title": "Spouse Age",
 			"key": "spouse_age",
 			"type": "text",
 			"options": {}
 		},
 		{
-			"title": "Contact Number",
+			"title": "Spouse Address",
+			"key": "spouse_address",
+			"type": "text",
+			"options": {}
+		},
+		{
+			"title": "Spouse Contact Number",
 			"key": "spouse_contact",
 			"type": "text",
 			"options": {}
@@ -141,6 +162,12 @@ class CustomerController extends BaseController
 				"A": "English",
 				"B": "Hindi"
 			}
+		},
+		{
+			"title": "Children studying in Apeejay School",
+			"key": "children_aes",
+			"type": "text",
+			"options": {}
 		},
 		{
 			"title": "Highest level of education completed",
@@ -189,6 +216,12 @@ class CustomerController extends BaseController
 			}
 		},
 		{
+			"title": "Children Details",
+			"key": "children_details",
+			"type": "text",
+			"options": {}
+		},
+		{
 			"title": "Children studying in AES",
 			"key": "children_aes",
 			"type": "text",
@@ -204,8 +237,8 @@ class CustomerController extends BaseController
 					"key": "income_type",
 					"type": "options",
 					"options": {
-						"A": "Government",
-						"B": "Non-government",
+						"A": "Government Organization",
+						"B": "Non-government Organization",
 						"C": "Housewife/Husband"
 					}
 				},
@@ -216,6 +249,22 @@ class CustomerController extends BaseController
 					"options": {
 						"A": "Owned Business",
 						"B": "Partnership in Business"
+					}
+				},
+				"C": {
+					"title": "Other Source of Income",
+					"key": "income_type",
+					"type": "text",
+					"options": {}
+				},
+				"D": {
+					"title": "No Income",
+					"key": "income_type",
+					"type": "options",
+					"options": {
+						"A": "Government Organization",
+						"B": "Non-government Organization",
+						"C": "Housewife/Husband"
 					}
 				}
 			}
@@ -261,6 +310,22 @@ class CustomerController extends BaseController
 						"A": "Owned Business",
 						"B": "Partnership in Business"
 					}
+				},
+				"C": {
+					"title": "Other",
+					"key": "spouse_income_type",
+					"type": "text",
+					"options": {}
+				},
+				"D": {
+					"title": "No Income",
+					"key": "spouse_income_type",
+					"type": "options",
+					"options": {
+						"A": "Government",
+						"B": "Non-government",
+						"C": "Housewife/Husband"
+					}
 				}
 			}
 		},
@@ -271,7 +336,7 @@ class CustomerController extends BaseController
 			"options": {}
 		},
 		{
-			"title": "Profession",
+			"title": "Spouse Profession",
 			"key": "spouse_income_details",
 			"type": "options",
 			"options": {
@@ -290,31 +355,171 @@ class CustomerController extends BaseController
 		}
 	],
 	[{
-			"title": "Children Profiling",
-			"key": "children_profile",
-			"type": "locale",
+			"title": "My children are highly interested in learning new things",
+			"key": "children_profile_1",
+			"type": "options",
 			"options": {
-				"1": " I strongly agree",
-				"2": " I agree",
-				"3": " I am not sure",
-				"4": " I disagree",
-				"5": " I strongly disagree"
-			},
-			"options_locale": {
-				"children_profile_1": "My children are highly interested in learning new things.",
-				"children_profile_2": "My children take initiative to learn new things.",
-				"children_profile_3": "My children are confident about learning new things.",
-				"children_profile_4": "My children understand the importance of fitness.",
-				"children_profile_5": "My children are interested in sports.",
-				"children_profile_6": "My children are involved in school related activities apart from studies.",
-				"children_profile_7": "My children actively participate in social events and competitions.",
-				"children_profile_8": "Extracurricular/sports activities are important for children to engage into.",
-				"children_profile_9": "Extracurricular/sports activities help a children in building confidence.",
-				"children_profile_10": "Extracurricular/sports activities help children in developing a better and a strong personality.",
-				"children_profile_11": "Engaging in extracurricular/sports activities help children to a certain extent in evaluating their career options.",
-				"children_profile_12": "Engaging in extracurricular/sports activities help children in developing/improving their social and interpersonal skills.",
-				"children_profile_13": "Engaging in extracurricular/sports activities helps in bringing a sense of discipline in children.",
-				"children_profile_14": "Engaging in extracurricular/sports activities affects the academic performance of children."
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "My children take initiative to learn new things",
+			"key": "children_profile_2",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "My children are confident about learning new things",
+			"key": "children_profile_3",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "My children understand the importance of fitness",
+			"key": "children_profile_4",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "My children are interested in sports",
+			"key": "children_profile_5",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "My children are involved in school related activities apart from studies",
+			"key": "children_profile_6",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "My children actively participate in social events and competitions",
+			"key": "children_profile_7",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "Extracurricular/sports activities are important for children to engage into",
+			"key": "children_profile_8",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "Extracurricular/sports activities help a children in building confidence",
+			"key": "children_profile_9",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "Extracurricular/sports activities help children in developing a better and a strong personality",
+			"key": "children_profile_10",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "Engaging in extracurricular/sports activities help children to a certain extent in evaluating their career options",
+			"key": "children_profile_11",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "Engaging in extracurricular/sports activities help children in developing/improving their social and interpersonal skills",
+			"key": "children_profile_12",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "Engaging in extracurricular/sports activities helps in bringing a sense of discipline in children",
+			"key": "children_profile_13",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
+			}
+		},
+		{
+			"title": "Engaging in extracurricular/sports activities affects the academic performance of children",
+			"key": "children_profile_14",
+			"type": "options",
+			"options": {
+				"1": "Strongly agree",
+				"2": "Casually Agree",
+				"3": "I am not sure",
+				"4": "Disagree",
+				"5": "Strongly disagree"
 			}
 		},
 		{
@@ -369,7 +574,7 @@ class CustomerController extends BaseController
 			}
 		},
 		{
-			"title": "Aspirations for your child/children’s future education",
+			"title": "My children take initiative to learn new things",
 			"key": "children_profile_20",
 			"type": "options",
 			"options": {
@@ -394,20 +599,18 @@ class CustomerController extends BaseController
 			}
 		},
 		{
-			"title": "Foreign languages to learn",
+			"title": "Would like to send your child abroad for studies",
 			"key": "children_profile_22",
 			"type": "options",
 			"options": {
-				"A": "French",
-				"B": "Spanish",
-				"C": "German",
-				"D": "Latin"
+				"N": "No",
+				"Y": "Yes, No course specified"
 			}
 		},
 		{
 			"title": "Foreign languages to learn",
 			"key": "children_profile_23",
-			"type": "options",
+			"type": "multiple_options",
 			"options": {
 				"A": "French",
 				"B": "Spanish",
@@ -487,10 +690,37 @@ class CustomerController extends BaseController
 				"E": " 2501-2000",
 				"F": " 3001-3500"
 			}
+		},
+		{
+			"title": "Day Boarding School",
+			"key": "children_profile_26",
+			"type": "options",
+			"options": {
+				"Y": "Yes",
+				"N": "No"
+			}
+		},
+		{
+			"title": "Foreign Exchange Programs",
+			"key": "children_profile_27",
+			"type": "options",
+			"options": {
+				"Y": "Yes",
+				"N": "No"
+			}
+		},
+		{
+			"title": "Educational/Leadership Short Trips Programs",
+			"key": "children_profile_28",
+			"type": "options",
+			"options": {
+				"Y": "Yes",
+				"N": "No"
+			}
 		}
 	],
 	[{
-			"title": "Music Preference Choosen",
+			"title": "Music Preferences",
 			"key": "lifestyle_profile_1",
 			"type": "multiple_options",
 			"options": {
@@ -503,7 +733,7 @@ class CustomerController extends BaseController
 			}
 		},
 		{
-			"title": "Movie Preference Choosen",
+			"title": "Movie Preferences",
 			"key": "lifestyle_profile_2",
 			"type": "multiple_options",
 			"options": {
@@ -513,7 +743,7 @@ class CustomerController extends BaseController
 			}
 		},
 		{
-			"title": "Reading Preference Choosen",
+			"title": "Reading Preferences",
 			"key": "lifestyle_profile_3",
 			"type": "multiple_options",
 			"options": {
@@ -524,7 +754,7 @@ class CustomerController extends BaseController
 			}
 		},
 		{
-			"title": "Theatre Preference Choosen",
+			"title": "Theatre Preferences",
 			"key": "lifestyle_profile_4",
 			"type": "multiple_options",
 			"options": {
@@ -534,7 +764,7 @@ class CustomerController extends BaseController
 			}
 		},
 		{
-			"title": "Sports Preference Choosen",
+			"title": "Sports Playing Preferences",
 			"key": "lifestyle_profile_5",
 			"type": "multiple_options",
 			"options": {
@@ -548,7 +778,7 @@ class CustomerController extends BaseController
 			}
 		},
 		{
-			"title": "Only follow these sports",
+			"title": "Sports following Preferences",
 			"key": "lifestyle_profile_6",
 			"type": "options",
 			"options": {
@@ -562,7 +792,7 @@ class CustomerController extends BaseController
 			}
 		},
 		{
-			"title": "Travel Preference choosen",
+			"title": "Travel Preferences",
 			"key": "lifestyle_profile_7a",
 			"type": "options",
 			"options": {
@@ -598,15 +828,15 @@ class CustomerController extends BaseController
 			"key": "lifestyle_profile_9",
 			"type": "multiple_options",
 			"options": {
-				"A": " punjabi",
-				"B": " mughlai",
-				"C": " south indian",
-				"D": " gujrati",
-				"E": " chinese",
-				"F": " thai",
-				"G": " italian",
-				"H": " french",
-				"I": " chaat/indian snacks"
+				"A": "Punjabi",
+				"B": "Mughlai",
+				"C": "South Indian",
+				"D": "Gujrati",
+				"E": "Chinese",
+				"F": "Thai",
+				"G": "Italian",
+				"H": "French",
+				"I": "Chaat/Indian snacks"
 			}
 		},
 		{
@@ -614,9 +844,38 @@ class CustomerController extends BaseController
 			"key": "lifestyle_profile_10",
 			"type": "options",
 			"options": {
-				"Y": " Yes",
+				"Y": " Yes, but name not given",
 				"N": " No"
 			}
+		}, {
+			"title": "What are your aspirations/dreams for your child/children?",
+			"key": "paragraph_1",
+			"type": "text",
+			"options": {}
+		},
+		{
+			"title": "How do you think can schools help your child/children to achieve these aspirations/dreams?",
+			"key": "paragraph_2",
+			"type": "text",
+			"options": {}
+		},
+		{
+			"title": "What programs do you think school can offer apart from regular classes to help your child achieve these aspirations/dreams?",
+			"key": "paragraph_3",
+			"type": "text",
+			"options": {}
+		},
+		{
+			"title": "Student ID",
+			"key": "student_id",
+			"type": "text",
+			"options": {}
+		},
+		{
+			"title": "Student ID",
+			"key": "school",
+			"type": "text",
+			"options": {}
 		}
 	]
 ]
