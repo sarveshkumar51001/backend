@@ -161,7 +161,7 @@ class ImageRecognitionController extends BaseController
         $post_request = array(
                 "request_type" => "update_label",
                 "request_parameters" => array(
-                    "label" => $label,
+                    "label" => "$label",
                     "image_path_list" => $list
                     )
                 );
@@ -188,7 +188,7 @@ class ImageRecognitionController extends BaseController
                 Log::error($err);
                 abort(500);
             }
-    } 
+    }
 
     public function listAllPeople()
     {
@@ -198,7 +198,6 @@ class ImageRecognitionController extends BaseController
     public function listAllPeople_result(Request $request)
     {
         try {
-
             $post_request = array(
                 "request_type" => "list_people",
                 "request_parameters" => array(
@@ -270,13 +269,11 @@ class ImageRecognitionController extends BaseController
             $url = $this->GetSignedURL($S3, $key);
 
         } catch (S3\Exception\S3Exception $e) {
-            $url = $e->getMessage();
             echo "S3 Exception";
-            dd($url);
+            $url = $e->getMessage();
         } catch (\Exception $e) {
             echo "Exception";
             $url = $e->getMessage();
-            dd($url);
         }
 
         return $url;
