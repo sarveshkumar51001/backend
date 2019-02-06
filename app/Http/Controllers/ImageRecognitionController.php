@@ -192,11 +192,15 @@ class ImageRecognitionController extends BaseController
 
     public function listAllPeople()
     {
-        return view('image-recognition.list-all-people');
+	    $breadcrumb = ['Image Reco' => ''];
+
+	    return view('image-recognition.list-all-people', ['breadcrumb' => $breadcrumb]);
     }
 
     public function listAllPeople_result(Request $request)
     {
+	    $breadcrumb = ['Image Reco' => ''];
+
         try {
             $post_request = array(
                 "request_type" => "list_people",
@@ -232,14 +236,17 @@ class ImageRecognitionController extends BaseController
             if(array_key_exists('Message', $response_arr))
                 return view('image-recognition.list-all-people')->with('error', $response_arr->Message);
             
-            $peoples = array();
+            $peoples = [];
 
             foreach ($response_arr as $response) {
-                $people = ($this->GetSignedURL(env('IMAGE_REKO_S3_BUCKET'), $response));
-                array_push($peoples, $people);
+	            $urlChunk = explode('/', ltrim( $response, 'primary_collection/'));
+	            $people = ($this->GetSignedURL(env('IMAGE_REKO_S3_BUCKET'), $response));
+	            $name = array_pop($urlChunk);
+
+                array_push($peoples, ['avatar' => $people, 'name' => $name, 'tags' => $urlChunk]);
             }
 
-            return view('image-recognition.list-all-people')->with('peoples', $peoples);
+            return view('image-recognition.list-all-people')->with('peoples', $peoples)->with('breadcrumb', $breadcrumb);
         } catch (\Exception $e) {
             Log::error($e);
             abort(500);

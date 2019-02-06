@@ -2,40 +2,42 @@
 @section('content')
 
 <div class = "card">
-  <div class="card-header">
-            <i class="fa fa-edit"></i> Peoples
-  </div>
+    <div class="card-header">
+      <i class="fa fa-user"></i> List Key Peoples
+    </div>
 
     <div class="card-body">
-       <form enctype="multipart/form-data" method="post" action="{{ route('imagereco.list-all-people-result')}}" id="add-convention-form" >
-  	@csrf
-    <div class="card-body" >
-       <div>     
-          <label for="Tag" id="" class="">Tag : </label>
-          <select name="tag">
-            <option selected="selected"> Select Tag </option> 
-            <option value="employee"> Employee </option> 
-            <option value="alumni"> Alumni </option>
-        </select required> 
-        </div>  
-          
-        <div>
-          <label for="Organization" id="" class="">Organization : </label>
-          <select name="organization">
-            <option selected="selected"> Select Organization </option> 
-            <option value="valedra"> Valedra </option> 
-            <option value="apeejay education society"> Apeejay Education Society </option>
-            <option value="apeejay school, sheikh sarai"> Apeejay School, Sheikh Sarai </option> 
-            <option value="apeejay school, saket"> Apeejay School, Saket </option>            
-        </select required> 
-        </div>
-        <div>    
-          <button id="search-btn" type="submit" class="btn btn-sm btn-primary"><i class="icon-plus"></i> &nbsp; Show </button>    
-        </div>  
+        <form enctype="multipart/form-data" method="post" action="{{ route('imagereco.list-all-people-result')}}" id="add-convention-form" >
+            @csrf
+            <div class="row">
+                <div class="form-group col-md-4">
+                    <label class="col-form-label" for="inputSuccess1">Organization</label>
+                    <select name="organization" class="form-control" required>
+                        <option selected="selected"> Select Organization </option>
+                        <option value="valedra"> Valedra </option>
+                        <option value="apeejay education society"> Apeejay Education Society </option>
+                        <option value="apeejay school, sheikh sarai"> Apeejay School, Sheikh Sarai </option>
+                        <option value="apeejay school, saket"> Apeejay School, Saket </option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="col-form-label" for="inputSuccess1">Tag</label>
+                    <select name="tag" class="form-control" required>
+                        <option selected="selected"> Select Tag </option>
+                        <option value="employee"> Employee </option>
+                        <option value="alumni"> Alumni </option>
+                    </select>
+                </div>
+                <div class="col-sm-3 pull-right">
+                    <label>&nbsp;</label>
+                    <div class="input-group">
+                        <button id="search-btn" type="submit" class="btn btn-lg btn-success"> &nbsp; Show </button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
-  </form>
-  
-  @if(!empty($error))
+@if(!empty($error))
       <div class = "card">
     	<div class="card-body">
     	 {{ $error }}
@@ -46,9 +48,21 @@
 @if(!empty($peoples))
     <div class = "card">
     	<div class="card-body">
-        @foreach($peoples as $people)
-        	<img src="{{ $people }}" width = "150">
-        @endforeach
+            <div class="alert alert-success" role="alert">Search result:</div>
+            @foreach($peoples as $people)
+                <div class="row col-md-12">
+                    <strong>#{{ $loop->index+1 }}</strong>
+                    <div class="col-md-4">
+                        <img src="{{ $people['avatar'] }}" class="img-avatar" width="125">
+                    </div>
+                    <div class="col-md-6">
+                        Name: {{ $people['name'] }}
+                        @foreach($people['tags'] as $tag)
+                            <span class="badge">{{ $tag }}</span>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
 		</div>
 	</div>
 @endif 
