@@ -1,10 +1,11 @@
 @extends('admin.app')
 @section('content')
-
 <div class = "card">
     <div class="card-header">
       <i class="fa fa-user"></i> List Key Peoples
     </div>
+
+    @php  extract(request()->all()); @endphp
 
     <div class="card-body">
         <form enctype="multipart/form-data" method="post" action="{{ route('imagereco.list-all-people-result')}}" id="add-convention-form" >
@@ -14,18 +15,18 @@
                     <label class="col-form-label" for="inputSuccess1">Organization</label>
                     <select name="organization" class="form-control" required>
                         <option selected="selected"> Select Organization </option>
-                        <option value="valedra"> Valedra </option>
-                        <option value="apeejay education society"> Apeejay Education Society </option>
-                        <option value="apeejay school, sheikh sarai"> Apeejay School, Sheikh Sarai </option>
-                        <option value="apeejay school, saket"> Apeejay School, Saket </option>
+                        <option value="valedra" @if($organization == 'valedra') selected @endif> Valedra </option>
+                        <option value="apeejay education society" @if($organization == 'apeejay education society') selected @endif> Apeejay Education Society </option>
+                        <option value="apeejay school, sheikh sarai" @if($organization == 'apeejay school, sheikh sarai') selected @endif> Apeejay School, Sheikh Sarai </option>
+                        <option value="apeejay school, saket" @if($organization == 'apeejay school, saket') selected @endif> Apeejay School, Saket </option>
                     </select>
                 </div>
                 <div class="form-group col-md-4">
-                    <label class="col-form-label" for="inputSuccess1">Tag</label>
+                    <label class="col-form-label" for="inputSuccess1">Type</label>
                     <select name="tag" class="form-control" required>
-                        <option selected="selected"> Select Tag </option>
-                        <option value="employee"> Employee </option>
-                        <option value="alumni"> Alumni </option>
+                        <option selected="selected"> Select Type </option>
+                        <option value="employee" @if($tag == 'employee') selected @endif> Employee </option>
+                        <option value="alumni" @if($tag == 'alumni') selected @endif> Alumni </option>
                     </select>
                 </div>
                 <div class="col-sm-3 pull-right">
@@ -48,21 +49,26 @@
 @if(!empty($peoples))
     <div class = "card">
     	<div class="card-body">
-            <div class="alert alert-success" role="alert">Search result:</div>
-            @foreach($peoples as $people)
-                <div class="row col-md-12">
-                    <strong>#{{ $loop->index+1 }}</strong>
-                    <div class="col-md-4">
-                        <img src="{{ $people['avatar'] }}" class="img-avatar" width="125">
+            <h4>Search Result:</h4>
+            <div class="row">
+                @foreach($peoples as $people)
+                    <div class="col-md-3 mb-4">
+                        <div class="col-md-5">
+                            <img src="{{ $people['avatar'] }}" class="img-avatar" width="125">
+                        </div>
+                        <div class="col-md-7">
+                            <div><strong>#{{ $loop->index+1 }}</strong> &nbsp;{{ $people['name'] }}</div>
+                            <div class="small text-muted">
+                                <span>Tags: </span>
+                                @foreach($people['tags'] as $tag)
+                                    <span class="badge">{{ $tag }}</span> @if(!$loop->last)|@endif
+                                @endforeach
+                            </div>
+
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        Name: {{ $people['name'] }}
-                        @foreach($people['tags'] as $tag)
-                            <span class="badge">{{ $tag }}</span>
-                        @endforeach
-                    </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
 		</div>
 	</div>
 @endif 

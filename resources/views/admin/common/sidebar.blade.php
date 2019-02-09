@@ -32,7 +32,7 @@
                 <ul class="nav-dropdown-items">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('imagereco.list-all-people') }}"><i class="fa fa-search"></i>List People</a>
-                        <a class="nav-link" href="{{ URL::to('/imagereco/search') }}"><i class="fa fa-search"></i>By image</a>
+                        <a class="nav-link" href="{{ route('imagereco.search-by-image') }}"><i class="fa fa-search"></i>By image</a>
                         <a class="nav-link" href="{{ route('imagereco.search-by-name') }}"><i class="fa fa-search"></i>By Name</a>
                     </li>
                 </ul>

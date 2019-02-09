@@ -11,26 +11,14 @@ use Illuminate\Support\Facades\Storage;
 
 class ImageRecognitionController extends BaseController
 {
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        $url = '';
-        if (request()->isMethod('post')) {
-            $url = $this->UploadToS3();
-        }
+	/**
+	 * @see /imagereco/search/name
+	 * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+	 */
+    public function searchByName() {
+	    $breadcrumb = ['Image Reco - Search by name' => ''];
 
-        return view('image-recognition.search-by-image', [
-            'url_to_file' => $url
-        ]);
-    }
-
-    public function searchByName()
-    {
-        return view('image-recognition.search-by-name');
+	    return view('image-recognition.search-by-name', ['breadcrumb' => $breadcrumb]);
     }
 
     public function searchByName_result(Request $request)
@@ -86,11 +74,21 @@ class ImageRecognitionController extends BaseController
         return view('image-recognition.search-by-name');
     }
 
-    public function searchByImage()
-    {
-        return view('image-recognition.search-by-image');
+	/**
+	 * @see /imagereco/search/image
+	 * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+	 */
+    public function searchByImage() {
+	    $breadcrumb = ['Image Reco - Search by image' => ''];
+
+	    return view('image-recognition.search-by-image', ['breadcrumb' => $breadcrumb]);
     }
 
+	/**
+	 * @param Request $request
+	 *
+	 * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+	 */
     public function searchByImage_result(Request $request)
     {
         $label = join('_', explode(' ', $request->name));
@@ -190,15 +188,13 @@ class ImageRecognitionController extends BaseController
             }
     }
 
-    public function listAllPeople()
-    {
-	    $breadcrumb = ['Image Reco' => ''];
+    public function listAllPeople() {
+	    $breadcrumb = ['Image Reco - List key people' => ''];
 
 	    return view('image-recognition.list-all-people', ['breadcrumb' => $breadcrumb]);
     }
 
-    public function listAllPeople_result(Request $request)
-    {
+    public function listAllPeople_result(Request $request) {
 	    $breadcrumb = ['Image Reco' => ''];
 
         try {
@@ -209,7 +205,6 @@ class ImageRecognitionController extends BaseController
                     "list_organization" => "$request->organization"
                 )
             );
-
             
             $url = env('IMAGE_REKO_LAMBDA_API') . '/image_lambda/search-api';
             $curl = curl_init();

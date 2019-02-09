@@ -25,7 +25,7 @@
       </div>  
           
       <div>
-        <label for="Tag" id="" class=""> Search By Tag : </label>
+        <label for="Tag" id="" class=""> Search By Keywords : </label>
         <input id="" name="tag" type="text" value="{{ old('name') }}">
       </div>
 

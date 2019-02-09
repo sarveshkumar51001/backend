@@ -31,7 +31,7 @@ class SocialAuthGoogleController extends Controller
 			return redirect()->to('/home');
 		}
 		catch (Exception $e) {
-			return 'There was some error handling the request';
+			return 'There was some error handling the request. Error:' . $e->getMessage();
 		}
 	}
 }

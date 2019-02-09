@@ -7,92 +7,112 @@
         <form enctype="multipart/form-data" method="post" action="{{ route('imagereco.search-by-image-result')}}" id="add-convention-form" >
             @csrf
             <div class="card-body">
-                <div>     
-                    <label for="Name" id="" class=""> Name : </label>   
-                    <input id="" name="name" type="text" value="" required> 
-                </div>
-                <div>     
-                    <label for="Contact" id="" class=""> Phone Number : </label>
-                    <input id="" name="contact" type="mumber" value="" size ="10" required>
-                </div>
-                <div>     
-                    <label for="Email" id="" class=""> Email ID : </label>
-                    <input type="email" id="email" pattern=".+@gmail.com" size="50" required>
-                </div>
-                <div>     
-                    <label for="Tag" id="" class=""> Tag : </label>
-                    <select name="tag">
-                        <option selected="selected"> Select Tag </option>
-                        <option value="Ex-Employee"> Ex-Employee </option> 
-                        <option value="Employee"> Employee </option> 
-                        <option value="Alumni"> Alumni </option>
-                    </select required>
-                </div>
-                <div>     
-                    <label for="Organization" id="" class=""> Organization : </label>
-                    <select name="organization">
-                        <option selected="selected"> Select Organization </option>
-                        <option value="Apeejay Education Society"> Apeejay Education Society </option> 
-                        <option value="Valedra"> Valedra </option>
-                        <option value="Apeejay School, Sheikh Sarai"> Apeejay School, Sheikh Sarai </option> 
-                        <option value="Apeejay School, Saket"> Apeejay School, Saket </option> 
-                    </select required>
-                </div>
-                <div>     
-                    <label for="Passout Year" id="" class=""> Passout Year : </label>
-                    <input id="" name="passout_year" type="text" value="" > 
-                </div>
-                <div>     
-                    <label for="Passout Class" id="" class=""> Passout Class : </label>
-                    <input id="" name="passout_class" type="text" value="" > 
-                </div>
-                <div>     
-                    <label for="Joining Year" id="" class=""> Joining Year : </label>
-                    <input id="" name="joining_year" type="text" value="" > 
-                </div>
-                <div>     
-                    <label for="Leaving Year" id="" class=""> Leaving Year : </label>
-                    <input id="" name="leaving_year" type="text" value="" > 
-                </div>
-                <div>     
-                    <label for="Profession" id="" class=""> Profession : </label>
-                    <input id="" name="profession" type="text" value="" required> 
-                </div>
-                <div>     
-                    <label for="Designation" id="" class=""> Designation : </label>
-                    <input id="" name="designation" type="text" value="" > 
-                </div>
-                <div>     
-                    <label for="City" id="" class=""> Current City : </label>
-                    <input id="" name="city" type="text" value="" > 
-                </div>
-
-                <div class="row">
-                    <div class="col-sm-3">
-                        <div class="form-group">
-                            <label >Upload Picture : </label>
-                            <input id="file" name="file" type = "file" class="form-control form-control-sm">
-                            <i id="error-file" class="error text-danger d-none"></i>
-                        </div>
-                    </div>
-                </div>
-
                 @if(!empty($url_to_file))
                     Image uploaded
                     <a href="{{$url_to_file}}" target="_blank"> Click to download image </a>
                 @endif
-                <button id="bulk-upload-btn" type="submit" class="btn btn-sm btn-primary"><i class="icon-plus"></i> &nbsp; Search </button>
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label class="col-form-label" for="inputSuccess1">Type <i style="color: red;">*</i></label>
+                        <select name="tag" class="form-control" required>
+                            <option selected="selected"> Select Type </option>
+                            <option value="Ex-Employee"> Ex-Employee </option>
+                            <option value="Employee"> Employee </option>
+                            <option value="Alumni"> Alumni </option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label class="col-form-label" for="inputSuccess1">Organization <i style="color: red;">*</i></label>
+                        <select name="organization" class="form-control" required>
+                            <option selected="selected"> Select Organization </option>
+                            <option value="Valedra"> Valedra </option>
+                            <option value="apeejay education society"> Apeejay Education Society </option>
+                            <option value="apeejay school, sheikh sarai"> Apeejay School, Sheikh Sarai </option>
+                            <option value="apeejay school, saket"> Apeejay School, Saket </option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label class="col-form-label" for="inputSuccess1">Name <i style="color: red;">*</i></label>
+                        <input name="name" type="text" value="" class="form-control" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label class="col-form-label" for="inputSuccess1">Upload Picture <i style="color: red;">*</i></label>
+                        <input id="file" name="file" type = "file" class="form-control form-control-sm">
+                        <i id="error-file" class="error text-danger d-none"></i>
+                    </div>
+                </div>
+                </hr>
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label class="col-form-label">Phone Number</label>
+                        <input id="phone" name="contact" type="mumber" value="" class="form-control">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="col-form-label">Email ID</label>
+                        <input name="email" type="email" id="email" pattern=".+@gmail.com" class="form-control">
+                    </div>
+
+                    <div class="form-group col-md-3 mt-4">
+                        <div class="input-group">
+                            <button id="search-btn" type="submit" class="btn btn-lg btn-success"> Search </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card d-none" id="alumni-data">
+                    <div class="card-header">
+                        Alumni details
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label class="col-form-label" for="inputSuccess1">Passout year</label>
+                                <input name="passout_year" type="text" value="" class="form-control">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="col-form-label">Passout Class</label>
+                                <input name="passout_class" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card d-none" id="employee-data">
+                    <div class="card-header">
+                        Employee details
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-md-3">
+                                <label class="col-form-label" for="inputSuccess1">Professions</label>
+                                <input name="profession" type="text" value="" class="form-control">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label class="col-form-label">Designation</label>
+                                <input name="designation" type="text" class="form-control">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label class="col-form-label">Current City</label>
+                                <input name="city" type="text" class="form-control">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label class="col-form-label" for="inputSuccess1">Leaving Year</label>
+                                <input name="leaving_year" type="text" value="" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </form>
     </div>
 
-@if(!empty($results))
-<div class = "card">
-<div class="card-body" >
-@foreach($results as $result)
-    <img src="{{ $result }}" width = "100">
-@endforeach
-
-@endif
-</div></div>
+    @if(!empty($results))
+        <div class = "card">
+            <div class="card-body">
+                <h4>Search Result:</h4>
+                @foreach($results as $result)
+                    <img src="{{ $result }}" width = "100">
+                @endforeach
+            </div>
+        </div>
+    @endif
 @endsection
