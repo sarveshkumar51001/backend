@@ -15,18 +15,18 @@
                     <label class="col-form-label" for="inputSuccess1">Organization</label>
                     <select name="organization" class="form-control" required>
                         <option selected="selected"> Select Organization </option>
-                        <option value="valedra" @if($organization == 'valedra') selected @endif> Valedra </option>
-                        <option value="apeejay education society" @if($organization == 'apeejay education society') selected @endif> Apeejay Education Society </option>
-                        <option value="apeejay school, sheikh sarai" @if($organization == 'apeejay school, sheikh sarai') selected @endif> Apeejay School, Sheikh Sarai </option>
-                        <option value="apeejay school, saket" @if($organization == 'apeejay school, saket') selected @endif> Apeejay School, Saket </option>
+                        <option value="valedra" @if(!empty($organization) && $organization == 'valedra') selected @endif> Valedra </option>
+                        <option value="apeejay education society" @if(!empty($organization) && $organization == 'apeejay education society') selected @endif> Apeejay Education Society </option>
+                        <option value="apeejay school, sheikh sarai" @if(!empty($organization) && $organization == 'apeejay school, sheikh sarai') selected @endif> Apeejay School, Sheikh Sarai </option>
+                        <option value="apeejay school, saket" @if(!empty($organization) && $organization == 'apeejay school, saket') selected @endif> Apeejay School, Saket </option>
                     </select>
                 </div>
                 <div class="form-group col-md-4">
                     <label class="col-form-label" for="inputSuccess1">Type</label>
                     <select name="tag" class="form-control" required>
                         <option selected="selected"> Select Type </option>
-                        <option value="employee" @if($tag == 'employee') selected @endif> Employee </option>
-                        <option value="alumni" @if($tag == 'alumni') selected @endif> Alumni </option>
+                        <option value="employee" @if(!empty($tag) && $tag == 'employee') selected @endif> Employee </option>
+                        <option value="alumni" @if(!empty($tag) && $tag == 'alumni') selected @endif> Alumni </option>
                     </select>
                 </div>
                 <div class="col-sm-3 pull-right">
