@@ -31,6 +31,20 @@ class CustomerController extends BaseController
 										'orders' => $orders]);
 	}
 
+	public function regenerate_rec($id, $customer_id) {
+		$customer = Customer::find($id);
+		if ($customer->customer_id  != $customer_id) {
+			return view('admin.404');
+		}
+
+		$command = escapeshellcmd('/usr/bin/python3 /home/bitnami/mlrs/recommendation_scripts/Combined/recommendation_script.py ' . $customer->customer_id);
+		shell_exec($command);
+
+		\Session::flash('message', 'Recommendation regenerated successfully!');
+
+		return redirect('/customers/'.$id);
+	}
+
     public function profiler() {
 	    $data = \DB::collection('customer_profiler_data')->get();
 	    $breadcrumb = ['Customers profiler result' => ''];

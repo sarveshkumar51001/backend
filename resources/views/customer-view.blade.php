@@ -66,8 +66,14 @@
             <div class="card">
                 <div class="card-header">
                     <i class="icon-list"></i>Recommended products
+                    <div class="pull-right">
+                        <a href="/customers/{{$customer->id}}/regenerate_rec/{{$customer->customer_id}}"><button style="padding-left: 5px;" class="btn-primary btn-success"><i class="fa fa-refresh"></i> &nbsp;Regenerate recommendation</button></a>
+                    </div>
                 </div>
                 <div class="card-body">
+                    @if(Session::has('message'))
+                        <p class="alert {{ Session::get('alert-class', 'alert-success') }}">{{ Session::get('message') }}</p>
+                    @endif
                     <table class="table table-responsive-sm table-hover table-outline mb-0">
                         <thead class="thead-light">
                         <tr>

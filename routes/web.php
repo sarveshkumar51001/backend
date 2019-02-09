@@ -23,6 +23,7 @@ Route::get('/orders/create', 'OrderController@create');
 Route::post('/orders/create', 'OrderController@create');
 Route::get('/orders/update', 'OrderController@update');
 Route::get('/customers', 'CustomerController@index');
+Route::get('/customers/{id}/regenerate_rec/{customer_id}', 'CustomerController@regenerate_rec');
 Route::get('/customers/profiler', 'CustomerController@profiler');
 Route::get('/customers/profiler/{id}', 'CustomerController@profiler_response');
 Route::get('/customers/{id}', 'CustomerController@view');
