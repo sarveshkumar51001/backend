@@ -13,8 +13,8 @@
                 @endif
                 <div class="row">
                     <div class="form-group col-md-3">
-                        <label class="col-form-label" for="inputSuccess1">Type <i style="color: red;">*</i></label>
-                        <select name="tag" class="form-control" required>
+                        <label class="col-form-label" for="inputSuccess1" >Type <i style="color: red;">*</i></label>
+                        <select name="tag" class="form-control" required id="select-type">
                             <option selected="selected"> Select Type </option>
                             <option value="Ex-Employee"> Ex-Employee </option>
                             <option value="Employee"> Employee </option>
@@ -115,4 +115,18 @@
             </div>
         </div>
     @endif
+@endsection
+
+@section('footer-js')
+    <script>
+        $('#select-type').on('change', function() {
+           if(this.value == 'Employee' || this.value == 'Ex-Employee') {
+               $('#alumni-data').addClass('d-none');
+               $('#employee-data').removeClass('d-none');
+           } else if(this.value == 'Alumni') {
+               $('#alumni-data').removeClass('d-none');
+               $('#employee-data').addClass('d-none');
+           }
+        });
+    </script>
 @endsection

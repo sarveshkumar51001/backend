@@ -32,7 +32,7 @@
                 <div class="col-sm-3 pull-right">
                     <label>&nbsp;</label>
                     <div class="input-group">
-                        <button id="search-btn" type="submit" class="btn btn-lg btn-success"> &nbsp; Show </button>
+                        <button id="search-btn" type="submit" class="btn btn-lg btn-success"> &nbsp; Search </button>
                     </div>
                 </div>
             </div>
