@@ -26,9 +26,9 @@
                         <select name="organization" class="form-control" required>
                             <option selected="selected"> Select Organization </option>
                             <option value="Valedra"> Valedra </option>
-                            <option value="Apeejay education society"> Apeejay Education Society </option>
-                            <option value="Apeejay school, sheikh sarai"> Apeejay School, Sheikh Sarai </option>
-                            <option value="Apeejay school, saket"> Apeejay School, Saket </option>
+                            <option value="Apeejay Education Society"> Apeejay Education Society </option>
+                            <option value="Apeejay School, Sheikh Sarai"> Apeejay School, Sheikh Sarai </option>
+                            <option value="Apeejay School, Saket"> Apeejay School, Saket </option>
                         </select>
                     </div>
                     <div class="form-group col-md-3">
