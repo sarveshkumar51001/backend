@@ -86,9 +86,7 @@ class ImageRecognitionController extends BaseController
 
 	/**
 	 * @param Request $request
-	 *
-	 * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
-	 */
+	 * * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View */
     public function searchByImage_result(Request $request)
     {
         $label = join('_', explode(' ', $request->name));
@@ -97,7 +95,7 @@ class ImageRecognitionController extends BaseController
 
         $image_path = "primary_collection/"."$request->tag/"."$organization/"."$label".".$ext"; 
         $file = request()->file->getPathName();
-
+        echo $file;
         $response = $this->UploadToS3($image_path, $file);
         $results = array($response);
 

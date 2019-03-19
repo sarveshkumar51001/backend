@@ -15,6 +15,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ URL::to('/orders') }}"><i class="fa fa-sitemap"></i>Orders</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('bulkupload.ShopifyBulkUpload') }}"><i class="fa fa-upload"></i>Bulk Upload</a>
+                </li>
             </ul>
         </li>
         <li class="nav-title">Customer profiler</li>
@@ -37,6 +40,7 @@
                     </li>
                 </ul>
             </li>
+        </li>
         </li>
     </ul>
 </nav>

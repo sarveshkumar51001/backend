@@ -177,6 +177,7 @@ return [
 	    Oseintow\Shopify\ShopifyServiceProvider::class,
 
 	    Jenssegers\Mongodb\MongodbServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class
     ],
 
     /*
@@ -230,6 +231,7 @@ return [
         'Shopify' => Oseintow\Shopify\Facades\Shopify::class,
 
         'Moloquent' => Jenssegers\Mongodb\Eloquent\Model::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class
 
     ],
 
