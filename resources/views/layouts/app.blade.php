@@ -3,7 +3,6 @@
 @section('header')
     @include('admin.common.header')
 @endsection
-
 @section('body')
     <div class="sidebar">
         @include('admin.common.sidebar')

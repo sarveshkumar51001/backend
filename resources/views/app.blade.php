@@ -82,12 +82,10 @@
 <div class="app-body">
     @yield('body')
 </div>
-
 <!-- Footer -->
 <footer class="app-footer">
     @yield('footer')
 </footer>
-
 <!-- Bootstrap and necessary plugins -->
 <script src="{{ URL::asset('vendors/js/jquery.min.js') }}"></script>
 <script src="{{ URL::asset('vendors/js/popper.min.js') }}"></script>
