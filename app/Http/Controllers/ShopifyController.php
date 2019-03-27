@@ -32,16 +32,26 @@ class ShopifyController extends BaseController
             $shopify_data = Excel::load($path, function ($reader) {
             })->get()->first();
 
-            $index = 1;
+            $errored_data = [];
+            $excel_response = [];
             foreach ($shopify_data as $data) {
                 $data = $data->toArray();
-                $excel_read_response = $this->data_validate($data);
-                if (!empty($excel_read_response))
-                    $excel_read_response['row_number'] = $index;
-                    print_r($excel_read_response);
-                    $index++;
-                    return view('review_excel')->with('response',$excel_read_response);
+
+                if (array_filter($data)) {
+                    $excel_read_response = $this->data_validate($data);
+
+                    if (!empty($excel_read_response)) {
+                        $errored_data[] = $data;
+                        $excel_response[] =  $excel_read_response;
+                        logger($excel_response);
+                    }
+                    else {
+                        \DB::table('shopify_excel_upload')->insert($data);
+                    }
+                }
             }
+//            dd($errored_data);
+            return view('bulkupload-preview')->with('errored_data',$errored_data)->with('excel_response',$excel_response);
         }
 
 
@@ -64,6 +74,21 @@ class ShopifyController extends BaseController
         return $validator->getMessageBag()->toArray();
 
     }
+
+    private function create_customer()
+    {
+
+
+    }
+
+    private function create_order()
+    {
+
+
+
+    }
+
+
 }
 
 
@@ -85,18 +110,22 @@ class ShopifyController extends BaseController
 
 
 
-//            $excel_info = \DB::table('shopify_excel_upload')->get();
-//        dd($excel_info);
 
 
-        //                if (!empty($data["school_enrolment_no"])) {
-////                    \DB::table('shopify_excel_upload')->insert($data);
-//                    return view('orders-bulk-upload')->with('success','Excel sheet uploaded successfully');
-//                } elseif(empty($data["school_enrolment_no"])){
-//                    return view('orders-bulk-upload')->with('error','Error while uploading.Please check your file and upload again');
-//                }
-//            }
-//        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -40,7 +40,7 @@ Route::prefix('imagereco')->group(function() {
 });
 Route::prefix('bulkupload')->group(function() {
 	Route::get('/', 'ShopifyController@ShopifyBulkUpload')->name('bulkupload.ShopifyBulkUpload');
-	Route::post('/', 'ShopifyController@ShopifyBulkUpload_result')->name('bulkupload.ShopifyBulkUpload_result');
+	Route::post('/preview', 'ShopifyController@ShopifyBulkUpload_result')->name('bulkupload.ShopifyBulkUpload-result');
 });
 
 Auth::routes();

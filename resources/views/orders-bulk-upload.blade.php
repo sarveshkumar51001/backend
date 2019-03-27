@@ -5,7 +5,7 @@
             <i class="fa fa-edit"></i> Shopify Bulk Upload 
         </div>
         <div class="card-body">
-            <form method="POST" action="/bulkupload" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('bulkupload.ShopifyBulkUpload-result') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group row"><label for="date" class="col-md-4 col-form-label text-md-right">Date</label>
                     <div class="col-md-6">
