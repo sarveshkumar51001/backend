@@ -5,6 +5,13 @@
             <i class="fa fa-edit"></i> Shopify Bulk Upload<a href="{{ URL::asset('shopify/sample_file.xlsx') }}"><button style='margin-left:700px' class="btn-info"><i class="fa fa-download"></i> Download sample file</button></a>
         </div>
         <div class="card-body">
+            <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">
+                    <div class="alert alert-success">
+                    <?php echo $message; ?>
+                    </div>
+                </div>
+            </div>
             <form method="POST" action="{{ route('bulkupload.ShopifyBulkUpload-result') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group row"><label for="date" class="col-md-4 col-form-label text-md-right">Date</label>

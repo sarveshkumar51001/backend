@@ -53,7 +53,8 @@ class ShopifyController extends BaseController
                 return view('bulkupload-preview')->with('errored_data',$errored_data)->with('excel_response',$excel_response);
             }
             else{
-                return view('orders-bulk-upload');
+                $message='Thank You!Your file was successfully uploaded.';
+                return view('orders-bulk-upload')->with('message',$message);
             }
         }
         return view('orders-bulk-upload');
