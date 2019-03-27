@@ -2,7 +2,7 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <i class="fa fa-edit"></i> Shopify Bulk Upload 
+            <i class="fa fa-edit"></i> Shopify Bulk Upload<a href="{{ URL::asset('shopify/sample_file.xlsx') }}"><button style='margin-left:700px' class="btn-info"><i class="fa fa-download"></i> Download sample file</button></a>
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('bulkupload.ShopifyBulkUpload-result') }}" enctype="multipart/form-data">
@@ -33,9 +33,10 @@
                         <input id="name" type="text" name="online-total" required="required" autofocus="autofocus" class="form-control">
                     </div>
                 </div>
-                <div class="form-group row mb-0"><div class="col-md-6 offset-md-4"><button type="submit" class="btn btn-success">
-                            Save
-                        </button></div></div>
+                <div class="form-group row mb-0"><div class="col-md-6 offset-md-4"><button style='margin-right:130px' type="submit" class="btn btn-success">
+                            Submit
+                        </button></div>
+                </div>
             </form>
         </div>
     </div>

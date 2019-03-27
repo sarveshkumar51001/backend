@@ -1,6 +1,8 @@
 @extends('admin.app')
 @section('content')
-    <div class = "card">
+    <div class ="body">
+    <p style = "font-weight:bold">Following rows of your excel file are erroneous. Please correct before submitting again.</p>
+        <div class = "card">
         <table class="table table-striped table-bordered table-responsive">
             <thead>
             <tr>
@@ -21,5 +23,6 @@
             @endforeach
             </tbody>
             </table>
+    </div>
     </div>
 @endsection
