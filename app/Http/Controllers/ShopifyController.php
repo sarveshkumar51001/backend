@@ -42,13 +42,13 @@ class ShopifyController extends BaseController
 
                     if (!empty($excel_read_response)) {
                         $errored_data[] = $data;
-                        $excel_response[] =  $excel_read_response;
-                    }
-                    else {
-                        \DB::table('shopify_excel_upload')->insert($data);
+                        $excel_response[] = $excel_read_response;
+                    } else {
+//                        \DB::table('shopify_excel_upload')->insert($data);
                     }
                 }
             }
+        }
             if (!empty($errored_data)){
                 return view('bulkupload-preview')->with('errored_data',$errored_data)->with('excel_response',$excel_response);
             }
@@ -56,7 +56,6 @@ class ShopifyController extends BaseController
                 $message='Thank You!Your file was successfully uploaded.';
                 return view('orders-bulk-upload')->with('message',$message);
             }
-        }
         return view('orders-bulk-upload');
     }
 
