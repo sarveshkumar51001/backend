@@ -23,6 +23,29 @@ class ShopifyController extends BaseController
 
     public function ShopifyBulkUpload_result(Request $request)
     {
+        $client = new Client();
+        $api_key = env('SHOPIFY_APIKEY');
+        $api_pass = env('SHOPIFY_PASSWORD');
+        $api_store = env('SHOPIFY_STORE');
+        $url =sprintf("https://%s:%s@%s.myshopify.com/admin/orders.json",$api_key,$api_pass,$api_store);
+        $orderdata = array(
+            'order' => array(
+                'line_items' => array(
+                    0 => array(
+                        'title' => 'Trip to Amsterdam',
+                        'quantity' => 1,
+                        'variant_id' => 'EDS-AMS',
+                        'vendor'=>'Valedra',
+                        'product_id'=>9043955845
+                    ),
+                )
+            )
+        );
+        var_dump($orderdata);
+        $order_data = json_encode($orderdata);
+        $request = $client->post($url,['form_params'=>$order_data]);
+        $response = $request->getBody()->getContents();
+        print_r($response);
 
         if ($request->file('file')) {
 
@@ -44,11 +67,11 @@ class ShopifyController extends BaseController
                         $errored_data[] = $data;
                         $excel_response[] = $excel_read_response;
                     } else {
+                        $data['upload_date']= $request['date'];
 //                        \DB::table('shopify_excel_upload')->insert($data);
                     }
                 }
-            }
-        }
+            }        }
             if (!empty($errored_data)){
                 return view('bulkupload-preview')->with('errored_data',$errored_data)->with('excel_response',$excel_response);
             }
@@ -78,17 +101,44 @@ class ShopifyController extends BaseController
 
     private function create_customer()
     {
+        $client = new Client();
+        $api_key = env('SHOPIFY_APIKEY');
+        $api_pass = env('SHOPIFY_PASSWORD');
+        $api_store = env('SHOPIFY_STORE');
+        $url =sprintf("https://%s:%s@%s.myshopify.com/admin/customers.json",$api_key,$api_pass,$api_store);
+        $request = $client->post($url);
+        $response = $request->getBody()->getContents();
+        print_r($response);
 
 
     }
 
-    private function create_order()
+    public function create_order()
     {
+        $client = new Client();
+        $api_key = env('SHOPIFY_APIKEY');
+        $api_pass = env('SHOPIFY_PASSWORD');
+        $api_store = env('SHOPIFY_STORE');
+        $url =sprintf("https://%s:%s@%s.myshopify.com/admin/orders.json",$api_key,$api_pass,$api_store);
+        $orderdata = array(
+            'order' => array(
+                'line_items' => array(
+                    0 => array(
+                        'title' => 'Trip to Amsterdam',
+                        'quantity' => 1,
+                        'variant_id' => 'EDS-AMS',
+                        'vendor'=>'Valedra',
+                        'product_id'=>9043955845
+                    ),
+                )
+            )
+        );
+        $request = $client->post($url);
+        $response = $request->getBody()->getContents();
+        print_r($response);
 
-
-
+        return $response;
     }
-
 
 }
 
