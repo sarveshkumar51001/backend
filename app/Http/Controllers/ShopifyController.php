@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Input;
+use PHPShopify;
 
 class ShopifyController extends BaseController
 {
@@ -23,30 +24,6 @@ class ShopifyController extends BaseController
 
     public function ShopifyBulkUpload_result(Request $request)
     {
-        $client = new Client();
-        $api_key = env('SHOPIFY_APIKEY');
-        $api_pass = env('SHOPIFY_PASSWORD');
-        $api_store = env('SHOPIFY_STORE');
-        $url =sprintf("https://%s:%s@%s.myshopify.com/admin/orders.json",$api_key,$api_pass,$api_store);
-        $orderdata = array(
-            'order' => array(
-                'line_items' => array(
-                    0 => array(
-                        'title' => 'Trip to Amsterdam',
-                        'quantity' => 1,
-                        'variant_id' => 'EDS-AMS',
-                        'vendor'=>'Valedra',
-                        'product_id'=>9043955845
-                    ),
-                )
-            )
-        );
-        var_dump($orderdata);
-        $order_data = json_encode($orderdata);
-        $request = $client->post($url,['form_params'=>$order_data]);
-        $response = $request->getBody()->getContents();
-        print_r($response);
-
         if ($request->file('file')) {
 
             config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count']);
@@ -67,19 +44,63 @@ class ShopifyController extends BaseController
                         $errored_data[] = $data;
                         $excel_response[] = $excel_read_response;
                     } else {
-                        $data['upload_date']= $request['date'];
-//                        \DB::table('shopify_excel_upload')->insert($data);
+                        $valid_data[] = $data;
+                        $data['upload_date'] = $request['date'];
+                        \DB::table('shopify_excel_upload')->insert($data);
                     }
                 }
-            }        }
-            if (!empty($errored_data)){
-                return view('bulkupload-preview')->with('errored_data',$errored_data)->with('excel_response',$excel_response);
             }
-            else{
-                $message='Thank You!Your file was successfully uploaded.';
-                return view('orders-bulk-upload')->with('message',$message);
-            }
-        return view('orders-bulk-upload');
+        }
+
+
+        $config = array(
+            'ShopUrl' => 'valedra-test.myshopify.com',
+            'ApiKey' => env('SHOPIFY_APIKEY'),
+            'Password' => env('SHOPIFY_PASSWORD'),
+        );
+
+        PHPShopify\ShopifySDK::config($config);
+
+        $shopify = new PHPShopify\ShopifySDK;
+
+        foreach($valid_data as $excel_data)
+        $customers = $shopify->Customer->search("phone:9514254601");
+        if (empty($customers)) {
+            $customer_data = array(
+                "customer" => array(
+                    "first_name" => "Rohan",
+                    "last_name" => "Raja",
+                    "email" => "rohan.raja@example.com",
+                    "phone" => "9514254601",
+                    "verified_email" => true,
+                    "addresses" => [[
+                        "address1" => "23,Institutional Area,Sector 31",
+                        "city" => "Gurugram",
+                        "province" => "Haryana",
+                        "zip" => "110074",
+                        "country" => "India"
+                    ]]));
+            $shopify->Customer->post($customer_data);
+        }
+        else
+            $order_data = array (
+                "email" => "foo@example.com",
+                "fulfillment_status" => "unfulfilled",
+                "line_items" => [
+                    [
+                        "variant_id" => 25542354174016,
+                        "quantity" => 1
+                    ]
+                ]
+            );
+            $shopify->Order->post($order_data);
+
+        if (!empty($errored_data)) {
+            return view('bulkupload-preview')->with('errored_data', $errored_data)->with('excel_response', $excel_response);
+        } else {
+            $message = 'Thank You!Your file was successfully uploaded.';
+            return view('orders-bulk-upload')->with('message', $message);
+        }
     }
 
     private function data_validate($data_array)
@@ -99,91 +120,4 @@ class ShopifyController extends BaseController
 
     }
 
-    private function create_customer()
-    {
-        $client = new Client();
-        $api_key = env('SHOPIFY_APIKEY');
-        $api_pass = env('SHOPIFY_PASSWORD');
-        $api_store = env('SHOPIFY_STORE');
-        $url =sprintf("https://%s:%s@%s.myshopify.com/admin/customers.json",$api_key,$api_pass,$api_store);
-        $request = $client->post($url);
-        $response = $request->getBody()->getContents();
-        print_r($response);
-
-
-    }
-
-    public function create_order()
-    {
-        $client = new Client();
-        $api_key = env('SHOPIFY_APIKEY');
-        $api_pass = env('SHOPIFY_PASSWORD');
-        $api_store = env('SHOPIFY_STORE');
-        $url =sprintf("https://%s:%s@%s.myshopify.com/admin/orders.json",$api_key,$api_pass,$api_store);
-        $orderdata = array(
-            'order' => array(
-                'line_items' => array(
-                    0 => array(
-                        'title' => 'Trip to Amsterdam',
-                        'quantity' => 1,
-                        'variant_id' => 'EDS-AMS',
-                        'vendor'=>'Valedra',
-                        'product_id'=>9043955845
-                    ),
-                )
-            )
-        );
-        $request = $client->post($url);
-        $response = $request->getBody()->getContents();
-        print_r($response);
-
-        return $response;
-    }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Fetching uploaded file and moving it to a new destination
-//             $file = $request->file('file');
-//             $destinationPath = 'uploads';
-//                	$file_moved = $file->move($destinationPath,$file->getClientOriginalName());
-//                	$file_path = $file_moved->getRealPath();
-
-
