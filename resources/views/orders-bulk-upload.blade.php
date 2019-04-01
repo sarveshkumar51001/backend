@@ -5,11 +5,11 @@
             <i class="fa fa-edit"></i> Shopify Bulk Upload<a href="{{ URL::asset('shopify/sample_file.xlsx') }}"><button style='margin-left:700px' class="btn-info"><i class="fa fa-download"></i> Download sample file</button></a>
         </div>
         <div class="card-body">
-            @if(!empty($message))
+            @if(!empty($flag))
             <div class="form-group">
                 <div class="col-sm-10 col-sm-offset-2">
                     <div class="alert alert-success">
-                    <?php echo $message; ?>
+                    <?php echo 'Thank You!Your file was successfully uploaded.'; ?>
                     </div>
                 </div>
             </div>
