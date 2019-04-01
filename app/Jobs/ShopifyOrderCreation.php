@@ -28,10 +28,16 @@ class ShopifyOrderCreation implements ShouldQueue
             'Password' => env('SHOPIFY_PASSWORD'));
 
         PHPShopify\ShopifySDK::config($config);
-
         $shopify = new PHPShopify\ShopifySDK; # new instance of PHPShopify class
 
-        $customers = $shopify->Customer->search("phone:9514254601");
+        $email = $this->data["email_id"];
+        $phone = $this->data["mobile_number"];
+        $query = sprintf("email:%s OR phone:%s",$email,$phone);
+
+//        $query = "email".":"."foo@example.com"."OR"."phone".":"."9514254601"
+
+        $customers = $shopify->Customer->search($query);
+
         if (empty($customers)) {
             $customer_data = array(
                 "customer" => array(
@@ -40,10 +46,38 @@ class ShopifyOrderCreation implements ShouldQueue
                     "email" => $this->data["email_id"],
                     "phone" => $this->data["mobile_number"],
                     "verified_email" => true,
-
+                    "metafields"=> [[
+          "key" => "School Name",
+        "value" => $this->data["school_name"],
+        "value_type"=> "string",
+        "namespace"=> "global"
+                    ],[
+           "key" => "Class",
+           "value" => $this->data["class"],
+           "value_type"=> "integer",
+           "namespace"=> "global"
+                    ], [
+           "key" => "Section",
+            "value" => $this->data["section"],
+            "value_type"=> "string",
+            "namespace"=> "global"
+                    ], [
+                        "key" => "School Enrollment No.",
+                        "value" => $this->data["school_enrollment_no"],
+                        "value_type"=> "string",
+                        "namespace"=> "global"
+                         ],[
+                        "key" => "Parent First Name",
+                        "value" => $this->data["parent_first_name"],
+                        "value_type"=> "string",
+                        "namespace"=> "global"
+                        ],[
+                        "key" => "Parent Last Name",
+                        "value" => $this->data["parent_last_name"],
+                        "value_type"=> "string",
+                        "namespace"=> "global"]]
                     ));
             $shopify->Customer->post($customer_data);
-
         }
         else
             $order_data = array (
@@ -51,6 +85,7 @@ class ShopifyOrderCreation implements ShouldQueue
                 "line_items" => [
                     [
                         "sku" => $this->data["shopify_activity_id"]
+
                     ]
                 ]
             );

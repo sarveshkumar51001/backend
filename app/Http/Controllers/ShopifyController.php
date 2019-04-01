@@ -27,49 +27,71 @@ class ShopifyController extends BaseController
 
     public function ShopifyBulkUpload_result(Request $request)
     {
+
+//        $config = array(
+//            'ShopUrl' => 'valedra-test.myshopify.com',
+//            'ApiKey' => env('SHOPIFY_APIKEY'),
+//            'Password' => env('SHOPIFY_PASSWORD'));
+//
+//        PHPShopify\ShopifySDK::config($config);
+//
+//        $shopify = new PHPShopify\ShopifySDK; # new instance of PHPShopify class
+//
+////        $customers = $shopify->Customer->search("phone".":".$this->data["mobile_number"]);
+//        $customers = $shopify->Customer->search("email:foo@example.com OR phone:9514254601");
+//        dd($customers);
+
         # Configuring Laravel Excel for skipping header row and modifiying the duplicate header names
-        config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count']);
 
-        # Getting the file path
-        $path = $request->file('file')->getRealPath();
+        try {
+            config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count']);
 
-        #Loading the excel file
-        $shopify_data = Excel::load($path, function ($reader) {
-        })->get()->first();
+            # Getting the file path
+            $path = $request->file('file')->getRealPath();
 
-        $file_id = uniqid('shopify_');
-        $errored_data = [];
-        $excel_response = [];
+            #Loading the excel file
+            $shopify_data = Excel::load($path, function ($reader) {
+            })->get()->first();
 
-        foreach ($shopify_data as $data) {
+            $file_id = uniqid('shopify_');
+            $errored_data = [];
+            $excel_response = [];
+            $valid_data = [];
 
-            $data = $data->toArray();
+            foreach ($shopify_data as $data) {
 
-            if (array_filter($data)) {
+                $data = $data->toArray();
 
-                $excel_read_response = $this->data_validate($data);
+                if (array_filter($data)) {
 
-                if (!empty($excel_read_response)) {
+                    $excel_read_response = $this->data_validate($data);
 
-                    $excel_response[] = $excel_read_response;
-                    $errored_data[] = $data;
+                    if (!empty($excel_read_response)) {
+
+                        $excel_response[] = $excel_read_response;
+                        $errored_data[] = $data;
+                    } else {
+                        $data['upload_date'] = $request['date'];
+                        $data['uploaded_by'] = Auth::user()->name;
+                        $data['file_id'] = $file_id;
+                        $valid_data[] = $data;
+                    }
                 }
             }
-        }
-        # Inserting data in MongoDB
-        if (empty($errored_data)) {
-            $flag =1;
-            $data['upload_date'] = $request['date'];
-            $data['uploaded_by']= Auth::user()->name;
-            $data['file_id'] = $file_id;
+            # Inserting data to MongoDB after validation
 
-//          \DB::table('shopify_excel_upload')->insert($data);
-            return view('orders-bulk-upload')->with('flag', $flag);
+            if (empty($errored_data)) {
+                $flag = 1;
+                \DB::table('shopify_excel_upload')->insert($valid_data);
+                return view('orders-bulk-upload')->with('flag', $flag);
+            } else {
+                return view('bulkupload-preview')->with('errored_data', $errored_data)->with('excel_response', $excel_response);
             }
-        # Returning view with errored rows and message.
-        else {
-            return view('bulkupload-preview')->with('errored_data', $errored_data)->with('excel_response', $excel_response);
+        } catch (\Exception $e) {
+            Log::error($e);
+            abort(500);
         }
+        return view('orders-bulk-upload');
     }
 
     private function data_validate($data_array)
