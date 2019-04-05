@@ -17,37 +17,31 @@ use PHPShopify;
 use App\User, Socialite, Auth, Exception;
 use App\Jobs\ShopifyOrderCreation;
 
+
 class ShopifyController extends BaseController
 {
     public function ShopifyBulkUpload()
     {
+
 
         return view('orders-bulk-upload');
     }
 
     public function ShopifyBulkUpload_result(Request $request)
     {
-
-//        $config = array(
-//            'ShopUrl' => 'valedra-test.myshopify.com',
-//            'ApiKey' => env('SHOPIFY_APIKEY'),
-//            'Password' => env('SHOPIFY_PASSWORD'));
-//
-//        PHPShopify\ShopifySDK::config($config);
-//
-//        $shopify = new PHPShopify\ShopifySDK; # new instance of PHPShopify class
-//
-////        $customers = $shopify->Customer->search("phone".":".$this->data["mobile_number"]);
-//        $customers = $shopify->Customer->search("email:foo@example.com OR phone:9514254601");
-//        dd($customers);
-
-        # Configuring Laravel Excel for skipping header row and modifiying the duplicate header names
+        # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
 
         try {
             config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count']);
 
-            # Getting the file path
+            # Fetching uploaded file and moving it to a new destination
+//            $excel_file = $request->file('file');
+//            $destinationPath = 'uploads';
+//            $excel_file->move($destinationPath,$excel_file->getClientOriginalName());
+
             $path = $request->file('file')->getRealPath();
+
+
 
             #Loading the excel file
             $shopify_data = Excel::load($path, function ($reader) {
@@ -57,10 +51,17 @@ class ShopifyController extends BaseController
             $errored_data = [];
             $excel_response = [];
             $valid_data = [];
+            $inst_array= [];
 
             foreach ($shopify_data as $data) {
 
-                $data = $data->toArray();
+               $data = $data->toArray();
+
+                foreach ($data as $key => $value) {
+                    if (strpos($key, '_') === 0) {
+                        unset($data[$key]);
+                    }
+                }
 
                 if (array_filter($data)) {
 
@@ -74,6 +75,17 @@ class ShopifyController extends BaseController
                         $data['upload_date'] = $request['date'];
                         $data['uploaded_by'] = Auth::user()->name;
                         $data['file_id'] = $file_id;
+                        $data['job_status'] = "pending";
+
+                        $offset_array = array(32, 44, 56, 68, 80);
+                        foreach ($offset_array as $offset_value) {
+                            $slice = array_slice($data, 32, 11);
+                            for ($i = 1; $i <= 5; $i++) {
+                                $inst_key = sprintf("installment_%s", $i);
+                                $inst_array[$inst_key] = $slice;
+                                $data['installments'] = $inst_array;
+                            }
+                        }
                         $valid_data[] = $data;
                     }
                 }
@@ -82,13 +94,20 @@ class ShopifyController extends BaseController
 
             if (empty($errored_data)) {
                 $flag = 1;
+                dd($valid_data);
                 \DB::table('shopify_excel_upload')->insert($valid_data);
+
+//                $mongo_data = \DB::table('shopify_excel_upload')->get()->first();
+//
+//                 ShopifyOrderCreation::dispatch($mongo_data);
+
                 return view('orders-bulk-upload')->with('flag', $flag);
             } else {
                 return view('bulkupload-preview')->with('errored_data', $errored_data)->with('excel_response', $excel_response);
             }
         } catch (\Exception $e) {
             Log::error($e);
+            dd($e);
             abort(500);
         }
         return view('orders-bulk-upload');
