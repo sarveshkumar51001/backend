@@ -41,8 +41,6 @@ class ShopifyController extends BaseController
 
             $path = $request->file('file')->getRealPath();
 
-
-
             #Loading the excel file
             $shopify_data = Excel::load($path, function ($reader) {
             })->get()->first();
@@ -51,12 +49,14 @@ class ShopifyController extends BaseController
             $errored_data = [];
             $excel_response = [];
             $valid_data = [];
-            $inst_array= [];
+            $slice_array = [];
+            $pattern = '/_[1-9]$/';
 
             foreach ($shopify_data as $data) {
 
                $data = $data->toArray();
 
+               # Removing unwanted columns
                 foreach ($data as $key => $value) {
                     if (strpos($key, '_') === 0) {
                         unset($data[$key]);
@@ -77,14 +77,34 @@ class ShopifyController extends BaseController
                         $data['file_id'] = $file_id;
                         $data['job_status'] = "pending";
 
-                        $offset_array = array(32, 44, 56, 68, 80);
+                        # Making chunk of installments from the array
+                        $offset_array = array(32, 43, 54, 65, 76);
                         foreach ($offset_array as $offset_value) {
-                            $slice = array_slice($data, 32, 11);
-                            for ($i = 1; $i <= 5; $i++) {
-                                $inst_key = sprintf("installment_%s", $i);
-                                $inst_array[$inst_key] = $slice;
-                                $data['installments'] = $inst_array;
+                            $slice = array_slice($data, $offset_value, 11);
+                            foreach ($slice as $key => $value) {
+                                $pattern = '/(.+)(_[\d]+)/i';
+                                $replacement = '${1}';
+                                $new_key = preg_replace($pattern, $replacement, $key);
+                                $new_slice[$new_key] = $value;
                             }
+                            for ($i =1; $i<=env('INSTALLMENT_NUMBER'); $i++){
+                                $key_name = sprintf("installment_%s",$i);
+                                $slice_array[$key_name] = $new_slice;
+
+                        }$new_slice = array();
+                        }
+                        $data['installments'] = $slice_array;
+
+                        # Removing slugged with count keys from the array
+                        foreach ($data as $key => $value){
+                            if(preg_match($pattern, $key)) {
+                                unset($data[$key]);
+                            }
+                        }
+                        # Removing unwanted keys
+                        $unwanted_keys = array('installment_amount','pdc_collectedpdc_to_be_collectedstatus','cheque_no','chequeinstallment_date','0');
+                        foreach($unwanted_keys as $keys) {
+                            unset($data[$keys]);
                         }
                         $valid_data[] = $data;
                     }
@@ -98,7 +118,7 @@ class ShopifyController extends BaseController
                 \DB::table('shopify_excel_upload')->insert($valid_data);
 
 //                $mongo_data = \DB::table('shopify_excel_upload')->get()->first();
-//
+
 //                 ShopifyOrderCreation::dispatch($mongo_data);
 
                 return view('orders-bulk-upload')->with('flag', $flag);
