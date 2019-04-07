@@ -78,8 +78,7 @@ class ShopifyOrderCreation implements ShouldQueue
             ];
             $shopify->Customer->post($customer_data);
 
-            if (empty($data["installments"]["installment_1"]))
-            {
+            if (empty($data["installments"]["installment_1"])) {
                 $order_data = [
                     "email" => $this->data["email_id"],
                     "line_items" => [[
@@ -117,8 +116,7 @@ class ShopifyOrderCreation implements ShouldQueue
                         ]]
                     ]]];
                 $shopify->Order->post($order_data);
-            }
-            elseif (!empty($data["installments"]["installment_1"])) {
+            } elseif (!empty($data["installments"]["installment_1"])) {
                 $order_data = [
                     "email" => $this->data["email_id"],
                     "line_items" => [[
@@ -159,8 +157,7 @@ class ShopifyOrderCreation implements ShouldQueue
             }
         }
 
-        if(!empty($customers) && empty($data["installments"]["installment_1"]))
-        {
+        if (!empty($customers) && empty($data["installments"]["installment_1"])) {
             $order_data = [
                 "email" => $this->data["email_id"],
                 "line_items" => [[
@@ -198,83 +195,45 @@ class ShopifyOrderCreation implements ShouldQueue
                     ]]
                 ]]];
             $shopify->Order->post($order_data);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        } elseif (!empty($data["installments"]["installment_1"])) {
+
+            $order_data = [
+                "email" => $this->data["email_id"],
+                "line_items" => [[
+                    "sku" => $this->data["shopify_activity_id"],
+                    "discount" => $this->data["scholarship_discount"],
+                    "taxable" => true,
+                    "note_attributes" => [[
+                        "name" => "Payment Mode",
+                        "value" => $this->data["installments"]["installment_1"]["mode_of_payment"]
+                    ], [
+                        "name" => "Cheque/DD No.",
+                        "value" => $this->data["installments"]["installment_1"]["cheque_no"]
+                    ], [
+                        "name" => "Cheque/DD Date",
+                        "value" => $this->data["installments"]["installment_1"]["chequedd_date"]
+                    ], [
+                        "name" => "Online Transaction Reference Number",
+                        "value" => $this->data["installments"]["installment_1"]["txn_reference_number_only_in_case_of_paytm_or_online"]
+                    ], [
+                        "name" => "Drawee Name",
+                        "value" => $this->data["installments"]["installment_1"]["drawee_name"]
+                    ], [
+                        "name" => "Drawee Account Number",
+                        "value" => $this->data["installments"]["installment_1"]["drawee_account_number"]
+                    ], [
+                        "name" => "MICR Code",
+                        "value" => $this->data["installments"]["installment_1"]["micr_code"]
+                    ], [
+                        "name" => "Bank Name",
+                        "value" => $this->data["installments"]["installment_1"]["bank_name"]
+
+                    ], [
+                        "name" => "Branch Name",
+                        "value" => $this->data["installments"]["installment_1"]["bank_branch"]
+                    ]]
+                ]]];
+            $shopify->Order->post($order_data);
 
         }
 
