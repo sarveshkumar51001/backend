@@ -55,7 +55,6 @@ class ShopifyController extends BaseController
             foreach ($shopify_data as $data) {
 
                $data = $data->toArray();
-               dd($data);
                # Removing unwanted columns
                 foreach ($data as $key => $value) {
                     if (strpos($key, '_') === 0) {
@@ -78,6 +77,7 @@ class ShopifyController extends BaseController
                         $data['job_status'] = "pending";
 
                         # Making chunk of installments from the array
+
                         $offset_array = array(32, 43, 54, 65, 76);
                         foreach ($offset_array as $offset_value) {
                             $slice = array_slice($data, $offset_value, 11);
@@ -114,23 +114,23 @@ class ShopifyController extends BaseController
 
             if (empty($errored_data)) {
                 $flag = 1;
-                dd($valid_data);
-                \DB::table('shopify_excel_upload')->insert($valid_data);
 
-                $mongo_data = \DB::table('shopify_excel_upload')->get()->first();
+                foreach($valid_data as $shopify_data){
 
-
-                 ShopifyOrderCreation::dispatch($mongo_data);
-
-                \DB::table('shopify')
-                    ->where('id', 1)
-                    ->update(['votes' => 1]);
+                    \DB::table('shopify_excel_upload')->insert($shopify_data);
+                     ShopifyOrderCreation::dispatch($shopify_data);
+                }
 
                 return view('orders-bulk-upload')->with('flag', $flag);
-            } else {
+            }
+            else
+                {
                 return view('bulkupload-preview')->with('errored_data', $errored_data)->with('excel_response', $excel_response);
             }
-        } catch (\Exception $e) {
+        }
+
+        catch (\Exception $e)
+        {
             Log::error($e);
             dd($e);
             abort(500);

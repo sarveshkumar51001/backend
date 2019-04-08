@@ -2,12 +2,13 @@
 
 namespace App\Shopify;
 
-Class Shopify
+Class Shopify_POST
 {
     public static function check_customer_existence($shopify,$customer_info){
 
         $email = $customer_info["email_id"];
         $phone = $customer_info["mobile_number"];
+        $enroll = $customer_info["enroll"];
 
         $query = sprintf("email:%s OR phone:%s", $email, $phone);
 
@@ -103,45 +104,43 @@ Class Shopify
 
     public static function create_order_with_installment($shopify,$order_info){
 
+        $order_data = [
+            "email" => $order_info["email_id"],
+            "line_items" => [[
+                "sku" => $order_info["shopify_activity_id"],
+                "discount" => $order_info["scholarship_discount"],
+                "taxable" => true,
+                "note_attributes" => [[
+                    "name" => "Payment Mode",
+                    "value" => $order_info["installments"]["installment_1"]["mode_of_payment"]
+                ], [
+                    "name" => "Cheque/DD No.",
+                    "value" => $order_info["installments"]["installment_1"]["cheque_no"]
+                ], [
+                    "name" => "Cheque/DD Date",
+                    "value" => $order_info["installments"]["installment_1"]["chequedd_date"]
+                ], [
+                    "name" => "Online Transaction Reference Number",
+                    "value" => $order_info["installments"]["installment_1"]["txn_reference_number_only_in_case_of_paytm_or_online"]
+                ], [
+                    "name" => "Drawee Name",
+                    "value" => $order_info["installments"]["installment_1"]["drawee_name"]
+                ], [
+                    "name" => "Drawee Account Number",
+                    "value" => $order_info["installments"]["installment_1"]["drawee_account_number"]
+                ], [
+                    "name" => "MICR Code",
+                    "value" => $order_info["installments"]["installment_1"]["micr_code"]
+                ], [
+                    "name" => "Bank Name",
+                    "value" => $order_info["installments"]["installment_1"]["bank_name"]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                ], [
+                    "name" => "Branch Name",
+                    "value" => $order_info["installments"]["installment_1"]["bank_branch"]
+                ]]
+            ]]];
+        $shopify->Order->post($order_data);
 
     }
 }
