@@ -78,7 +78,7 @@ class ShopifyOrderCreation implements ShouldQueue
                 ->where('_id', $_id)
                 ->update(['job_status' => 'failed']);
 
-            echo "Job Failed";
+            echo "Job Got Failed";
         }
     }
 }
