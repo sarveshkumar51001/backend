@@ -2,10 +2,6 @@
 
 namespace App\Shopify;
 
-use PHPShopify;
-
-
-
 Class Shopify
 {
     public static function check_customer_existence($shopify,$customer_info){
@@ -62,7 +58,52 @@ Class Shopify
         $shopify->Customer->post($customer_data);
     }
 
-    public static function create_order($shopify,$customer_info){
+    public static function create_order($shopify,$order_info)
+    {
+
+        $order_data = [
+            "email" => $order_info["email_id"],
+            "line_items" => [[
+                "sku" => $order_info["shopify_activity_id"],
+                "discount" => $order_info["scholarship_discount"],
+                "taxable" => true,
+                "note_attributes" => [[
+                    "name" => "Payment Mode",
+                    "value" => $order_info["mode_of_payment"]
+                ], [
+                    "name" => "Cheque/DD No.",
+                    "value" => $order_info["chequedd_no"]
+                ], [
+                    "name" => "Cheque/DD Date",
+                    "value" => $order_info["chequedd_date"]
+                ], [
+                    "name" => "Online Transaction Reference Number",
+                    "value" => $order_info["txn_reference_number_only_in_case_of_paytm_or_online"]
+                ], [
+                    "name" => "Drawee Name",
+                    "value" => $order_info["drawee_name"]
+                ], [
+                    "name" => "Drawee Account Number",
+                    "value" => $order_info["drawee_account_number"]
+                ], [
+                    "name" => "MICR Code",
+                    "value" => $order_info["micr_code"]
+                ], [
+                    "name" => "Bank Name",
+                    "value" => $order_info["bank_name"]
+
+                ], [
+                    "name" => "Branch Name",
+                    "value" => $order_info["bank_branch"]
+                ]]
+            ]]];
+
+        $shopify->Order->post($order_data);
+    }
+
+    public static function create_order_with_installment($shopify,$order_info){
+
+
 
 
 
