@@ -55,7 +55,7 @@ class ShopifyController extends BaseController
             foreach ($shopify_data as $data) {
 
                $data = $data->toArray();
-
+               dd($data);
                # Removing unwanted columns
                 foreach ($data as $key => $value) {
                     if (strpos($key, '_') === 0) {
@@ -117,9 +117,14 @@ class ShopifyController extends BaseController
                 dd($valid_data);
                 \DB::table('shopify_excel_upload')->insert($valid_data);
 
-//                $mongo_data = \DB::table('shopify_excel_upload')->get()->first();
+                $mongo_data = \DB::table('shopify_excel_upload')->get()->first();
 
-//                 ShopifyOrderCreation::dispatch($mongo_data);
+
+                 ShopifyOrderCreation::dispatch($mongo_data);
+
+                \DB::table('shopify')
+                    ->where('id', 1)
+                    ->update(['votes' => 1]);
 
                 return view('orders-bulk-upload')->with('flag', $flag);
             } else {
