@@ -55,6 +55,7 @@ class ShopifyController extends BaseController
             foreach ($shopify_data as $data) {
 
                $data = $data->toArray();
+
                # Removing unwanted columns
                 foreach ($data as $key => $value) {
                     if (strpos($key, '_') === 0) {
@@ -91,7 +92,8 @@ class ShopifyController extends BaseController
                                 $key_name = sprintf("installment_%s",$i);
                                 $slice_array[$key_name] = $new_slice;
 
-                        }$new_slice = array();
+                        }
+                            $new_slice = array();
                         }
                         $data['installments'] = $slice_array;
 
@@ -115,11 +117,13 @@ class ShopifyController extends BaseController
             if (empty($errored_data)) {
                 $flag = 1;
 
-                foreach($valid_data as $shopify_data){
+//               \DB::table('shopify_excel_upload')->insert($valid_data);
 
-                    \DB::table('shopify_excel_upload')->insert($shopify_data);
-                     ShopifyOrderCreation::dispatch($shopify_data);
-                }
+               $post_data = \DB::table('shopify_excel_upload')->where('job_status','pending')->get();
+
+               foreach($post_data as $info)
+
+                   ShopifyOrderCreation::dispatch($info);
 
                 return view('orders-bulk-upload')->with('flag', $flag);
             }

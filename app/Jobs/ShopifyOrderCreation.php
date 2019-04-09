@@ -8,7 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use PHPShopify;
-use App\Shopify\Shopify_POST;
+use App\Shopify\shopify_post;
 
 class ShopifyOrderCreation implements ShouldQueue
 {
@@ -36,7 +36,7 @@ class ShopifyOrderCreation implements ShouldQueue
 
         try
         {
-        $customer = Shopify_POST::check_customer_existence($shopify,$data);
+            $customer = Shopify_POST::check_customer_existence($shopify,$data);
 
         if (empty($customer))
         {
@@ -53,7 +53,7 @@ class ShopifyOrderCreation implements ShouldQueue
             }
         }
 
-        if (!empty($customer) && empty($data["installments"]["installment_1"]))
+        if (!empty($customer) && empty(array_filter($data["installments"]["installment_1"])))
         {
             Shopify_POST::create_order($shopify,$data);
         }

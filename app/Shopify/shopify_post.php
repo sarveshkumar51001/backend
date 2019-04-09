@@ -8,7 +8,6 @@ Class Shopify_POST
 
         $email = $customer_info["email_id"];
         $phone = $customer_info["mobile_number"];
-        $enroll = $customer_info["enroll"];
 
         $query = sprintf("email:%s OR phone:%s", $email, $phone);
 
