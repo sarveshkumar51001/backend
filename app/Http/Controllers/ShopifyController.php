@@ -34,15 +34,24 @@ class ShopifyController extends BaseController
         try {
             config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count']);
 
-            # Fetching uploaded file and moving it to a new destination
-//            $excel_file = $request->file('file');
-//            $destinationPath = 'uploads';
-//            $excel_file->move($destinationPath,$excel_file->getClientOriginalName());
+            # Fetching uploaded file and moving it to a destination specific for a user.
+            $user_name = sprintf("%s_%s",Auth::user()->name,Auth::user()->id);
 
-            $path = $request->file('file')->getRealPath();
+
+            if(!is_dir($user_name)){
+                mkdir($user_name);
+            }
+
+            $excel_file = $request->file('file'); # Extracting file from Post request
+
+            $excel_path = $excel_file->getClientOriginalName(); # Getting original client name
+            $user_path = public_path($user_name); # public path for file storage
+            $path = $excel_file->move($user_path,$excel_path); # Moving uploaded excel file to specific folder
+
+            $real_path = $path->getRealPath(); # Getting real path
 
             #Loading the excel file
-            $shopify_data = Excel::load($path, function ($reader) {
+            $shopify_data = Excel::load($real_path, function ($reader) {
             })->get()->first();
 
             $file_id = uniqid('shopify_');
@@ -117,7 +126,7 @@ class ShopifyController extends BaseController
             if (empty($errored_data)) {
                 $flag = 1;
 
-//               \DB::table('shopify_excel_upload')->insert($valid_data);
+               \DB::table('shopify_excel_upload')->insert($valid_data);
 
                $post_data = \DB::table('shopify_excel_upload')->where('job_status','pending')->get();
 
@@ -149,7 +158,8 @@ class ShopifyController extends BaseController
             "school_name" => "required|string",
             "school_enrollment_no" => "required",
             "mobile_number" => "required|regex:/^[0-9]{10}$/",
-            "email_id" => "required|email"
+            "email_id" => "required|email",
+            ""
         ];
 
         $validator = Validator::make($data_array, $rules);
