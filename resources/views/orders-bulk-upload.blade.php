@@ -14,6 +14,33 @@
                 </div>
             </div>
             @endif
+                @if($flag == 100))
+                <div class="form-group">
+                    <div class="col-sm-10 col-sm-offset-2">
+                        <div class="alert alert-danger">
+                            <?php echo 'The amount collected by cash does not match with the excel file uploaded.'; ?>
+                        </div>
+                    </div>
+                </div>
+            @endif
+                @if($flag == 101))
+                <div class="form-group">
+                    <div class="col-sm-10 col-sm-offset-2">
+                        <div class="alert alert-danger">
+                            <?php echo 'The amount collected by cheque does not match with the excel file uploaded.'; ?>
+                        </div>
+                    </div>
+                </div>
+            @endif
+                @if($flag == 102))
+                <div class="form-group">
+                    <div class="col-sm-10 col-sm-offset-2">
+                        <div class="alert alert-danger">
+                            <?php echo 'The amount collected by online does not match with the excel file uploaded.'; ?>
+                        </div>
+                    </div>
+                </div>
+            @endif
             <form method="POST" action="{{ route('bulkupload.ShopifyBulkUpload-result') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group row"><label for="date" class="col-md-4 col-form-label text-md-right">Date</label>

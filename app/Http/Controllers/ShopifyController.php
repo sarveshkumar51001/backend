@@ -17,7 +17,6 @@ use PHPShopify;
 use App\User, Socialite, Auth, Exception;
 use App\Jobs\ShopifyOrderCreation;
 
-
 class ShopifyController extends BaseController
 {
     public function ShopifyBulkUpload()
@@ -44,21 +43,18 @@ class ShopifyController extends BaseController
             $excel_file = $request->file('file'); # Extracting file from Post request
 
             $excel_path = $excel_file->getClientOriginalName(); # Getting original client name
+
+            $excel_file_path = $excel_path.'_'.time().'.xlsx'; # Adding current timestamp to file
+
             $user_path = public_path($user_name);# public path for file storage
 
-            $path = $excel_file->move($user_path, $excel_path); # Moving uploaded excel file to specific folder
+            $path = $excel_file->move($user_path, $excel_file_path); # Moving uploaded excel file to specific folder
 
             $real_path = $path->getRealPath(); # Getting real path
 
-//            $old_name = $path->getPathname();
-
-//            $new_name = $old_name.'_'.$request["date"].'.xlsx';
-//
-//            Storage::move($real_path,$new_name);
-
             #Loading the excel file
 
-            $shopify_data = Excel::load($real_path, function ($reader) {
+            $shopify_data = Excel::load($real_path, function ($reader){
             })->get()->first();
 
             $file_id = uniqid('shopify_');
@@ -96,17 +92,16 @@ class ShopifyController extends BaseController
                         # Making chunk of installments from the flat array
 
                         $offset_array = array(32, 43, 54, 65, 76);
-                        foreach ($offset_array as $offset_value) {
+                        foreach ($offset_array as $offset_value){
                             $slice = array_slice($data, $offset_value, 11);
-                            foreach ($slice as $key => $value) {
+                            foreach ($slice as $key => $value){
                                 $pattern = '/(.+)(_[\d]+)/i';
                                 $replacement = '${1}';
                                 $new_key = preg_replace($pattern, $replacement, $key);
                                 $new_slice[$new_key] = $value;
                             }
-                            for ($i = 1; $i <= env('INSTALLMENT_NUMBER'); $i++) {
+                            for ($i = 1; $i <= env('INSTALLMENT_NUMBER'); $i++){
                                 $slice_array[$i] = $new_slice;
-
                             }
                             $new_slice = array();
                         }
@@ -114,14 +109,14 @@ class ShopifyController extends BaseController
 
                         # Removing slugged with count keys from the array
 
-                        foreach ($data as $key => $value) {
-                            if (preg_match($pattern, $key)) {
+                        foreach ($data as $key => $value){
+                            if (preg_match($pattern, $key)){
                                 unset($data[$key]);
                             }
                         }
                         # Removing unwanted keys
                         $unwanted_keys = array('installment_amount', 'pdc_collectedpdc_to_be_collectedstatus', 'cheque_no', 'chequeinstallment_date', '0');
-                        foreach ($unwanted_keys as $keys) {
+                        foreach ($unwanted_keys as $keys){
                             unset($data[$keys]);
                         }
                         $valid_data[] = $data;
@@ -134,29 +129,32 @@ class ShopifyController extends BaseController
             $amount_collected_online = $request["online-total"];
 
             $amount_data = $this->amount_validation($valid_data); # Calling function for validating amount data
-            dd($amount_data);
 
-            if ($amount_collected_cash != $amount_data[0])
+            if ($amount_collected_cash != $amount_data[0]){
                 $flag_msg = 100;
-            elseif ($amount_collected_cheque != $amount_data[1])
+            }
+            elseif ($amount_collected_cheque != $amount_data[1]){
                 $flag_msg = 101;
-            elseif ($amount_collected_online != $amount_data[2])
+            }
+            elseif ($amount_collected_online != $amount_data[2]){
                 $flag_msg = 102;
+            }
 
             # Inserting data to MongoDB after validation
 
             if (empty($errored_data)) {
                 $flag = 1;
-//                \DB::table('shopify_excel_upload')->insert($valid_data);
+                \DB::table('shopify_excel_upload')->insert($valid_data);
 
-                $post_data = \DB::table('shopify_excel_upload')->where('job_status', 'failed')->get();
+                $post_data = \DB::table('shopify_excel_upload')->where('job_status', 'failed')->orWhere('job_status', 'pending')->get();
 
                 foreach ($post_data as $info)
 
                     ShopifyOrderCreation::dispatch($info);
 
-                return view('orders-bulk-upload')->with('flag', $flag);
-            } else {
+                return view('orders-bulk-upload')->with('flag', $flag)->with('flag_msg',$flag_msg);
+            }
+            else {
                 return view('bulkupload-preview')->with('errored_data', $errored_data)->with('excel_response', $excel_response);
             }
         } catch (\Exception $e) {
@@ -174,8 +172,7 @@ class ShopifyController extends BaseController
             "school_name" => "required|string",
             "school_enrollment_no" => "required",
             "mobile_number" => "required|regex:/^[0-9]{10}$/",
-            "email_id" => "required|email",
-            ""
+            "email_id" => "required|email"
         ];
 
         $validator = Validator::make($data_array, $rules);

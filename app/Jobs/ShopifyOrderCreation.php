@@ -55,7 +55,7 @@ class ShopifyOrderCreation implements ShouldQueue
 
         if (!empty($customer) && empty(array_filter($data["installments"][1])))
         {
-            Shopify_POST::create_order($shopify,$data);
+           Shopify_POST::create_order($shopify,$data);
         }
 
         else
@@ -73,12 +73,13 @@ class ShopifyOrderCreation implements ShouldQueue
         catch(\Exception $e)
         {
             $_id = $data["_id"];
+            dd($e);
 
             \DB::table('shopify_excel_upload')
                 ->where('_id', $_id)
                 ->update(['job_status' => 'failed']);
 
-            $this->fail($e);
+//            $this->fail($e);
         }
     }
 }
