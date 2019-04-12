@@ -42,23 +42,23 @@ class ShopifyOrderCreation implements ShouldQueue
         {
             Shopify_POST::create_customer($shopify,$data);
 
-            if (empty($data["installments"]["installment_1"]))
+            if (empty(array_filter($data["installments"][1])))
             {
                 Shopify_POST::create_order($shopify,$data);
             }
 
-            elseif (!empty($data["installments"]["installment_1"]))
+            else
             {
                 Shopify_POST::create_order_with_installment($shopify,$data);
             }
         }
 
-        if (!empty($customer) && empty(array_filter($data["installments"]["installment_1"])))
+        if (!empty($customer) && empty(array_filter($data["installments"][1])))
         {
             Shopify_POST::create_order($shopify,$data);
         }
 
-        elseif (!empty($data["installments"]["installment_1"]))
+        else
         {
             Shopify_POST::create_order_with_installment($shopify, $data);
         }
@@ -78,7 +78,7 @@ class ShopifyOrderCreation implements ShouldQueue
                 ->where('_id', $_id)
                 ->update(['job_status' => 'failed']);
 
-            echo "Job Got Failed";
+            $this->fail($e);
         }
     }
 }

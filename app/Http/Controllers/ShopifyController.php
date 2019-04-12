@@ -23,7 +23,6 @@ class ShopifyController extends BaseController
     public function ShopifyBulkUpload()
     {
 
-
         return view('orders-bulk-upload');
     }
 
@@ -35,22 +34,30 @@ class ShopifyController extends BaseController
             config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count']);
 
             # Fetching uploaded file and moving it to a destination specific for a user.
-            $user_name = sprintf("%s_%s",Auth::user()->name,Auth::user()->id);
+            $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
+            $user_name = preg_replace('/\s+/', '_', $name);
 
-
-            if(!is_dir($user_name)){
+            if (!is_dir($user_name)) {
                 mkdir($user_name);
             }
 
             $excel_file = $request->file('file'); # Extracting file from Post request
 
             $excel_path = $excel_file->getClientOriginalName(); # Getting original client name
-            $user_path = public_path($user_name); # public path for file storage
-            $path = $excel_file->move($user_path,$excel_path); # Moving uploaded excel file to specific folder
+            $user_path = public_path($user_name);# public path for file storage
+
+            $path = $excel_file->move($user_path, $excel_path); # Moving uploaded excel file to specific folder
 
             $real_path = $path->getRealPath(); # Getting real path
 
+//            $old_name = $path->getPathname();
+
+//            $new_name = $old_name.'_'.$request["date"].'.xlsx';
+//
+//            Storage::move($real_path,$new_name);
+
             #Loading the excel file
+
             $shopify_data = Excel::load($real_path, function ($reader) {
             })->get()->first();
 
@@ -63,9 +70,9 @@ class ShopifyController extends BaseController
 
             foreach ($shopify_data as $data) {
 
-               $data = $data->toArray();
+                $data = $data->toArray();
 
-               # Removing unwanted columns
+                # Removing unwanted columns
                 foreach ($data as $key => $value) {
                     if (strpos($key, '_') === 0) {
                         unset($data[$key]);
@@ -86,7 +93,7 @@ class ShopifyController extends BaseController
                         $data['file_id'] = $file_id;
                         $data['job_status'] = "pending";
 
-                        # Making chunk of installments from the array
+                        # Making chunk of installments from the flat array
 
                         $offset_array = array(32, 43, 54, 65, 76);
                         foreach ($offset_array as $offset_value) {
@@ -97,53 +104,62 @@ class ShopifyController extends BaseController
                                 $new_key = preg_replace($pattern, $replacement, $key);
                                 $new_slice[$new_key] = $value;
                             }
-                            for ($i =1; $i<=env('INSTALLMENT_NUMBER'); $i++){
-                                $key_name = sprintf("installment_%s",$i);
-                                $slice_array[$key_name] = $new_slice;
+                            for ($i = 1; $i <= env('INSTALLMENT_NUMBER'); $i++) {
+                                $slice_array[$i] = $new_slice;
 
-                        }
+                            }
                             $new_slice = array();
                         }
                         $data['installments'] = $slice_array;
 
                         # Removing slugged with count keys from the array
-                        foreach ($data as $key => $value){
-                            if(preg_match($pattern, $key)) {
+
+                        foreach ($data as $key => $value) {
+                            if (preg_match($pattern, $key)) {
                                 unset($data[$key]);
                             }
                         }
                         # Removing unwanted keys
-                        $unwanted_keys = array('installment_amount','pdc_collectedpdc_to_be_collectedstatus','cheque_no','chequeinstallment_date','0');
-                        foreach($unwanted_keys as $keys) {
+                        $unwanted_keys = array('installment_amount', 'pdc_collectedpdc_to_be_collectedstatus', 'cheque_no', 'chequeinstallment_date', '0');
+                        foreach ($unwanted_keys as $keys) {
                             unset($data[$keys]);
                         }
                         $valid_data[] = $data;
                     }
                 }
             }
+
+            $amount_collected_cash = $request["cash-total"];
+            $amount_collected_cheque = $request["cheque-total"];
+            $amount_collected_online = $request["online-total"];
+
+            $amount_data = $this->amount_validation($valid_data); # Calling function for validating amount data
+            dd($amount_data);
+
+            if ($amount_collected_cash != $amount_data[0])
+                $flag_msg = 100;
+            elseif ($amount_collected_cheque != $amount_data[1])
+                $flag_msg = 101;
+            elseif ($amount_collected_online != $amount_data[2])
+                $flag_msg = 102;
+
             # Inserting data to MongoDB after validation
 
             if (empty($errored_data)) {
                 $flag = 1;
+//                \DB::table('shopify_excel_upload')->insert($valid_data);
 
-               \DB::table('shopify_excel_upload')->insert($valid_data);
+                $post_data = \DB::table('shopify_excel_upload')->where('job_status', 'failed')->get();
 
-               $post_data = \DB::table('shopify_excel_upload')->where('job_status','pending')->get();
+                foreach ($post_data as $info)
 
-               foreach($post_data as $info)
-
-                   ShopifyOrderCreation::dispatch($info);
+                    ShopifyOrderCreation::dispatch($info);
 
                 return view('orders-bulk-upload')->with('flag', $flag);
-            }
-            else
-                {
+            } else {
                 return view('bulkupload-preview')->with('errored_data', $errored_data)->with('excel_response', $excel_response);
             }
-        }
-
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             Log::error($e);
             dd($e);
             abort(500);
@@ -168,4 +184,59 @@ class ShopifyController extends BaseController
 
     }
 
+    private function amount_validation($file)
+    {
+
+        $installment_amount_array = [];
+
+        $cash_array = [];
+        $cheque_array = [];
+        $online_array = [];
+
+        foreach ($file as $row) {
+
+            for ($i = 1; $i <= 5; $i++) {
+                $amount = $row["installments"][$i]["installment_amount"];
+                array_push($installment_amount_array, $amount);
+            }
+
+            if (empty(array_filter($installment_amount_array))) {
+                if ($row["mode_of_payment"] == 'Cash') {
+                    $cash = $row["final_fee_incl_gst"] + $row["registration_amount"];
+                    array_push($cash_array,$cash);
+                } elseif ($row["mode_of_payment"] == 'Cheque') {
+                    $cheque = $row["final_fee_incl_gst"] + $row["registration_amount"];
+                    array_push($cheque_array,$cheque);
+                } else {
+                    $online = $row["final_fee_incl_gst"] + $row["registration_amount"];
+                    array_push($online_array,$online);
+                }
+            }
+            else
+                {
+                for ($i = 1; $i <= 5; $i++) {
+                    if ($row["installments"][$i]["mode_of_payment"] == 'Cash') {
+                        $installment_cash = $row["installments"][$i]["installment_amount"];
+                        array_push($cash_array,$installment_cash);
+                    } elseif ($row["installments"][$i]["mode_of_payment"] == 'Cheque') {
+                        $installment_cheque = $row["installments"][$i]["installment_amount"];
+                        array_push($cheque_array,$installment_cheque);
+                    } else {
+                        $installment_online = $row["installments"][$i]["installment_amount"];
+                        array_push($online_array,$installment_online);
+                    }
+                }
+            }
+        }
+
+        $total_cash_amount = array_sum($cash_array);
+        $total_cheque_amount = array_sum($cheque_array);
+        $total_online_amount = array_sum($online_array);
+
+        $amounts_array = array($total_cash_amount,$total_cheque_amount,$total_online_amount);
+
+        return $amounts_array;
+
+    }
 }
+
