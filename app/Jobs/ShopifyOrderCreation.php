@@ -34,44 +34,32 @@ class ShopifyOrderCreation implements ShouldQueue
 
         $shopify = new PHPShopify\ShopifySDK; # new instance of PHPShopify class
 
-        try
-        {
-            $customer = Shopify_POST::check_customer_existence($shopify,$data);
+        try {
+            $customer = Shopify_POST::check_customer_existence($shopify, $data);
 
-        if (empty($customer))
-        {
-            Shopify_POST::create_customer($shopify,$data);
+            if (empty($customer)) {
+                Shopify_POST::create_customer($shopify,$data);
 
-            if (empty(array_filter($data["installments"][1])))
-            {
-                Shopify_POST::create_order($shopify,$data);
+                if (empty(array_filter($data["installments"][1]))) {
+                    Shopify_POST::create_order($shopify,$data);
+                } else {
+                    Shopify_POST::create_order_with_installment($shopify,$data);
+                }
             }
 
-            else
-            {
-                Shopify_POST::create_order_with_installment($shopify,$data);
+            if (!empty($customer) && empty(array_filter($data["installments"][1]))) {
+               Shopify_POST::create_order($shopify,$data);
+            } else {
+                Shopify_POST::create_order_with_installment($shopify, $data);
             }
-        }
-
-        if (!empty($customer) && empty(array_filter($data["installments"][1])))
-        {
-           Shopify_POST::create_order($shopify,$data);
-        }
-
-        else
-        {
-            Shopify_POST::create_order_with_installment($shopify, $data);
-        }
 
             $_id = $data["_id"];
 
-        \DB::table('shopify_excel_upload')
+            \DB::table('shopify_excel_upload')
                 ->where('_id', $_id)
                 ->update(['job_status' => 'completed']);
 
-        }
-        catch(\Exception $e)
-        {
+        } catch(\Exception $e) {
             $_id = $data["_id"];
             dd($e);
 

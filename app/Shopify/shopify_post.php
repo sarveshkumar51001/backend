@@ -64,8 +64,7 @@ Class Shopify_POST
         $order_data = [
             "email" => $order_info["email_id"],
             "line_items" => [[
-                "sku" => $order_info["shopify_activity_id"],
-                "variant_id" => 27889792450624,
+                "variant_id" => $order_info["shopify_activity_id"],
                 "discount" => $order_info["scholarship_discount"],
                 "taxable" => true,
                 "note_attributes" => [[
@@ -107,7 +106,7 @@ Class Shopify_POST
         $order_data = [
             "email" => $order_info["email_id"],
             "line_items" => [[
-                "sku" => $order_info["shopify_activity_id"],
+                "variant_id" => $order_info["shopify_activity_id"],
                 "discount" => $order_info["scholarship_discount"],
                 "taxable" => true,
                 "note_attributes" => [[

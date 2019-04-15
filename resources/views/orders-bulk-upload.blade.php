@@ -1,11 +1,12 @@
 @extends('admin.app')
 @section('content')
+    @php $flag_msg = $flag_msg ?? 0 @endphp
     <div class="card">
         <div class="card-header">
             <i class="fa fa-edit"></i> Shopify Bulk Upload<a href="{{ URL::asset('shopify/sample_shopify_file.xlsx') }}"><button style='margin-left:700px' class="btn-info"><i class="fa fa-download"></i> Download sample file</button></a>
         </div>
         <div class="card-body">
-            @if(!empty($flag))
+            @if( $flag_msg == App\Models\Shopify::STATUS_SUCCESS )
             <div class="form-group">
                 <div class="col-sm-10 col-sm-offset-2">
                     <div class="alert alert-success">
@@ -14,7 +15,7 @@
                 </div>
             </div>
             @endif
-                @if($flag == 100))
+                @if ($flag_msg == App\Models\Shopify::STATUS_CASH_FAILURE )
                 <div class="form-group">
                     <div class="col-sm-10 col-sm-offset-2">
                         <div class="alert alert-danger">
@@ -23,7 +24,7 @@
                     </div>
                 </div>
             @endif
-                @if($flag == 101))
+                @if ($flag_msg == App\Models\Shopify::STATUS_CHEQUE_FAILURE )
                 <div class="form-group">
                     <div class="col-sm-10 col-sm-offset-2">
                         <div class="alert alert-danger">
@@ -32,7 +33,7 @@
                     </div>
                 </div>
             @endif
-                @if($flag == 102))
+                @if ($flag_msg == App\Models\Shopify::STATUS_ONLINE_FAILURE )
                 <div class="form-group">
                     <div class="col-sm-10 col-sm-offset-2">
                         <div class="alert alert-danger">
