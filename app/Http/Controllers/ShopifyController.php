@@ -29,7 +29,6 @@ class ShopifyController extends BaseController
     public function ShopifyBulkUpload_result(Request $request)
     {
         # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
-
         try {
             config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count']);
 
@@ -40,7 +39,6 @@ class ShopifyController extends BaseController
             if (!is_dir($user_name)) {
                 mkdir($user_name);
             }
-
             // Extracting file from Post request
             $excel_file = $request->file('file');
 
@@ -51,7 +49,6 @@ class ShopifyController extends BaseController
             $real_path = $path->getRealPath(); # Getting real path
 
             # Loading the excel file
-
             $rows = Excel::load($real_path, function ($reader) {
             })->get()->first();
 
@@ -60,15 +57,13 @@ class ShopifyController extends BaseController
             $pattern = '/_[1-9]$/';
 
             foreach ($rows as $data) {
-
                 $data = $data->toArray();
 
                 # Removing unwanted columns
                 foreach ($data as $key => $value) {
                     if (strpos($key, '_') === 0) {
                         unset($data[$key]);
-                    }
-                }
+                    }}
                 if (array_filter($data)) {
                     $excel_read_response = $this->data_validate($data);
 
@@ -104,12 +99,10 @@ class ShopifyController extends BaseController
                             $data['installments'] = $slice_array;
 
                         # Removing slugged with count keys from the array
-
                         foreach ($data as $key => $value) {
                             if (preg_match($pattern, $key)) {
                                 unset($data[$key]);
-                            }
-                        }
+                            }}
                         # Removing unwanted keys
                         $unwanted_keys = array('installment_amount', 'pdc_collectedpdc_to_be_collectedstatus', 'cheque_no', 'chequeinstallment_date', '0');
                         foreach ($unwanted_keys as $keys) {
@@ -119,7 +112,6 @@ class ShopifyController extends BaseController
                     }
                 }
             }
-
             $amount_collected_cash = $request["cash-total"];
             $amount_collected_cheque = $request["cheque-total"];
             $amount_collected_online = $request["online-total"];
@@ -135,12 +127,9 @@ class ShopifyController extends BaseController
             }
 
             # Inserting data to MongoDB after validation
-
             if (empty($errored_data)) {
                 $flag_msg = Shopify::STATUS_SUCCESS;
 //                \DB::table('shopify_excel_upload')->insert($valid_data);
-//                dd($valid_data);
-
                 $post_data = \DB::table('shopify_excel_upload')->where('job_status', 'failed')->orWhere('job_status', 'pending')->get();
 
                 foreach ($post_data as $info)
@@ -177,9 +166,7 @@ class ShopifyController extends BaseController
 
     private function amount_validation($file)
     {
-
         $installment_amount_array = [];
-
         $cash_array = [];
         $cheque_array = [];
         $online_array = [];
@@ -216,7 +203,6 @@ class ShopifyController extends BaseController
                         $installment_online = $row["installments"][$i]["installment_amount"];
                         array_push($online_array, $installment_online);
                         array_push($online_array,$row["registration_amount"]);
-
                     }
                 }
             }
