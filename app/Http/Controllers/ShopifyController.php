@@ -69,7 +69,6 @@ class ShopifyController extends BaseController
                         unset($data[$key]);
                     }
                 }
-
                 if (array_filter($data)) {
                     $excel_read_response = $this->data_validate($data);
 
@@ -82,23 +81,27 @@ class ShopifyController extends BaseController
                         $data['uploaded_by'] = Auth::user()->name;
                         $data['file_id'] = $file_id;
                         $data['job_status'] = "pending";
+                        $data['order_id'] = "";
 
                         # Making chunk of installments from the flat array
                         $offset_array = array(32, 43, 54, 65, 76);
+                        $final_slice = [];
                         foreach ($offset_array as $offset_value) {
                             $slice = array_slice($data, $offset_value, 11);
+                            #array checkpoint - ok
                             foreach ($slice as $key => $value) {
                                 $pattern = '/(.+)(_[\d]+)/i';
                                 $replacement = '${1}';
                                 $new_key = preg_replace($pattern, $replacement, $key);
                                 $new_slice[$new_key] = $value;
                             }
-                            for ($i = 1; $i <= env('INSTALLMENT_NUMBER'); $i++) {
-                                $slice_array[$i] = $new_slice;
-                            }
-                            $new_slice = array();
+                             array_push($final_slice, $new_slice);
                         }
-                        $data['installments'] = $slice_array;
+                        $i=1;
+                        foreach ($final_slice as $slice) {
+                            $slice_array[$i++] =  $slice;
+                        }
+                            $data['installments'] = $slice_array;
 
                         # Removing slugged with count keys from the array
 
@@ -135,7 +138,8 @@ class ShopifyController extends BaseController
 
             if (empty($errored_data)) {
                 $flag_msg = Shopify::STATUS_SUCCESS;
-                \DB::table('shopify_excel_upload')->insert($valid_data);
+//                \DB::table('shopify_excel_upload')->insert($valid_data);
+//                dd($valid_data);
 
                 $post_data = \DB::table('shopify_excel_upload')->where('job_status', 'failed')->orWhere('job_status', 'pending')->get();
 
