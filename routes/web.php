@@ -42,6 +42,7 @@ Route::prefix('bulkupload')->group(function() {
 	Route::get('/', 'ShopifyController@ShopifyBulkUpload')->name('bulkupload.ShopifyBulkUpload');
 	Route::post('/preview', 'ShopifyController@ShopifyBulkUpload_result')->name('bulkupload.ShopifyBulkUpload-result');
 	Route::get('/previous/uploads','ShopifyController@List_All_Files')->name('bulkupload.List_All_Files');
+	Route::get('/previous/orders','ShopifyController@List_All_Orders')->name('bulkupload.List_All_Orders');
 });
 
 Auth::routes();

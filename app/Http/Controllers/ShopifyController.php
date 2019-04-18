@@ -135,18 +135,12 @@ class ShopifyController extends BaseController
             } elseif ($amount_collected_online != $amount_data[2]) {
                 $flag_msg = Shopify::STATUS_ONLINE_FAILURE;
             }
-
-
             # Inserting data to MongoDB after validation
             if (empty($errored_data)) {
                 $flag_msg = Shopify::STATUS_SUCCESS;
 
                 foreach($valid_data as $valid_rows)
-                    if(empty($valid_rows['order_id']))
-                        \DB::table('shopify_excel_upload')->insert($valid_rows);
-                    else{
-
-                    }
+                    \DB::table('shopify_excel_upload')->insert($valid_rows);
 
                 $post_data = \DB::table('shopify_excel_upload')->where('job_status', 'failed')->orWhere('job_status', 'pending')->get();
 
@@ -259,13 +253,18 @@ class ShopifyController extends BaseController
         return view( 'past-files-upload')->with('files',$files);
     }
 
-    public function list_all_orders()
+    public function List_All_Orders()
     {
+        $records_array = [];
         $auth_name = Auth::user()->name;
 
-        $records = \DB::table('shopify_excel_upload')->where('uploaded_by',$auth_name)->get();
+        $mongodb_record = \DB::table('shopify_excel_upload')->where('uploaded_by',$auth_name)->Where('job_status','completed')->get();
 
-        return view('previous-orders')->with($records);
+        foreach ($mongodb_record as $records)
+
+            array_push($records_array,$records);
+
+        return view('previous-orders')->with('records_array',$records_array);
     }
 
 }

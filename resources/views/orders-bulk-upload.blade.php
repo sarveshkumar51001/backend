@@ -5,9 +5,8 @@
 {{--    </div>--}}
     <div class="card">
         <div class="card-header">
-            <i class="fa fa-edit"></i> Shopify Bulk Upload<a href="{{ URL::asset('shopify/sample_shopify_file.xlsx') }}"><button style='margin-left:700px' class="btn-info"><i class="fa fa-download"></i> Download sample file</button></a><a href="{{ URL::route('bulkupload.List_All_Files') }}"><button style='margin-left:20px' class="btn-link"><i class="fa fa-info"></i> Upload History</button></a>
+            <i class="fa fa-edit"></i> Shopify Bulk Upload<a href="{{ URL::asset('shopify/sample_shopify_file.xlsx') }}"><button style='margin-left:700px' class="btn-info"><i class="fa fa-download"></i> Download sample file</button></a>
         </div>
-
         <div class="card-body">
             @if( $flag_msg == App\Models\Shopify::STATUS_SUCCESS )
             <div class="form-group">
@@ -79,6 +78,12 @@
                 </div>
             </form>
         </div>
+    </div>
+    <div class ="card">
+        <div class ="fa-external-link"><a href="{{ URL::route('bulkupload.List_All_Files') }}"><button style='margin-left:20px' class="btn-info"><i class="fa fa-info"></i>  File Upload History</button></a>
+        </div>
+{{--        <div class ="fa-external-link"><a href="{{ URL::route('bulkupload.List_All_Orders') }}"><button style='margin-left:20px' class="btn-info"><i class="fa fa-info"></i> Order History</button></a>--}}
+{{--        </div>--}}
     </div>
 @endsection
 
