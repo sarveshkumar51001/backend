@@ -1,10 +1,13 @@
 @extends('admin.app')
 @section('content')
     @php $flag_msg = $flag_msg ?? 0 @endphp
+{{--    <div class = "form-group row"><a href="{{ URL::route('bulkupload.List_All_Files') }}"><button style='margin-left:20px' class="btn-link"><i class="fa fa-info"></i> Upload History</button></a>--}}
+{{--    </div>--}}
     <div class="card">
         <div class="card-header">
-            <i class="fa fa-edit"></i> Shopify Bulk Upload<a href="{{ URL::asset('shopify/sample_shopify_file.xlsx') }}"><button style='margin-left:700px' class="btn-info"><i class="fa fa-download"></i> Download sample file</button></a>
+            <i class="fa fa-edit"></i> Shopify Bulk Upload<a href="{{ URL::asset('shopify/sample_shopify_file.xlsx') }}"><button style='margin-left:700px' class="btn-info"><i class="fa fa-download"></i> Download sample file</button></a><a href="{{ URL::route('bulkupload.List_All_Files') }}"><button style='margin-left:20px' class="btn-link"><i class="fa fa-info"></i> Upload History</button></a>
         </div>
+
         <div class="card-body">
             @if( $flag_msg == App\Models\Shopify::STATUS_SUCCESS )
             <div class="form-group">

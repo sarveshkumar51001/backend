@@ -6,16 +6,13 @@ Class Shopify_POST
 {
     public static function check_customer_existence($shopify, $customer_info)
     {
-
         $email = $customer_info["email_id"];
         $phone = $customer_info["mobile_number"];
-
         $query = sprintf("email:%s OR phone:%s", $email, $phone);
 
         $customers = $shopify->Customer->search($query);
 
         return $customers;
-
     }
 
     public static function create_customer($shopify, $customer_info)

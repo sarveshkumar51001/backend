@@ -21,6 +21,15 @@ use App\Models\Shopify;
 
 class ShopifyController extends BaseController
 {
+//    private $user_name;
+
+//    public function __construct(Request $request)
+//    {
+//        dd(Auth::user()->name);
+//        $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
+//        $this->user_name = preg_replace('/\s+/', '_', $name);
+//    }
+
     public function ShopifyBulkUpload()
     {
         return view('orders-bulk-upload');
@@ -28,6 +37,7 @@ class ShopifyController extends BaseController
 
     public function ShopifyBulkUpload_result(Request $request)
     {
+
         # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
         try {
             config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count']);
@@ -126,10 +136,18 @@ class ShopifyController extends BaseController
                 $flag_msg = Shopify::STATUS_ONLINE_FAILURE;
             }
 
+
             # Inserting data to MongoDB after validation
             if (empty($errored_data)) {
                 $flag_msg = Shopify::STATUS_SUCCESS;
-//                \DB::table('shopify_excel_upload')->insert($valid_data);
+
+                foreach($valid_data as $valid_rows)
+                    if(empty($valid_rows['order_id']))
+                        \DB::table('shopify_excel_upload')->insert($valid_rows);
+                    else{
+
+                    }
+
                 $post_data = \DB::table('shopify_excel_upload')->where('job_status', 'failed')->orWhere('job_status', 'pending')->get();
 
                 foreach ($post_data as $info)
@@ -216,6 +234,38 @@ class ShopifyController extends BaseController
 
         return $amounts_array;
 
+    }
+
+    public function List_All_Files(){
+
+        $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
+        $user_name = preg_replace('/\s+/', '_', $name);
+
+        $dir = sprintf('/var/www/html/htdocs/backend/public/%s/',$user_name);
+
+        foreach (scandir($dir) as $file) {
+            if ('.' === $file) continue;
+            if ('..' === $file) continue;
+
+            $exp_file_name = explode("_", $file)[3];
+            $unix_time = (int)explode(".",$exp_file_name)[0];
+            $upload_date = date('Y-m-d',$unix_time);
+
+            $file = sprintf("%s/%s",$user_name,$file);
+
+            $files[$upload_date] = $file;
+        }
+
+        return view( 'past-files-upload')->with('files',$files);
+    }
+
+    public function list_all_orders()
+    {
+        $auth_name = Auth::user()->name;
+
+        $records = \DB::table('shopify_excel_upload')->where('uploaded_by',$auth_name)->get();
+
+        return view('previous-orders')->with($records);
     }
 
 }
