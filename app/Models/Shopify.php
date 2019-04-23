@@ -13,6 +13,4 @@ class Shopify extends Base
     const STATUS_CASH_FAILURE = 101;
     const STATUS_CHEQUE_FAILURE = 102;
     const STATUS_SUCCESS = 200;
-
-//    public static $statues = [self::STATUS_ONLINE_FAILURE,self::STATUS_CASH_FAILURE,self::STATUS_CHEQUE_FAILURE];
 }

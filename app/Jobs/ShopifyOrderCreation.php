@@ -55,9 +55,12 @@ class ShopifyOrderCreation implements ShouldQueue
             }
             $_id = $data["_id"];
 
-            \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['order_id' => $order_id]);
+            $updateDetails = [
+                'order_id' => $order_id,
+                'job_status' => 'completed'
+            ];
 
-            \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['job_status'=>'completed']);
+            \DB::table('shopify_excel_upload')->where('_id',$_id)->update($updateDetails);
 
         } catch(\Exception $e) {
             $_id = $data["_id"];

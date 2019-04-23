@@ -1,13 +1,20 @@
 @extends('admin.app')
 @section('content')
     @php $flag_msg = $flag_msg ?? 0 @endphp
-{{--    <div class = "form-group row"><a href="{{ URL::route('bulkupload.List_All_Files') }}"><button style='margin-left:20px' class="btn-link"><i class="fa fa-info"></i> Upload History</button></a>--}}
-{{--    </div>--}}
     <div class="card">
         <div class="card-header">
             <i class="fa fa-edit"></i> Shopify Bulk Upload<a href="{{ URL::asset('shopify/sample_shopify_file.xlsx') }}"><button style='margin-left:700px' class="btn-info"><i class="fa fa-download"></i> Download sample file</button></a>
         </div>
         <div class="card-body">
+            @if( $flag_msg == App\Models\Shopify::STATUS_FILE_UPLOAD )
+                <div class="form-group">
+                    <div class="col-sm-10 col-sm-offset-2">
+                        <div class="alert alert-danger">
+                            <?php echo 'Oops! File cannot be opened.You uploaded a file with wrong format.'; ?>
+                        </div>
+                    </div>
+                </div>
+            @endif
             @if( $flag_msg == App\Models\Shopify::STATUS_SUCCESS )
             <div class="form-group">
                 <div class="col-sm-10 col-sm-offset-2">
@@ -53,7 +60,7 @@
                 </div>
                 <div class="form-group row"><label for="end" class="col-md-4 col-form-label text-md-right">Select file</label>
                     <div class="col-md-6">
-                        <input type="file" name="file" required="required" class="form-control">
+                        <input type="file" name="file" required="required" accept=".xls ,.xlsx" class="form-control">
                         <i id="error-file" class="error text-danger d-none"></i>
                     </div>
                 </div>
@@ -82,8 +89,6 @@
     <div class ="card">
         <div class ="fa-external-link"><a href="{{ URL::route('bulkupload.List_All_Files') }}"><button style='margin-left:20px' class="btn-info"><i class="fa fa-info"></i>  File Upload History</button></a>
         </div>
-{{--        <div class ="fa-external-link"><a href="{{ URL::route('bulkupload.List_All_Orders') }}"><button style='margin-left:20px' class="btn-info"><i class="fa fa-info"></i> Order History</button></a>--}}
-{{--        </div>--}}
     </div>
 @endsection
 

@@ -59,7 +59,6 @@ Class Shopify_POST
 
     public static function create_order($shopify, $order_info)
     {
-
         $order_data = [
             "email" => $order_info["email_id"],
             "line_items" => [[
@@ -90,7 +89,6 @@ Class Shopify_POST
                 ], [
                     "name" => "Bank Name",
                     "value" => $order_info["bank_name"]
-
                 ], [
                     "name" => "Branch Name",
                     "value" => $order_info["bank_branch"]
@@ -144,58 +142,5 @@ Class Shopify_POST
         $order_object = $shopify->Order->post($order_data);
 
         return $order_object["id"];
-    }
-
-    public static function update_order_with_installment($shopify,$order_info){
-
-        $order_data = [
-            "id"=> $order_info["order_id"],
-            "note_attributes" => [[
-                "name" => "Payment Mode",
-                "value" => $order_info["installments"][1]["mode_of_payment"]
-            ], [
-                "name" => "Cheque/DD No.",
-                "value" => $order_info["installments"][1]["cheque_no"]
-            ], [
-                "name" => "Cheque/DD Date",
-                "value" => $order_info["installments"][1]["chequeinstallment_date"]
-            ], [
-                "name" => "Online Transaction Reference Number",
-                "value" => $order_info["installments"][1]["txn_reference_number_only_in_case_of_paytm_or_online"]
-            ], [
-                "name" => "Drawee Name",
-                "value" => $order_info["installments"][1]["drawee_name"]
-            ], [
-                "name" => "Drawee Account Number",
-                "value" => $order_info["installments"][1]["drawee_account_number"]
-            ], [
-                "name" => "MICR Code",
-                "value" => $order_info["installments"][1]["micr_code"]
-            ], [
-                "name" => "Bank Name",
-                "value" => $order_info["installments"][1]["bank_name"]
-
-            ], [
-                "name" => "Branch Name",
-                "value" => $order_info["installments"][1]["bank_branch"]
-            ]]];
-
-        $shopify->Order->put($order_data);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }
