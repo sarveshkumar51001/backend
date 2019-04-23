@@ -18,6 +18,7 @@ use PHPShopify;
 use App\User, Socialite, Auth, Exception;
 use App\Jobs\ShopifyOrderCreation;
 use App\Models\Shopify;
+use Illuminate\Support\Carbon;
 
 class ShopifyController extends BaseController
 {
@@ -51,8 +52,7 @@ class ShopifyController extends BaseController
             }
             // Extracting file from Post request
             $excel_file = $request->file('file');
-
-            $excel_path = $excel_file->getClientOriginalName(); # Getting original client name
+            $excel_path = $excel_file->getClientOriginalName();# Getting original client name
             $excel_file_path = $excel_path . '_' . time() . '.xlsx'; # Adding current timestamp to file
             $user_path = public_path($user_name);# public path for file storage
             $path = $excel_file->move($user_path, $excel_file_path); # Moving uploaded excel file to specific folder
@@ -73,7 +73,8 @@ class ShopifyController extends BaseController
                 foreach ($data as $key => $value) {
                     if (strpos($key, '_') === 0) {
                         unset($data[$key]);
-                    }}
+                    }
+                }
                 if (array_filter($data)) {
                     $excel_read_response = $this->data_validate($data);
 
@@ -87,6 +88,8 @@ class ShopifyController extends BaseController
                         $data['file_id'] = $file_id;
                         $data['job_status'] = "pending";
                         $data['order_id'] = "";
+                        $date = $data['date_of_enrollment'];
+                        $data['date_of_enrollment'] = Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('d.m.Y');
 
                         # Making chunk of installments from the flat array
                         $offset_array = array(32, 43, 54, 65, 76);
@@ -100,19 +103,20 @@ class ShopifyController extends BaseController
                                 $new_key = preg_replace($pattern, $replacement, $key);
                                 $new_slice[$new_key] = $value;
                             }
-                             array_push($final_slice, $new_slice);
+                            array_push($final_slice, $new_slice);
                         }
-                        $i=1;
+                        $i = 1;
                         foreach ($final_slice as $slice) {
-                            $slice_array[$i++] =  $slice;
+                            $slice_array[$i++] = $slice;
                         }
-                            $data['installments'] = $slice_array;
+                        $data['installments'] = $slice_array;
 
                         # Removing slugged with count keys from the array
                         foreach ($data as $key => $value) {
                             if (preg_match($pattern, $key)) {
                                 unset($data[$key]);
-                            }}
+                            }
+                        }
                         # Removing unwanted keys
                         $unwanted_keys = array('installment_amount', 'pdc_collectedpdc_to_be_collectedstatus', 'cheque_no', 'chequeinstallment_date', '0');
                         foreach ($unwanted_keys as $keys) {
@@ -122,6 +126,7 @@ class ShopifyController extends BaseController
                     }
                 }
             }
+
             $amount_collected_cash = $request["cash-total"];
             $amount_collected_cheque = $request["cheque-total"];
             $amount_collected_online = $request["online-total"];
@@ -135,18 +140,45 @@ class ShopifyController extends BaseController
             } elseif ($amount_collected_online != $amount_data[2]) {
                 $flag_msg = Shopify::STATUS_ONLINE_FAILURE;
             }
+
             # Inserting data to MongoDB after validation
             if (empty($errored_data)) {
                 $flag_msg = Shopify::STATUS_SUCCESS;
 
-                foreach($valid_data as $valid_rows)
-                    \DB::table('shopify_excel_upload')->insert($valid_rows);
+                foreach($valid_data as $valid_row){
 
+                    $date_enroll = $valid_row['date_of_enrollment'];
+                    $activity_id = $valid_row['shopify_activity_id'];
+                    $std_enroll_no = $valid_row['school_enrollment_no'];
+
+                    $installment_doc = \DB::table('shopify_excel_upload')->where('date_of_enrollment',$date_enroll)->where('shopify_activity_id',$activity_id)->where('school_enrollment_no',$std_enroll_no)->get()->first();
+
+                    if (empty($installment_doc)){
+                        \DB::table('shopify_excel_upload')->insert($valid_row);
+                    }
+                    else{
+                        $doc_id = $installment_doc["_id"];
+                        $installment_data = $installment_doc["installments"];
+                        $excel_installment_data = $valid_row["installments"];
+
+                        for($i=1;$i<=5;$i++){
+
+                            if(empty(array_filter($installment_data[$i]))){
+                                $installment_data[$i] = $excel_installment_data[$i];
+                            }
+                        }
+                        $updatedetails = [
+                            'installments' => $installment_data,
+                            'job_status' => 'pending'
+                        ];
+                        \DB::table('shopify_excel_upload')->where('_id',$doc_id)->update($updatedetails);
+                    }
+                }
                 $post_data = \DB::table('shopify_excel_upload')->where('job_status', 'failed')->orWhere('job_status', 'pending')->get();
 
                 foreach ($post_data as $info)
 
-                    ShopifyOrderCreation::dispatch($info);
+//                    ShopifyOrderCreation::dispatch($info);
 
                 return view('orders-bulk-upload')->with('flag_msg', $flag_msg);
             } else {
