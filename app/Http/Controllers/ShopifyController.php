@@ -22,17 +22,26 @@ use Illuminate\Support\Carbon;
 
 class ShopifyController extends BaseController
 {
-//    private $user_name;
-
-//    public function __construct(Request $request)
-//    {
-//        dd(Auth::user()->name);
-//        $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
-//        $this->user_name = preg_replace('/\s+/', '_', $name);
-//    }
-
     public function ShopifyBulkUpload()
     {
+
+//        $config = array(
+//            'ShopUrl' => 'valedra-test.myshopify.com',
+//            'ApiKey' => env('SHOPIFY_APIKEY'),
+//            'Password' => env('SHOPIFY_PASSWORD'));
+//
+//        PHPShopify\ShopifySDK::config($config);
+//
+//        $shopify = new PHPShopify\ShopifySDK;
+//
+//        $order_data = [
+//                "currency"=> "USD",
+//                "amount"=> 20.00,
+//                "kind"=> "sale"
+//            ];
+//
+//        $shopify->Order(1007884042304)->Transaction->post($order_data);
+        
         return view('orders-bulk-upload');
     }
 
@@ -96,13 +105,13 @@ class ShopifyController extends BaseController
                         $final_slice = [];
                         foreach ($offset_array as $offset_value) {
                             $slice = array_slice($data, $offset_value, 11);
-                            #array checkpoint - ok
                             foreach ($slice as $key => $value) {
                                 $pattern = '/(.+)(_[\d]+)/i';
                                 $replacement = '${1}';
                                 $new_key = preg_replace($pattern, $replacement, $key);
                                 $new_slice[$new_key] = $value;
                             }
+                            $new_slice['processed'] = 'No';
                             array_push($final_slice, $new_slice);
                         }
                         $i = 1;

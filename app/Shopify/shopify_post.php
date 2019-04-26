@@ -63,8 +63,9 @@ Class Shopify_POST
             "email" => $order_info["email_id"],
             "line_items" => [[
                 "variant_id" => $order_info["shopify_activity_id"],
-                "discount" => $order_info["scholarship_discount"],
-                "taxable" => true,
+                "transaction"=>[
+                    "kind"=> "capture"
+                ],
                 "note_attributes" => [[
                     "name" => "Payment Mode",
                     "value" => $order_info["mode_of_payment"]
@@ -102,45 +103,48 @@ Class Shopify_POST
 
     public static function create_order_with_installment($shopify, $order_info)
     {
-        $order_data = [
-            "email" => $order_info["email_id"],
-            "line_items" => [[
-                "variant_id" => $order_info["shopify_activity_id"],
-                "discount" => $order_info["scholarship_discount"],
-                "taxable" => true,
-                "note_attributes" => [[
-                    "name" => "Payment Mode",
-                    "value" => $order_info["installments"][1]["mode_of_payment"]
-                ], [
-                    "name" => "Cheque/DD No.",
-                    "value" => $order_info["installments"][1]["cheque_no"]
-                ], [
-                    "name" => "Cheque/DD Date",
-                    "value" => $order_info["installments"][1]["chequeinstallment_date"]
-                ], [
-                    "name" => "Online Transaction Reference Number",
-                    "value" => $order_info["installments"][1]["txn_reference_number_only_in_case_of_paytm_or_online"]
-                ], [
-                    "name" => "Drawee Name",
-                    "value" => $order_info["installments"][1]["drawee_name"]
-                ], [
-                    "name" => "Drawee Account Number",
-                    "value" => $order_info["installments"][1]["drawee_account_number"]
-                ], [
-                    "name" => "MICR Code",
-                    "value" => $order_info["installments"][1]["micr_code"]
-                ], [
-                    "name" => "Bank Name",
-                    "value" => $order_info["installments"][1]["bank_name"]
+        for ($i = 1; $i <= 5; $i++) {
 
-                ], [
-                    "name" => "Branch Name",
-                    "value" => $order_info["installments"][1]["bank_branch"]
-                ]]
-            ]]];
+            $input = $order_info['installments'][$i];
 
-        $order_object = $shopify->Order->post($order_data);
+            $output = implode(', ', array_map(function ($v, $k) { return sprintf("%s -> %s", $k, $v);},$input,array_keys($input)));
+
+            if ($order_info['installments'][$i]['processed'] == 'No') {
+                $order_data = [
+                    "email" => $order_info["email_id"],
+                    "line_items" => [[
+                        "variant_id" => $order_info["shopify_activity_id"],
+                        "discount" => $order_info["scholarship_discount"],
+                        "taxable" => true,
+                        "note_attributes" => [[
+                            "name" => sprintf("Installment-%s",$i),
+                            "value" => $output
+                            ]]
+                        ]]];
+                $order_object = $shopify->Order->post($order_data);
+            }
+        }
 
         return $order_object["id"];
     }
-}
+
+    public static function post_transaction_for_installment($shopify, $order_details)
+    {
+        for ($i = 1; $i <= 5; $i++) {
+            $input = $order_details['installments'][$i];
+
+            $output = implode(', ', array_map(function ($v, $k) { return sprintf("%s -> %s", $k, $v);},$input,array_keys($input)));
+
+            if ($order_details['installments'][$i]['processed'] == 'No') {
+
+                $order_data = [
+                    "order_id" => $order_details['order_id'],
+                    "note_attributes"=>[[
+                        "name"=> sprintf("Installment-%s",$i),
+                        "value"=> $output
+                    ]]];
+                $shopify->Order->Transaction->post($order_data);
+                }
+            }
+        }
+    }

@@ -35,6 +35,7 @@ class ShopifyOrderCreation implements ShouldQueue
         $shopify = new PHPShopify\ShopifySDK; # new instance of PHPShopify class
 
         try {
+            $_id = $data["_id"];
             $customer = Shopify_POST::check_customer_existence($shopify, $data);
 
             if (empty($customer)) {
@@ -42,25 +43,20 @@ class ShopifyOrderCreation implements ShouldQueue
 
                 if (empty(array_filter($data["installments"][1]))) {
                     Shopify_POST::create_order($shopify,$data);
+                    \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['job_status'=> 'completed']);
+
                 } else {
                     Shopify_POST::create_order_with_installment($shopify,$data);
                 }
             }
 
             if (!empty($customer) && empty(array_filter($data["installments"][1]))) {
-               $order_id = Shopify_POST::create_order($shopify,$data);
+                Shopify_POST::create_order($shopify,$data);
+                \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['job_status'=> 'completed']);
 
             } else {
-                $order_id = Shopify_POST::create_order_with_installment($shopify, $data);
+                Shopify_POST::create_order_with_installment($shopify, $data);
             }
-            $_id = $data["_id"];
-
-            $updateDetails = [
-                'order_id' => $order_id,
-                'job_status' => 'completed'
-            ];
-
-            \DB::table('shopify_excel_upload')->where('_id',$_id)->update($updateDetails);
 
         } catch(\Exception $e) {
             $_id = $data["_id"];

@@ -6,15 +6,6 @@
             <i class="fa fa-edit"></i> Shopify Bulk Upload<a href="{{ URL::asset('shopify/sample_shopify_file.xlsx') }}"><button style='margin-left:700px' class="btn-info"><i class="fa fa-download"></i> Download sample file</button></a>
         </div>
         <div class="card-body">
-            @if( $flag_msg == App\Models\Shopify::STATUS_FILE_UPLOAD )
-                <div class="form-group">
-                    <div class="col-sm-10 col-sm-offset-2">
-                        <div class="alert alert-danger">
-                            <?php echo 'Oops! File cannot be opened.You uploaded a file with wrong format.'; ?>
-                        </div>
-                    </div>
-                </div>
-            @endif
             @if( $flag_msg == App\Models\Shopify::STATUS_SUCCESS )
             <div class="form-group">
                 <div class="col-sm-10 col-sm-offset-2">
