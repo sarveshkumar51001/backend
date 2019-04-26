@@ -41,7 +41,7 @@ class ShopifyController extends BaseController
 //            ];
 //
 //        $shopify->Order(1007884042304)->Transaction->post($order_data);
-        
+
         return view('orders-bulk-upload');
     }
 

@@ -54,6 +54,7 @@ class ShopifyOrderCreation implements ShouldQueue
                 Shopify_POST::create_order($shopify,$data);
                 \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['job_status'=> 'completed']);
 
+
             } else {
                 Shopify_POST::create_order_with_installment($shopify, $data);
             }

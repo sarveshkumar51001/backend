@@ -103,7 +103,10 @@ Class Shopify_POST
 
     public static function create_order_with_installment($shopify, $order_info)
     {
+        $_id = $order_info['_id'];
+
         for ($i = 1; $i <= 5; $i++) {
+            $installment_index = sprintf("Installment.%s.processed",$i);
 
             $input = $order_info['installments'][$i];
 
@@ -122,6 +125,7 @@ Class Shopify_POST
                             ]]
                         ]]];
                 $order_object = $shopify->Order->post($order_data);
+                \DB::table('shopify_excel_upload')->where('_id',$_id)->update([$installment_index=>'Yes']);
             }
         }
 
@@ -130,7 +134,10 @@ Class Shopify_POST
 
     public static function post_transaction_for_installment($shopify, $order_details)
     {
+        $_id = $order_details['_id'];
+
         for ($i = 1; $i <= 5; $i++) {
+            $installment_index = sprintf("Installment.%s.processed",$i);
             $input = $order_details['installments'][$i];
 
             $output = implode(', ', array_map(function ($v, $k) { return sprintf("%s -> %s", $k, $v);},$input,array_keys($input)));
@@ -144,6 +151,7 @@ Class Shopify_POST
                         "value"=> $output
                     ]]];
                 $shopify->Order->Transaction->post($order_data);
+                \DB::table('shopify_excel_upload')->where('_id',$_id)->update([$installment_index=>'Yes']);
                 }
             }
         }
