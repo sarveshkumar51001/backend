@@ -67,7 +67,8 @@ Class Shopify_POST
         $order_data = [
             "email" => $order_info["email_id"],
             "line_items" => [[
-                "variant_id" => $details['product_id'],
+                "variant_id" => $details['product_id']
+                ]],
                 "transaction"=>[
                     "kind"=> "capture"
                 ],
@@ -99,7 +100,7 @@ Class Shopify_POST
                     "name" => "Branch Name",
                     "value" => $order_info["bank_branch"]
                 ]]
-            ]]];
+            ];
 
         $order_response = $shopify->Order->post($order_data);
         \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['order_id'],$order_response["id"]);
@@ -151,6 +152,10 @@ Class Shopify_POST
 
                 $order_data = [
                     "order_id" => $order_details['order_id'],
+                    "transaction" => [
+                        "kind"=>"capture",
+                        "amount" => $order_details['installments'][$i]['installment_amount']
+                    ],
                     "note_attributes"=>[[
                         "name"=> sprintf("Installment-%s",$i),
                         "value"=> $output
