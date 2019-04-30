@@ -31,38 +31,33 @@ class ShopifyOrderCreation implements ShouldQueue
             'Password' => env('SHOPIFY_PASSWORD'));
 
         PHPShopify\ShopifySDK::config($config);
-
         $shopify = new PHPShopify\ShopifySDK; # new instance of PHPShopify class
 
         try {
             $_id = $data["_id"];
             $customer = Shopify_POST::check_customer_existence($shopify, $data);
+            $details = Shopify_POST::get_variant_id($data);
 
             if (empty($customer)) {
                 Shopify_POST::create_customer($shopify,$data);
 
                 if (empty(array_filter($data["installments"][1]))) {
-                    Shopify_POST::create_order($shopify,$data);
+                    Shopify_POST::create_order($shopify,$data,$details);
                     \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['job_status'=> 'completed']);
-
                 } else {
-                    Shopify_POST::create_order_with_installment($shopify,$data);
+                    Shopify_POST::create_order_with_installment($shopify,$data,$details);
                 }
             }
-
             if (!empty($customer) && empty(array_filter($data["installments"][1]))) {
-                Shopify_POST::create_order($shopify,$data);
+                Shopify_POST::create_order($shopify,$data,$details);
                 \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['job_status'=> 'completed']);
-
-
             } else {
-                Shopify_POST::create_order_with_installment($shopify, $data);
+                Shopify_POST::create_order_with_installment($shopify, $data,$details);
             }
 
         } catch(\Exception $e) {
             $_id = $data["_id"];
             dd($e);
-
             \DB::table('shopify_excel_upload')
                 ->where('_id', $_id)
                 ->update(['job_status' => 'failed']);

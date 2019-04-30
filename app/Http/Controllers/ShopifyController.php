@@ -135,7 +135,6 @@ class ShopifyController extends BaseController
                     }
                 }
             }
-
             $amount_collected_cash = $request["cash-total"];
             $amount_collected_cheque = $request["cheque-total"];
             $amount_collected_online = $request["online-total"];
@@ -187,7 +186,7 @@ class ShopifyController extends BaseController
 
                 foreach ($post_data as $info)
 
-//                    ShopifyOrderCreation::dispatch($info);
+                    ShopifyOrderCreation::dispatch($info);
 
                 return view('orders-bulk-upload')->with('flag_msg', $flag_msg);
             } else {
@@ -205,7 +204,7 @@ class ShopifyController extends BaseController
     private function data_validate($data_array)
     {
         $rules = [
-            "shopify_activity_id" => "required|numeric",
+            "shopify_activity_id" => "required|string",
             "school_name" => "required|string",
             "school_enrollment_no" => "required",
             "mobile_number" => "required|regex:/^[0-9]{10}$/",

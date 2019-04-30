@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Shopify;
+use Carbon\Carbon;
 
 Class Shopify_POST
 {
@@ -9,10 +10,13 @@ Class Shopify_POST
         $email = $customer_info["email_id"];
         $phone = $customer_info["mobile_number"];
         $query = sprintf("email:%s OR phone:%s", $email, $phone);
-
         $customers = $shopify->Customer->search($query);
-
         return $customers;
+    }
+
+    public static function get_variant_id($product_info){
+        $variant_id = \DB::table('valedra_products')->where('product_sku', $product_info['shopify_activity_id'])->get()->first();
+        return $variant_id;
     }
 
     public static function create_customer($shopify, $customer_info)
@@ -57,12 +61,13 @@ Class Shopify_POST
         $shopify->Customer->post($customer_data);
     }
 
-    public static function create_order($shopify, $order_info)
+    public static function create_order($shopify, $order_info,$details)
     {
+        $_id = $order_info['_id'];
         $order_data = [
             "email" => $order_info["email_id"],
             "line_items" => [[
-                "variant_id" => $order_info["shopify_activity_id"],
+                "variant_id" => $details['product_id'],
                 "transaction"=>[
                     "kind"=> "capture"
                 ],
@@ -97,39 +102,39 @@ Class Shopify_POST
             ]]];
 
         $order_response = $shopify->Order->post($order_data);
-
-        return $order_response["id"];
+        \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['order_id'],$order_response["id"]);
     }
 
-    public static function create_order_with_installment($shopify, $order_info)
+    public static function create_order_with_installment($shopify, $order_info,$details)
     {
         $_id = $order_info['_id'];
-
         for ($i = 1; $i <= 5; $i++) {
             $installment_index = sprintf("Installment.%s.processed",$i);
-
             $input = $order_info['installments'][$i];
-
+            $input["chequeinstallment_date"] = explode(" ",$input['chequeinstallment_date']['date'])[0];
             $output = implode(', ', array_map(function ($v, $k) { return sprintf("%s -> %s", $k, $v);},$input,array_keys($input)));
 
             if ($order_info['installments'][$i]['processed'] == 'No') {
                 $order_data = [
                     "email" => $order_info["email_id"],
                     "line_items" => [[
-                        "variant_id" => $order_info["shopify_activity_id"],
-                        "discount" => $order_info["scholarship_discount"],
+                        "variant_id" => $details['product_id'],
                         "taxable" => true,
-                        "note_attributes" => [[
-                            "name" => sprintf("Installment-%s",$i),
-                            "value" => $output
-                            ]]
-                        ]]];
+                        ]],
+                    "transaction" => [
+                        "kind" => "authorization",
+                        "amount" => ""
+                    ],
+                    "note_attributes" => [[
+                        "name" => sprintf("Installment-%s",$i),
+                        "value" => $output
+                    ]]];
                 $order_object = $shopify->Order->post($order_data);
+                dd($order_object);
                 \DB::table('shopify_excel_upload')->where('_id',$_id)->update([$installment_index=>'Yes']);
+                \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['order_id'],$order_object["id"]);
             }
         }
-
-        return $order_object["id"];
     }
 
     public static function post_transaction_for_installment($shopify, $order_details)
