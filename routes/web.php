@@ -38,7 +38,10 @@ Route::prefix('imagereco')->group(function() {
     Route::get('/search/image', 'ImageRecognitionController@searchByImage')->name('imagereco.search-by-image');
     Route::post('/search/image', 'ImageRecognitionController@searchByImage_result')->name('imagereco.search-by-image-result');
 });
-
+Route::prefix('bulkupload')->group(function() {
+	Route::get('/', 'ShopifyController@ShopifyBulkUpload')->name('bulkupload.ShopifyBulkUpload');
+	Route::post('/', 'ShopifyController@ShopifyBulkUpload_result')->name('bulkupload.ShopifyBulkUpload_result');
+});
 
 Auth::routes();
 

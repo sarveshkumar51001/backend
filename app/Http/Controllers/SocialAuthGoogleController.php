@@ -12,7 +12,7 @@ class SocialAuthGoogleController extends Controller
 
 	public function callback() {
 		try {
-			$googleUser = Socialite::driver('google')->user();
+			$googleUser = Socialite::driver('google')->stateless()->user();
 			$existUser = User::where('email', $googleUser->email)->first();
 
 			if($existUser) {
