@@ -57,7 +57,7 @@
                             <button id="search-btn" type="submit" class="btn btn-lg btn-success"> Search </button>
                         </div>
                     </div>
-                </div>
+                </div>3
                 <div class="card d-none" id="alumni-data">
                     <div class="card-header">
                         Alumni details
@@ -117,7 +117,7 @@
     @endif
 @endsection
 
-@section('footer-js')
+<!-- @section('footer-js') -->
     <script>
         $('#select-type').on('change', function() {
            if(this.value == 'Employee' || this.value == 'Ex-Employee') {
@@ -129,4 +129,4 @@
            }
         });
     </script>
-@endsection
+<!-- @endsection -->
