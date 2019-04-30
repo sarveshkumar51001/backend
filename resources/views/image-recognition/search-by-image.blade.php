@@ -16,19 +16,19 @@
                         <label class="col-form-label" for="inputSuccess1" >Type <i style="color: red;">*</i></label>
                         <select name="tag" class="form-control" required id="select-type">
                             <option selected="selected"> Select Type </option>
-                            <option value="Ex-Employee"> Ex-Employee </option>
-                            <option value="Employee"> Employee </option>
-                            <option value="Alumni"> Alumni </option>
+                            <option value="ex_employee"> Ex-Employee </option>
+                            <option value="employee"> Employee </option>
+                            <option value="alumni"> Alumni </option>
                         </select>
                     </div>
                     <div class="form-group col-md-3">
                         <label class="col-form-label" for="inputSuccess1">Organization <i style="color: red;">*</i></label>
                         <select name="organization" class="form-control" required>
                             <option selected="selected"> Select Organization </option>
-                            <option value="Valedra"> Valedra </option>
-                            <option value="Apeejay Education Society"> Apeejay Education Society </option>
-                            <option value="Apeejay School, Sheikh Sarai"> Apeejay School, Sheikh Sarai </option>
-                            <option value="Apeejay School, Saket"> Apeejay School, Saket </option>
+                            <option value="valedra"> Valedra </option>
+                            <option value="apeejay_education_society"> Apeejay Education Society </option>
+                            <option value="apeejay_school_sheikh_sarai"> Apeejay School, Sheikh Sarai </option>
+                            <option value="apeejay_school_saket"> Apeejay School, Saket </option>
                         </select>
                     </div>
                     <div class="form-group col-md-3">
@@ -65,11 +65,11 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="form-group col-md-4">
-                                <label class="col-form-label" for="inputSuccess1">Passout year</label>
+                                <label class="col-form-label" for="inputSuccess1"> Passout year </label>
                                 <input name="passout_year" type="text" value="" class="form-control">
                             </div>
                             <div class="form-group col-md-4">
-                                <label class="col-form-label">Passout Class</label>
+                                <label class="col-form-label"> Passout Class </label>
                                 <input name="passout_class" type="text" class="form-control">
                             </div>
                         </div>
