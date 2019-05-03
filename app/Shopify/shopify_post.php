@@ -14,7 +14,8 @@ Class Shopify_POST
         return $customers;
     }
 
-    public static function get_variant_id($product_info){
+    public static function get_variant_id($product_info)
+    {
         $variant_id = \DB::table('valedra_products')->where('product_sku', $product_info['shopify_activity_id'])->get()->first();
         return $variant_id;
     }
@@ -61,108 +62,105 @@ Class Shopify_POST
         $shopify->Customer->post($customer_data);
     }
 
-    public static function create_order($shopify, $order_info,$details)
+    public static function create_order($shopify, $order_info, $details)
     {
         $_id = $order_info['_id'];
         $order_data = [
             "email" => $order_info["email_id"],
             "line_items" => [[
                 "variant_id" => $details['product_id']
-                ]],
-                "transaction"=>[
-                    "kind"=> "capture"
-                ],
-                "note_attributes" => [[
-                    "name" => "Payment Mode",
-                    "value" => $order_info["mode_of_payment"]
-                ], [
-                    "name" => "Cheque/DD No.",
-                    "value" => $order_info["chequedd_no"]
-                ], [
-                    "name" => "Cheque/DD Date",
-                    "value" => $order_info["chequedd_date"]
-                ], [
-                    "name" => "Online Transaction Reference Number",
-                    "value" => $order_info["txn_reference_number_only_in_case_of_paytm_or_online"]
-                ], [
-                    "name" => "Drawee Name",
-                    "value" => $order_info["drawee_name"]
-                ], [
-                    "name" => "Drawee Account Number",
-                    "value" => $order_info["drawee_account_number"]
-                ], [
-                    "name" => "MICR Code",
-                    "value" => $order_info["micr_code"]
-                ], [
-                    "name" => "Bank Name",
-                    "value" => $order_info["bank_name"]
-                ], [
-                    "name" => "Branch Name",
-                    "value" => $order_info["bank_branch"]
-                ]]
-            ];
+            ]],
+            "transaction" => [[
+                "kind" => "capture"
+            ]],
+            "note_attributes" => [[
+                "name" => "Payment Mode",
+                "value" => $order_info["mode_of_payment"]
+            ], [
+                "name" => "Cheque/DD No.",
+                "value" => $order_info["chequedd_no"]
+            ], [
+                "name" => "Cheque/DD Date",
+                "value" => $order_info["chequedd_date"]
+            ], [
+                "name" => "Online Transaction Reference Number",
+                "value" => $order_info["txn_reference_number_only_in_case_of_paytm_or_online"]
+            ], [
+                "name" => "Drawee Name",
+                "value" => $order_info["drawee_name"]
+            ], [
+                "name" => "Drawee Account Number",
+                "value" => $order_info["drawee_account_number"]
+            ], [
+                "name" => "MICR Code",
+                "value" => $order_info["micr_code"]
+            ], [
+                "name" => "Bank Name",
+                "value" => $order_info["bank_name"]
+            ], [
+                "name" => "Branch Name",
+                "value" => $order_info["bank_branch"]
+            ]]
+        ];
 
         $order_response = $shopify->Order->post($order_data);
-        \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['order_id'],$order_response["id"]);
+        \DB::table('shopify_excel_upload')->where('_id', $_id)->update(['order_id'=> $order_response["id"]]);
     }
 
-    public static function create_order_with_installment($shopify, $order_info,$details)
+    public static function create_order_with_installment($shopify, $order_info, $details)
     {
         $_id = $order_info['_id'];
-        for ($i = 1; $i <= 5; $i++) {
-            $installment_index = sprintf("Installment.%s.processed",$i);
-            $input = $order_info['installments'][$i];
-            $input["chequeinstallment_date"] = explode(" ",$input['chequeinstallment_date']['date'])[0];
-            $output = implode(', ', array_map(function ($v, $k) { return sprintf("%s -> %s", $k, $v);},$input,array_keys($input)));
+        $order_data = [
+            "email" => $order_info["email_id"],
+            "line_items" => [[
+                "variant_id" => $details['product_id'],
+                "quantity" => 1
+            ]],
+            "transactions" => [[
+                "amount" => $order_info['final_fee_incl_gst'],
+                "kind" => "authorization"
+            ]],
+            "financial_status" => "pending"
+        ];
+        $order_object = $shopify->Order->post($order_data);
+        \DB::table('shopify_excel_upload')->where('_id', $_id)->update(['order_id'=> $order_object["id"]]);
 
-            if ($order_info['installments'][$i]['processed'] == 'No') {
-                $order_data = [
-                    "email" => $order_info["email_id"],
-                    "line_items" => [[
-                        "variant_id" => $details['product_id'],
-                        "taxable" => true,
-                        ]],
-                    "transaction" => [
-                        "kind" => "authorization",
-                        "amount" => ""
-                    ],
-                    "note_attributes" => [[
-                        "name" => sprintf("Installment-%s",$i),
-                        "value" => $output
-                    ]]];
-                $order_object = $shopify->Order->post($order_data);
-                dd($order_object);
-                \DB::table('shopify_excel_upload')->where('_id',$_id)->update([$installment_index=>'Yes']);
-                \DB::table('shopify_excel_upload')->where('_id',$_id)->update(['order_id'],$order_object["id"]);
-            }
-        }
     }
 
     public static function post_transaction_for_installment($shopify, $order_details)
     {
         $_id = $order_details['_id'];
+        $order_id = $order_details['order_id'];
+        dd($order_id);
+
 
         for ($i = 1; $i <= 5; $i++) {
-            $installment_index = sprintf("Installment.%s.processed",$i);
+
+            $installment_index = sprintf("Installment.%s.processed", $i);
             $input = $order_details['installments'][$i];
 
-            $output = implode(', ', array_map(function ($v, $k) { return sprintf("%s -> %s", $k, $v);},$input,array_keys($input)));
+            $output = implode(', ', array_map(function ($v, $k) {
+                return sprintf("%s - %s\n", $k, $v);
+            }, $input, array_keys($input)));
 
             if ($order_details['installments'][$i]['processed'] == 'No') {
 
-                $order_data = [
-                    "order_id" => $order_details['order_id'],
+                $transaction_data = [
+                    "id"=> (int)$order_id,
                     "transaction" => [
-                        "kind"=>"capture",
+                        "kind" => "capture",
                         "amount" => $order_details['installments'][$i]['installment_amount']
-                    ],
-                    "note_attributes"=>[[
-                        "name"=> sprintf("Installment-%s",$i),
-                        "value"=> $output
+                    ]];
+                $installment_details = [
+                    "id"=> (int)$order_id,
+                    "note_attributes" => [[
+                        "name" => sprintf("Installment-%s", $i),
+                        "value" => $output
                     ]]];
-                $shopify->Order->Transaction->post($order_data);
-                \DB::table('shopify_excel_upload')->where('_id',$_id)->update([$installment_index=>'Yes']);
-                }
+                $shopify->Order->Transaction->post($transaction_data);
+                $shopify->Order->put($installment_details);
+                \DB::table('shopify_excel_upload')->where('_id', $_id)->update([$installment_index => 'Yes']);
             }
         }
     }
+}

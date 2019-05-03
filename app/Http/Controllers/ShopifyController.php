@@ -25,22 +25,23 @@ class ShopifyController extends BaseController
     public function ShopifyBulkUpload()
     {
 
-//        $config = array(
-//            'ShopUrl' => 'valedra-test.myshopify.com',
-//            'ApiKey' => env('SHOPIFY_APIKEY'),
-//            'Password' => env('SHOPIFY_PASSWORD'));
-//
-//        PHPShopify\ShopifySDK::config($config);
-//
-//        $shopify = new PHPShopify\ShopifySDK;
-//
-//        $order_data = [
-//                "currency"=> "USD",
-//                "amount"=> 20.00,
-//                "kind"=> "sale"
-//            ];
-//
-//        $shopify->Order(1007884042304)->Transaction->post($order_data);
+        $config = array(
+            'ShopUrl' => 'valedra-test.myshopify.com',
+            'ApiKey' => env('SHOPIFY_APIKEY'),
+            'Password' => env('SHOPIFY_PASSWORD'));
+
+        PHPShopify\ShopifySDK::config($config);
+
+        $shopify = new PHPShopify\ShopifySDK;
+
+        $order_data = [
+            "transaction" => [
+                "currency"=> "USD",
+                "amount"=> 200.00,
+                "kind"=> "capture"
+            ]];
+
+        $shopify->Order()->Transaction->post($order_data);
 
         return view('orders-bulk-upload');
     }
