@@ -27,7 +27,7 @@ class ShopifyOrderCreation implements ShouldQueue
         $data = $this->data;
 
         $config = array(
-            'ShopUrl' => 'valedra-test.myshopify.com',
+            'ShopUrl' => env('SHOPIFY_STORE'),
             'ApiKey' => env('SHOPIFY_APIKEY'),
             'Password' => env('SHOPIFY_PASSWORD'));
 
@@ -39,8 +39,7 @@ class ShopifyOrderCreation implements ShouldQueue
             $customer = Shopify_POST::check_customer_existence($shopify, $data);
             $details = Shopify_POST::get_variant_id($data);
 
-            if(empty($data["order_id"]) && $data["job_status"] == 'pending')
-            {
+            if (empty($data["order_id"]) && $data["job_status"] == 'pending') {
                 if (empty($customer)) {
                     Shopify_POST::create_customer($shopify, $data);
                     if (empty(array_filter($data["installments"][1]))) {
@@ -58,12 +57,8 @@ class ShopifyOrderCreation implements ShouldQueue
                     Shopify_POST::create_order_with_installment($shopify, $data, $details);
                     Shopify_POST::post_transaction_for_installment($shopify, $data);
                 }
-            }
-            elseif (!empty($data["order_id"]) && !empty(array_filter($data["installments"][1])) && ($data["job_status"] == 'pending')){
-                Shopify_POST::post_transaction_for_installment($shopify,$data);
-            }
-            else{
-                echo "Order created";
+            } elseif (!empty($data["order_id"]) && !empty(array_filter($data["installments"][1])) && ($data["job_status"] == 'pending')) {
+                Shopify_POST::post_transaction_for_installment($shopify, $data);
             }
         } catch(\Exception $e) {
             $_id = $data["_id"];

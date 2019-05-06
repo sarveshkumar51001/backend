@@ -5,17 +5,11 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-use GuzzleHttp\Client;
-use function GuzzleHttp\json_encode;
-use MongoDB\Client as Mongo;
 use Maatwebsite\Excel\Facades\Excel;
-use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Input;
-use MongoDB\Driver\Exception\BulkWriteException;
-use PhpOption\None;
+use MongoDB\Driver\Exception\{BulkWriteException};
 use PHPShopify;
-use App\User, Socialite, Auth, Exception;
+use App\User, Laravel\Socialite\Facades\Socialite, Auth, Exception;
 use App\Jobs\ShopifyOrderCreation;
 use App\Models\Shopify;
 use Illuminate\Support\Carbon;
@@ -25,30 +19,33 @@ class ShopifyController extends BaseController
     public function ShopifyBulkUpload()
     {
 
-        $config = array(
-            'ShopUrl' => 'valedra-test.myshopify.com',
-            'ApiKey' => env('SHOPIFY_APIKEY'),
-            'Password' => env('SHOPIFY_PASSWORD'));
+//        $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
+//        $user_name = preg_replace('/\s+/', '_', $name);
+//
+//        $dir = sprintf(env('FILE_PATH'),$user_name);
+//        dd($dir);
 
-        PHPShopify\ShopifySDK::config($config);
-
-        $shopify = new PHPShopify\ShopifySDK;
-
-        $order_data = [
-            "transaction" => [
-                "currency"=> "USD",
-                "amount"=> 200.00,
-                "kind"=> "capture"
-            ]];
-
-        $shopify->Order()->Transaction->post($order_data);
+//        $config = array(
+//            'ShopUrl' => 'valedra-test.myshopify.com',
+//            'ApiKey' => env('SHOPIFY_APIKEY'),
+//            'Password' => env('SHOPIFY_PASSWORD'));
+//
+//        PHPShopify\ShopifySDK::config($config);
+//
+//        $shopify = new PHPShopify\ShopifySDK;
+//
+//        $transaction_data = [
+//                "currency" => "USD",
+//                "kind" => "capture",
+//                "amount" => "100"
+//            ];
+//        $shopify->Order(1023709216832)->Transaction->post($transaction_data);
 
         return view('orders-bulk-upload');
     }
 
     public function ShopifyBulkUpload_result(Request $request)
     {
-
         # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
         try {
             config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count']);
@@ -195,11 +192,7 @@ class ShopifyController extends BaseController
             }
         } catch (BulkWriteException $bulk) {
             return view('UploadError');
-        } catch (Exception $e) {
-            abort(500);
         }
-
-        return view('orders-bulk-upload');
     }
 
     private function data_validate($data_array)
@@ -209,7 +202,9 @@ class ShopifyController extends BaseController
             "school_name" => "required|string",
             "school_enrollment_no" => "required",
             "mobile_number" => "required|regex:/^[0-9]{10}$/",
-            "email_id" => "required|email"
+            "email_id" => "email|regex:/^.+@.+$/i",
+            "date_of_enrollment" => "required",
+            "final_fee_incl_gst" => "numeric"
         ];
 
         $validator = Validator::make($data_array, $rules);
@@ -276,7 +271,7 @@ class ShopifyController extends BaseController
         $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
         $user_name = preg_replace('/\s+/', '_', $name);
 
-        $dir = sprintf('/var/www/html/htdocs/backend/public/%s/',$user_name);
+        $dir = sprintf(env('FILE_PATH'),$user_name);
 
         foreach (scandir($dir) as $file) {
             if ('.' === $file) continue;

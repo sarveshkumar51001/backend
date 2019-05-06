@@ -2,6 +2,7 @@
 
 namespace App\Shopify;
 use Carbon\Carbon;
+use PHPShopify;
 
 Class Shopify_POST
 {
@@ -127,16 +128,14 @@ Class Shopify_POST
 
     }
 
-    public static function post_transaction_for_installment($shopify, $order_details)
+    public static function post_transaction_for_installment(PHPShopify\ShopifySDK $shopify, $order_details)
     {
         $_id = $order_details['_id'];
         $order_id = $order_details['order_id'];
-        dd($order_id);
-
 
         for ($i = 1; $i <= 5; $i++) {
 
-            $installment_index = sprintf("Installment.%s.processed", $i);
+            $installment_index = sprintf("installments.%s.processed", $i);
             $input = $order_details['installments'][$i];
 
             $output = implode(', ', array_map(function ($v, $k) {
@@ -146,19 +145,17 @@ Class Shopify_POST
             if ($order_details['installments'][$i]['processed'] == 'No') {
 
                 $transaction_data = [
-                    "id"=> (int)$order_id,
-                    "transaction" => [
                         "kind" => "capture",
                         "amount" => $order_details['installments'][$i]['installment_amount']
-                    ]];
+                    ];
                 $installment_details = [
-                    "id"=> (int)$order_id,
                     "note_attributes" => [[
                         "name" => sprintf("Installment-%s", $i),
                         "value" => $output
                     ]]];
-                $shopify->Order->Transaction->post($transaction_data);
-                $shopify->Order->put($installment_details);
+
+                $shopify->Order($order_id)->Transaction->post($transaction_data);
+                $shopify->Order($order_id)->put($installment_details);
                 \DB::table('shopify_excel_upload')->where('_id', $_id)->update([$installment_index => 'Yes']);
             }
         }
