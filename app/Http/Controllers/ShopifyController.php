@@ -47,7 +47,7 @@ class ShopifyController extends BaseController
     public function ShopifyBulkUpload_result(Request $request)
     {
         # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
-        try {
+//        try {
             config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count']);
 
             # Fetching uploaded file and moving it to a destination specific for a user.
@@ -57,6 +57,7 @@ class ShopifyController extends BaseController
             if (!is_dir($user_name)) {
                 mkdir($user_name);
             }
+
             // Extracting file from Post request
             $excel_file = $request->file('file');
             $excel_path = $excel_file->getClientOriginalName();# Getting original client name
@@ -190,9 +191,9 @@ class ShopifyController extends BaseController
             } else {
                 return view('bulkupload-preview')->with('errored_data', $errored_data)->with('excel_response', $excel_response);
             }
-        } catch (BulkWriteException $bulk) {
-            return view('UploadError');
-        }
+//        } catch (BulkWriteException $bulk) {
+//            return view('UploadError');
+//        }
     }
 
     private function data_validate($data_array)
@@ -271,7 +272,7 @@ class ShopifyController extends BaseController
         $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
         $user_name = preg_replace('/\s+/', '_', $name);
 
-        $dir = sprintf(env('FILE_PATH'),$user_name);
+        $dir = sprintf('E:/xampp/htdocs/workspace/valedra/backend/public/%s/',$user_name);
 
         foreach (scandir($dir) as $file) {
             if ('.' === $file) continue;

@@ -6,19 +6,18 @@
             <table class="table table-striped table-bordered table-responsive">
                 <thead>
                 <tr>
-                    @foreach ( $records_array[0] as $key=>$value)
+                    @foreach ( ($records_array[0] ?? []) as $key=>$value)
                         <th>{{ $key }}</th>
                 @endforeach
                 @foreach($records_array as $records)
                     @foreach($records as $key=> $value)
                         @if(is_array($key))
-                            @php $val = $key[0] @endphp
+                            @php $val = ($key[0] ?? 0) @endphp
                                     <td> {{ $val }}</td>
-                        @endif
                         @elseif (!is_array($key))
                         <tr>
                         <td>{{ $value }}</td>
-                        @endelseif
+                        @endif
                         @endforeach
                     </tr>
                 @endforeach

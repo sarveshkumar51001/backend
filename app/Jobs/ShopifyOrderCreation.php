@@ -2,13 +2,15 @@
 
 namespace App\Jobs;
 
+use App\Library\Shopify\DB;
+use App\Library\Shopify\API;
+use App\Library\Shopify\DataRaw;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use PHPShopify;
-use App\Shopify\shopify_post;
 
 class ShopifyOrderCreation implements ShouldQueue
 {
@@ -16,55 +18,65 @@ class ShopifyOrderCreation implements ShouldQueue
 
     protected $data;
 
-    public function __construct($data)
-    {
+    public function __construct($data) {
         $this->data = $data;
     }
 
-    public function handle()
-    {
+    public function handle() {
         logger($this->data);
-        $data = $this->data;
-
-        $config = array(
-            'ShopUrl' => env('SHOPIFY_STORE'),
-            'ApiKey' => env('SHOPIFY_APIKEY'),
-            'Password' => env('SHOPIFY_PASSWORD'));
-
-        PHPShopify\ShopifySDK::config($config);
-        $shopify = new PHPShopify\ShopifySDK; # new instance of PHPShopify class
-
         try {
-            $_id = $data["_id"];
-            $customer = Shopify_POST::check_customer_existence($shopify, $data);
-            $details = Shopify_POST::get_variant_id($data);
+            $Data = new DataRaw($this->data);
 
-            if (empty($data["order_id"]) && $data["job_status"] == 'pending') {
-                if (empty($customer)) {
-                    Shopify_POST::create_customer($shopify, $data);
-                    if (empty(array_filter($data["installments"][1]))) {
-                        Shopify_POST::create_order($shopify, $data, $details);
-                        \DB::table('shopify_excel_upload')->where('_id', $_id)->update(['job_status' => 'completed']);
-                    } else {
-                        Shopify_POST::create_order_with_installment($shopify, $data, $details);
-                        Shopify_POST::post_transaction_for_installment($shopify, $data);
-                    }
-                }
-                if (!empty($customer) && empty(array_filter($data["installments"][1]))) {
-                    Shopify_POST::create_order($shopify, $data, $details);
-                    \DB::table('shopify_excel_upload')->where('_id', $_id)->update(['job_status' => 'completed']);
-                } else {
-                    Shopify_POST::create_order_with_installment($shopify, $data, $details);
-                    Shopify_POST::post_transaction_for_installment($shopify, $data);
-                }
-            } elseif (!empty($data["order_id"]) && !empty(array_filter($data["installments"][1])) && ($data["job_status"] == 'pending')) {
-                Shopify_POST::post_transaction_for_installment($shopify, $data);
-            }
+	        // Process only if the status of object is pending
+	        if (strtolower($Data->GetJobStatus()) != 'pending') {
+	        	return;
+	        }
+
+            $ShopifyAPI = new API();
+            $customer = $ShopifyAPI->SearchCustomer($Data->GetEmail(), $Data->GetPhone());
+
+	        // If customer is not found then create a new customer first
+	        if (empty($customer)) {
+		        $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
+	        }
+
+            // Is it a new order?
+	        $variantID = DB::get_variant_id($Data->GetActivityID());
+	        $shopifyOrderId = $Data->GetOrderID();
+
+	        // Is it a new order?
+	        if (empty($Data->GetOrderID())) {
+		        /**
+		         * @todo fix me based on installment type
+		         */
+				$order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, true));
+		        $shopifyOrderId = $order['id'];
+	        }
+
+	        if ($Data->HasInstallment()) {
+		        // Loop through all the installments in system for the order
+		        foreach ($Data->GetInstallments() as $index => $installment) {
+			        // Get the installment data in proper format
+			        list($transaction_data, $installment_details) = DataRaw::GetInstallmentData($installment, $index);
+
+			        // Shopify Update: Posting new transaction part of installments
+			        $ShopifyAPI->PostTransaction($shopifyOrderId, $transaction_data);
+
+			        // Shopify Update: Append transaction data in given order
+			        $ShopifyAPI->UpdateOrder($shopifyOrderId, $installment_details);
+
+			        // DB UPDATE: Mark the installment node as
+			        DB::mark_installment_status_processed($Data->ID(), $index);
+		        }
+	        }
+
+	        // Finally mark the object as process completed
+	        DB::mark_status_completed($Data->ID());
+
         } catch(\Exception $e) {
-            $_id = $data["_id"];
-            \DB::table('shopify_excel_upload')
-                ->where('_id', $_id)
-                ->update(['job_status' => 'failed']);
+        	DB::mark_status_failed($Data->ID());
+
+	        logger($e);
 
             $this->fail($e);
         }
