@@ -14,34 +14,10 @@ use App\Jobs\ShopifyOrderCreation;
 use App\Models\Shopify;
 use Illuminate\Support\Carbon;
 
-class ShopifyController extends BaseController
-{
-    public function ShopifyBulkUpload()
-    {
-
-//        $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
-//        $user_name = preg_replace('/\s+/', '_', $name);
-//
-//        $dir = sprintf(env('FILE_PATH'),$user_name);
-//        dd($dir);
-
-//        $config = array(
-//            'ShopUrl' => 'valedra-test.myshopify.com',
-//            'ApiKey' => env('SHOPIFY_APIKEY'),
-//            'Password' => env('SHOPIFY_PASSWORD'));
-//
-//        PHPShopify\ShopifySDK::config($config);
-//
-//        $shopify = new PHPShopify\ShopifySDK;
-//
-//        $transaction_data = [
-//                "currency" => "USD",
-//                "kind" => "capture",
-//                "amount" => "100"
-//            ];
-//        $shopify->Order(1023709216832)->Transaction->post($transaction_data);
-
-        return view('orders-bulk-upload');
+class ShopifyController extends BaseController {
+    public function ShopifyBulkUpload() {
+	    $breadcrumb = ['Shopify' => '/bulkupload', 'Upload' => ''];
+	    return view('orders-bulk-upload')->with('breadcrumb', $breadcrumb);
     }
 
     public function ShopifyBulkUpload_result(Request $request)
@@ -268,6 +244,38 @@ class ShopifyController extends BaseController
 
         return $amounts_array;
 
+    }
+
+    public function List_All_Files() {
+	    $breadcrumb = ['Shopify' => '/bulkupload', 'Previous uploads' => ''];
+
+        $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
+        $user_name = preg_replace('/\s+/', '_', $name);
+        $dir = sprintf('E:/xampp/htdocs/workspace/valedra/backend/public/%s/',$user_name);
+
+        foreach (scandir($dir) as $file) {
+            if ('.' === $file) continue;
+            if ('..' === $file) continue;
+
+            $exp_file_name = explode("_", $file)[3];
+            $unix_time = (int)explode(".",$exp_file_name)[0];
+            $upload_date = date('Y-m-d',$unix_time);
+            $file = sprintf("%s/%s",$user_name,$file);
+
+            $files[$upload_date] = $file;
+        }
+
+        return view( 'past-files-upload')->with('files',$files)->with('breadcrumb', $breadcrumb);
+    }
+
+    public function List_All_Orders() {
+        $mongodb_record = \DB::table('shopify_excel_upload')->where('uploaded_by', Auth::user()->name)->get();
+
+	    $breadcrumb = ['Shopify' => '/bulkupload', 'Previous orders' => ''];
+
+	    return view('previous-orders')
+		    ->with('records_array', $mongodb_record)
+		    ->with('breadcrumb', $breadcrumb);
     }
 }
 

@@ -1,4 +1,5 @@
 @extends('admin.app')
+
 @section('content')
     <div class = "body">
         <p style = "font-weight:bold">Following are the orders successfully created by the excel file provided by you in the past.</p>
@@ -6,23 +7,22 @@
             <table class="table table-striped table-bordered table-responsive">
                 <thead>
                 <tr>
-                    @foreach ( ($records_array[0] ?? []) as $key=>$value)
-                        <th>{{ $key }}</th>
-                @endforeach
-                @foreach($records_array as $records)
-                    @foreach($records as $key=> $value)
-                        @if(is_array($key))
-                            @php $val = ($key[0] ?? 0) @endphp
-                                    <td> {{ $val }}</td>
-                        @elseif (!is_array($key))
-                        <tr>
-                        <td>{{ $value }}</td>
+                    @foreach (($records_array[0] ?? []) as $key => $value)
+                        <th>@if(is_scalar($key)) {{ $key }} @else "Collection data" @endif </th>
+                    @endforeach
+                </tr>
+
+                @foreach($records_array as $record)
+                    <tr>
+                    @foreach($record as $key => $value)
+                        @if(!is_array($value))
+                            <td>{{ $value }}</td>
                         @endif
-                        @endforeach
+                    @endforeach
                     </tr>
                 @endforeach
             </table>
-    </div>
+        </div>
     </div>
 @endsection
 
