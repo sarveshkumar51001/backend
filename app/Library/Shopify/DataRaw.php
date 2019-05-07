@@ -119,10 +119,14 @@ class DataRaw
 
 		$order_data = [];
 
-		$order_data['email'] = $this->data["email_id"];
+//		$order_data['email'] = $this->data["email_id"];
 		$order_data['line_items'] = [[
 			"variant_id" => 27889792450624
+
 		]];
+		$order_data['customer'] = [
+		    "id" => $this->data["customer_id"]
+        ];
 
 		if ($isInstallment) {
 			$order_data["financial_status"] = "pending";

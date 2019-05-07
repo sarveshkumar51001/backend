@@ -46,8 +46,7 @@ class API
 	 * @return array
 	 */
 	public function SearchCustomer($email = '', $phone = '') {
-		$query = sprintf("email:%s OR phone:%s", $email, $phone);
-
+		$query = sprintf("email:%s OR phone:%s", $email,$phone);
 		return $this->Shopify->Customer->search($query);
 	}
 

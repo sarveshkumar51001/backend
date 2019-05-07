@@ -46,7 +46,7 @@
                 @csrf
                 <div class="form-group row"><label for="date" class="col-md-4 col-form-label text-md-right">Date</label>
                     <div class="col-md-6">
-                        <input id="name" type="text" name="date" required="required" autofocus="autofocus" class="form-control" placeholder="dd/mm/yyyy">
+                        <input id="name" type="date" name="date" required="required" autofocus="autofocus" class="form-control" placeholder="dd/mm/yyyy">
                     </div>
                 </div>
                 <div class="form-group row"><label for="end" class="col-md-4 col-form-label text-md-right">Select file</label>
