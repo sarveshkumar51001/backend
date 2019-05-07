@@ -47,7 +47,7 @@ class ShopifyController extends BaseController {
         $rows = Excel::load($real_path, function ($reader) {
         })->get()->first();
 
-        // Unique identififer for the documents belonging to a single file
+        // Unique identifier for the documents belonging to a single file
         $file_id = uniqid('shopify_');
         $errored_data = $excel_response = $valid_data = $slice_array = [];
         $pattern = '/_[1-9]$/';
@@ -144,15 +144,26 @@ class ShopifyController extends BaseController {
                     \DB::table('shopify_excel_upload')->insert($valid_row);
                 } else {
                     $doc_id = $installment_doc["_id"];
+                    $final_fee = $installment_doc["final_fee_incl_gst"];
+
                     $installment_data = $installment_doc["installments"];
                     $excel_installment_data = $valid_row["installments"];
 
+                    $installment_array = [];
                     for ($i = 1; $i <= 5; $i++) {
-
                         if (empty(array_filter($installment_data[$i]))) {
                             $installment_data[$i] = $excel_installment_data[$i];
+
+                            $installment_amount = $installment_data[$i]['installment_amount'];
+                            array_push($installment_array,$installment_amount);
                         }
                     }
+                    $installment_sum = array_sum($installment_array);
+
+                    if ($installment_sum > $final_fee) {
+                        throw new \Exception('Fee collected is exceeding the order value');
+                    }
+
                     $updatedetails = [
                         'installments' => $installment_data,
                         'job_status' => 'pending'
@@ -164,7 +175,7 @@ class ShopifyController extends BaseController {
 
             foreach ($post_data as $info)
 
-                ShopifyOrderCreation::dispatch($info);
+//                ShopifyOrderCreation::dispatch($info);
 
             return view('orders-bulk-upload')->with('flag_msg', $flag_msg);
         } else {
@@ -245,7 +256,6 @@ class ShopifyController extends BaseController {
         return $amounts_array;
 
     }
-
     public function List_All_Files() {
 	    $breadcrumb = ['Shopify' => '/bulkupload', 'Previous uploads' => ''];
 
@@ -278,43 +288,5 @@ class ShopifyController extends BaseController {
 		    ->with('breadcrumb', $breadcrumb);
     }
 }
-
-//    public function List_All_Files(){
-//
-//        $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
-//        $user_name = preg_replace('/\s+/', '_', $name);
-//
-//        $dir = sprintf('E:/xampp/htdocs/workspace/valedra/backend/public/%s/',$user_name);
-//
-//        foreach (scandir($dir) as $file) {
-//            if ('.' === $file) continue;
-//            if ('..' === $file) continue;
-//
-//            $exp_file_name = explode("_", $file)[3];
-//            $unix_time = (int)explode(".",$exp_file_name)[0];
-//            $upload_date = date('Y-m-d',$unix_time);
-//
-//            $file = sprintf("%s/%s",$user_name,$file);
-//
-//            $files[$upload_date] = $file;
-//        }
-//
-//        return view( 'past-files-upload')->with('files',$files);
-//    }
-//
-//    public function List_All_Orders()
-//    {
-//        $records_array = [];
-//        $auth_name = Auth::user()->name;
-//
-//        $mongodb_record = \DB::table('shopify_excel_upload')->where('uploaded_by',$auth_name)->Where('job_status','completed')->get();
-//
-//        foreach ($mongodb_record as $records)
-//
-//            array_push($records_array,$records);
-//
-//        return view('previous-orders')->with('records_array',$records_array);
-//    }
-//
 
 

@@ -9,6 +9,7 @@ class DB
 	 *
 	 * @return mixed
 	 */
+
 	public static function get_variant_id(string $activity_id) {
 		$product =  \DB::table('valedra_products')->where('product_sku', $activity_id)->get()->first();
 
@@ -55,6 +56,11 @@ class DB
 		return \DB::table('shopify_excel_upload')->where('_id', $_id)->update(['job_status' => 'failed']);
 	}
 
+    /**
+     * @param $object_id
+     * @param $shopify_customer_id
+     * @return mixed
+     */
 	public static function update_customer_id_in_upload($object_id,$shopify_customer_id){
 	    return \DB::table('shopify_excel_upload')->where('_id',$object_id)->update(['customer_id'=> $shopify_customer_id]);
     }

@@ -136,6 +136,8 @@ Class Shopify_POST
         for ($i = 1; $i <= 5; $i++) {
 
             $installment_index = sprintf("installments.%s.processed", $i);
+
+
             $input = $order_details['installments'][$i];
 
             $output = implode(', ', array_map(function ($v, $k) {

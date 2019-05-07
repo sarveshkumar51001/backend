@@ -72,7 +72,6 @@ class ShopifyOrderCreation implements ShouldQueue
 			        DB::mark_installment_status_processed($Data->ID(), $index);
 		        }
 	        }
-
 	        // Finally mark the object as process completed
 	        DB::mark_status_completed($Data->ID());
 
