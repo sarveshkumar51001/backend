@@ -1,6 +1,9 @@
 @extends('admin.app')
 @section('content')
     @php $flag_msg = $flag_msg ?? 0 @endphp
+    @php $flag_msg1 = $flag_msg1 ?? 0 @endphp
+    @php $flag_msg2 = $flag_msg2 ?? 0 @endphp
+    @php $flag_msg3 = $flag_msg3 ?? 0 @endphp
     <div class="card">
         <div class="card-header">
             <i class="fa fa-edit"></i> Shopify Bulk Upload<a href="{{ URL::asset('shopify/sample_shopify_file.xlsx') }}"><button style='margin-left:700px' class="btn-info"><i class="fa fa-download"></i> Download sample file</button></a>
@@ -15,7 +18,7 @@
                 </div>
             </div>
             @endif
-                @if ($flag_msg == App\Models\Shopify::STATUS_CASH_FAILURE )
+                @if ($flag_msg1 == App\Models\Shopify::STATUS_CASH_FAILURE )
                 <div class="form-group">
                     <div class="col-sm-10 col-sm-offset-2">
                         <div class="alert alert-danger">
@@ -24,7 +27,7 @@
                     </div>
                 </div>
             @endif
-                @if ($flag_msg == App\Models\Shopify::STATUS_CHEQUE_FAILURE )
+                @if ($flag_msg2 == App\Models\Shopify::STATUS_CHEQUE_FAILURE )
                 <div class="form-group">
                     <div class="col-sm-10 col-sm-offset-2">
                         <div class="alert alert-danger">
@@ -33,7 +36,7 @@
                     </div>
                 </div>
             @endif
-                @if ($flag_msg == App\Models\Shopify::STATUS_ONLINE_FAILURE )
+                @if ($flag_msg3 == App\Models\Shopify::STATUS_ONLINE_FAILURE )
                 <div class="form-group">
                     <div class="col-sm-10 col-sm-offset-2">
                         <div class="alert alert-danger">

@@ -71,7 +71,7 @@ class ShopifyController extends BaseController {
                     $errored_data[] = $data;
                 } else {
                     $data['upload_date'] = $request['date'];
-                    $data['uploaded_by'] = Auth::user()->name;
+                    $data['uploaded_by'] = Auth::user()->id;
                     $data['file_id'] = $file_id;
                     $data['job_status'] = "pending";
                     $data['order_id'] = 0;
@@ -114,18 +114,22 @@ class ShopifyController extends BaseController {
                 }
             }
         }
+        // Fetching collected amount in cash, cheque and online from request
         $amount_collected_cash = $request["cash-total"];
         $amount_collected_cheque = $request["cheque-total"];
         $amount_collected_online = $request["online-total"];
 
-        $amount_data = $this->amount_validation($valid_data); # Calling function for validating amount data
+        // Calling function for validating amount data
+        $amount_data = $this->amount_validation($valid_data);
+
+        $flag_msg1 = $flag_msg2 = $flag_msg3 = 0;
 
         if ($amount_collected_cash != $amount_data[0]) {
-            $flag_msg = Shopify::STATUS_CASH_FAILURE;
+            $flag_msg1 = Shopify::STATUS_CASH_FAILURE;
         } elseif ($amount_collected_cheque != $amount_data[1]) {
-            $flag_msg = Shopify::STATUS_CHEQUE_FAILURE;
+            $flag_msg2 = Shopify::STATUS_CHEQUE_FAILURE;
         } elseif ($amount_collected_online != $amount_data[2]) {
-            $flag_msg = Shopify::STATUS_ONLINE_FAILURE;
+            $flag_msg3 = Shopify::STATUS_ONLINE_FAILURE;
         }
 
         # Inserting data to MongoDB after validation
@@ -144,6 +148,8 @@ class ShopifyController extends BaseController {
                     \DB::table('shopify_excel_upload')->insert($valid_row);
                 } else {
                     $doc_id = $installment_doc["_id"];
+
+                    $order_id = $installment_doc["order_id"];
                     $final_fee = $installment_doc["final_fee_incl_gst"];
 
                     $installment_data = $installment_doc["installments"];
@@ -161,7 +167,8 @@ class ShopifyController extends BaseController {
                     $installment_sum = array_sum($installment_array);
 
                     if ($installment_sum > $final_fee) {
-                        throw new \Exception('Fee collected is exceeding the order value');
+                        $exception_msg = sprintf("Fee collected for the Order ID %u exceeded the order value.",$order_id);
+                        throw new \Exception($exception_msg);
                     }
 
                     $updatedetails = [
@@ -177,7 +184,7 @@ class ShopifyController extends BaseController {
 
 //                ShopifyOrderCreation::dispatch($info);
 
-            return view('orders-bulk-upload')->with('flag_msg', $flag_msg);
+            return view('orders-bulk-upload')->with('flag_msg', $flag_msg)->with('flag_msg1',$flag_msg1)->with('flag_msg2',$flag_msg2)->with('flag_msg3',$flag_msg3);
         } else {
             return view('bulkupload-preview')->with('errored_data', $errored_data)->with('excel_response', $excel_response);
         }
