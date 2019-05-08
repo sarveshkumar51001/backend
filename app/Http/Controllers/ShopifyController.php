@@ -286,7 +286,7 @@ class ShopifyController extends BaseController {
     }
 
     public function List_All_Orders() {
-        $mongodb_record = \DB::table('shopify_excel_upload')->where('uploaded_by', Auth::user()->name)->get();
+        $mongodb_record = \DB::table('shopify_excel_upload')->where('uploaded_by', Auth::user()->id)->get();
 
 	    $breadcrumb = ['Shopify' => '/bulkupload', 'Previous orders' => ''];
 
