@@ -40,7 +40,7 @@ class DataRaw
 	}
 
 	public function GetPhone() {
-		return $this->data['phone'] ?? '';
+		return $this->data['mobile_number'] ?? '';
 	}
 
 	public function GetActivityID() {
@@ -48,7 +48,7 @@ class DataRaw
 	}
 
 	public function GetOrderID() {
-		return $this->data['order_id'] ?? '';
+		return $this->data['order_id'] ?? 0;
 	}
 
 	public function GetJobStatus() {
@@ -56,7 +56,7 @@ class DataRaw
 	}
 
 	public function HasInstallment() {
-		return !empty(array_filter($this->data["installments"]));
+		return array_key_exists('installments',$this->data);
 	}
 
 	/**
@@ -112,36 +112,31 @@ class DataRaw
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function GetOrderCreateData($productVariantID, $isInstallment = false, array $notes = []) {
+	public function GetOrderCreateData($productVariantID, $isInstallment,$customer_id) {
 		if (empty($productVariantID)) {
 			throw new \Exception('Empty product variant id given');
 		}
 
 		$order_data = [];
 
-//		$order_data['email'] = $this->data["email_id"];
 		$order_data['line_items'] = [[
-			"variant_id" => 27889792450624
+			"variant_id" => $productVariantID
 
 		]];
 		$order_data['customer'] = [
-		    "id" => $this->data["customer_id"]
+		    "id" => $customer_id
         ];
 
-		if ($isInstallment) {
-			$order_data["financial_status"] = "pending";
+		if ($isInstallment == true) {
 			$order_data['transactions'] = [[
 				"amount" => $this->data['final_fee_incl_gst'],
 				"kind" => "authorization"
 			]];
-			if (!empty($notes)) {
-				$order_data['note_attributes'] = [$notes];
-			}
+			$order_data["financial_status"] = "pending";
 		} else {
 			$order_data['transaction'] = [[
 				"kind" => "capture"
 			]];
-
 			$order_data['note_attributes'] = [
 				[
 					"name" => "Payment Mode",
@@ -173,7 +168,6 @@ class DataRaw
 				]
 			];
 		}
-
 		return $order_data;
 	}
 
@@ -181,6 +175,7 @@ class DataRaw
 		return $this->data['installments'] ?? [];
 	}
 
+/////// Checked ///////
 
 	/**
 	 * @param array $installment
@@ -188,12 +183,11 @@ class DataRaw
 	 *
 	 * @return array
 	 */
-	public static function GetInstallmentData(array $installment, $number = 0) {
+	public static function GetInstallmentData(array $installment, $number) {
 		if (empty($installment) || $installment['processed'] == 'Yes') {
 			return [];
 		}
-
-		$output = implode(', ', array_map(function ($v, $k) {
+		$output = implode(',', array_map(function ($v, $k) {
 			return sprintf( "%s - %s\n", $k, $v );
 		}, $installment, array_keys($installment)));
 
@@ -205,12 +199,12 @@ class DataRaw
 		$installment_details = [
 			"note_attributes" => [
 				[
-					"name"  => sprintf( "Installment-%s", ($installment['number'] ?? $number)),
+					"name"  => sprintf( "Installment-%s", $number),
 					"value" => $output
 				]
 			]
 		];
-
 		return [$transaction_data, $installment_details];
 	}
 }
+

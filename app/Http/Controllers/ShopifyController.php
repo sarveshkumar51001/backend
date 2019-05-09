@@ -24,7 +24,7 @@ class ShopifyController extends BaseController {
     {
         # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
 //        try {
-        config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count']);
+        config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count', 'excel.import.dates.enabled' => false]);
 
         # Fetching uploaded file and moving it to a destination specific for a user.
         $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
@@ -76,8 +76,8 @@ class ShopifyController extends BaseController {
                     $data['job_status'] = "pending";
                     $data['order_id'] = 0;
                     $data['customer_id'] = 0;
-                    $date = $data['date_of_enrollment'];
-                    $data['date_of_enrollment'] = Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('d.m.Y');
+                    // $date = $data['date_of_enrollment'];
+                    // $data['date_of_enrollment'] = Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('d.m.Y');
 
                     # Making chunk of installments from the flat array
                     $offset_array = array(32, 43, 54, 65, 76);
@@ -112,6 +112,12 @@ class ShopifyController extends BaseController {
                     }
                     $valid_data[] = $data;
                 }
+            }
+        }
+        // Removing installment array in case of full payment
+        for($i=0;$i<=count($valid_data)-1;$i++){
+            if(empty($valid_data[$i]['installments'][1]['installment_amount'])){
+                unset($valid_data[$i]['installments']);
             }
         }
         // Fetching collected amount in cash, cheque and online from request
@@ -152,37 +158,38 @@ class ShopifyController extends BaseController {
                     $order_id = $installment_doc["order_id"];
                     $final_fee = $installment_doc["final_fee_incl_gst"];
 
-                    $installment_data = $installment_doc["installments"];
-                    $excel_installment_data = $valid_row["installments"];
+                    if (array_key_exists('installments', $installment_doc)) {
+                        $installment_data = $installment_doc["installments"];
+                        $excel_installment_data = $valid_row["installments"];
 
-                    $installment_array = [];
-                    for ($i = 1; $i <= 5; $i++) {
-                        if (empty(array_filter($installment_data[$i]))) {
-                            $installment_data[$i] = $excel_installment_data[$i];
+                        $installment_array = [];
+                        for ($i = 1; $i <= 5; $i++) {
+                            if (empty(array_filter($installment_data[$i]))) {
+                                $installment_data[$i] = $excel_installment_data[$i];
 
-                            $installment_amount = $installment_data[$i]['installment_amount'];
-                            array_push($installment_array,$installment_amount);
+                                $installment_amount = $installment_data[$i]['installment_amount'];
+                                array_push($installment_array, $installment_amount);
+                            }
                         }
-                    }
-                    $installment_sum = array_sum($installment_array);
+                        $installment_sum = array_sum($installment_array);
 
-                    if ($installment_sum > $final_fee) {
-                        $exception_msg = sprintf("Fee collected for the Order ID %u exceeded the order value.",$order_id);
-                        throw new \Exception($exception_msg);
-                    }
+                        if ($installment_sum > $final_fee) {
+                            $exception_msg = sprintf("Fee collected for the Order ID %u exceeded the order value.", $order_id);
+                            throw new \Exception($exception_msg);
+                        }
 
-                    $updatedetails = [
-                        'installments' => $installment_data,
-                        'job_status' => 'pending'
-                    ];
-                    \DB::table('shopify_excel_upload')->where('_id', $doc_id)->update($updatedetails);
+                        $updatedetails = [
+                            'installments' => $installment_data,
+                            'job_status' => 'pending'
+                        ];
+                        \DB::table('shopify_excel_upload')->where('_id', $doc_id)->update($updatedetails);
+                    }
                 }
             }
             $post_data = \DB::table('shopify_excel_upload')->where('job_status', 'failed')->orWhere('job_status', 'pending')->get();
 
             foreach ($post_data as $info)
-
-//                ShopifyOrderCreation::dispatch($info);
+                ShopifyOrderCreation::dispatch($info);
 
             return view('orders-bulk-upload')->with('flag_msg', $flag_msg)->with('flag_msg1',$flag_msg1)->with('flag_msg2',$flag_msg2)->with('flag_msg3',$flag_msg3);
         } else {
@@ -219,9 +226,11 @@ class ShopifyController extends BaseController {
 
         foreach ($file as $row) {
 
-            for ($i = 1; $i <= 5; $i++) {
-                $amount = $row["installments"][$i]["installment_amount"];
-                array_push($installment_amount_array, $amount);
+            if (array_key_exists('installments',$row)) {
+                for ($i = 1; $i <= 5; $i++) {
+                    $amount = $row["installments"][$i]["installment_amount"];
+                    array_push($installment_amount_array, $amount);
+                }
             }
 
             if (empty(array_filter($installment_amount_array))) {

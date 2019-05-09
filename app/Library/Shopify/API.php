@@ -39,14 +39,14 @@ class API
 		return $this->Shopify->Customer->post($data);
 	}
 
-	/**
-	 * @param string $email
-	 * @param string $phone
-	 *
-	 * @return array
-	 */
-	public function SearchCustomer($email = '', $phone = '') {
-		$query = sprintf("email:%s OR phone:%s", $email,$phone);
+    /**
+     * @param $phone
+     * @param $email
+     * @return array
+     * @throws \PHPShopify\Exception\SdkException
+     */
+	public function SearchCustomer($phone,$email) {
+		$query = sprintf("phone:%s OR email:%s",$phone,$email);
 		return $this->Shopify->Customer->search($query);
 	}
 
@@ -79,3 +79,6 @@ class API
 		return $this->Shopify->Order($orderID)->put($data);
 	}
 }
+//
+//
+//$query = sprintf("email:%s OR phone:%s", $email,$phone);

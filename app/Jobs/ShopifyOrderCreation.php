@@ -33,12 +33,14 @@ class ShopifyOrderCreation implements ShouldQueue
 	        }
 
             $ShopifyAPI = new API();
-            $customer= $ShopifyAPI->SearchCustomer($Data->GetEmail(), $Data->GetPhone());
+            $customer= $ShopifyAPI->SearchCustomer($Data->GetPhone(),$Data->GetEmail());
+            $shopifyCustomerId = $customer[0]["id"];
+            DB::update_customer_id_in_upload($Data->ID(),$shopifyCustomerId);
 
 	        // If customer is not found then create a new customer first
 	        if (empty($customer)) {
 		        $new_customer= $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
-		        $shopifyCustomerId = $new_customer['id'];
+		        $shopifyCustomerId = $new_customer["id"];
                 DB::update_customer_id_in_upload($Data->ID(),$shopifyCustomerId);
 	        }
 
@@ -46,21 +48,29 @@ class ShopifyOrderCreation implements ShouldQueue
 	        $variantID = DB::get_variant_id($Data->GetActivityID());
 	        $shopifyOrderId = $Data->GetOrderID();
 
+
 	        // Is it a new order?
 	        if (empty($Data->GetOrderID())) {
-		        /**
-		         * @todo fix me based on installment type
-		         */
-				$order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, true));
+
+	        	if($Data->HasInstallment()){
+	        		$status_installment = true;
+	        	}
+	        	else{
+	        		$status_installment = false;
+	        	}
+				$order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID,$status_installment,$shopifyCustomerId));
 		        $shopifyOrderId = $order['id'];
 		        DB::update_order_id_in_upload($Data->ID(),$shopifyOrderId);
 	        }
 
 	        if ($Data->HasInstallment()) {
 		        // Loop through all the installments in system for the order
+
+		        //>>>>>>>Point of error<<<<<<<<<<//
 		        foreach ($Data->GetInstallments() as $index => $installment) {
+		
 			        // Get the installment data in proper format
-			        list($transaction_data, $installment_details) = DataRaw::GetInstallmentData($installment, $index);
+			   	    list($transaction_data, $installment_details) = DataRaw::GetInstallmentData($installment, $index);
 
 			        // Shopify Update: Posting new transaction part of installments
 			        $ShopifyAPI->PostTransaction($shopifyOrderId, $transaction_data);
@@ -78,7 +88,8 @@ class ShopifyOrderCreation implements ShouldQueue
         } catch(\Exception $e) {
         	DB::mark_status_failed($Data->ID());
 
-	        logger($e);
+        	logger($e);
+	        dd($e);
 
             $this->fail($e);
         }
