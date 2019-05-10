@@ -1,18 +1,13 @@
 <?php
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Contracts\Filesystem\Filesystem;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Validator;
-use MongoDB\Driver\Exception\{BulkWriteException};
-use PHPShopify;
-use App\User, Laravel\Socialite\Facades\Socialite, Auth, Exception;
-use App\Jobs\ShopifyOrderCreation;
+use Auth, Exception;
 use App\Models\Shopify;
-use Illuminate\Support\Carbon;
+use Illuminate\Http\Request;
+use App\Jobs\ShopifyOrderCreation;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Library\Shopify\ExcelValidator;
+use MongoDB\Driver\Exception\{BulkWriteException};
 
 class ShopifyController extends BaseController
 {
@@ -29,7 +24,9 @@ class ShopifyController extends BaseController
 	 */
     public function ShopifyBulkUpload_result(Request $request)
     {
-        # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
+	    $breadcrumb = ['Shopify' => '/bulkupload', 'Upload Preview' => ''];
+
+	    # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
 //        try {
         config([
         	'excel.import.startRow' => 2,
@@ -52,25 +49,18 @@ class ShopifyController extends BaseController
 
         // Adding current timestamp to file
         $excel_file_path = $excel_path . '_' . time() . '.xlsx';
-        $user_path = public_path($user_name);
-        $path = $excel_file->move($user_path, $excel_file_path);
-        $real_path = $path->getRealPath();
+        $path = $excel_file->move(public_path($user_name), $excel_file_path);
 
         // Loading the excel file
-        $ExlReader = Excel::load($real_path, function () {
+        $ExlReader = Excel::load($path->getRealPath(), function () {
         })->get()->first();
 
-        // Unique identifier for the documents belonging to a single file
-        $file_id = uniqid('shopify_');
-        $error = $excel_response = $formattedData = $slice_array = [];
-
+        // Create Excel Raw object
         $header = $ExlReader->first()->keys()->toArray();
-
-        dd($header);
 	    $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
 	    	'upload_date' => $request['date'],
 		    'uploaded_by' => Auth::user()->id,
-		    'file_id' => $file_id,
+		    'file_id' => uniqid('shopify_'), # Unique identifier for the documents belonging to a single file
 		    'job_status' => 'pending',
 		    'order_id' => 0,
 		    'customer_id' => 0
@@ -80,18 +70,18 @@ class ShopifyController extends BaseController
 	    $formattedData = $ExcelRaw->GetFormattedData();
 
 	    // Run the validation
-	    foreach ($formattedData as $Data) {
-		    // Validate amount
-		    $this->data_validate($Data, $error);
-	    }
+	    $errors = (new ExcelValidator($ExcelRaw, [
+		    'cash-total' => request("cash-total"),
+		    'cheque-total' => request("cheque-total"),
+		    'online-total' => request("online-total")
+	    ]))->Validate();
 
-	    $this->validate_amount($formattedData, $error);
-
-        // If any error, Return from here only
-        if ($error) {
+	    // If any error, Return from here only
+        if ($errors) {
 	        return view('bulkupload-preview')
-		        ->with('errored_data', $error)
+		        ->with('errored_data', $errors)
 		        ->with('excel_response', $formattedData)
+		        ->with('breadcrumb', $breadcrumb)
 		        ->with('headers', $ExcelRaw->GetHeaders());
         }
 
@@ -173,99 +163,6 @@ class ShopifyController extends BaseController
 //        } catch (BulkWriteException $bulk) {
 //            return view('UploadError');
 //        }
-    }
-
-    private function data_validate($data_array, &$error) {
-        $rules = [
-            "shopify_activity_id" => "required|string",
-            "school_name" => "required|string",
-            "school_enrollment_no" => "required",
-            "mobile_number" => "required|regex:/^[0-9]{10}$/",
-            "email_id" => "email|regex:/^.+@.+$/i",
-            "date_of_enrollment" => "required",
-            "final_fee_incl_gst" => "numeric"
-        ];
-
-        $validator = Validator::make($data_array, $rules);
-
-	    $error = $validator->getMessageBag()->toArray();
-    }
-
-	/**
-	 * @param $dataArray
-	 * @param $error
-	 *
-	 * @throws Exception
-	 */
-	private function validate_amount($dataArray, &$error) {
-		// Fetching collected amount in cash, cheque and online from request
-		$amount_collected_cash   = request("cash-total");
-		$amount_collected_cheque = request("cheque-total");
-		$amount_collected_online = request("online-total");
-
-		// Calling function for validating amount data
-		$modeWiseTotal = $this->get_amount_total($dataArray);
-
-		if ($amount_collected_cash != $modeWiseTotal['cash_total']) {
-			$error['cash_total_mismatch'] = "Cash total mismatch, Entered total $amount_collected_cash, Sheet total " . $modeWiseTotal['cash_total'];
-		}
-		if ($amount_collected_cheque != $modeWiseTotal['cheque_total']) {
-			$error['cheque_total_mismatch'] = "Cheque total mismatch, Entered total $amount_collected_cash, Sheet total " . $modeWiseTotal['cheque_total'];
-		}
-		if ($amount_collected_online != $modeWiseTotal['online_total']) {
-			$error['online_total_mismatch'] = "Online total mismatch, Entered total $amount_collected_cash, Sheet total " . $modeWiseTotal['online_total'];
-		}
-	}
-
-	/**
-	 * @param $file
-	 *
-	 * @return array
-	 * @throws Exception
-	 */
-    private function get_amount_total($file) {
-        $installmentTotal = $cashTotal = $chequeTotal = $onlineTotal = 0;
-
-        foreach ($file as $index => $row) {
-            if (array_key_exists('installments', $row)) {
-            	// Sum up all the installment
-                foreach ($row["installments"] as $installment) {
-                	$installmentTotal += $installment['installment_amount'];
-
-                	// Sum up all the installment data
-	                $installmentMode = strtolower($installment["mode_of_payment"]);
-	                if ($installmentMode == 'cash') {
-		                $cashTotal += $row["final_fee_incl_gst"];
-	                } elseif ($installmentMode == 'cheque') {
-		                $chequeTotal += $row["final_fee_incl_gst"];
-	                } elseif($installmentMode == 'online') {
-		                $onlineTotal += $row["final_fee_incl_gst"];
-	                } else {
-		                throw new \Exception("Invalid mode_of_payment [$installmentMode] received for row no " . ($index +1));
-	                }
-                }
-            }
-
-            // If the order is without installments?
-            if (empty($installmentTotal)) {
-            	$mode = strtolower($row["mode_of_payment"]);
-                if ($mode == 'cash') {
-	                $cashTotal += $row["final_fee_incl_gst"];
-                } elseif ($mode == 'cheque') {
-	                $chequeTotal += $row["final_fee_incl_gst"];
-                } elseif($mode == 'online') {
-	                $onlineTotal += $row["final_fee_incl_gst"];
-                } else {
-	                throw new \Exception("Invalid mode_of_payment [$mode] received for row no " . ($index +1));
-                }
-            }
-        }
-
-        return [
-        	'cash_total' => $cashTotal,
-	        'cheque_total' => $chequeTotal,
-	        'online_total' => $onlineTotal
-        ];
     }
 
     public function List_All_Files() {
