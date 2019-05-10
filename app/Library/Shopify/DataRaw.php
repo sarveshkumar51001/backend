@@ -172,7 +172,7 @@ class DataRaw
 	}
 
 	public function GetInstallments() {
-		return $this->data['installments'] ?? [];
+		return $this->data['installments'] ?? '';
 	}
 
 /////// Checked ///////

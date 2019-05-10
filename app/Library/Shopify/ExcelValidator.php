@@ -60,6 +60,7 @@ class ExcelValidator
 		$amount_collected_cheque = $this->customDataToValidate["cheque-total"];
 		$amount_collected_online = $this->customDataToValidate["online-total"];
 
+
 		// Calling function for validating amount data
 		$modeWiseTotal = $this->get_amount_total($this->File->GetFormattedData());
 
@@ -86,16 +87,15 @@ class ExcelValidator
 			if (array_key_exists('installments', $row)) {
 				// Sum up all the installment
 				foreach ($row["installments"] as $installment) {
-					$installmentTotal += $installment['installment_amount'];
-
+					// $installmentTotal += $installment['installment_amount'];
 					// Sum up all the installment data
 					$installmentMode = strtolower($installment["mode_of_payment"]);
 					if ($installmentMode == 'cash') {
-						$cashTotal += $row["final_fee_incl_gst"];
+						$cashTotal += $installment["installment_amount"];
 					} elseif ($installmentMode == 'cheque') {
-						$chequeTotal += $row["final_fee_incl_gst"];
+						$chequeTotal += $installment["installment_amount"];
 					} elseif($installmentMode == 'online') {
-						$onlineTotal += $row["final_fee_incl_gst"];
+						$onlineTotal += $installment["installment_amount"];
 					} else {
 						$this->errors[] = "Invalid mode_of_payment [$installmentMode] received for row no " . ($index +1);
 					}
@@ -103,7 +103,8 @@ class ExcelValidator
 			}
 
 			// If the order is without installments?
-			else if (empty($installmentTotal)) {
+			//elseif (empty($installmentTotal))
+			else {
 				$mode = strtolower($row["mode_of_payment"]);
 				if ($mode == 'cash') {
 					$cashTotal += $row["final_fee_incl_gst"];
