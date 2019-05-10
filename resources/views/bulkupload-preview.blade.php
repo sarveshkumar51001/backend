@@ -15,16 +15,46 @@
             <table class="table table-striped table-bordered table-responsive">
                 <tbody>
                     <tr>
-                        @foreach($headers as $header)
+                        @foreach(\App\Library\Shopify\Excel::$headerMap as $header)
                             <td><strong>{{ $header }}</strong></td>
                         @endforeach
-                            <td><strong>Installments</strong></td>
                     </tr>
 
                     @foreach($excel_response as $row)
                         <tr>
-                            @foreach($row as $value)
-                                <td>{{ is_array($value) ? json_encode($value) : $value }}</td>
+                            @foreach(\App\Library\Shopify\Excel::$headerMap as $key => $header)
+                                @if(isset($row[$key]))
+                                    @if(is_array($row[$key]))
+                                        <td>
+                                            <table>
+                                                <thead>
+                                                <td>No.</td>
+                                                @foreach(array_keys($row[$key][1]) as $instKey)
+                                                    @if(isset(\App\Library\Shopify\Excel::$headerMap[$instKey]))
+                                                        <td>{{ $instKey }}</td>
+                                                    @endif
+                                                @endforeach
+                                                </thead>
+
+                                                @foreach($row[$key] as $index => $installment)
+                                                    <tr>
+                                                        <td>{{$index}}</td>
+                                                        @foreach($installment as $key => $value)
+                                                            @if(isset(\App\Library\Shopify\Excel::$headerMap[$key]))
+                                                                <td>{{ $value }}</td>
+                                                            @endif
+                                                        @endforeach
+                                                    </tr>
+
+                                                @endforeach
+                                            </table>
+                                        </td>
+                                    @else
+                                        <td>{{ $row[$key] }}</td>
+                                    @endif
+                                @else
+                                    <td></td>
+                                @endif
                             @endforeach
                         </tr>
                     @endforeach
