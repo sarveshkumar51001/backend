@@ -49,28 +49,28 @@
                 @csrf
                 <div class="form-group row"><label for="date" class="col-md-4 col-form-label text-md-right">Date</label>
                     <div class="col-md-6">
-                        <input id="name" type="date" name="date" required="required" autofocus="autofocus" class="form-control" placeholder="dd/mm/yyyy">
+                        <input autocomplete="off" name="date" maxlength="50" type="text" class="form-control datepicker"/>
                     </div>
                 </div>
                 <div class="form-group row"><label for="end" class="col-md-4 col-form-label text-md-right">Select file</label>
                     <div class="col-md-6">
-                        <input type="file" name="file" required="required" accept=".xls ,.xlsx" class="form-control">
+                        <input autocomplete="off" type="file" name="file" required="required" accept=".xls ,.xlsx" class="form-control">
                         <i id="error-file" class="error text-danger d-none"></i>
                     </div>
                 </div>
                 <div class="form-group row"><label for="cash-total" class="col-md-4 col-form-label text-md-right">Amount collected by cash</label>
                     <div class="col-md-6">
-                        <input id="name" type="text" name="cash-total" required="required" autofocus="autofocus" class="form-control" >
+                        <input autocomplete="off" type="text" name="cash-total" required="required" autofocus="autofocus" class="form-control" >
                     </div>
                 </div>
                 <div class="form-group row"><label class="col-md-4 col-form-label text-md-right">Amount collected by cheque</label>
                     <div class="col-md-6">
-                        <input id="name" type="text" name="cheque-total" required="required" autofocus="autofocus" class="form-control">
+                        <input autocomplete="off" type="text" name="cheque-total" required="required" autofocus="autofocus" class="form-control">
                     </div>
                 </div>
                 <div class="form-group row"><label class="col-md-4 col-form-label text-md-right">Amount collected by online</label>
                     <div class="col-md-6">
-                        <input id="name" type="text" name="online-total" required="required" autofocus="autofocus" class="form-control">
+                        <input autocomplete="off" type="text" name="online-total" required="required" autofocus="autofocus" class="form-control">
                     </div>
                 </div>
                 <div class="form-group row mb-0"><div class="col-md-6 offset-md-4"><button style='margin-right:130px' type="submit" class="btn btn-success">
@@ -86,3 +86,14 @@
     </div>
 @endsection
 
+@section('footer-js')
+    <script src="{{ URL::asset('vendors/js/jquery-ui.min.js') }}"></script>
+    <script src="{{ URL::asset('js/views/datepicker.js') }}"></script>
+    <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
+    <script>
+        // Load date picker
+        $('.datepicker').datepicker().on('changeDate', function(ev) {
+            $(this).datepicker('hide');
+        });
+    </script>
+@endsection

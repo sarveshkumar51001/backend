@@ -1,28 +1,35 @@
 @extends('admin.app')
 @section('content')
     <div class ="body">
-    <p style = "font-weight:bold">Following rows of your excel file are erroneous. Please correct before submitting again.</p>
         <div class = "card">
-        <table class="table table-striped table-bordered table-responsive">
-            <thead>
-            <tr>
-                @foreach($errored_data[0] as $key => $value)
-                    <th>{{ $key }}</th>
-                @endforeach
-            </tr>
-            </thead>
-            <tbody>
-            @php $counter = 0; @endphp
-            @foreach($errored_data as $key => $value)
-                <tr>
-                    @foreach($value as $header => $row_val)
-                        <td @if(array_key_exists($header, $excel_response[$counter])) style="background-color:#ff3333;color: #fff;font-weight: bold;" title = "{{ $excel_response[$counter][$header][0] }}" @endif>{{ $row_val }}</td>
+            @if(!empty($errored_data))
+                <div class="alert-danger p-2">
+                    <p style = "font-weight:bold">Following rows of your excel file are erroneous. Please correct before submitting again.</p>
+                    <ul>
+                        @foreach($errored_data as $key => $value)
+                            <li>{{ $key }}: {{ is_array($value) ? json_encode($value) : $value }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <table class="table table-striped table-bordered table-responsive">
+                <tbody>
+                    <tr>
+                        @foreach($headers as $header)
+                            <td><strong>{{ $header }}</strong></td>
+                        @endforeach
+                            <td><strong>Installments</strong></td>
+                    </tr>
+
+                    @foreach($excel_response as $row)
+                        <tr>
+                            @foreach($row as $value)
+                                <td>{{ is_array($value) ? json_encode($value) : $value }}</td>
+                            @endforeach
+                        </tr>
                     @endforeach
-                </tr>
-                @php $counter ++; @endphp
-            @endforeach
-            </tbody>
+                </tbody>
             </table>
-    </div>
+        </div>
     </div>
 @endsection

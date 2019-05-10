@@ -14,17 +14,28 @@ use App\Jobs\ShopifyOrderCreation;
 use App\Models\Shopify;
 use Illuminate\Support\Carbon;
 
-class ShopifyController extends BaseController {
+class ShopifyController extends BaseController
+{
     public function ShopifyBulkUpload() {
 	    $breadcrumb = ['Shopify' => '/bulkupload', 'Upload' => ''];
 	    return view('orders-bulk-upload')->with('breadcrumb', $breadcrumb);
     }
 
+	/**
+	 * @param Request $request
+	 *
+	 * @return $this
+	 * @throws Exception
+	 */
     public function ShopifyBulkUpload_result(Request $request)
     {
         # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
 //        try {
-        config(['excel.import.startRow' => 2, 'excel.import.heading' => 'slugged_with_count', 'excel.import.dates.enabled' => false]);
+        config([
+        	'excel.import.startRow' => 2,
+	        'excel.import.heading' => 'slugged_with_count',
+	        'excel.import.dates.enabled' => false
+        ]);
 
         # Fetching uploaded file and moving it to a destination specific for a user.
         $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
@@ -34,174 +45,137 @@ class ShopifyController extends BaseController {
         if (!is_dir($user_name)) {
             mkdir($user_name);
         }
+
         // Extracting file from Post request
         $excel_file = $request->file('file');
         $excel_path = $excel_file->getClientOriginalName();
+
         // Adding current timestamp to file
         $excel_file_path = $excel_path . '_' . time() . '.xlsx';
         $user_path = public_path($user_name);
         $path = $excel_file->move($user_path, $excel_file_path);
         $real_path = $path->getRealPath();
 
-        # Loading the excel file
-        $rows = Excel::load($real_path, function ($reader) {
+        // Loading the excel file
+        $ExlReader = Excel::load($real_path, function () {
         })->get()->first();
 
         // Unique identifier for the documents belonging to a single file
         $file_id = uniqid('shopify_');
-        $errored_data = $excel_response = $valid_data = $slice_array = [];
-        $pattern = '/_[1-9]$/';
+        $error = $excel_response = $formattedData = $slice_array = [];
 
-        foreach ($rows as $data) {
-            $data = $data->toArray();
+        $header = $ExlReader->first()->keys()->toArray();
 
-            // Removing unwanted columns
-            foreach ($data as $key => $value) {
-                if (strpos($key, '_') === 0) {
-                    unset($data[$key]);
-                }
-            }
-            // Checking for all fields empty
-            if (array_filter($data)) {
-                $excel_read_response = $this->data_validate($data);
+        dd($header);
+	    $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
+	    	'upload_date' => $request['date'],
+		    'uploaded_by' => Auth::user()->id,
+		    'file_id' => $file_id,
+		    'job_status' => 'pending',
+		    'order_id' => 0,
+		    'customer_id' => 0
+	    ]));
 
-                if (!empty($excel_read_response)) {
+	    // Format data
+	    $formattedData = $ExcelRaw->GetFormattedData();
 
-                    $excel_response[] = $excel_read_response;
-                    $errored_data[] = $data;
-                } else {
-                    $data['upload_date'] = $request['date'];
-                    $data['uploaded_by'] = Auth::user()->id;
-                    $data['file_id'] = $file_id;
-                    $data['job_status'] = "pending";
-                    $data['order_id'] = 0;
-                    $data['customer_id'] = 0;
-                    // $date = $data['date_of_enrollment'];
-                    // $data['date_of_enrollment'] = Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('d.m.Y');
+	    // Run the validation
+	    foreach ($formattedData as $Data) {
+		    // Validate amount
+		    $this->data_validate($Data, $error);
+	    }
 
-                    # Making chunk of installments from the flat array
-                    $offset_array = array(32, 43, 54, 65, 76);
-                    $final_slice = [];
-                    foreach ($offset_array as $offset_value) {
-                        $slice = array_slice($data, $offset_value, 11);
-                        foreach ($slice as $key => $value) {
-                            $pattern = '/(.+)(_[\d]+)/i';
-                            $replacement = '${1}';
-                            $new_key = preg_replace($pattern, $replacement, $key);
-                            $new_slice[$new_key] = $value;
-                        }
-                        $new_slice['processed'] = 'No';
-                        array_push($final_slice, $new_slice);
-                    }
-                    $i = 1;
-                    foreach ($final_slice as $slice) {
-                        $slice_array[$i++] = $slice;
-                    }
-                    $data['installments'] = $slice_array;
+	    $this->validate_amount($formattedData, $error);
 
-                    # Removing slugged with count keys from the array
-                    foreach ($data as $key => $value) {
-                        if (preg_match($pattern, $key)) {
-                            unset($data[$key]);
-                        }
-                    }
-                    # Removing unwanted keys
-                    $unwanted_keys = array('installment_amount', 'pdc_collectedpdc_to_be_collectedstatus', 'cheque_no', 'chequeinstallment_date', '0');
-                    foreach ($unwanted_keys as $keys) {
-                        unset($data[$keys]);
-                    }
-                    $valid_data[] = $data;
-                }
-            }
+        // If any error, Return from here only
+        if ($error) {
+	        return view('bulkupload-preview')
+		        ->with('errored_data', $error)
+		        ->with('excel_response', $formattedData)
+		        ->with('headers', $ExcelRaw->GetHeaders());
         }
-        // Removing installment array in case of full payment
-        for($i=0;$i<=count($valid_data)-1;$i++){
-            if(empty($valid_data[$i]['installments'][1]['installment_amount'])){
-                unset($valid_data[$i]['installments']);
-            }
-        }
-        // Fetching collected amount in cash, cheque and online from request
-        $amount_collected_cash = $request["cash-total"];
-        $amount_collected_cheque = $request["cheque-total"];
-        $amount_collected_online = $request["online-total"];
 
-        // Calling function for validating amount data
-        $amount_data = $this->amount_validation($valid_data);
+        // EVERYTHING LOOKS GOOD TO GO.......
 
-        $flag_msg1 = $flag_msg2 = $flag_msg3 = 0;
-
-        if ($amount_collected_cash != $amount_data[0]) {
-            $flag_msg1 = Shopify::STATUS_CASH_FAILURE;
-        } elseif ($amount_collected_cheque != $amount_data[1]) {
-            $flag_msg2 = Shopify::STATUS_CHEQUE_FAILURE;
-        } elseif ($amount_collected_online != $amount_data[2]) {
-            $flag_msg3 = Shopify::STATUS_ONLINE_FAILURE;
-        }
+	    $objectIDList = [];
 
         # Inserting data to MongoDB after validation
-        if (empty($errored_data)) {
-            $flag_msg = Shopify::STATUS_SUCCESS;
+        $flag_msg = Shopify::STATUS_SUCCESS;
+        foreach ($formattedData as $valid_row) {
+        	// Get the primary combination to lookup in database
+            $date_enroll = $valid_row['date_of_enrollment'];
+            $activity_id = $valid_row['shopify_activity_id'];
+            $std_enroll_no = $valid_row['school_enrollment_no'];
 
-            foreach ($valid_data as $valid_row) {
+            // Attempt to lookup in database with the key combination
+	        // Ex: 06/05/2019, VAL-12345-002, SS-1112
+            $OrderRow = \DB::table('shopify_excel_upload')
+                           ->where('date_of_enrollment', $date_enroll)
+                           ->where('shopify_activity_id', $activity_id)
+                           ->where('school_enrollment_no', $std_enroll_no)
+                           ->first();
 
-                $date_enroll = $valid_row['date_of_enrollment'];
-                $activity_id = $valid_row['shopify_activity_id'];
-                $std_enroll_no = $valid_row['school_enrollment_no'];
+            if (empty($OrderRow)) {
+	            $objectIDList[] = \DB::table('shopify_excel_upload')->insertGetId($valid_row);
+            } else {
+                $doc_id = $OrderRow["_id"];
 
-                $installment_doc = \DB::table('shopify_excel_upload')->where('date_of_enrollment', $date_enroll)->where('shopify_activity_id', $activity_id)->where('school_enrollment_no', $std_enroll_no)->get()->first();
+                $order_id = $OrderRow["order_id"];
+                $final_fee = $OrderRow["final_fee_incl_gst"];
 
-                if (empty($installment_doc)) {
-                    \DB::table('shopify_excel_upload')->insert($valid_row);
-                } else {
-                    $doc_id = $installment_doc["_id"];
+                // If there is any installments details provided in excel
+                if (array_key_exists('installments', $OrderRow)) {
+                    $installment_data = $OrderRow["installments"];
+                    $excel_installment_data = $valid_row["installments"];
 
-                    $order_id = $installment_doc["order_id"];
-                    $final_fee = $installment_doc["final_fee_incl_gst"];
-
-                    if (array_key_exists('installments', $installment_doc)) {
-                        $installment_data = $installment_doc["installments"];
-                        $excel_installment_data = $valid_row["installments"];
-
-                        $installment_array = [];
-                        for ($i = 1; $i <= 5; $i++) {
-                            if (empty(array_filter($installment_data[$i]))) {
-                                $installment_data[$i] = $excel_installment_data[$i];
-
-                                $installment_amount = $installment_data[$i]['installment_amount'];
-                                array_push($installment_array, $installment_amount);
-                            }
-                        }
-                        $installment_sum = array_sum($installment_array);
-
-                        if ($installment_sum > $final_fee) {
-                            $exception_msg = sprintf("Fee collected for the Order ID %u exceeded the order value.", $order_id);
-                            throw new \Exception($exception_msg);
-                        }
-
-                        $updatedetails = [
-                            'installments' => $installment_data,
-                            'job_status' => 'pending'
-                        ];
-                        \DB::table('shopify_excel_upload')->where('_id', $doc_id)->update($updatedetails);
+                    foreach ($excel_installment_data as $index => $installment){
+                    	if (empty($installment_data[$index])) {
+		                    $installment_data[$index] = $installment;
+	                    }
                     }
+
+	                $total_installment_amount = 0;
+                    foreach ($installment_data as $index => $updated_installment) {
+	                    $total_installment_amount += $updated_installment['installment_amount'];
+                    }
+
+                    if ($total_installment_amount > $final_fee) {
+                        $exception_msg = sprintf("Fee collected for the Order ID %u exceeded the order value.", $order_id);
+                        throw new \Exception($exception_msg);
+                    }
+
+                    $updateDetails = [
+                        'installments' => $installment_data,
+                        'job_status' => 'pending'
+                    ];
+
+                    // Update installment in database
+                    \DB::table('shopify_excel_upload')
+                       ->where('_id', $doc_id)
+                       ->update($updateDetails);
+
+                    // Store the object id to be used to send document in job queue
+	                $objectIDList[] = $doc_id;
                 }
             }
-            $post_data = \DB::table('shopify_excel_upload')->where('job_status', 'failed')->orWhere('job_status', 'pending')->get();
-
-            foreach ($post_data as $info)
-                ShopifyOrderCreation::dispatch($info);
-
-            return view('orders-bulk-upload')->with('flag_msg', $flag_msg)->with('flag_msg1',$flag_msg1)->with('flag_msg2',$flag_msg2)->with('flag_msg3',$flag_msg3);
-        } else {
-            return view('bulkupload-preview')->with('errored_data', $errored_data)->with('excel_response', $excel_response);
         }
+
+        // Finally dispatch the data into queue for processing
+        foreach (\DB::table('shopify_excel_upload')
+                    ->whereIn('_id', $objectIDList)
+                    ->get() as $Object) {
+	        ShopifyOrderCreation::dispatch($Object);
+        }
+
+        return view('orders-bulk-upload')
+	        ->with('flag_msg', $flag_msg);
+
 //        } catch (BulkWriteException $bulk) {
 //            return view('UploadError');
 //        }
     }
 
-    private function data_validate($data_array)
-    {
+    private function data_validate($data_array, &$error) {
         $rules = [
             "shopify_activity_id" => "required|string",
             "school_name" => "required|string",
@@ -214,64 +188,86 @@ class ShopifyController extends BaseController {
 
         $validator = Validator::make($data_array, $rules);
 
-        return $validator->getMessageBag()->toArray();
+	    $error = $validator->getMessageBag()->toArray();
     }
 
-    private function amount_validation($file)
-    {
-        $installment_amount_array = [];
-        $cash_array = [];
-        $cheque_array = [];
-        $online_array = [];
+	/**
+	 * @param $dataArray
+	 * @param $error
+	 *
+	 * @throws Exception
+	 */
+	private function validate_amount($dataArray, &$error) {
+		// Fetching collected amount in cash, cheque and online from request
+		$amount_collected_cash   = request("cash-total");
+		$amount_collected_cheque = request("cheque-total");
+		$amount_collected_online = request("online-total");
 
-        foreach ($file as $row) {
+		// Calling function for validating amount data
+		$modeWiseTotal = $this->get_amount_total($dataArray);
 
-            if (array_key_exists('installments',$row)) {
-                for ($i = 1; $i <= 5; $i++) {
-                    $amount = $row["installments"][$i]["installment_amount"];
-                    array_push($installment_amount_array, $amount);
+		if ($amount_collected_cash != $modeWiseTotal['cash_total']) {
+			$error['cash_total_mismatch'] = "Cash total mismatch, Entered total $amount_collected_cash, Sheet total " . $modeWiseTotal['cash_total'];
+		}
+		if ($amount_collected_cheque != $modeWiseTotal['cheque_total']) {
+			$error['cheque_total_mismatch'] = "Cheque total mismatch, Entered total $amount_collected_cash, Sheet total " . $modeWiseTotal['cheque_total'];
+		}
+		if ($amount_collected_online != $modeWiseTotal['online_total']) {
+			$error['online_total_mismatch'] = "Online total mismatch, Entered total $amount_collected_cash, Sheet total " . $modeWiseTotal['online_total'];
+		}
+	}
+
+	/**
+	 * @param $file
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+    private function get_amount_total($file) {
+        $installmentTotal = $cashTotal = $chequeTotal = $onlineTotal = 0;
+
+        foreach ($file as $index => $row) {
+            if (array_key_exists('installments', $row)) {
+            	// Sum up all the installment
+                foreach ($row["installments"] as $installment) {
+                	$installmentTotal += $installment['installment_amount'];
+
+                	// Sum up all the installment data
+	                $installmentMode = strtolower($installment["mode_of_payment"]);
+	                if ($installmentMode == 'cash') {
+		                $cashTotal += $row["final_fee_incl_gst"];
+	                } elseif ($installmentMode == 'cheque') {
+		                $chequeTotal += $row["final_fee_incl_gst"];
+	                } elseif($installmentMode == 'online') {
+		                $onlineTotal += $row["final_fee_incl_gst"];
+	                } else {
+		                throw new \Exception("Invalid mode_of_payment [$installmentMode] received for row no " . ($index +1));
+	                }
                 }
             }
 
-            if (empty(array_filter($installment_amount_array))) {
-                if ($row["mode_of_payment"] == 'Cash') {
-                    $cash = $row["final_fee_incl_gst"];
-                    array_push($cash_array, $cash);
-                } elseif ($row["mode_of_payment"] == 'Cheque') {
-                    $cheque = $row["final_fee_incl_gst"];
-                    array_push($cheque_array, $cheque);
+            // If the order is without installments?
+            if (empty($installmentTotal)) {
+            	$mode = strtolower($row["mode_of_payment"]);
+                if ($mode == 'cash') {
+	                $cashTotal += $row["final_fee_incl_gst"];
+                } elseif ($mode == 'cheque') {
+	                $chequeTotal += $row["final_fee_incl_gst"];
+                } elseif($mode == 'online') {
+	                $onlineTotal += $row["final_fee_incl_gst"];
                 } else {
-                    $online = $row["final_fee_incl_gst"];
-                    array_push($online_array, $online);
-                }
-            } else {
-                for ($i = 1; $i <= 5; $i++) {
-                    if ($row["installments"][$i]["mode_of_payment"] == 'Cash') {
-                        $installment_cash = $row["installments"][$i]["installment_amount"];
-                        array_push($cash_array, $installment_cash);
-                        array_push($cash_array, $row["registration_amount"]);
-                    } elseif ($row["installments"][$i]["mode_of_payment"] == 'Cheque') {
-                        $installment_cheque = $row["installments"][$i]["installment_amount"];
-                        array_push($cheque_array, $installment_cheque);
-                        array_push($cheque_array, $row["registration_amount"]);
-                    } else {
-                        $installment_online = $row["installments"][$i]["installment_amount"];
-                        array_push($online_array, $installment_online);
-                        array_push($online_array, $row["registration_amount"]);
-                    }
+	                throw new \Exception("Invalid mode_of_payment [$mode] received for row no " . ($index +1));
                 }
             }
         }
 
-        $total_cash_amount = array_sum($cash_array);
-        $total_cheque_amount = array_sum($cheque_array);
-        $total_online_amount = array_sum($online_array);
-
-        $amounts_array = array($total_cash_amount, $total_cheque_amount, $total_online_amount);
-
-        return $amounts_array;
-
+        return [
+        	'cash_total' => $cashTotal,
+	        'cheque_total' => $chequeTotal,
+	        'online_total' => $onlineTotal
+        ];
     }
+
     public function List_All_Files() {
 	    $breadcrumb = ['Shopify' => '/bulkupload', 'Previous uploads' => ''];
 
