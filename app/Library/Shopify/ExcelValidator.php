@@ -29,6 +29,12 @@ class ExcelValidator
 	 * @throws \Exception
 	 */
 	public function Validate() {
+		if (!$this->HasAllValidHeaders()) {
+			$this->errors['incorrect_headers'] = 'Few headers are incorrect, download the latest sample format';
+
+			return $this->errors;
+		}
+
 		foreach ($this->File->GetFormattedData() as $data) {
 			$this->ValidateData($data);
 		}
@@ -40,9 +46,9 @@ class ExcelValidator
 
 	private function ValidateData(array $data) {
 		$rules = [
-			"shopify_activity_id" => "required|string",
+			"shopify_activity_id" => "required|string|min:3",
 			"school_name" => "required|string",
-			"school_enrollment_no" => "required",
+			"school_enrollment_no" => "required|string|min:4",
 			"mobile_number" => "required|regex:/^[0-9]{10}$/",
 			"email_id" => "email|regex:/^.+@.+$/i",
 			"date_of_enrollment" => "required",
@@ -51,7 +57,10 @@ class ExcelValidator
 
 		$validator = Validator::make($data, $rules);
 
-		$this->errors = array_merge($this->errors, $validator->getMessageBag()->toArray());
+		$errors = $validator->getMessageBag()->toArray();
+		if (!empty($errors)) {
+			$this->errors[$data['sno']] = $errors;
+		}
 	}
 
 	private function ValidateAmount() {
@@ -73,6 +82,16 @@ class ExcelValidator
 		if ($amount_collected_online != $modeWiseTotal['online_total']) {
 			$this->errors['online_total_mismatch'] = "Online total mismatch, Entered total $amount_collected_cash, Sheet total " . $modeWiseTotal['online_total'];
 		}
+	}
+
+	public function HasAllValidHeaders() {
+		foreach ($this->File->GetFormattedHeader() as $header) {
+			if (!isset(Excel::$headerMap[$header])) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

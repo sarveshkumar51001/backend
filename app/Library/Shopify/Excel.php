@@ -4,13 +4,17 @@ namespace App\Library\Shopify;
 
 class Excel
 {
-	private $header = [];
+	private $rawHeader = [];
 	private $rawData = [];
 	private $formattedData = [];
+	private $formattedHeader = [];
 	private $append = [];
 
 	public static $headerMap = [
 		'sno' => 'Sno',
+		'order_id' => 'Shopify Order ID',
+		'job_status' => 'job_status',
+		'upload_date' => 'Upload Date',
 		'date_of_enrollment' => 'Date of enrollment',
 		'shopify_activity_id' => 'Shopify Activity ID',
 		'delivery_institution' => 'Delivery Institution',
@@ -49,13 +53,13 @@ class Excel
 		'cheque_no' => 'Cheque No',
 		'pdc_collectedpdc_to_be_collectedstatus' => 'PDC Collected/PDC to be collected(Status)',
 		'installments' => 'Installments',
-		'chequeinstallment_date' => 'Cheque/Installment Date'
+		'chequeinstallment_date' => 'Cheque/Installment Date',
 	];
 
 	public function __construct(array $header, array $data, array $append = []) {
-		$this->header = $header;
-		$this->rawData = $data;
-		$this->append = $append;
+		$this->rawHeader = $header;
+		$this->rawData   = $data;
+		$this->append    = $append;
 
 		$this->Format();
 	}
@@ -105,10 +109,11 @@ class Excel
 
 				# Removing unwanted keys
 				$unwanted_keys = array('installment_amount', 'pdc_collectedpdc_to_be_collectedstatus', 'cheque_no', 'chequeinstallment_date', '0');
-				foreach ($unwanted_keys as $keys) {
-					unset($data[$keys]);
+				foreach ($unwanted_keys as $key) {
+					unset($data[$key]);
 				}
 
+				$this->formattedHeader = array_merge($this->formattedHeader, array_keys($data));
 				$this->formattedData[] = array_merge($data, $this->append);
 			}
 
@@ -142,11 +147,15 @@ class Excel
 		return $this->formattedData;
 	}
 
+	public function GetFormattedHeader() {
+		return $this->formattedHeader;
+	}
+
 	public function GetRawData() {
 		return $this->rawData;
 	}
 
-	public function GetHeaders() {
-		return $this->header;
+	public function GetRawHeaders() {
+		return $this->rawHeader;
 	}
 }

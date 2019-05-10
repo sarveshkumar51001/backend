@@ -7,9 +7,13 @@
                     <p style = "font-weight:bold">Following rows of your excel file are erroneous. Please correct before submitting again.</p>
                     <ul>
                         @foreach($errored_data as $key => $value)
-                            <li>{{ $key }}: {{ is_array($value) ? json_encode($value) : $value }}</li>
+                            <li>#{{ $key }}: {{ is_array($value) ? json_encode($value) : $value }}</li>
                         @endforeach
                     </ul>
+                </div>
+            @else
+                <div class="alert alert-success">
+                    <?php echo 'Thank You! Your file was successfully uploaded. Your orders will be created in few hours.'; ?>
                 </div>
             @endif
             <table class="table table-striped table-bordered table-responsive">
@@ -21,7 +25,7 @@
                     </tr>
 
                     @foreach($excel_response as $row)
-                        <tr>
+                        <tr @if(!empty($errored_data[$row['sno']])) style="background: yellow;" @endif>
                             @foreach(\App\Library\Shopify\Excel::$headerMap as $key => $header)
                                 @if(isset($row[$key]))
                                     @if(is_array($row[$key]))
@@ -50,16 +54,21 @@
                                             </table>
                                         </td>
                                     @else
-                                        <td>{{ $row[$key] }}</td>
+                                        <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif ">{{ $row[$key] }}</td>
                                     @endif
                                 @else
-                                    <td></td>
+                                    <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "></td>
                                 @endif
                             @endforeach
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+            <div class="pull-left">
+                <a href="/bulkupload">
+                    <button class="btn btn-lg btn-success">Go Back</button>
+                </a>
+            </div>
         </div>
     </div>
 @endsection
