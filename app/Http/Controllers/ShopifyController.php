@@ -95,9 +95,10 @@ class ShopifyController extends BaseController
             $activity_id = $valid_row['shopify_activity_id'];
             $std_enroll_no = $valid_row['school_enrollment_no'];
 
-		    /**
-		     * @todo Check if shopify_activity_id exist in database, if not set the error and continue
-		     */
+            $activity_id_status = DB::check_shopify_activity_id_in_database($activity_id);
+            if($activity_id_status == false){ 
+                $errors[$valid_row['sno']] = "The activity id is not present in the database";
+            }
 
             // Attempt to lookup in database with the key combination
 	        // Ex: 06/05/2019, VAL-12345-002, SS-1112

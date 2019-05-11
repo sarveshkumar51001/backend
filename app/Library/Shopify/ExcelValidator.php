@@ -122,7 +122,6 @@ class ExcelValidator
 			}
 
 			// If the order is without installments?
-			//elseif (empty($installmentTotal))
 			else {
 				$mode = strtolower($row["mode_of_payment"]);
 				if ($mode == 'cash') {

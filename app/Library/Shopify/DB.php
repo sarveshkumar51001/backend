@@ -64,4 +64,7 @@ class DB
 	public static function update_customer_id_in_upload($object_id,$shopify_customer_id){
 	    return \DB::table('shopify_excel_upload')->where('_id',$object_id)->update(['customer_id'=> $shopify_customer_id]);
     }
+    public static function check_shopify_activity_id_in_database($product_sku){
+    	return \DB::table('valedra_products')->where('product_sku',$product_sku)->exists();
+    }
 }
