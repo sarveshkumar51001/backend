@@ -8,6 +8,9 @@ use App\Jobs\ShopifyOrderCreation;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Library\Shopify\ExcelValidator;
 use MongoDB\Driver\Exception\{BulkWriteException};
+use App\Library\Shopify\DB;
+
+ini_set('max_execution_time', 180);
 
 class ShopifyController extends BaseController
 {
@@ -54,7 +57,7 @@ class ShopifyController extends BaseController
         // Loading the excel file
         $ExlReader = Excel::load($path->getRealPath(), function () {
         })->get()->first();
-
+        
         // Create Excel Raw object
         $header = $ExlReader->first()->keys()->toArray();
 	    $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
@@ -174,6 +177,7 @@ class ShopifyController extends BaseController
         }
 
         if (!empty($objectIDList)) {
+            dd($objectIDList);
 	        // Finally dispatch the data into queue for processing
 	        foreach (\DB::table('shopify_excel_upload')
 	                    ->whereIn('_id', $objectIDList)
