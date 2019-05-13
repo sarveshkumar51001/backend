@@ -39,10 +39,10 @@ Route::prefix('imagereco')->group(function() {
     Route::post('/search/image', 'ImageRecognitionController@searchByImage_result')->name('imagereco.search-by-image-result');
 });
 Route::prefix('bulkupload')->group(function() {
-	Route::get('/', 'ShopifyController@ShopifyBulkUpload')->name('bulkupload.ShopifyBulkUpload');
-	Route::post('/preview', 'ShopifyController@ShopifyBulkUpload_result')->name('bulkupload.ShopifyBulkUpload-result');
-	Route::get('/previous/uploads','ShopifyController@List_All_Files')->name('bulkupload.List_All_Files');
-	Route::get('/previous/orders','ShopifyController@List_All_Orders')->name('bulkupload.List_All_Orders');
+	Route::get('/', 'ShopifyController@upload')->name('bulkupload.upload');
+	Route::post('/preview', 'ShopifyController@upload_preview')->name('bulkupload.upload_preview');
+	Route::get('/previous/uploads','ShopifyController@previous_uploads')->name('bulkupload.previous_uploads');
+	Route::get('/previous/orders','ShopifyController@previous_orders')->name('bulkupload.previous_orders');
 });
 
 Auth::routes();

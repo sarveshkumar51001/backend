@@ -1,11 +1,17 @@
 @extends('admin.app')
 
 @section('content')
-    <div class = "body">
-        <p style = "font-weight:bold">Following are the orders successfully created by the excel file provided by you in the past.</p>
-        <div class = "card">
+    <div class="body">
+        <div class="pull-left">
+            <strong>Following are the order uploaded by you in the past.</strong>
+        </div>
+        <div class="row pull-right m-2">
+            <a href="{{ route('bulkupload.upload') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-plus"> &nbsp;</i>New Upload</button></a>
+            <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Upload History</button></a>
+        </div>
+        <div class="clearfix mt-2"></div>
+        <div class="card">
             <table class="table table-striped table-bordered table-responsive">
-
                 <tbody>
                 <tr>
                     @foreach(\App\Library\Shopify\Excel::$headerMap as $header)

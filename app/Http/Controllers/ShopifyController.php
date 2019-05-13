@@ -14,9 +14,9 @@ ini_set('max_execution_time', 180);
 
 class ShopifyController extends BaseController
 {
-    public function ShopifyBulkUpload() {
-	    $breadcrumb = ['Shopify' => '/bulkupload', 'Upload' => ''];
-	    return view('orders-bulk-upload')->with('breadcrumb', $breadcrumb);
+    public function upload() {
+	    $breadcrumb = ['Shopify' => '/bulkupload', 'New Upload' => ''];
+	    return view('shopify.orders-bulk-upload')->with('breadcrumb', $breadcrumb);
     }
 
 	/**
@@ -25,7 +25,7 @@ class ShopifyController extends BaseController
 	 * @return $this
 	 * @throws Exception
 	 */
-    public function ShopifyBulkUpload_result(Request $request)
+    public function upload_preview(Request $request)
     {
 	    $breadcrumb = ['Shopify' => '/bulkupload', 'Upload Preview' => ''];
 
@@ -197,7 +197,7 @@ class ShopifyController extends BaseController
 //        }
     }
 
-    public function List_All_Files() {
+    public function previous_uploads() {
 	    $breadcrumb = ['Shopify' => '/bulkupload', 'Previous uploads' => ''];
 
         $name = sprintf("%s_%s", Auth::user()->name, Auth::user()->id);
@@ -216,15 +216,15 @@ class ShopifyController extends BaseController
             $files[$upload_date] = $file;
         }
 
-        return view( 'past-files-upload')->with('files',$files)->with('breadcrumb', $breadcrumb);
+        return view( 'shopify.past-files-upload')->with('files',$files)->with('breadcrumb', $breadcrumb);
     }
 
-    public function List_All_Orders() {
+    public function previous_orders() {
         $mongodb_records = \DB::table('shopify_excel_upload')->where('uploaded_by', Auth::user()->id)->get();
 
 	    $breadcrumb = ['Shopify' => '/bulkupload', 'Previous orders' => ''];
 
-	    return view('previous-orders')
+	    return view('shopify.previous-orders')
 		    ->with('records_array', $mongodb_records)
 		    ->with('breadcrumb', $breadcrumb);
     }
