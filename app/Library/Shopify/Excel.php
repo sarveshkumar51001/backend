@@ -52,8 +52,8 @@ class Excel
 		'installment_amount' => 'Installment Amount',
 		'cheque_no' => 'Cheque No',
 		'pdc_collectedpdc_to_be_collectedstatus' => 'PDC Collected/PDC to be collected(Status)',
-		'installments' => 'Installments',
 		'chequeinstallment_date' => 'Cheque/Installment Date',
+		'installments' => 'Installments',
 	];
 
 	public function __construct(array $header, array $data, array $append = []) {
@@ -65,6 +65,18 @@ class Excel
 	}
 
 	public function Format() {
+		// Trim white spaces
+		array_walk($this->rawHeader, 'trim');
+
+		$this->rawData = array_map(function($row) {
+			$data = [];
+			foreach ($row as $key => $value) {
+				$data[$key] = trim($value);
+			}
+
+			return $data;
+		}, $this->rawData);
+
 		foreach ($this->rawData as $data) {
 			// Removing unwanted columns
 			foreach ($data as $key => $value) {

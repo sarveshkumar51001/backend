@@ -117,6 +117,10 @@
 <!-- Plugins and scripts required by this views -->
 <script src="{{ URL::asset('vendors/js/jquery.validate.min.js') }}"></script>
 
+<!-- Styles required by this views -->
+<link href="{{ URL::asset('vendors/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+<link href="{{ URL::asset('vendors/css/select2.min.css') }}" rel="stylesheet">
+
 <!-- Custom scripts required by this view -->
 <script src="{{ URL::asset('js/views/validation.js') }}"></script>
 
@@ -134,6 +138,10 @@
 @yield('footer-js')
 
 <script src="{{ URL::asset('js/admin/common.js') }}"></script>
+
+<!-- Plugins and scripts required by this views -->
+<script src="{{ URL::asset('vendors/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ URL::asset('vendors/js/dataTables.bootstrap4.min.js') }}"></script>
 
 </body>
 </html>

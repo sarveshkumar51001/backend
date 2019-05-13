@@ -48,7 +48,7 @@
                     <div class="col-sm-3">
                         <label>&nbsp;</label>
                         <div class="input-group">
-                            <button id="file-upload-btn" type="submit" class="btn btn-group-sm btn-success"><i class="fa fa-balance-scale"></i> &nbsp; Upload</button>
+                            <button id="file-upload-btn" type="submit" class="btn btn-group-sm btn-success"><i class="fa fa-upload"></i> &nbsp; Upload</button>
                         </div>
                     </div>
                 </div>

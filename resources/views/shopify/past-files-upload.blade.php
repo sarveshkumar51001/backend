@@ -1,29 +1,42 @@
 @extends('admin.app')
 @section('content')
     <div class = "body">
-        <p style = "font-weight:bold">Following are the excel files uploaded by you in the past.</p>
-        <div class = "card">
-        <table class="table table-striped table-bordered">
-            <thead>
-            <tr>
-                <th>Upload Date</th>
-                <th>Uploaded File</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach( $files as $key => $value)
-                <tr>
-                    <td>{{ $key }}</td>
-                    <td><a href="{{ URL::asset($value) }}">
-                            <div style="height:100%;width:100%">
-                                Excel File
-                            </div>
-                        </a>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-</div>
+        <div class="card">
+            <div class="card-header">
+                Following are the excel files uploaded by you in the past.
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-striped table-sm datatable">
+                    <thead>
+                    <tr>
+                        <th>Upload Date</th>
+                        <th>Uploaded File</th>
+                        <th>New order</th>
+                        <th>Update order</th>
+                        <th>Total Cash collected</th>
+                        <th>Total Cheque collected</th>
+                        <th>Total Online collected</th>
+                        <th>Grand total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach( $files as $data)
+
+                        <tr>
+                            <td>{{ date('l jS F Y h:i:s A', $data->created_at) }}</td>
+                            <td><a target="_blank" href="/bulkupload/previous/file_download/{{$data->id}}">{{ $data->file_name }}</a></td>
+                            <td>{{ $data->metadata['new_order'] }}</td>
+                            <td>{{ $data->metadata['update_order'] }}</td>
+                            <td>{{ $data->metadata['cash-total'] }}</td>
+                            <td>{{ $data->metadata['cheque-total'] }}</td>
+                            <td>{{ $data->metadata['online-total'] }}</td>
+                            <td>{{ $data->metadata['total'] }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 @endsection

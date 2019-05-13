@@ -6,6 +6,7 @@ use App\Library\Shopify\DB;
 use App\Library\Shopify\API;
 use App\Library\Shopify\DataRaw;
 
+use App\Models\ShopifyExcelUpload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -18,14 +19,18 @@ class ShopifyOrderCreation implements ShouldQueue
 
     protected $data;
 
-    public function __construct($data) {
+	/**
+	 * ShopifyOrderCreation constructor.
+	 *
+	 * @param ShopifyExcelUpload $data
+	 */
+    public function __construct(ShopifyExcelUpload $data) {
         $this->data = $data;
     }
 
     public function handle() {
-        logger($this->data);
         try {
-            $Data = new DataRaw($this->data);
+            $Data = new DataRaw($this->data->toArray());
 
 	        // Process only if the status of object is pending
 	        if (strtolower($Data->GetJobStatus()) != 'pending') {
@@ -87,9 +92,6 @@ class ShopifyOrderCreation implements ShouldQueue
 
         } catch(\Exception $e) {
         	DB::mark_status_failed($Data->ID());
-
-        	logger($e);
-	        dd($e);
 
             $this->fail($e);
         }

@@ -41,8 +41,10 @@ Route::prefix('imagereco')->group(function() {
 Route::prefix('bulkupload')->group(function() {
 	Route::get('/', 'ShopifyController@upload')->name('bulkupload.upload');
 	Route::post('/preview', 'ShopifyController@upload_preview')->name('bulkupload.upload_preview');
+	Route::get('/preview', 'ShopifyController@upload_preview')->name('bulkupload.upload_preview');
 	Route::get('/previous/uploads','ShopifyController@previous_uploads')->name('bulkupload.previous_uploads');
 	Route::get('/previous/orders','ShopifyController@previous_orders')->name('bulkupload.previous_orders');
+	Route::get('/previous/file_download/{id}','ShopifyController@download_previous')->name('bulkupload.download_previous');
 });
 
 Auth::routes();

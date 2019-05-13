@@ -112,7 +112,7 @@ class DataRaw
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function GetOrderCreateData($productVariantID, $isInstallment,$customer_id) {
+	public function GetOrderCreateData($productVariantID, $isInstallment, $customer_id) {
 		if (empty($productVariantID)) {
 			throw new \Exception('Empty product variant id given');
 		}
