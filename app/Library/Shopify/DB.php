@@ -17,12 +17,9 @@ class DB
 		
 		$product =  \DB::table('shopify_products')->where('variants.sku', $activity_id)->get()->first();
 
-    	$variant_id = 0;
-		if(count($product['variants']) > 1){
-			foreach($product['variants'] as $variant){
-				if($variant['price'] == $activity_fee){
-					$variant_id = $variant['id'];
-				}
+		foreach($product['variants'] as $variant){
+			if($variant['price'] == $activity_fee){
+				$variant_id = $variant['id'];
 			}
 		}
 		return $variant_id ?? 0;

@@ -50,7 +50,11 @@ class ShopifyOrderCreation implements ShouldQueue
 	        }
 
             // Is it a new order?
-	        $variantID = DB::get_variant_id($Data->GetActivityID());
+	        $variantID = DB::get_variant_id($Data->GetActivityID(),$Data->GetActivityFee());
+
+	        if($variantID == 0){
+	        	throw new Exception("Variant ID for this product doesn't exists");
+	        }
 	        $shopifyOrderId = $Data->GetOrderID();
 
 
