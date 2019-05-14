@@ -3,6 +3,7 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use App\Library\Shopify\API;
 
 class DB
 {
@@ -13,9 +14,9 @@ class DB
 	 */
 
 	public static function get_variant_id(string $activity_id) {
-		$product =  \DB::table('valedra_products')->where('product_sku', $activity_id)->get()->first();
+		$product =  \DB::table('shopify_products')->where('variants.0.sku', $activity_id)->get()->first();
 
-		return $product['product_id'] ?? 0;
+		return $product['variants'][0]['id'] ?? 0;
 	}
 
 	/**
@@ -67,6 +68,24 @@ class DB
 	    return ShopifyExcelUpload::find($object_id)->update(['customer_id'=> $shopify_customer_id]);
     }
     public static function check_shopify_activity_id_in_database($product_sku){
-    	return \DB::table('valedra_products')->where('product_sku', $product_sku)->exists();
+    	return \DB::table('shopify_products')->where('variants.0.sku', $product_sku)->exists();
+    }
+
+    public static function sync_all_products_from_shopify(){
+    	$ShopifyAPI = new API();
+    	$page = 1;
+    	$hasProducts = true;
+    	while($hasProducts) {
+	    	$params = ['limit' => 5,'page'=> $page];
+	    	$products = $ShopifyAPI->GetProducts($params);
+
+	    	if (!count($products)) {
+	    		$hasProducts = false;
+	    	} else {
+				\DB::table('shopify_products')->insert($products);	    		
+	    	}
+
+	    	$page++;
+    	}
     }
 }

@@ -78,6 +78,12 @@ class API
 	public function UpdateOrder($orderID, array $data) {
 		return $this->Shopify->Order($orderID)->put($data);
 	}
+	public function GetProducts($params){
+		return $this->Shopify->Product()->get($params);
+	}
+	public function CountProducts(){
+		return $this->Shopify->Product()->count();
+	}
 }
 //
 //
