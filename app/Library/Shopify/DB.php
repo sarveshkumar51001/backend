@@ -77,7 +77,7 @@ class DB
 	    return ShopifyExcelUpload::find($object_id)->update(['customer_id'=> $shopify_customer_id]);
     }
     public static function check_shopify_activity_id_in_database($product_sku){
-    	return \DB::table('shopify_products')->where('variants.0.sku', $product_sku)->exists();
+    	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
     }
     public static function check_product_existence_in_database($product_id){
     	return \DB::table('shopify_products')->where('id', $product_id)->exists();
