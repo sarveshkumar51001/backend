@@ -13,10 +13,19 @@ class DB
 	 * @return mixed
 	 */
 
-	public static function get_variant_id(string $activity_id) {
-		$product =  \DB::table('shopify_products')->where('variants.0.sku', $activity_id)->get()->first();
+	public static function get_variant_id(string $activity_id,int $activity_fee) {
+		
+		$product =  \DB::table('shopify_products')->where('variants.sku', $activity_id)->get()->first();
 
-		return $product['variants'][0]['id'] ?? 0;
+    	$variant_id = 0;
+		if(count($product['variants']) > 1){
+			foreach($product['variants'] as $variant){
+				if($variant['price'] == $activity_fee){
+					$variant_id = $variant['id'];
+				}
+			}
+		}
+		return $variant_id ?? 0;
 	}
 
 	/**
@@ -70,6 +79,9 @@ class DB
     public static function check_shopify_activity_id_in_database($product_sku){
     	return \DB::table('shopify_products')->where('variants.0.sku', $product_sku)->exists();
     }
+    public static function check_product_existence_in_database($product_id){
+    	return \DB::table('shopify_products')->where('id', $product_id)->exists();
+    }
 
     public static function sync_all_products_from_shopify(){
     	$ShopifyAPI = new API();
@@ -78,14 +90,17 @@ class DB
     	while($hasProducts) {
 	    	$params = ['limit' => 5,'page'=> $page];
 	    	$products = $ShopifyAPI->GetProducts($params);
-
+	    	
 	    	if (!count($products)) {
 	    		$hasProducts = false;
 	    	} else {
-				\DB::table('shopify_products')->insert($products);	    		
-	    	}
-
-	    	$page++;
-    	}
-    }
+	    		foreach($products as $product){
+	    			if(!DB::check_product_existence_in_database($product["id"])){
+						\DB::table('shopify_products')->insert($product);	    		
+	    			}
+	    		}
+			}
+	   		$page++;
+		}
+	}
 }

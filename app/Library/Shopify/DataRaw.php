@@ -55,6 +55,10 @@ class DataRaw
 		return $this->data['job_status'] ?? '';
 	}
 
+	public function GetActivityFee(){
+		return $this->data['activity_fee'] ?? 0;
+	}
+
 	public function HasInstallment() {
 		return array_key_exists('installments',$this->data);
 	}

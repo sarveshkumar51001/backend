@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use App\Jobs\ShopifyOrderCreation;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Library\Shopify\ExcelValidator;
-use MongoDB\Driver\Exception\{BulkWriteException};
+use MongoDB\Driver\Exception\BulkWriteException;
 use App\Library\Shopify\DB;
 use App\Library\Shopify\API;
 
@@ -18,6 +18,17 @@ class ShopifyController extends BaseController
 {
     public function upload() {
 
+    	$product =  \DB::table('shopify_products')->where('variants.sku', 'TEST-002')->get()->first();
+
+    	$variant_id = 0;
+		if(count($product['variants']) > 1){
+			foreach($product['variants'] as $variant){
+				if($variant['price'] == 1000){
+					$variant_id = $variant['id'];
+				}
+			}
+		}
+		dd($variant_id);
 	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'New Upload' => ''];
 
 	    return view('shopify.orders-bulk-upload')->with('breadcrumb', $breadcrumb);
