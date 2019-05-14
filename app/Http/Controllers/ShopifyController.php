@@ -191,6 +191,7 @@ class ShopifyController extends BaseController
 					if (empty($document['_id'])) {
 						$objectIDList[] = ShopifyExcelUpload::create($document)->id;
 						$metadata['new_order'] += 1;
+						dd($objectIDList[]);
 					} else {
 						$_id = $document['_id'];
 						unset($document['_id']);
@@ -223,7 +224,7 @@ class ShopifyController extends BaseController
 			    ->with('breadcrumb', $breadcrumb)
 			    ->with('headers', $ExcelRaw->GetFormattedHeader());
         } catch (BulkWriteException $bulk) {
-            return view('UploadError');
+            return view('uploaderror');
         }
     }
 

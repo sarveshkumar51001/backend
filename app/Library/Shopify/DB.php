@@ -80,6 +80,10 @@ class DB
     	return \DB::table('shopify_products')->where('id', $product_id)->exists();
     }
 
+    public static function check_customer_existence_in_database($customer_id){
+    	return \DB::table('shopify_products')->where('id',$customer_id)->exists();
+    }
+
     public static function sync_all_products_from_shopify(){
     	$ShopifyAPI = new API();
     	$page = 1;
@@ -99,5 +103,26 @@ class DB
 			}
 	   		$page++;
 		}
+	}
+
+	public static function sync_all_customers_from_shopify(){
+
+		$ShopifyAPI = new API();
+    	$page = 1;
+    	$hasCustomers = true;
+    	while($hasCustomers) {
+	    	$params = ['limit' => 10,'page'=> $page];
+	    	$customers = $ShopifyAPI->GetCustomers($params);
+
+	    	if (!count($customers)) {
+	    		$hasCustomers = false;
+	    	} else {
+	    		foreach($customers as $customer){
+	    			if(!DB::check_customer_existence_in_database($customer["id"])){
+						\DB::table('shopify_customers')->insert($customer);	    		
+	    			}
+	    		}
+			}
+	   	}	$page++;
 	}
 }

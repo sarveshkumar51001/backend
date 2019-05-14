@@ -5,7 +5,7 @@ namespace App\Models;
 class Product extends Base
 {
 	protected $connection = 'mongodb';
-	protected $collection = 'products';
+	protected $collection = 'shopify_products';
 	protected $guarded = [];
 
 }

@@ -55,6 +55,7 @@ class ShopifyOrderCreation implements ShouldQueue
 	        if($variantID == 0){
 	        	throw new Exception("Variant ID for this product doesn't exists");
 	        }
+	        
 	        $shopifyOrderId = $Data->GetOrderID();
 
 

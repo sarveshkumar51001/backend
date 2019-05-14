@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="row">
-        <div class="col-md-5">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
                     <i class="icon-list"></i>Products Details
@@ -12,30 +12,40 @@
                         <tbody>
                         <tr>
                             <td>product_id</td>
-                            <td><a href="{{ url('products/'.$product->id) }}">{{ $product->product_id }}</a></td>                        </tr>
+                            <td><a href="{{ url('products/'.$product->id) }}">{{ $product->id }}</a></td>                        </tr>
                         <tr>
                         <tr>
                             <td>product_name</td>
-                            <td>{{ $product->product_name }}</td>
+                            <td>{{ $product->title }}</td>
                         </tr>
                         <tr>
                             <td>product_category</td>
-                            <td>{{ $product->product_category }}</td>
+                            <td>{{ $product->product_type }}</td>
                         </tr>
                         <tr>
                             <td>product_tags</td>
-                            <td>{{ $product->product_tags }}</td>
+                            <td>{{ $product->tags }}</td>
                         </tr>
                         <tr>
                             <td>product_price</td>
-                            <td>{{ $product->product_price }}</td>
+                            @foreach($product->variants as $variant)
+                            <td> 
+                            {{ ($variant['title'] == 'Default Title' ? $product['title'] : $variant['title']) }} |  {{ $variant['sku']}} | {{ $variant['price']}}
+                            <br/>
+                            </td>
+                            <td> 
+                            {{ ($variant['title'] == 'Default Title' ? $product['title'] : $variant['title']) }} |  {{ $variant['sku']}} | {{ $variant['price']}}
+                            <br/>
+                            </td>
+                            @endforeach
+                            
                         </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <div class="col-md-7">
+        <!-- <div class="col-md-7">
             <div class="card">
                 <div class="card-header">
                     <i class="icon-list"></i>Recommended Products
@@ -53,16 +63,16 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td><a href="{{ url('products/'.$product->id) }}">{{ $product->product_id }}</a></td>
-                            <td>{{ $product->product_name }}</td>
-                            <td>{{ $product->product_category }}</td>
-                            <td>{{ $product->product_tags }}</td>
+                            <td><a href="{{ url('products/'.$product->id) }}">{{ $product->id }}</a></td>
+                            <td>{{ $product->title }}</td>
+                            <td>{{ $product->product_type}}</td>
+                            <td>{{ $product->tags }}</td>
                             <td>{{ $product->product_price }}</td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 @endsection

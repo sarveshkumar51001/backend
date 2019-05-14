@@ -18,7 +18,7 @@
                 <p class="text-muted">The data you are trying to upload is already present in the system.</p>
 
                 <p class ="text">Redirect to the bulk upload page by clicking this button.</p>
-                <button type="button" onclick="window.location='{{ URL::route('bulkupload.ShopifyBulkUpload') }}'">Shopify Bulk Upload</button>
+                <button type="button" onclick="window.location='{{ URL::route('bulkupload.upload') }}'">Shopify Bulk Upload</button>
             </div>
             </div>
         </div>

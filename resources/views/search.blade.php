@@ -71,10 +71,10 @@
                                 @if(count($result['products']))
                                     @foreach($result['products'] as $product)
                                         <tr>
-                                            <td><a href="{{ url('products/'.$product->id) }}">{{ $product->product_id }}</a></td>
-                                            <td>{{ $product->product_name }}</td>
-                                            <td>{{ $product->product_category }}</td>
-                                            <td>{{ $product->product_tags }}</td>
+                                            <td><a href="{{ url('products/'.$product->id) }}">{{ $product->id }}</a></td>
+                                            <td>{{ $product->title }}</td>
+                                            <td>{{ $product->product_type }}</td>
+                                            <td>{{ $product->tags }}</td>
                                             <td>{{ $product->product_price }}</td>
                                         </tr>
                                     @endforeach

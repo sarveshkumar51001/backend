@@ -84,6 +84,9 @@ class API
 	public function CountProducts(){
 		return $this->Shopify->Product()->count();
 	}
+	public function GetCustomers($params){
+		return $this->Shopify->Customer()->get($params);
+	}
 }
 //
 //

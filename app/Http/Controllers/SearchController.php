@@ -44,10 +44,10 @@ class SearchController extends BaseController
     }
 
     private function Products() {
-	    return Product::where('product_id', 'like', "%$this->query%")
-	                   ->orWhere('product_name', 'like', "%$this->query%")
-	                   ->orWhere('product_category', 'like', "%$this->query%")
-	                   ->orWhere('product_tags', 'like', "%$this->query%")
+	    return Product::where('id', 'like', "%$this->query%")
+	                   ->orWhere('title', 'like', "%$this->query%")
+	                   ->orWhere('product_type', 'like', "%$this->query%")
+	                   ->orWhere('tags', 'like', "%$this->query%")
 	                   ->orWhere('product_description', 'like', "%$this->query%")
 	                   ->paginate($this->limit);
     }
