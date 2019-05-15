@@ -17,7 +17,7 @@ ini_set('max_execution_time', 180);
 class ShopifyController extends BaseController
 {
     public function upload() {
-
+    	
 		$breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'New Upload' => ''];
 
 	    return view('shopify.orders-bulk-upload')->with('breadcrumb', $breadcrumb);
@@ -191,7 +191,6 @@ class ShopifyController extends BaseController
 					if (empty($document['_id'])) {
 						$objectIDList[] = ShopifyExcelUpload::create($document)->id;
 						$metadata['new_order'] += 1;
-						dd($objectIDList[]);
 					} else {
 						$_id = $document['_id'];
 						unset($document['_id']);
@@ -211,12 +210,12 @@ class ShopifyController extends BaseController
 	            $Upload->save();
 	        }
 
-	        if (!empty($objectIDList)) {
-		        // Finally dispatch the data into queue for processing
-		        foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
-			        ShopifyOrderCreation::dispatch($Object);
-		        }
-	        }
+	        // if (!empty($objectIDList)) {
+		       //  // Finally dispatch the data into queue for processing
+		       //  foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
+			      //   ShopifyOrderCreation::dispatch($Object);
+		       //  }
+	        // }
 
 		    return view('bulkupload-preview')
 			    ->with('errored_data', $errors)

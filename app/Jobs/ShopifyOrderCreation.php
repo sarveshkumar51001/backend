@@ -58,7 +58,6 @@ class ShopifyOrderCreation implements ShouldQueue
 	        
 	        $shopifyOrderId = $Data->GetOrderID();
 
-
 	        // Is it a new order?
 	        if (empty($Data->GetOrderID())) {
 
@@ -76,7 +75,6 @@ class ShopifyOrderCreation implements ShouldQueue
 	        if ($Data->HasInstallment()) {
 		        // Loop through all the installments in system for the order
 
-		        //>>>>>>>Point of error<<<<<<<<<<//
 		        foreach ($Data->GetInstallments() as $index => $installment) {
 		
 			        // Get the installment data in proper format

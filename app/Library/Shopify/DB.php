@@ -73,6 +73,7 @@ class DB
 	public static function update_customer_id_in_upload($object_id,$shopify_customer_id){
 	    return ShopifyExcelUpload::find($object_id)->update(['customer_id'=> $shopify_customer_id]);
     }
+    
     public static function check_shopify_activity_id_in_database($product_sku){
     	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
     }
@@ -83,6 +84,26 @@ class DB
     public static function check_customer_existence_in_database($customer_id){
     	return \DB::table('shopify_products')->where('id',$customer_id)->exists();
     }
+
+    public static function check_cheque_details_existence($cheque_no,$micr_code,$account_no){
+    	return ShopifyExcelUpload::where('chequedd_no', $cheque_no)
+	                           ->where('micr_code', $micr_code)
+	                           ->where('drawee_account_number', $account_no)
+	                           ->exists();
+    }
+
+    public static function check_installment_cheque_details_existence($i,$cheque_no,$micr_code,$account_no){
+    	
+    	$cheque_no_index = sprintf("installments.%s.chequedd_no",$i);
+    	$micr_code_index = sprintf("installments.%s.micr_code",$i);
+    	$account_no_index = sprintf("installments.%s.drawee_account_number",$i);
+
+    	return ShopifyExcelUpload::where($cheque_no_index, $cheque_no)
+	                           ->where($micr_code_index, $micr_code)
+	                           ->where($account_no_index, $account_no)
+	                           ->exists();
+    }
+
 
     public static function sync_all_products_from_shopify(){
     	$ShopifyAPI = new API();
