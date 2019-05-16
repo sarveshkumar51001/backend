@@ -36,10 +36,14 @@ class ShopifyOrderCreation implements ShouldQueue
 	        if (strtolower($Data->GetJobStatus()) != 'pending') {
 	        	return;
 	        }
-
+	        
             $ShopifyAPI = new API();
             $customer= $ShopifyAPI->SearchCustomer($Data->GetPhone(),$Data->GetEmail());
-            
+
+            if(sizeof($customer) > 1){
+            	throw new Exception("More than one customer found with the email or mobile number provided.");
+            }
+
 	        // If customer is not found then create a new customer first
 	        if (empty($customer)) {
 		        $new_customer= $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
