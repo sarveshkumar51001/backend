@@ -48,7 +48,7 @@ class SearchController extends BaseController
 	                   ->orWhere('title', 'like', "%$this->query%")
 	                   ->orWhere('product_type', 'like', "%$this->query%")
 	                   ->orWhere('tags', 'like', "%$this->query%")
-	                   ->orWhere('product_description', 'like', "%$this->query%")
+	                   ->orWhere('variants.sku', 'like', "%$this->query%")
 	                   ->paginate($this->limit);
     }
 
