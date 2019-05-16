@@ -39,14 +39,16 @@ class ShopifyOrderCreation implements ShouldQueue
 
             $ShopifyAPI = new API();
             $customer= $ShopifyAPI->SearchCustomer($Data->GetPhone(),$Data->GetEmail());
-            $shopifyCustomerId = $customer[0]["id"];
-            DB::update_customer_id_in_upload($Data->ID(),$shopifyCustomerId);
-
+            
 	        // If customer is not found then create a new customer first
 	        if (empty($customer)) {
 		        $new_customer= $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
 		        $shopifyCustomerId = $new_customer["id"];
                 DB::update_customer_id_in_upload($Data->ID(),$shopifyCustomerId);
+	        }
+	        else{
+	        	$shopifyCustomerId = $customer[0]["id"];
+            	DB::update_customer_id_in_upload($Data->ID(),$shopifyCustomerId);
 	        }
 
             // Is it a new order?
@@ -96,6 +98,7 @@ class ShopifyOrderCreation implements ShouldQueue
         } catch(\Exception $e) {
         	DB::mark_status_failed($Data->ID());
 
+        	logger($e);
             $this->fail($e);
         }
     }

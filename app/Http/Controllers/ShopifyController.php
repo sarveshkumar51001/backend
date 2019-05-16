@@ -210,12 +210,12 @@ class ShopifyController extends BaseController
 	            $Upload->save();
 	        }
 
-	        // if (!empty($objectIDList)) {
-		       //  // Finally dispatch the data into queue for processing
-		       //  foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
-			      //   ShopifyOrderCreation::dispatch($Object);
-		       //  }
-	        // }
+	        if (!empty($objectIDList)) {
+		        // Finally dispatch the data into queue for processing
+		        foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
+			        ShopifyOrderCreation::dispatch($Object);
+		        }
+	        }
 
 		    return view('bulkupload-preview')
 			    ->with('errored_data', $errors)

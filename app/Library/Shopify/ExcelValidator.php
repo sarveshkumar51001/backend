@@ -60,7 +60,8 @@ class ExcelValidator
 			"mobile_number" => "required|regex:/^[0-9]{10}$/",
 			"email_id" => "email|regex:/^.+@.+$/i",
 			"date_of_enrollment" => "required",
-			"final_fee_incl_gst" => "numeric"
+			"final_fee_incl_gst" => "numeric",
+			"activity_fee" => "required"
 		];
 
 		$validator = Validator::make($data, $rules);

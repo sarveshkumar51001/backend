@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Library\Shopify;
+use Auth, Exception;
 
 class DataRaw
 {

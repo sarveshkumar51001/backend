@@ -12,8 +12,8 @@ class DB
 	 *
 	 * @return mixed
 	 */
-
-	public static function get_variant_id(string $activity_id,int $activity_fee) {
+	
+	public static function get_variant_id($activity_id,$activity_fee) {
 		
 		$product =  \DB::table('shopify_products')->where('variants.sku', $activity_id)->get()->first();
 
