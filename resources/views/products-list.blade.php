@@ -9,22 +9,42 @@
             <table class="table table-responsive-sm table-hover table-outline mb-0">
                 <thead class="thead-light">
                 <tr>
-                    <th>product_id</th>
-                    <th>product_name</th>
-                    <th>product_category</th>
-                    <th>product_tags</th>
-                    <th>product_price</th>
+                    <th>Product ID</th>
+                    <th>Variant ID</th>
+                    <th>Product SKU</th>
+                    <th>Product Name</th>
+                    <th>Product Type</th>
+                    <th>Product Tags</th>
+                    <th>Product Price</th>
                 </tr>
                 </thead>
                 <tbody>
                 @foreach($products as $product)
-                    <tr> 
-                        <td><a href="{{ url('products/'.$product->id) }}">{{ $product->id }}</a></td>
-                        <td>{{ $product->title }}</td>
-                        <td>{{ $product->product_type }}</td>
-                        <td>{{ $product->tags }}</td>
-                        <td>{{ $product->product_price }}</td>
+                    @if (sizeof($product->variants) == 1)
+                    <tr>
+                        <td>{{$product->id}}</td>
+                        @foreach($product->variants as $variant)
+                        <td>{{$variant['id']}}</td>
+                        <td>{{$variant['sku'] }}</td>
+                        <td>{{ ($variant['title'] == 'Default Title' ? $product['title'] : $variant['title']) }}</td>
+                        <td>{{$product->product_type}}</td>
+                        <td>{{$product->tags}}</td>
+                        <td>{{$variant['price']}}</td>
+                        @endforeach
                     </tr>
+                    @else
+                        @foreach($product->variants as $variant)
+                        <tr>
+                        <td>{{$product->id}}</td>
+                        <td>{{$variant['id']}}</td>
+                        <td>{{$variant['sku']}}</td>
+                        <td>{{$product['title'] ."(". $variant['title'].")"}}</td>
+                        <td>{{$product->product_type}}</td>
+                        <td>{{$product->tags}}</td>
+                        <td>{{$variant['price']}}</td>
+                        </tr>
+                        @endforeach
+                    @endif
                 @endforeach
                 </tbody>
             </table>

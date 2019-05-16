@@ -43,6 +43,9 @@ class ExcelValidator
 			$this->ValidateChequeDetails($data);
 			}
 
+		$info = $this->File->GetFormattedData();
+		$this->ValidateChequeDetails($info[1]);
+
 		$this->ValidateAmount();
 
 		return $this->errors;
@@ -149,11 +152,10 @@ class ExcelValidator
 	private function ValidateChequeDetails(array $data){
 
 		// Check if the order has installment
-		if(!$data->HasInstallment()){
+		if(!array_key_exists('installments',$data)){
 			$cheque_no = $data['chequedd_no'];
 			$account_no = $data['drawee_account_number'];
 			$micr_code = $data['micr_code'];
-			$sno = $data['sno']
 
 			// Check if the combination of cheque no., micr_code and account_no. exists in database
 			if(DB::check_cheque_details_existence($cheque_no,$micr_code,$account_no)){
@@ -162,13 +164,14 @@ class ExcelValidator
 		}
 		else{
 			// Looping through the installment data
-			foreach ($data['installments'] as $index=>$installment){
+			foreach ($data["installments"] as $index=>$installment){
+
 				$cheque_no = $installment['cheque_no'];
 				$micr_code  = $installment['micr_code'];
 				$account_no = $installment['drawee_account_number'];
 
 				// Looping through all the installments in the database
-				for($i=1; $i<= env('INSTALLMENT_NUMBER'); $i++){
+				for($i=1; $i <= env('INSTALLMENT_NUMBER'); $i++){
 					if(DB::check_installment_cheque_details_existence($i,$cheque_no,$micr_code,$account_no)){
 						$this->errors[$data['sno']] = "Cheque details for installment [index] already exists in database";
 					}

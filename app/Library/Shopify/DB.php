@@ -94,7 +94,7 @@ class DB
 
     public static function check_installment_cheque_details_existence($i,$cheque_no,$micr_code,$account_no){
     	
-    	$cheque_no_index = sprintf("installments.%s.chequedd_no",$i);
+    	$cheque_no_index = sprintf("installments.%s.cheque_no",$i);
     	$micr_code_index = sprintf("installments.%s.micr_code",$i);
     	$account_no_index = sprintf("installments.%s.drawee_account_number",$i);
 
@@ -103,8 +103,7 @@ class DB
 	                           ->where($account_no_index, $account_no)
 	                           ->exists();
     }
-
-
+    
     public static function sync_all_products_from_shopify(){
     	$ShopifyAPI = new API();
     	$page = 1;
