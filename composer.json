@@ -17,7 +17,6 @@
         "mongodb/mongodb": "^1.4",
         "oseintow/laravel-shopify": "^1.0",
         "phpclassic/php-shopify": "^1.0",
-        "slince/shopify-api-php": "^2.2",
       "ext-mongodb": "*"
     },
     "require-dev": {
