@@ -60,8 +60,10 @@
                             <table class="table table-bordered table-striped table-sm datatable">
                                 <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
+                                    <th>Product ID</th>
+                                    <th>Variant ID</th>
+                                    <th>Variant SKU</th>
+                                    <th>Variant Title</th>
                                     <th>Category</th>
                                     <th>Tags</th>
                                     <th>Price</th>
@@ -70,15 +72,33 @@
                                 <tbody>
                                 @if(count($result['products']))
                                     @foreach($result['products'] as $product)
+                                    @if (sizeof($product->variants) == 1)
                                         <tr>
-                                            <td><a href="{{ url('products/'.$product->id) }}">{{ $product->product_id }}</a></td>
-                                            <td>{{ $product->product_name }}</td>
-                                            <td>{{ $product->product_category }}</td>
-                                            <td>{{ $product->product_tags }}</td>
-                                            <td>{{ $product->product_price }}</td>
+                                        <td>{{$product->id}}</td>
+                                            @foreach($product->variants as $variant)
+                                                <td>{{$variant['id']}}</td>
+                                                <td>{{$variant['sku'] }}</td>
+                                                 <td>{{ ($variant['title'] == 'Default Title' ? $product['title'] : $variant['title']) }}</td>
+                                                <td>{{$product->product_type}}</td>
+                                                <td>{{$product->tags}}</td>
+                                                <td>{{$variant['price']}}</td>
+                                            @endforeach
+                                        </tr>
+                                @else
+                                    @foreach($product->variants as $variant)
+                                        <tr>
+                                        <td>{{$product->id}}</td>
+                                        <td>{{$variant['id']}}</td>
+                                        <td>{{$variant['sku']}}</td>
+                                        <td>{{$product['title'] ."(". $variant['title'].")"}}</td>
+                                        <td>{{$product->product_type}}</td>
+                                        <td>{{$product->tags}}</td>
+                                        <td>{{$variant['price']}}</td>
                                         </tr>
                                     @endforeach
-                                @endif
+                                    @endif
+                                    @endforeach
+                                    @endif
                                 </tbody>
                             </table>
                         </div>

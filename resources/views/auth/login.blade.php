@@ -13,33 +13,31 @@
     <link href="{{ URL::asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ URL::asset('css/custom.css') }}" rel="stylesheet">
 </head>
-<body class="app header-fixed text-center">
-    <!-- Header -->
-    <header class="app-header row justify-content-center pull-left" style="padding-top: 35px;">
-        <img class="center" src="img/logo.png">
-    </header>
-
-    <!-- Main contents -->
-    <div class="app-body">
-        <div class="container mt-6 text-center" style="margin-top: 130px;" >
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card-group">
-                        <div class="card p-4">
-                            <div class="card-body">
-                                <h1>Login - Valedra Backend </h1>
-                                <div class="row">
-                                    <div class="col-12 mt-5">
-                                        <a href="{{ url('/redirect') }}" class="btn btn-danger">Login With Google</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+<body class="app flex-row align-items-center  pace-done"><div class="pace  pace-inactive"><div class="pace-progress" data-progress-text="100%" data-progress="99" style="transform: translate3d(100%, 0px, 0px);">
+        <div class="pace-progress-inner"></div>
+    </div>
+    <div class="pace-activity"></div></div>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-group">
+                <div class="card py-5">
+                    <div class="card-body text-center">
+                        <img class="center" src="img/logo.png">
+                        <h1>Backend APP</h1>
                     </div>
                 </div>
-            </div>
+                <div class="card py-4">
+                    <div class="card-body p-5">
+                        <h1>Login</h1>
+                        <p class="text-muted">Sign In to your account</p>
+                            <a href="{{ url('/redirect') }}" class="btn btn-danger">Login With Google</a>
+                    </div>
+                </div>
 
+            </div>
         </div>
     </div>
+</div>
 </body>
 </html>

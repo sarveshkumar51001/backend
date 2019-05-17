@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-class Product extends Base
+class ShopifyExcelUpload extends Base
 {
 	protected $connection = 'mongodb';
-	protected $collection = 'shopify_products';
+	protected $collection = 'shopify_excel_uploads';
 	protected $guarded = [];
-
 }
