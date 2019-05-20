@@ -24,7 +24,8 @@
                                         <table>
                                             <thead>
                                             <td>No.</td>
-                                            @foreach(array_keys($row[$key][1]) as $instKey)
+                                            @php $head = array_slice($row[$key], 0, 1) @endphp
+                                            @foreach(array_keys($head) as $instKey)
                                                 @if(isset(\App\Library\Shopify\Excel::$headerMap[$instKey]))
                                                     <td>{{ $instKey }}</td>
                                                 @endif

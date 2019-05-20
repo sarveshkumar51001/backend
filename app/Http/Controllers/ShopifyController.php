@@ -108,7 +108,7 @@ class ShopifyController extends BaseController
 
 		    // If any error, Return from here only
 	        if ($errors) {
-		        return view('bulkupload-preview')
+	        	return view('bulkupload-preview')
 			        ->with('errored_data', $errors)
 			        ->with('excel_response', $formattedData)
 			        ->with('breadcrumb', $breadcrumb)
@@ -145,41 +145,38 @@ class ShopifyController extends BaseController
 	                $final_fee = $OrderRow["final_fee_incl_gst"];
 
 	                $isUpdateInInstallment = false;
+
 	                // If there is any installments details provided in excel
-	                if (array_key_exists('installments', $OrderRow)) {
-	                    $installment_data = $OrderRow["installments"];
-	                    $excel_installment_data = $valid_row["installments"];
-
-	                    foreach ($excel_installment_data as $index => $installment){
-	                        if (empty($installment_data[$index])) {
-			                    $installment_data[$index] = $installment;
-			                    $isUpdateInInstallment = true;
-		                    }
+                    $paymentData = $OrderRow["payments"];
+                    foreach ($valid_row["payments"] as $index => $payment){
+                    	if (empty($paymentData[$index])) {
+		                    $paymentData[$index] = $payment;
+		                    $isUpdateInInstallment = true;
 	                    }
+                    }
 
-		                $total_installment_amount = 0;
-	                    foreach ($installment_data as $index => $updated_installment) {
-		                    $total_installment_amount += $updated_installment['installment_amount'];
-	                    }
+	                $total_installment_amount = 0;
+                    foreach ($paymentData as $index => $updatedPayment) {
+	                    $total_installment_amount += $updatedPayment['amount'];
+                    }
 
-	                    if ($total_installment_amount > $final_fee) {
-	                        $exception_msg = sprintf("Fee collected for the Order ID %u exceeded the order value.", $order_id);
-		                    $errors[$valid_row['sno']] = $exception_msg;
-	                    }
+                    if ($total_installment_amount > $final_fee) {
+                        $exception_msg = sprintf("Fee collected for the Order ID %u exceeded the order value.", $order_id);
+	                    $errors[$valid_row['sno']] = $exception_msg;
+                    }
 
-	                    if (!$isUpdateInInstallment) {
-		                    $errors[$valid_row['sno']] = "Either same excel uploaded again or existing installments can't be modified.";
-	                    }
+                    if (!$isUpdateInInstallment) {
+	                    $errors[$valid_row['sno']] = "Either same excel uploaded again or existing installments can't be modified.";
+                    }
 
-		                // If there is no error so far then only we proceed for updates
-		                if (empty($errors[$valid_row['sno']])) {
-			                $upsertList[] = [
-			                    'installments' => $installment_data,
-			                    'job_status' => 'pending',
-			                    '_id' => $doc_id
-		                    ];
-	                    }
-	                }
+	                // If there is no error so far then only we proceed for updates
+	                if (empty($errors[$valid_row['sno']])) {
+		                $upsertList[] = [
+		                    'installments' => $paymentData,
+		                    'job_status' => 'pending',
+		                    '_id' => $doc_id
+	                    ];
+                    }
 	            }
 	        }
 
@@ -230,7 +227,7 @@ class ShopifyController extends BaseController
     public function previous_uploads() {
 	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Previous uploads' => ''];
 
-	    $Uploads = Upload::where('user_id', \Auth::user()->id)->orderBy('created_at', 'desc')->get();
+	    $Uploads = Upload::where('user_id', \Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->get();
 
         return view( 'shopify.past-files-upload')->with('files', $Uploads)->with('breadcrumb', $breadcrumb);
     }

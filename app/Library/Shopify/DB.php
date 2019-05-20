@@ -85,11 +85,18 @@ class DB
     	return \DB::table('shopify_products')->where('id',$customer_id)->exists();
     }
 
-    public static function check_cheque_details_existence($cheque_no,$micr_code,$account_no){
-    	return ShopifyExcelUpload::where('chequedd_no', $cheque_no)
-	                           ->where('micr_code', $micr_code)
-	                           ->where('drawee_account_number', $account_no)
-	                           ->exists();
+    public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0){
+		$ORM = ShopifyExcelUpload::where('chequedd_no', $cheque_no);
+
+		if (!empty($micr_code)) {
+			$ORM->where('micr_code', $micr_code);
+		}
+
+		if (!empty($account_no)) {
+			$ORM->where('drawee_account_number', $account_no);
+		}
+
+    	return $ORM->exists();
     }
 
     public static function check_installment_cheque_details_existence($i,$cheque_no,$micr_code,$account_no){

@@ -2,6 +2,8 @@
 
 namespace App\Library\Shopify;
 
+use App\Models\ShopifyExcelUpload;
+
 class Excel
 {
 	private $rawHeader = [];
@@ -50,7 +52,6 @@ class Excel
 		'pdc_to_be_collected' => 'PDC TO BE COLLECTED',
 		'pdc_collectedpdc_to_be_collectedstatus' => 'PDC Collected/PDC to be collected(Status)',
 		'payments' => 'Payments',
-		'payment_type'=> 'Payment Type'
 	];
 
 	public function __construct(array $header, array $data, array $append = []) {
@@ -86,9 +87,11 @@ class Excel
 			if (array_filter($data)) {
 				# Making chunk of installments from the flat array
 
-				$offset_array = array(22, 33, 44, 55, 66, 77);
+				$offset_array = array(21, 32, 43, 54, 65, 76);
 				$final_slice = [];
 				$pattern = '/(.+)(_[\d]+)/i';
+
+				$index = 1;
 				foreach ($offset_array as $offset_value) {
 					$slice = array_slice($data, $offset_value, 11);
 					foreach ($slice as $key => $value) {
@@ -98,19 +101,17 @@ class Excel
 					}
 
 					$new_slice['processed'] = 'No';
-					$new_slice['type'] = '';
+					if ($offset_value == 21) {
+						$new_slice['type'] = ShopifyExcelUpload::TYPE_ONETIME;
+					} else {
+						$new_slice['type'] = ShopifyExcelUpload::TYPE_INSTALLMENT;
+					}
 
-					array_push($final_slice, $new_slice);
+					$final_slice[$index] = $new_slice;
+					$index++;
 				}
 
-				$i = 0;
-				$slice_array = [];
-				foreach ($final_slice as $slice) {
-					$slice_array[$i++] = $slice;
-				}
-
-				$data['payments'] = [];
-				$data['payments'] = $slice_array;
+				$data['payments'] = $final_slice;
 
 				# Removing slugged with count keys from the array
 				foreach ($data as $key => $value) {
@@ -120,8 +121,7 @@ class Excel
 				}
 
 				# Removing unwanted keys
-				$unwanted_keys = array('installment_amount', 'pdc_collectedpdc_to_be_collectedstatus', 'cheque_no', 'chequeinstallment_date', '0','amount','mode_of_payment','txn_reference_number_only_in_case_of_paytm_or_online','chequedd_no','micr_code','chequedd_date','drawee_name','drawee_account_number','bank_name','bank_branch');
-
+				$unwanted_keys = array('pdc_collectedpdc_to_be_collectedstatus', 'cheque_no', 'chequeinstallment_date', '0','amount','mode_of_payment','txn_reference_number_only_in_case_of_paytm_or_online','chequedd_no','micr_code','chequedd_date','drawee_name','drawee_account_number','bank_name','bank_branch');
 				foreach ($unwanted_keys as $key) {
 					unset($data[$key]);
 				}
@@ -129,30 +129,29 @@ class Excel
 				$this->formattedHeader = array_merge($this->formattedHeader, array_keys($data));
 				$this->formattedData[] = array_merge($data, $this->append);
 			}
-
-			$this->FormatInstallments();
 		}
+
+		$this->FormatInstallments();
 	}
 
 	/**
 	 * Prepare the installments keys as per required format
 	 */
 	private function FormatInstallments() {
-		$hasInstallment = false;
 		foreach ($this->formattedData as &$data) {
-			if (isset($data['installments'])) {
-				foreach ($data['installments'] as $index => $installment) {
-					if(!empty($installment['installment_amount'])){
+
+			$hasInstallment = false;
+			foreach ($data['payments'] as $index => $payment) {
+				if(!empty($payment['amount'])) {
+					if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
 						$hasInstallment = true;
-					} else {
-						unset($data['installments'][$index]);
 					}
+				} else {
+					unset($data['payments'][$index]);
 				}
 			}
 
-			if (!$hasInstallment) {
-				unset($data['installments']);
-			}
+			$data['order_type']  = $hasInstallment ? ShopifyExcelUpload::TYPE_INSTALLMENT : ShopifyExcelUpload::TYPE_ONETIME;
 		}
 	}
 

@@ -3,9 +3,6 @@
 namespace App\Library\Shopify;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-use App\Library\Shopify\DataRaw;
-use App\Library\Shopify\DB;
 
 /**
  * Class ExcelValidator
@@ -40,16 +37,18 @@ class ExcelValidator
 
 		foreach ($this->File->GetFormattedData() as $data) {
 			$this->ValidateData($data);
-			// $this->ValidateChequeDetails($data);
-			}
+		}
 
 		$this->ValidateAmount();
+
+		foreach ($this->File->GetFormattedData() as $data) {
+			$this->ValidateChequeDetails($data);
+		}
 
 		return $this->errors;
 	}
 
 	private function ValidateData(array $data) {
-
 		$rules = [
 			"shopify_activity_id" => "required|string|min:3",
 			"school_name" => "required|string",
@@ -75,9 +74,8 @@ class ExcelValidator
 		$amount_collected_cheque = $this->customDataToValidate["cheque-total"];
 		$amount_collected_online = $this->customDataToValidate["online-total"];
 
-
 		// Calling function for validating amount data
-		$modeWiseTotal = $this->get_amount_total($this->File->GetFormattedData());
+		$modeWiseTotal = $this->get_amount_total();
 
 		if ($amount_collected_cash != $modeWiseTotal['cash_total']) {
 			$this->errors['cash_total_mismatch'] = "Cash total mismatch, Entered total $amount_collected_cash, Sheet total " . $modeWiseTotal['cash_total'];
@@ -101,81 +99,45 @@ class ExcelValidator
 	}
 
 	/**
-	 * @param $file
-	 *
 	 * @return array
 	 */
-	private function get_amount_total($file) {
-		$installmentTotal = $cashTotal = $chequeTotal = $onlineTotal = 0;
-
-		foreach ($file as $index => $row) {
-			dd($file);
-			if (strtolower($row['payment_type']) == 'installment') {
-				// Sum up all the installment
-				foreach (array_slice($row['payments'], 1) as $installment) {
-					// $installmentTotal += $installment['installment_amount'];
-					// Sum up all the installment data
-					$installmentMode = strtolower($installment["mode_of_payment"]);
-					if ($installmentMode == 'cash') {
-						$cashTotal += $installment["amount"];
-					} elseif ($installmentMode == 'cheque') {
-						$chequeTotal += $installment["amount"];
-					} elseif($installmentMode == 'online') {
-						$onlineTotal += $installment["amount"];
-					} else {
-						$this->errors[] = "Invalid mode_of_payment [$installmentMode] received for row no " . ($index +1);
-					}
-				}
-			}
-
-			// If the order is without installments?
-			else {
-				$mode = strtolower($row["payments"][0]["mode_of_payment"]);
-				if ($mode == 'cash') {
-					$cashTotal += $row["final_fee_incl_gst"];
-				} elseif ($mode == 'cheque') {
-					$chequeTotal += $row["final_fee_incl_gst"];
-				} elseif($mode == 'online') {
-					$onlineTotal += $row["final_fee_incl_gst"];
+	private function get_amount_total() {
+		$cashTotal = $chequeTotal = $onlineTotal = 0;
+		foreach ($this->File->GetFormattedData() as $index => $row) {
+			foreach ($row['payments'] as $payment ) {
+				$paymentMode = strtolower( $payment["mode_of_payment"] );
+				if ( $paymentMode == 'cash' ) {
+					$cashTotal += $payment["amount"];
+				} elseif ( $paymentMode == 'cheque' ) {
+					$chequeTotal += $payment["amount"];
+				} elseif ( $paymentMode == 'online' ) {
+					$onlineTotal += $payment["amount"];
 				} else {
-					$this->errors[] = "Invalid mode_of_payment [$mode] received for row no " . ($index +1);
+					$this->errors[] = "Invalid mode_of_payment [$paymentMode] received for row no " . ( $index + 1 );
 				}
 			}
 		}
+
 		return [
 			'cash_total' => $cashTotal,
 			'cheque_total' => $chequeTotal,
 			'online_total' => $onlineTotal
 		];
 	}
-	// private function ValidateChequeDetails(array $data){
 
-	// 	// Check if the order has installment
-	// 	if(!array_key_exists('installments',$data)){
-	// 		$cheque_no = $data['chequedd_no'];
-	// 		$account_no = $data['drawee_account_number'];
-	// 		$micr_code = $data['micr_code'];
+	 private function ValidateChequeDetails(array $data) {
+		 foreach ($data['payments'] as $payment ) {
+		 	$mode = strtolower($payment['mode_of_payment']);
+		 	if ($mode == 'cheque' || $mode == 'dd') {
+			    $cheque_no = $payment['chequedd_no'];
+			    $account_no = $payment['drawee_account_number'];
+			    $micr_code = $payment['micr_code'];
 
-	// 		// Check if the combination of cheque no., micr_code and account_no. exists in database
-	// 		if(DB::check_cheque_details_existence($cheque_no,$micr_code,$account_no)){
-	// 			$this->errors[$data['sno']] = "Cheque Details entered already exists in database";
-	// 		}
-	// 	}
-	// 	else{
-	// 		// Looping through the installment data
-	// 		foreach ($data["installments"] as $index=>$installment){
-
-	// 			$cheque_no = $installment['cheque_no'];
-	// 			$micr_code  = $installment['micr_code'];
-	// 			$account_no = $installment['drawee_account_number'];
-
-	// 			// Looping through all the installments in the database
-	// 			for($i=1; $i <= env('INSTALLMENT_NUMBER'); $i++){
-	// 				if(DB::check_installment_cheque_details_existence($i,$cheque_no,$micr_code,$account_no)){
-	// 					$this->errors[$data['sno']] = "Cheque details for installment [index] already exists in database";
-	// 				}
-	// 			}
-	// 		}	
-	// 	}
-	// }
+			    // Check if the combination of cheque no., micr_code and account_no. exists in database
+			    if(DB::check_if_already_used($cheque_no, $micr_code, $account_no)){
+				    $this->errors[$data['sno']] = "Cheque/DD Details already used before.";
+			    }
+		    }
+		 }
+	 }
 }

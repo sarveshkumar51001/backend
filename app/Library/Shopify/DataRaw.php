@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Library\Shopify;
-use Auth, Exception;
+
+use App\Models\ShopifyExcelUpload;
+use Auth;
 
 class DataRaw
 {
@@ -61,7 +63,7 @@ class DataRaw
 	}
 
 	public function HasInstallment() {
-		return array_key_exists('installments',$this->data);
+		return ($this->data['order_type'] == ShopifyExcelUpload::TYPE_INSTALLMENT);
 	}
 
 	/**
@@ -198,7 +200,7 @@ class DataRaw
 
 		$transaction_data = [
 			"kind"   => "capture",
-			"amount" => $installment['installment_amount']
+			"amount" => $installment['amount']
 		];
 
 		$installment_details = [
