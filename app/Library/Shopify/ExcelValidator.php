@@ -40,11 +40,8 @@ class ExcelValidator
 
 		foreach ($this->File->GetFormattedData() as $data) {
 			$this->ValidateData($data);
-			$this->ValidateChequeDetails($data);
+			// $this->ValidateChequeDetails($data);
 			}
-
-		$info = $this->File->GetFormattedData();
-		$this->ValidateChequeDetails($info[1]);
 
 		$this->ValidateAmount();
 
@@ -112,18 +109,19 @@ class ExcelValidator
 		$installmentTotal = $cashTotal = $chequeTotal = $onlineTotal = 0;
 
 		foreach ($file as $index => $row) {
-			if (array_key_exists('installments', $row)) {
+			dd($file);
+			if (strtolower($row['payment_type']) == 'installment') {
 				// Sum up all the installment
-				foreach ($row["installments"] as $installment) {
+				foreach (array_slice($row['payments'], 1) as $installment) {
 					// $installmentTotal += $installment['installment_amount'];
 					// Sum up all the installment data
 					$installmentMode = strtolower($installment["mode_of_payment"]);
 					if ($installmentMode == 'cash') {
-						$cashTotal += $installment["installment_amount"];
+						$cashTotal += $installment["amount"];
 					} elseif ($installmentMode == 'cheque') {
-						$chequeTotal += $installment["installment_amount"];
+						$chequeTotal += $installment["amount"];
 					} elseif($installmentMode == 'online') {
-						$onlineTotal += $installment["installment_amount"];
+						$onlineTotal += $installment["amount"];
 					} else {
 						$this->errors[] = "Invalid mode_of_payment [$installmentMode] received for row no " . ($index +1);
 					}
@@ -132,7 +130,7 @@ class ExcelValidator
 
 			// If the order is without installments?
 			else {
-				$mode = strtolower($row["mode_of_payment"]);
+				$mode = strtolower($row["payments"][0]["mode_of_payment"]);
 				if ($mode == 'cash') {
 					$cashTotal += $row["final_fee_incl_gst"];
 				} elseif ($mode == 'cheque') {
@@ -150,34 +148,34 @@ class ExcelValidator
 			'online_total' => $onlineTotal
 		];
 	}
-	private function ValidateChequeDetails(array $data){
+	// private function ValidateChequeDetails(array $data){
 
-		// Check if the order has installment
-		if(!array_key_exists('installments',$data)){
-			$cheque_no = $data['chequedd_no'];
-			$account_no = $data['drawee_account_number'];
-			$micr_code = $data['micr_code'];
+	// 	// Check if the order has installment
+	// 	if(!array_key_exists('installments',$data)){
+	// 		$cheque_no = $data['chequedd_no'];
+	// 		$account_no = $data['drawee_account_number'];
+	// 		$micr_code = $data['micr_code'];
 
-			// Check if the combination of cheque no., micr_code and account_no. exists in database
-			if(DB::check_cheque_details_existence($cheque_no,$micr_code,$account_no)){
-				$this->errors[$data['sno']] = "Cheque Details entered already exists in database";
-			}
-		}
-		else{
-			// Looping through the installment data
-			foreach ($data["installments"] as $index=>$installment){
+	// 		// Check if the combination of cheque no., micr_code and account_no. exists in database
+	// 		if(DB::check_cheque_details_existence($cheque_no,$micr_code,$account_no)){
+	// 			$this->errors[$data['sno']] = "Cheque Details entered already exists in database";
+	// 		}
+	// 	}
+	// 	else{
+	// 		// Looping through the installment data
+	// 		foreach ($data["installments"] as $index=>$installment){
 
-				$cheque_no = $installment['cheque_no'];
-				$micr_code  = $installment['micr_code'];
-				$account_no = $installment['drawee_account_number'];
+	// 			$cheque_no = $installment['cheque_no'];
+	// 			$micr_code  = $installment['micr_code'];
+	// 			$account_no = $installment['drawee_account_number'];
 
-				// Looping through all the installments in the database
-				for($i=1; $i <= env('INSTALLMENT_NUMBER'); $i++){
-					if(DB::check_installment_cheque_details_existence($i,$cheque_no,$micr_code,$account_no)){
-						$this->errors[$data['sno']] = "Cheque details for installment [index] already exists in database";
-					}
-				}
-			}	
-		}
-	}
+	// 			// Looping through all the installments in the database
+	// 			for($i=1; $i <= env('INSTALLMENT_NUMBER'); $i++){
+	// 				if(DB::check_installment_cheque_details_existence($i,$cheque_no,$micr_code,$account_no)){
+	// 					$this->errors[$data['sno']] = "Cheque details for installment [index] already exists in database";
+	// 				}
+	// 			}
+	// 		}	
+	// 	}
+	// }
 }

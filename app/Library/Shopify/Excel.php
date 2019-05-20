@@ -35,7 +35,7 @@ class Excel
 		'scholarship_discount' => 'Scholarship/ Discount',
 		'after_discount_fee' => 'After Discount Fee',
 		'final_fee_incl_gst' => 'Final fee (incl GST)',
-		'registration_amount' => 'Registration Amount',
+		'amount' => 'Amount',
 		'mode_of_payment' => 'Mode of payment',
 		'txn_reference_number_only_in_case_of_paytm_or_online' => 'Txn Reference Number (only in case of Paytm or Online)',
 		'chequedd_no' => 'Cheque/DD No',
@@ -45,15 +45,12 @@ class Excel
 		'drawee_account_number' => 'Drawee Account Number',
 		'bank_name' => 'Bank Name',
 		'bank_branch' => 'Bank Branch',
-		'pdc_applicable_yn' => 'PDC Applicable (Y/N)',
 		'paid' => 'PAID',
 		'pdc_collected' => 'PDC COLLECTED',
 		'pdc_to_be_collected' => 'PDC TO BE COLLECTED',
-		'installment_amount' => 'Installment Amount',
-		'cheque_no' => 'Cheque No',
 		'pdc_collectedpdc_to_be_collectedstatus' => 'PDC Collected/PDC to be collected(Status)',
-		'chequeinstallment_date' => 'Cheque/Installment Date',
-		'installments' => 'Installments',
+		'payments' => 'Payments',
+		'payment_type'=> 'Payment Type'
 	];
 
 	public function __construct(array $header, array $data, array $append = []) {
@@ -89,7 +86,7 @@ class Excel
 			if (array_filter($data)) {
 				# Making chunk of installments from the flat array
 
-				$offset_array = array(32, 43, 54, 65, 76);
+				$offset_array = array(22, 33, 44, 55, 66, 77);
 				$final_slice = [];
 				$pattern = '/(.+)(_[\d]+)/i';
 				foreach ($offset_array as $offset_value) {
@@ -101,16 +98,19 @@ class Excel
 					}
 
 					$new_slice['processed'] = 'No';
+					$new_slice['type'] = '';
+
 					array_push($final_slice, $new_slice);
 				}
 
-				$i = 1;
+				$i = 0;
 				$slice_array = [];
 				foreach ($final_slice as $slice) {
 					$slice_array[$i++] = $slice;
 				}
 
-				$data['installments'] = $slice_array;
+				$data['payments'] = [];
+				$data['payments'] = $slice_array;
 
 				# Removing slugged with count keys from the array
 				foreach ($data as $key => $value) {
@@ -120,7 +120,8 @@ class Excel
 				}
 
 				# Removing unwanted keys
-				$unwanted_keys = array('installment_amount', 'pdc_collectedpdc_to_be_collectedstatus', 'cheque_no', 'chequeinstallment_date', '0');
+				$unwanted_keys = array('installment_amount', 'pdc_collectedpdc_to_be_collectedstatus', 'cheque_no', 'chequeinstallment_date', '0','amount','mode_of_payment','txn_reference_number_only_in_case_of_paytm_or_online','chequedd_no','micr_code','chequedd_date','drawee_name','drawee_account_number','bank_name','bank_branch');
+
 				foreach ($unwanted_keys as $key) {
 					unset($data[$key]);
 				}
