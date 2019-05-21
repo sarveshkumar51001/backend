@@ -20,7 +20,6 @@ class DB
 				return $variant['id'];
 			}
 		}
-
 		return 0;
 	}
 

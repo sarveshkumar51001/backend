@@ -119,12 +119,9 @@ class DataRaw
 	 * @throws \Exception
 	 */
 	public function GetOrderCreateData($productVariantID, $customer_id) {
-		if (empty($productVariantID)) {
-			throw new \Exception('Empty product variant id given');
-		}
-
+		
 		$order_data['line_items'] = [[
-			"variant_id" => $productVariantID->__toString()
+			"variant_id" => $productVariantID
 		]];
 
 		$order_data['customer'] = [
@@ -140,50 +137,51 @@ class DataRaw
 
 		return $order_data;
 
-		if ($isInstallment == true) {
-			$order_data['transactions'] = [[
-				"amount" => $this->data['final_fee_incl_gst'],
-				"kind" => "authorization"
-			]];
-			$order_data["financial_status"] = "pending";
-		} else {
-			$order_data['transaction'] = [[
-				"kind" => "capture"
-			]];
-			$order_data['note_attributes'] = [
-				[
-					"name" => "Payment Mode",
-					"value" => $this->data["mode_of_payment"]
-				], [
-					"name" => "Cheque/DD No.",
-					"value" => $this->data["chequedd_no"]
-				], [
-					"name" => "Cheque/DD Date",
-					"value" => $this->data["chequedd_date"]
-				], [
-					"name" => "Online Transaction Reference Number",
-					"value" => $this->data["txn_reference_number_only_in_case_of_paytm_or_online"]
-				], [
-					"name" => "Drawee Name",
-					"value" => $this->data["drawee_name"]
-				], [
-					"name" => "Drawee Account Number",
-					"value" => $this->data["drawee_account_number"]
-				], [
-					"name" => "MICR Code",
-					"value" => $this->data["micr_code"]
-				], [
-					"name" => "Bank Name",
-					"value" => $this->data["bank_name"]
-				], [
-					"name" => "Branch Name",
-					"value" => $this->data["bank_branch"]
-				]
-			];
-		}
-
-		return $order_data;
 	}
+
+		// if ($isInstallment == true) {
+		// 	$order_data['transactions'] = [[
+		// 		"amount" => $this->data['final_fee_incl_gst'],
+		// 		"kind" => "authorization"
+		// 	]];
+		// 	$order_data["financial_status"] = "pending";
+		// } else {
+		// 	$order_data['transaction'] = [[
+		// 		"kind" => "capture"
+		// 	]];
+		// 	$order_data['note_attributes'] = [
+		// 		[
+		// 			"name" => "Payment Mode",
+		// 			"value" => $this->data["mode_of_payment"]
+		// 		], [
+		// 			"name" => "Cheque/DD No.",
+		// 			"value" => $this->data["chequedd_no"]
+		// 		], [
+		// 			"name" => "Cheque/DD Date",
+		// 			"value" => $this->data["chequedd_date"]
+		// 		], [
+		// 			"name" => "Online Transaction Reference Number",
+		// 			"value" => $this->data["txn_reference_number_only_in_case_of_paytm_or_online"]
+		// 		], [
+		// 			"name" => "Drawee Name",
+		// 			"value" => $this->data["drawee_name"]
+		// 		], [
+		// 			"name" => "Drawee Account Number",
+		// 			"value" => $this->data["drawee_account_number"]
+		// 		], [
+		// 			"name" => "MICR Code",
+		// 			"value" => $this->data["micr_code"]
+		// 		], [
+		// 			"name" => "Bank Name",
+		// 			"value" => $this->data["bank_name"]
+		// 		], [
+		// 			"name" => "Branch Name",
+		// 			"value" => $this->data["bank_branch"]
+		// 		]
+		// 	];
+		// }
+
+		// return $order_data;
 
 	public function GetPaymentData() {
 		return $this->data['payments'] ?? [];
