@@ -51,7 +51,7 @@ class DB
 	 * @return mixed
 	 */
 	public static function mark_status_completed($_id) {
-		return ShopifyExcelUpload::find($_id)->update(['job_status' => 'completed']);
+		return ShopifyExcelUpload::find($_id)->update(['job_status' => ShopifyExcelUpload::JOB_STATUS_COMPLETED]);
 	}
 
 	/**
@@ -61,7 +61,7 @@ class DB
 	 * @return mixed
 	 */
 	public static function mark_status_failed($_id, array $error = []) {
-		return ShopifyExcelUpload::find($_id)->update(['job_status' => 'failed', 'errors' => $error]);
+		return ShopifyExcelUpload::find($_id)->update(['job_status' => ShopifyExcelUpload::JOB_STATUS_FAILED, 'errors' => $error]);
 	}
 
     /**
@@ -76,6 +76,9 @@ class DB
     public static function check_shopify_activity_id_in_database($product_sku){
     	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
     }
+    public static function get_shopify_product_from_database($product_sku){
+		return \DB::table('shopify_products')->where('variants.sku', $product_sku)->first();
+	}
     public static function check_product_existence_in_database($product_id){
     	return \DB::table('shopify_products')->where('id', $product_id)->exists();
     }
@@ -99,7 +102,6 @@ class DB
     }
 
     public static function check_installment_cheque_details_existence($i,$cheque_no,$micr_code,$account_no){
-    	
     	$cheque_no_index = sprintf("payments.%s.cheque_no",$i);
     	$micr_code_index = sprintf("payments.%s.micr_code",$i);
     	$account_no_index = sprintf("payments.%s.drawee_account_number",$i);
@@ -127,17 +129,17 @@ class DB
 	    			}
 	    		}
 			}
+
 	   		$page++;
 		}
 	}
 
 	public static function sync_all_customers_from_shopify(){
-
 		$ShopifyAPI = new API();
     	$page = 1;
     	$hasCustomers = true;
     	while($hasCustomers) {
-	    	$params = ['limit' => 10,'page'=> $page];
+	    	$params = ['page'=> $page];
 	    	$customers = $ShopifyAPI->GetCustomers($params);
 
 	    	if (!count($customers)) {
@@ -149,6 +151,8 @@ class DB
 	    			}
 	    		}
 			}
-	   	}	$page++;
+
+		    $page++;
+	   	}
 	}
 }

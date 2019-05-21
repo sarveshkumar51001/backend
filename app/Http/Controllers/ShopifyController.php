@@ -50,9 +50,9 @@ class ShopifyController extends BaseController
 	        $user_name = preg_replace('/\s+/', '_', $name);
 
 	        // Making a directory for each unique user
-	        if (!is_dir($user_name)) {
+	        /*if (!is_dir($user_name)) {
 	            mkdir($user_name);
-	        }
+	        }*/
 
 	        // Extracting file from Post request
 	        $excel_file = $request->file('file');
@@ -73,7 +73,7 @@ class ShopifyController extends BaseController
 		        'upload_date' => $request['date'],
 			    'uploaded_by' => Auth::user()->id,
 			    'file_id' => uniqid('shopify_'), # Unique identifier for the documents belonging to a single file
-			    'job_status' => 'pending',
+			    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
 			    'order_id' => 0,
 			    'customer_id' => 0
 		    ]));
@@ -115,8 +115,11 @@ class ShopifyController extends BaseController
 	            $activity_id = $valid_row['shopify_activity_id'];
 	            $std_enroll_no = $valid_row['school_enrollment_no'];
 
-	            if(!DB::check_shopify_activity_id_in_database($activity_id)){
+	            $Product = DB::get_shopify_product_from_database($activity_id);
+	            if(!$Product){
 	                $errors[$valid_row['sno']] = "The activity id is not present in the database";
+	            } else if (empty($valid_row['activity'])) {
+	            	$valid_row['activity'] = $Product->title;
 	            }
 
 	            // Attempt to lookup in database with the key combination
@@ -163,7 +166,7 @@ class ShopifyController extends BaseController
 	                if (empty($errors[$valid_row['sno']])) {
 		                $upsertList[] = [
 		                    'payments' => $paymentData,
-		                    'job_status' => 'pending',
+		                    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
 		                    '_id' => $doc_id
 	                    ];
                     }

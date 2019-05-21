@@ -14,7 +14,7 @@ class Excel
 
 	public static $headerMap = [
 		'sno' => 'Sno',
-		'order_id' => 'Shopify Order ID',
+		'order_id' => 'Shopify Order',
 		'job_status' => 'job_status',
 		'upload_date' => 'Upload Date',
 		'date_of_enrollment' => 'Date of enrollment',

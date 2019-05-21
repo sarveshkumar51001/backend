@@ -10,4 +10,8 @@ class ShopifyExcelUpload extends Base
 
 	const TYPE_INSTALLMENT = 'installment';
 	const TYPE_ONETIME = 'one_time';
+
+	const JOB_STATUS_PENDING = 'pending';
+	const JOB_STATUS_COMPLETED = 'completed';
+	const JOB_STATUS_FAILED = 'failed';
 }

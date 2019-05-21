@@ -3,11 +3,15 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
-use Auth;
 
 class DataRaw
 {
 	public $data = [];
+
+	public static $validNoteAttributes = [
+		'mode_of_payment', 'chequedd_no', 'micr_code', 'chequedd_date', 'drawee_name', 'drawee_account_number',
+		'bank_name', 'bank_branch'
+	];
 
 	/**
 	 * DataRaw constructor.
@@ -119,7 +123,10 @@ class DataRaw
 	 * @throws \Exception
 	 */
 	public function GetOrderCreateData($productVariantID, $customer_id) {
-		
+		if (empty($productVariantID)) {
+			throw new \Exception('Empty product variant id given');
+		}
+
 		$order_data['line_items'] = [[
 			"variant_id" => $productVariantID
 		]];
@@ -139,50 +146,6 @@ class DataRaw
 
 	}
 
-		// if ($isInstallment == true) {
-		// 	$order_data['transactions'] = [[
-		// 		"amount" => $this->data['final_fee_incl_gst'],
-		// 		"kind" => "authorization"
-		// 	]];
-		// 	$order_data["financial_status"] = "pending";
-		// } else {
-		// 	$order_data['transaction'] = [[
-		// 		"kind" => "capture"
-		// 	]];
-		// 	$order_data['note_attributes'] = [
-		// 		[
-		// 			"name" => "Payment Mode",
-		// 			"value" => $this->data["mode_of_payment"]
-		// 		], [
-		// 			"name" => "Cheque/DD No.",
-		// 			"value" => $this->data["chequedd_no"]
-		// 		], [
-		// 			"name" => "Cheque/DD Date",
-		// 			"value" => $this->data["chequedd_date"]
-		// 		], [
-		// 			"name" => "Online Transaction Reference Number",
-		// 			"value" => $this->data["txn_reference_number_only_in_case_of_paytm_or_online"]
-		// 		], [
-		// 			"name" => "Drawee Name",
-		// 			"value" => $this->data["drawee_name"]
-		// 		], [
-		// 			"name" => "Drawee Account Number",
-		// 			"value" => $this->data["drawee_account_number"]
-		// 		], [
-		// 			"name" => "MICR Code",
-		// 			"value" => $this->data["micr_code"]
-		// 		], [
-		// 			"name" => "Bank Name",
-		// 			"value" => $this->data["bank_name"]
-		// 		], [
-		// 			"name" => "Branch Name",
-		// 			"value" => $this->data["bank_branch"]
-		// 		]
-		// 	];
-		// }
-
-		// return $order_data;
-
 	public function GetPaymentData() {
 		return $this->data['payments'] ?? [];
 	}
@@ -197,9 +160,14 @@ class DataRaw
 		if (empty($installment) || strtolower($installment['processed']) == 'yes') {
 			return [];
 		}
-		$output = implode(',', array_map(function ($v, $k) {
-			return sprintf( "%s - %s\n", $k, $v );
-		}, $installment, array_keys($installment)));
+
+		$note = '';
+		foreach ($installment as $key => $value) {
+			$key = strtolower($key);
+			if (!empty($value) && in_array($key, self::$validNoteAttributes)) {
+				$note .= Excel::$headerMap[$key] . ": $value | ";
+			}
+		}
 
 		$transaction_data = [
 			"kind"   => "capture",
@@ -210,7 +178,7 @@ class DataRaw
 			"note_attributes" => [
 				[
 					"name"  => sprintf( "Installment-%s", $number),
-					"value" => $output
+					"value" => rtrim($note, '| ')
 				]
 			]
 		];

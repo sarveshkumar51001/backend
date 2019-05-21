@@ -46,7 +46,22 @@
                                         </table>
                                     </td>
                                 @else
-                                    <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif ">{{ $row[$key] }}</td>
+                                    <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "><span class="
+
+                                    @if($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_PENDING)
+                                                badge badge-warning
+                                    @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_COMPLETED)
+                                                badge badge-success
+                                    @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_FAILED)
+                                                badge badge-danger
+                                    @endif
+                                    ">
+                                        @if($key == 'order_id')
+                                            <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}">View <i class="fa fa-external-link"></i></a>
+                                        @else
+                                            {{ $row[$key] }}
+                                        @endif
+                                        </span></td>
                                 @endif
                             @else
                                 <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "></td>
