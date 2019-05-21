@@ -25,9 +25,9 @@
                                             <thead>
                                             <td>No.</td>
                                             @php $head = array_slice($row[$key], 0, 1) @endphp
-                                            @foreach(array_keys($head) as $instKey)
+                                            @foreach(array_keys($head[0]) as $instKey)
                                                 @if(isset(\App\Library\Shopify\Excel::$headerMap[$instKey]))
-                                                    <td>{{ $instKey }}</td>
+                                                    <td>{{ \App\Library\Shopify\Excel::$headerMap[$instKey] }}</td>
                                                 @endif
                                             @endforeach
                                             </thead>

@@ -119,7 +119,7 @@ class ShopifyController extends BaseController
 	            if(!$Product){
 	                $errors[$valid_row['sno']] = "The activity id is not present in the database";
 	            } else if (empty($valid_row['activity'])) {
-	            	$valid_row['activity'] = $Product->title;
+	            	$valid_row['activity'] = $Product['title'];
 	            }
 
 	            // Attempt to lookup in database with the key combination

@@ -5,7 +5,7 @@
         <div class="card-header">
             <i class="fa fa-cloud-upload"></i>Bulk Upload
             <div class="row pull-right">
-                <a href="{{ URL::asset('shopify/sample_shopify_file.xlsx') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-download"> &nbsp;</i>Download sample file</button></a>
+                <a href="{{ URL::asset('shopify/sample_shopify_file.xls') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-download"> &nbsp;</i>Download sample file</button></a>
             </div>
         </div>
         <div class="card-body">
