@@ -39,12 +39,12 @@ class API
 		return $this->Shopify->Customer->post($data);
 	}
 
-    /**
-     * @param $phone
-     * @param $email
-     * @return array
-     * @throws \PHPShopify\Exception\SdkException
-     */
+	/**
+	 * @param $phone
+	 * @param $email
+	 *
+	 * @return array
+	 */
 	public function SearchCustomer($phone,$email) {
 		$query = sprintf("phone:%s OR email:%s",$phone,$email);
 		return $this->Shopify->Customer->search($query);
@@ -78,16 +78,30 @@ class API
 	public function UpdateOrder($orderID, array $data) {
 		return $this->Shopify->Order($orderID)->put($data);
 	}
+
+	/**
+	 * @param $params
+	 *
+	 * @return array
+	 */
 	public function GetProducts($params){
 		return $this->Shopify->Product()->get($params);
 	}
+
+	/**
+	 * @return int
+	 * @throws \PHPShopify\Exception\SdkException
+	 */
 	public function CountProducts(){
 		return $this->Shopify->Product()->count();
 	}
+
+	/**
+	 * @param $params
+	 *
+	 * @return array
+	 */
 	public function GetCustomers($params){
 		return $this->Shopify->Customer()->get($params);
 	}
 }
-//
-//
-//$query = sprintf("email:%s OR phone:%s", $email,$phone);

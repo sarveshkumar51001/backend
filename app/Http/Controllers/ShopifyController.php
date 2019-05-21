@@ -63,16 +63,6 @@ class ShopifyController extends BaseController
 	        $filePath = storage_path('uploads/' . $user_name);
 	        $path = $excel_file->move($filePath, $fileName);
 
-	        // Upload the file with metadata
-	        $Upload = Upload::create([
-	        	'user_id' => \Auth::user()->id,
-		        'file_name' => $originalFileName,
-		        'path' => $path->getRealPath(),
-		        'status' => Upload::STATUS_PENDING,
-		        'type' => Upload::TYPE_SHOPIFY_ORDERS,
-		        'created_at' => time()
-	        ]);
-
 	        // Loading the excel file
 	        $ExlReader = Excel::load($path->getRealPath(), function () {
 	        })->get()->first();
@@ -172,7 +162,7 @@ class ShopifyController extends BaseController
 	                // If there is no error so far then only we proceed for updates
 	                if (empty($errors[$valid_row['sno']])) {
 		                $upsertList[] = [
-		                    'installments' => $paymentData,
+		                    'payments' => $paymentData,
 		                    'job_status' => 'pending',
 		                    '_id' => $doc_id
 	                    ];
@@ -202,9 +192,16 @@ class ShopifyController extends BaseController
 					}
 		        }
 
-		        $Upload->status = Upload::STATUS_SUCCESS;
-	            $Upload->metadata = $metadata;
-	            $Upload->save();
+		        // Upload the file with metadata
+		        Upload::create([
+			        'user_id' => \Auth::user()->id,
+			        'file_name' => $originalFileName,
+			        'path' => $path->getRealPath(),
+			        'metadata' => $metadata,
+			        'status' => Upload::STATUS_SUCCESS,
+			        'type' => Upload::TYPE_SHOPIFY_ORDERS,
+			        'created_at' => time()
+		        ]);
 	        }
 
 	        if (!empty($objectIDList)) {

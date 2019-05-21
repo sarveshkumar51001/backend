@@ -8,21 +8,20 @@ use App\Library\Shopify\API;
 class DB
 {
 	/**
-	 * @param string $activity_id
+	 * @param $activity_id
+	 * @param $activity_fee
 	 *
-	 * @return mixed
+	 * @return int
 	 */
-	
-	public static function get_variant_id($activity_id,$activity_fee) {
-		
+	public static function get_variant_id($activity_id, $activity_fee) {
 		$product =  \DB::table('shopify_products')->where('variants.sku', $activity_id)->get()->first();
-
 		foreach($product['variants'] as $variant){
 			if($variant['price'] == $activity_fee){
-				$variant_id = $variant['id'];
+				return $variant['id'];
 			}
 		}
-		return $variant_id ?? 0;
+
+		return 0;
 	}
 
 	/**
@@ -42,7 +41,7 @@ class DB
 	 * @return mixed
 	 */
 	public static function mark_installment_status_processed($_id, $number) {
-		$installment_index = sprintf("installments.%s.processed", $number);
+		$installment_index = sprintf("payments.%s.processed", $number);
 
 		return ShopifyExcelUpload::find($_id)->update([$installment_index => 'Yes']);
 	}
@@ -58,11 +57,12 @@ class DB
 
 	/**
 	 * @param $_id Object ID - Primary key
+	 * @param array $error
 	 *
 	 * @return mixed
 	 */
-	public static function mark_status_failed($_id) {
-		return ShopifyExcelUpload::find($_id)->update(['job_status' => 'failed']);
+	public static function mark_status_failed($_id, array $error = []) {
+		return ShopifyExcelUpload::find($_id)->update(['job_status' => 'failed', 'errors' => $error]);
 	}
 
     /**
@@ -70,8 +70,8 @@ class DB
      * @param $shopify_customer_id
      * @return mixed
      */
-	public static function update_customer_id_in_upload($object_id,$shopify_customer_id){
-	    return ShopifyExcelUpload::find($object_id)->update(['customer_id'=> $shopify_customer_id]);
+	public static function update_customer_id_in_upload($object_id, $shopify_customer_id){
+	    return ShopifyExcelUpload::find($object_id)->update(['customer_id' => $shopify_customer_id]);
     }
     
     public static function check_shopify_activity_id_in_database($product_sku){
@@ -101,9 +101,9 @@ class DB
 
     public static function check_installment_cheque_details_existence($i,$cheque_no,$micr_code,$account_no){
     	
-    	$cheque_no_index = sprintf("installments.%s.cheque_no",$i);
-    	$micr_code_index = sprintf("installments.%s.micr_code",$i);
-    	$account_no_index = sprintf("installments.%s.drawee_account_number",$i);
+    	$cheque_no_index = sprintf("payments.%s.cheque_no",$i);
+    	$micr_code_index = sprintf("payments.%s.micr_code",$i);
+    	$account_no_index = sprintf("payments.%s.drawee_account_number",$i);
 
     	return ShopifyExcelUpload::where($cheque_no_index, $cheque_no)
 	                           ->where($micr_code_index, $micr_code)

@@ -113,26 +113,32 @@ class DataRaw
 
 	/**
 	 * @param int $productVariantID
-	 * @param bool $isInstallment
-	 * @param array $notes
+	 * @param array $customer_id
 	 *
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function GetOrderCreateData($productVariantID, $isInstallment, $customer_id) {
+	public function GetOrderCreateData($productVariantID, $customer_id) {
 		if (empty($productVariantID)) {
 			throw new \Exception('Empty product variant id given');
 		}
 
-		$order_data = [];
-
 		$order_data['line_items'] = [[
-			"variant_id" => $productVariantID
-
+			"variant_id" => $productVariantID->__toString()
 		]];
+
 		$order_data['customer'] = [
 		    "id" => $customer_id
         ];
+
+		$order_data['transactions'] = [[
+			"amount" => $this->data['final_fee_incl_gst'],
+			"kind" => "authorization"
+		]];
+
+		$order_data["financial_status"] = "pending";
+
+		return $order_data;
 
 		if ($isInstallment == true) {
 			$order_data['transactions'] = [[
@@ -175,14 +181,13 @@ class DataRaw
 				]
 			];
 		}
+
 		return $order_data;
 	}
 
-	public function GetInstallments() {
-		return $this->data['installments'] ?? '';
+	public function GetPaymentData() {
+		return $this->data['payments'] ?? [];
 	}
-
-/////// Checked ///////
 
 	/**
 	 * @param array $installment
@@ -191,7 +196,7 @@ class DataRaw
 	 * @return array
 	 */
 	public static function GetInstallmentData(array $installment, $number) {
-		if (empty($installment) || $installment['processed'] == 'Yes') {
+		if (empty($installment) || strtolower($installment['processed']) == 'yes') {
 			return [];
 		}
 		$output = implode(',', array_map(function ($v, $k) {
@@ -211,6 +216,7 @@ class DataRaw
 				]
 			]
 		];
+
 		return [$transaction_data, $installment_details];
 	}
 }
