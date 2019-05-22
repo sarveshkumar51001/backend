@@ -106,7 +106,6 @@ class ShopifyController extends BaseController
 	        }
 
 	        // EVERYTHING LOOKS GOOD TO GO.......
-
 		    # Inserting data to MongoDB after validation
 	        $upsertList = [];
 		    foreach ($formattedData as $valid_row) {
@@ -127,13 +126,12 @@ class ShopifyController extends BaseController
 	            $OrderRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)
 	                           ->where('shopify_activity_id', $activity_id)
 	                           ->where('school_enrollment_no', $std_enroll_no)
-	                           ->first();
+	                           ->first()->toArray();
 
 	            if (empty($OrderRow)) {
 		            $upsertList[] = $valid_row;
 	            } else {
 	                $doc_id = $OrderRow["_id"];
-
 	                $order_id = $OrderRow["order_id"];
 	                $final_fee = $OrderRow["final_fee_incl_gst"];
 
@@ -187,9 +185,9 @@ class ShopifyController extends BaseController
 						$metadata['update_order'] += 1;
 
 	                    // Update installment in database
-						ShopifyExcelUpload::where('id', $_id)
+						ShopifyExcelUpload::where('_id', $_id)
 						                  ->update($document);
-
+						                  
 	                    // Store the object id to be used to send document in job queue
 	                    $objectIDList[] = $_id;
 					}
