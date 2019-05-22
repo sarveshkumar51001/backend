@@ -68,7 +68,7 @@ class Job {
 		foreach ($Data->GetPaymentData() as $index => $installment) {
 
 			$installmentData = DataRaw::GetInstallmentData($installment, $index);
-			if (empty($installmentData)) {
+			if (empty($installmentData) || (!empty($installment['chequedd_date']) && strtotime($installment['chequedd_date']) > time())) {
 				continue;
 			}
 

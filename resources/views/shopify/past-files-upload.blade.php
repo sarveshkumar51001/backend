@@ -4,8 +4,13 @@
         <div class="card">
             <div class="card-header">
                 Following are the excel files uploaded by you in the past.
+                <div class="row pull-right m-2">
+                    <a href="{{ route('bulkupload.upload') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-plus"> &nbsp;</i>New Upload</button></a>
+                    <a href="{{ route('bulkupload.previous_orders') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Previous Orders</button></a>
+                </div>
             </div>
             <div class="card-body">
+
                 <table class="table table-bordered table-striped table-sm datatable">
                     <thead>
                     <tr>

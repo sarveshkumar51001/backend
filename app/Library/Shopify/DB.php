@@ -41,8 +41,9 @@ class DB
 	 */
 	public static function mark_installment_status_processed($_id, $number) {
 		$installment_index = sprintf("payments.%s.processed", $number);
+		$order_update_node = sprintf("payments.%s.order_update_at", $number);
 
-		return ShopifyExcelUpload::find($_id)->update([$installment_index => 'Yes']);
+		return ShopifyExcelUpload::find($_id)->update([$installment_index => 'Yes', $order_update_node => time()]);
 	}
 
 	/**
@@ -51,7 +52,24 @@ class DB
 	 * @return mixed
 	 */
 	public static function mark_status_completed($_id) {
-		return ShopifyExcelUpload::find($_id)->update(['job_status' => ShopifyExcelUpload::JOB_STATUS_COMPLETED]);
+		$Document = ShopifyExcelUpload::find($_id);
+		if (!$Document) {
+			return;
+		}
+
+		$allProcessed = true;
+		foreach ($Document->payments as $payment) {
+			if (strtolower($payment['processed']) !=  'yes') {
+				$allProcessed = false;
+				break;
+			}
+		}
+
+		if ($allProcessed) {
+			$Document->update(['job_status' => ShopifyExcelUpload::JOB_STATUS_COMPLETED]);
+		}
+
+		return $Document;
 	}
 
 	/**

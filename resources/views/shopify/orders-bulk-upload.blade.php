@@ -5,6 +5,8 @@
         <div class="card-header">
             <i class="fa fa-cloud-upload"></i>Bulk Upload
             <div class="row pull-right">
+                <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Upload History</button></a>
+                <a href="{{ route('bulkupload.previous_orders') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Previous Orders</button></a>
                 <a href="{{ URL::asset('shopify/sample_shopify_file.xls') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-download"> &nbsp;</i>Download sample file</button></a>
             </div>
         </div>

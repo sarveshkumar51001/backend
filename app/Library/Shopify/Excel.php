@@ -52,6 +52,36 @@ class Excel
 		'pdc_to_be_collected' => 'PDC TO BE COLLECTED',
 		'pdc_collectedpdc_to_be_collectedstatus' => 'PDC Collected/PDC to be collected(Status)',
 		'payments' => 'Payments',
+		'type' => 'Type',
+		'processed' => 'Processed'
+	];
+
+	public static $headerViewMap = [
+		'order_id' => 'Shopify Order',
+		'job_status' => 'job_status',
+		'upload_date' => 'Upload Date',
+		'date_of_enrollment' => 'Date of enrollment',
+		'shopify_activity_id' => 'Shopify Activity ID',
+		'delivery_institution' => 'Delivery Institution',
+		'branch' => 'Branch',
+		'external_internal' => 'External/Internal',
+		'school_name' => 'School',
+		'student_first_name' => 'Student first name',
+		'student_last_name' => 'Student last name',
+		'activity' => 'Activity',
+		'school_enrollment_no' => 'Enrollment no',
+		'class' => 'Class',
+		'section' => 'Section',
+		'parent_first_name' => 'Parent First Name',
+		'parent_last_name' => 'Parent Last Name',
+		'mobile_number' => 'Mobile',
+		'email_id' => 'Email',
+		'activity_fee' => 'Activity fee',
+		'scholarship_discount' => 'Scholarship/Discount',
+		'after_discount_fee' => 'After Discount Fee',
+		'final_fee_incl_gst' => 'Final fee (incl GST)',
+		'payments' => 'Payments',
+		'errors' => 'Errors',
 	];
 
 	public function __construct(array $header, array $data, array $append = []) {
@@ -101,6 +131,7 @@ class Excel
 					}
 
 					$new_slice['processed'] = 'No';
+					$new_slice['upload_date'] = time();
 					if ($offset_value == 21) {
 						$new_slice['type'] = ShopifyExcelUpload::TYPE_ONETIME;
 					} else {

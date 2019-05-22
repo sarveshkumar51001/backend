@@ -47,6 +47,13 @@ Route::prefix('bulkupload')->group(function() {
 	Route::get('/previous/file_download/{id}','ShopifyController@download_previous')->name('bulkupload.download_previous');
 });
 
+Route::group(['prefix' => 'api/v1/', /*'middleware' => ['auth']*/], function() {
+	Route::get('upload/{id}', function ($id) {
+		return (new \App\Http\Controllers\Api\OrderController())->get_upload_details($id);
+	});
+});
+
+
 Auth::routes();
 
 use Oseintow\Shopify\Facades\Shopify;
