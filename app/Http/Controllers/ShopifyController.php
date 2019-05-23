@@ -234,15 +234,16 @@ class ShopifyController extends BaseController
 	    $start = $end = 0;
 	    if (request('daterange')) {
 		    $range = explode(' - ', request('daterange'), 2);
-
 		    if (count($range) == 2) {
-			    $start = start_of_the_day($range[0]);
-			    $end = end_of_day($range[1]);
+			    $start = ($range[0]);
+			    $end = ($range[1]);
 		    }
 	    }
 
 	    if ($start && $end) {
-		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
+		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
+			    ->whereBetween('upload_date', [$start, $end])
+		                                         ->get();
 	    } else {
 		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
 	    }
