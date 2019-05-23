@@ -17,10 +17,10 @@ ini_set('max_execution_time', 180);
 class ShopifyController extends BaseController
 {
     public function upload() {
-    	
-		$breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'New Upload' => ''];
+	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'New Upload' => ''];
 
-	    return view('shopify.orders-bulk-upload')->with('breadcrumb', $breadcrumb);
+	    return view('shopify.orders-bulk-upload')
+		    ->with('breadcrumb', $breadcrumb);
     }
 
 	/**
@@ -126,19 +126,19 @@ class ShopifyController extends BaseController
 	            $OrderRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)
 	                           ->where('shopify_activity_id', $activity_id)
 	                           ->where('school_enrollment_no', $std_enroll_no)
-	                           ->first()->toArray();
+	                           ->first();
 
 	            if (empty($OrderRow)) {
 		            $upsertList[] = $valid_row;
 	            } else {
-	                $doc_id = $OrderRow["_id"];
-	                $order_id = $OrderRow["order_id"];
-	                $final_fee = $OrderRow["final_fee_incl_gst"];
+	                $doc_id = $OrderRow->_id;
+	                $order_id = $OrderRow->order_id;
+	                $final_fee = $OrderRow->final_fee_incl_gst;
 
 	                $isUpdateInInstallment = false;
 
 	                // If there is any installments details provided in excel
-                    $paymentData = $OrderRow["payments"];
+                    $paymentData = $OrderRow->payments;
                     foreach ($valid_row["payments"] as $index => $payment){
                     	if (empty($paymentData[$index])) {
 		                    $paymentData[$index] = $payment;
@@ -231,13 +231,56 @@ class ShopifyController extends BaseController
     }
 
     public function previous_orders() {
-        $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
+	    $start = $end = 0;
+	    if (request('daterange')) {
+		    $range = explode(' - ', request('daterange'), 2);
+
+		    if (count($range) == 2) {
+			    $start = start_of_the_day($range[0]);
+			    $end = end_of_day($range[1]);
+		    }
+	    }
+
+	    if ($start && $end) {
+		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
+	    } else {
+		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
+	    }
+
+
+	    foreach (ShopifyExcelUpload::$modesTitle as $mode => $title) {
+	        $modewiseData[$mode]['count'] = $modewiseData[$mode]['total'] = 0;
+        }
+
+	    foreach ($mongodb_records as $document) {
+		    foreach ($document['payments'] as $payment) {
+				$mode = strtolower($payment['mode_of_payment']);
+			    if (!empty($payment['chequedd_date']) && strtotime($payment['chequedd_date']) > time()) {
+				    $modewiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'];
+				    $modewiseData[ShopifyExcelUpload::MODE_PDC]['count'] += 1;
+			    } else if($mode == 'cash') {
+				    $modewiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'];
+				    $modewiseData[ShopifyExcelUpload::MODE_CASH]['count'] += 1;
+			    } else if($mode == 'cheque') {
+				    $modewiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'];
+				    $modewiseData[ShopifyExcelUpload::MODE_CHEQUE]['count'] += 1;
+			    } else if($mode == 'dd') {
+				    $modewiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'];
+				    $modewiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
+			    } else if($mode == 'online') {
+				    $modewiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
+				    $modewiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
+			    }
+		    }
+	    }
 
 	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Previous orders' => ''];
 
+
 	    return view('shopify.previous-orders')
 		    ->with('records_array', $mongodb_records)
-		    ->with('breadcrumb', $breadcrumb);
+		    ->with('breadcrumb', $breadcrumb)
+		    ->with('metadata', $modewiseData);
     }
 
     public function download_previous($id) {

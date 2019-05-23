@@ -1,6 +1,56 @@
 @extends('admin.app')
 
 @section('content')
+    <div class="col-md-12">
+
+        <div class="row">
+            <div class="card col-sm-12">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <h4 class="card-title mb-0">Collection</h4>
+                            <div class="small text-muted">{{ request('daterange') ?? 'Today' }}</div>
+                        </div>
+                        <div class="col-sm-7">
+                            <form method="get">
+                                <button type="submit" class="btn btn-outline-primary float-right ml-3">View</button>
+                                <fieldset class="form-group float-right">
+                                    <div class="input-group float-right" style="width:300px;">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
+                                        <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                    <hr class="m-0">
+                    <div class="row">
+                        @php $total = $total_txn = 0 @endphp
+                        @foreach(\App\Models\ShopifyExcelUpload::$modesTitle as $id => $title)
+                            @php
+                                $total += ($metadata[$id]['total'] ?? 0);
+                                $total_txn += ($metadata[$id]['count'] ?? 0);
+                            @endphp
+                            <div class="col-sm-2">
+                                <div class="callout callout-info">
+                                    <small class="">{{ str_replace('Online - ', '', $title) }} <span class="badge badge-pill badge-danger">{{ $metadata[$id]['count'] ?? 0 }}</span></small>
+                                    <br>
+                                    <strong class="h5"><i class="fa fa-rupee">&nbsp;</i>{{ amount_inr_format($metadata[$id]['total'] ?? 0) }}</strong>
+                                </div>
+                            </div>
+                        @endforeach
+                        <div class="col-sm-2">
+                            <div class="callout callout-success">
+                                <small class="text-muted">Total <span class="badge badge-pill badge-danger"> {{ $total_txn }}</span></small>
+                                <br>
+                                <strong class="h5"><i class="fa fa-rupee">&nbsp;</i>{{ amount_inr_format($total) }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="body">
         <div class="row pull-right m-2">
             <a href="{{ route('bulkupload.upload') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-plus"> &nbsp;</i>New Upload</button></a>
