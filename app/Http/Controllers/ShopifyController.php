@@ -231,7 +231,8 @@ class ShopifyController extends BaseController
     }
 
     public function previous_orders() {
-	    $start = $end = 0;
+	    $start = date('m/d/Y');
+	    $end = date('m/d/Y');
 	    if (request('daterange')) {
 		    $range = explode(' - ', request('daterange'), 2);
 		    if (count($range) == 2) {
@@ -247,7 +248,6 @@ class ShopifyController extends BaseController
 	    } else {
 		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
 	    }
-
 
 	    foreach (ShopifyExcelUpload::$modesTitle as $mode => $title) {
 	        $modewiseData[$mode]['count'] = $modewiseData[$mode]['total'] = 0;
