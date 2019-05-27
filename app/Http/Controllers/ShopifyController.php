@@ -245,19 +245,19 @@ class ShopifyController extends BaseController
     }
 
     public function previous_orders() {
-	    $start = date('m/d/Y');
-	    $end = date('m/d/Y');
+	    $start = start_of_the_day(date('m/d/Y'));
+	    $end = end_of_day(date('m/d/Y'));
 	    if (request('daterange')) {
 		    $range = explode(' - ', request('daterange'), 2);
 		    if (count($range) == 2) {
-			    $start = ($range[0]);
-			    $end = ($range[1]);
+			    $start = start_of_the_day($range[0]);
+			    $end = end_of_day($range[1]);
 		    }
 	    }
 
 	    if ($start && $end) {
 		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
-			    ->whereBetween('upload_date', [$start, $end])
+			    ->whereBetween('payments.upload_date', [$start, $end])
 		                                         ->get();
 	    } else {
 		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
@@ -270,22 +270,24 @@ class ShopifyController extends BaseController
 
 	    foreach ($mongodb_records as $document) {
 		    foreach ($document['payments'] as $payment) {
-				$mode = strtolower($payment['mode_of_payment']);
-			    if (!empty($payment['chequedd_date']) && strtotime($payment['chequedd_date']) > time()) {
-				    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'];
-				    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['count'] += 1;
-			    } else if($mode == 'cash') {
-				    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'];
-				    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['count'] += 1;
-			    } else if($mode == 'cheque') {
-				    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'];
-				    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['count'] += 1;
-			    } else if($mode == 'dd') {
-				    $modeWiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'];
-				    $modeWiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
-			    } else if($mode == 'online') {
-				    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
-				    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
+		    	if (!empty($payment['upload_date']) && $payment['upload_date'] >= $start && $payment['upload_date'] <= $end) {
+				    $mode = strtolower($payment['mode_of_payment']);
+				    if (!empty($payment['chequedd_date']) && strtotime($payment['chequedd_date']) > time()) {
+					    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'];
+					    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['count'] += 1;
+				    } else if($mode == 'cash') {
+					    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'];
+					    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['count'] += 1;
+				    } else if($mode == 'cheque') {
+					    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'];
+					    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['count'] += 1;
+				    } else if($mode == 'dd') {
+					    $modeWiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'];
+					    $modeWiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
+				    } else if($mode == 'online') {
+					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
+					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
+				    }
 			    }
 		    }
 	    }

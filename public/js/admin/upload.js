@@ -27,11 +27,25 @@ function get_render_template(data) {
         var statusClass = (payment.processed == 'Yes') ? 'success' : 'warning';
         template += '<div class="callout callout-'+statusClass+' m-0 py-3">';
         $.each(payment, function (key, value) {
+            var title = _Payload.headers[key];
             if(value != '') {
-                template += '<div>'+_Payload.headers[key]+ ': <strong>' +value+'</strong></div>';
+                if(key == 'upload_date' || key == 'order_update_at') {
+                    value = (new Date(parseInt(value * 1000)));
+                }
+                if(key == 'upload_date') {
+                    return;
+                }
+
+                if (key == 'order_update_at') {
+                    title = 'Order created at';
+                } else if (key == 'installment') {
+                    title = 'Installment number';
+                }
+
+                template += '<div>'+title + ': <strong>' +value+'</strong></div>';
             }
         });
-        template +='<small class="text-muted mr-3"><i class="icon-calendar"></i>&nbsp; '+payment.order_update_at+'</small>\n' +
+        template +='<small class="text-muted mr-3"><i class="icon-calendar"></i>&nbsp; '+(new Date(parseInt(payment.order_update_at * 1000)))+'</small>\n' +
         '</div><hr class="mx-3 my-0">';
 
         index++;
