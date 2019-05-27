@@ -121,7 +121,7 @@ class Excel
 				$final_slice = [];
 				$pattern = '/(.+)(_[\d]+)/i';
 
-				$index = 1;
+				// $index = 1;
 				foreach ($offset_array as $offset_value) {
 					$slice = array_slice($data, $offset_value, 11);
 					foreach ($slice as $key => $value) {
@@ -138,8 +138,9 @@ class Excel
 						$new_slice['type'] = ShopifyExcelUpload::TYPE_INSTALLMENT;
 					}
 
-					$final_slice[$index] = $new_slice;
-					$index++;
+					array_push($final_slice,$new_slice);
+					// $final_slice[$index] = $new_slice;
+					// $index++;
 				}
 
 				$data['payments'] = $final_slice;
@@ -177,8 +178,9 @@ class Excel
 					if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
 						$hasInstallment = true;
 					}
-				} else {
-					unset($data['payments'][$index]);
+				}
+				 else {
+					$data['payments'][$index] = '';
 				}
 			}
 

@@ -135,6 +135,13 @@ class DataRaw
 		    "id" => $customer_id
         ];
 
+       if (strtolower($this->data['order_type'] == 'installment')){
+       	$order_data['tags'] = "Installments,Backend-App";
+       }
+       else{
+       	$order_data['tags'] = "Backend-App";
+       }
+
 		$order_data['transactions'] = [[
 			"amount" => $this->data['final_fee_incl_gst'],
 			"kind" => "authorization"
@@ -156,8 +163,9 @@ class DataRaw
 	 *
 	 * @return array
 	 */
-	public static function GetInstallmentData(array $installment, $number) {
-		if (empty($installment) || strtolower($installment['processed']) == 'yes') {
+	public static function GetInstallmentData($installment, $number) {
+		
+		if (empty($installment) || strtolower($installment['processed']) == 'yes' || $installment = '') {
 			return [];
 		}
 

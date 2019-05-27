@@ -34,21 +34,25 @@
                                                 <thead>
                                                 <td>No.</td>
                                                 @php $head = reset($row[$key]) @endphp
+                                                @if($head != '')
                                                 @foreach(array_keys($head) as $instKey)
                                                     @if(isset(\App\Library\Shopify\Excel::$headerMap[$instKey]))
                                                         <td>{{ $instKey }}</td>
                                                     @endif
                                                 @endforeach
+                                                @endif
                                                 </thead>
 
                                                 @foreach($row[$key] as $index => $installment)
                                                     <tr>
                                                         <td>{{$index}}</td>
+                                                        @if($installment != '')
                                                         @foreach($installment as $key => $value)
                                                             @if(isset(\App\Library\Shopify\Excel::$headerMap[$key]))
                                                                 <td>{{ $value }}</td>
                                                             @endif
                                                         @endforeach
+                                                        @endif
                                                     </tr>
 
                                                 @endforeach

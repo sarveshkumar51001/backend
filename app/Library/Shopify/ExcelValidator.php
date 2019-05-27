@@ -105,6 +105,7 @@ class ExcelValidator
 		$cashTotal = $chequeTotal = $onlineTotal = 0;
 		foreach ($this->File->GetFormattedData() as $index => $row) {
 			foreach ($row['payments'] as $payment ) {
+				if($payment != ''){
 				$paymentMode = strtolower( $payment["mode_of_payment"] );
 				if ( $paymentMode == 'cash' ) {
 					$cashTotal += $payment["amount"];
@@ -117,6 +118,7 @@ class ExcelValidator
 				}
 			}
 		}
+	}
 
 		return [
 			'cash_total' => $cashTotal,
@@ -127,6 +129,7 @@ class ExcelValidator
 
 	 private function ValidateChequeDetails(array $data) {
 		 foreach ($data['payments'] as $payment ) {
+		 	if($payment != ''){
 		 	$mode = strtolower($payment['mode_of_payment']);
 		 	if ($mode == 'cheque' || $mode == 'dd') {
 			    $cheque_no = $payment['chequedd_no'];
@@ -136,8 +139,9 @@ class ExcelValidator
 			    // Check if the combination of cheque no., micr_code and account_no. exists in database
 			    if(DB::check_if_already_used($cheque_no, $micr_code, $account_no)){
 				    $this->errors[$data['sno']] = "Cheque/DD Details already used before.";
-			    }
-		    }
-		 }
-	 }
+			    	}
+		   	 	}	
+		 	}
+	 	}
+	}
 }

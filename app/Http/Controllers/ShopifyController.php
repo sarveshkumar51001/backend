@@ -148,8 +148,10 @@ class ShopifyController extends BaseController
 
 	                $total_installment_amount = 0;
                     foreach ($paymentData as $index => $updatedPayment) {
+                    	if($payment != ''){
 	                    $total_installment_amount += $updatedPayment['amount'];
                     }
+                }
 
                     if ($total_installment_amount > $final_fee) {
                         $exception_msg = sprintf("Fee collected for the Order ID %u exceeded the order value.", $order_id);
@@ -255,6 +257,7 @@ class ShopifyController extends BaseController
 
 	    foreach ($mongodb_records as $document) {
 		    foreach ($document['payments'] as $payment) {
+		    	if($payment != ''){
 				$mode = strtolower($payment['mode_of_payment']);
 			    if (!empty($payment['chequedd_date']) && strtotime($payment['chequedd_date']) > time()) {
 				    $modewiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'];
@@ -274,6 +277,7 @@ class ShopifyController extends BaseController
 			    }
 		    }
 	    }
+	}
 
 	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Previous orders' => ''];
 
