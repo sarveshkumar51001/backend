@@ -135,6 +135,11 @@ class DataRaw
 		    "id" => $customer_id
         ];
 
+		$order_data['tags'] = "backend-app";
+		if (strtolower($this->data['order_type']) == 'installment') {
+			$order_data['tags'] .= ",installments";
+		}
+
 		$order_data['transactions'] = [[
 			"amount" => $this->data['final_fee_incl_gst'],
 			"kind" => "authorization"

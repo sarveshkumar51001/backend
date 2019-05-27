@@ -128,6 +128,8 @@ class ShopifyController extends BaseController
 	                           ->where('school_enrollment_no', $std_enroll_no)
 	                           ->first();
 
+
+
 	            if (empty($OrderRow)) {
 		            $upsertList[] = $valid_row;
 	            } else {
@@ -136,18 +138,23 @@ class ShopifyController extends BaseController
 	                $final_fee = $OrderRow->final_fee_incl_gst;
 
 	                $isUpdateInInstallment = false;
+		            $existingPaymentData = $OrderRow->payments;
+		            $existingPaymentInstallments = array_column($existingPaymentData, 'installment');
 
-	                // If there is any installments details provided in excel
-                    $paymentData = $OrderRow->payments;
-                    foreach ($valid_row["payments"] as $index => $payment){
-                    	if (empty($paymentData[$index])) {
-		                    $paymentData[$index] = $payment;
+		            // If there is any installments details provided in excel
+                    foreach ($valid_row["payments"] as $payment) {
+	                    /**
+	                     * Consider the payment data only if it is not uploaded before
+	                     * Any update in already stored installments will be ignored
+	                     */
+                    	if (!in_array($payment['installment'], $existingPaymentInstallments)) {
+		                    $existingPaymentData[$payment['installment']] = $payment;
 		                    $isUpdateInInstallment = true;
 	                    }
                     }
 
 	                $total_installment_amount = 0;
-                    foreach ($paymentData as $index => $updatedPayment) {
+                    foreach ($existingPaymentData as $updatedPayment) {
 	                    $total_installment_amount += $updatedPayment['amount'];
                     }
 
@@ -163,7 +170,7 @@ class ShopifyController extends BaseController
 	                // If there is no error so far then only we proceed for updates
 	                if (empty($errors[$valid_row['sno']])) {
 		                $upsertList[] = [
-		                    'payments' => $paymentData,
+		                    'payments' => $existingPaymentData,
 		                    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
 		                    '_id' => $doc_id
 	                    ];
@@ -176,6 +183,13 @@ class ShopifyController extends BaseController
 		    $objectIDList = [];
 	        if (empty($errors)) {
 	            foreach ($upsertList as $document) {
+		            /**
+		             * KEEP SEARCHABLE PAYMENTS BY SETTING THE KEYS IN ORDER
+		             * We are resetting the keys for payments as first one might be empty
+		             * So it will not appear in search hence we are resetting the array keys
+		             */
+		            $document['payments'] = array_values(array_filter($document['payments']));
+
 					if (empty($document['_id'])) {
 						$objectIDList[] = ShopifyExcelUpload::create($document)->id;
 						$metadata['new_order'] += 1;
@@ -249,28 +263,29 @@ class ShopifyController extends BaseController
 		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
 	    }
 
+	    $modeWiseData = [];
 	    foreach (ShopifyExcelUpload::$modesTitle as $mode => $title) {
-	        $modewiseData[$mode]['count'] = $modewiseData[$mode]['total'] = 0;
+	        $modeWiseData[$mode]['count'] = $modeWiseData[$mode]['total'] = 0;
         }
 
 	    foreach ($mongodb_records as $document) {
 		    foreach ($document['payments'] as $payment) {
 				$mode = strtolower($payment['mode_of_payment']);
 			    if (!empty($payment['chequedd_date']) && strtotime($payment['chequedd_date']) > time()) {
-				    $modewiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'];
-				    $modewiseData[ShopifyExcelUpload::MODE_PDC]['count'] += 1;
+				    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'];
+				    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['count'] += 1;
 			    } else if($mode == 'cash') {
-				    $modewiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'];
-				    $modewiseData[ShopifyExcelUpload::MODE_CASH]['count'] += 1;
+				    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'];
+				    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['count'] += 1;
 			    } else if($mode == 'cheque') {
-				    $modewiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'];
-				    $modewiseData[ShopifyExcelUpload::MODE_CHEQUE]['count'] += 1;
+				    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'];
+				    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['count'] += 1;
 			    } else if($mode == 'dd') {
-				    $modewiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'];
-				    $modewiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
+				    $modeWiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'];
+				    $modeWiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
 			    } else if($mode == 'online') {
-				    $modewiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
-				    $modewiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
+				    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
+				    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
 			    }
 		    }
 	    }
@@ -281,7 +296,7 @@ class ShopifyController extends BaseController
 	    return view('shopify.previous-orders')
 		    ->with('records_array', $mongodb_records)
 		    ->with('breadcrumb', $breadcrumb)
-		    ->with('metadata', $modewiseData);
+		    ->with('metadata', $modeWiseData);
     }
 
     public function download_previous($id) {
