@@ -59,6 +59,10 @@ class DB
 
 		$allProcessed = true;
 		foreach ($Document->payments as $payment) {
+			if($payment == ''){
+				continue;
+			}
+			
 			if (strtolower($payment['processed']) !=  'yes') {
 				$allProcessed = false;
 				break;
