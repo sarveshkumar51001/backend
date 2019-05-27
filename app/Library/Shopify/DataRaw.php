@@ -163,13 +163,14 @@ class DataRaw
 	 *
 	 * @return array
 	 */
-	public static function GetInstallmentData($installment, $number) {
+	public static function GetInstallmentData(array $installment, $number) {
 		
-		if (empty($installment) || strtolower($installment['processed']) == 'yes' || $installment = '') {
+		if (empty($installment) || strtolower($installment['processed']) == 'yes') {
 			return [];
 		}
 
 		$note = '';
+
 		foreach ($installment as $key => $value) {
 			$key = strtolower($key);
 			if (!empty($value) && in_array($key, self::$validNoteAttributes)) {

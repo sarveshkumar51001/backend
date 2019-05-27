@@ -68,7 +68,12 @@ class Job {
 		// Loop through all the installments in system for the order
 		foreach ($Data->GetPaymentData() as $index => $installment) {
 
+			if ($installment == ''){
+				continue;
+			}
+
 			$installmentData = DataRaw::GetInstallmentData($installment, $index);
+			
 			if (empty($installmentData) || (!empty($installment['chequedd_date']) && strtotime($installment['chequedd_date']) > time())) {
 				continue;
 			}
