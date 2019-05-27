@@ -16,6 +16,10 @@ ini_set('max_execution_time', 180);
 
 class ShopifyController extends BaseController
 {
+	private static $adminTeam = [
+		'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com'
+	];
+
     public function upload() {
 	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'New Upload' => ''];
 
@@ -256,9 +260,14 @@ class ShopifyController extends BaseController
 	    }
 
 	    if ($start && $end) {
-		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
-			    ->whereBetween('payments.upload_date', [$start, $end])
-		                                         ->get();
+		    if (request('filter') == 'team' && in_array(\Auth::user()->email, self::$adminTeam)) {
+			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
+			                                         ->get();
+		    } else {
+			    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
+			                                         ->whereBetween('payments.upload_date', [$start, $end])
+			                                         ->get();
+		    }
 	    } else {
 		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
 	    }
