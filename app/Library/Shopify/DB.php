@@ -46,6 +46,13 @@ class DB
 		return ShopifyExcelUpload::find($_id)->update([$installment_index => 'Yes', $order_update_node => time()]);
 	}
 
+	public static function populate_error_in_payments_array($_id,$number,$error){
+
+		$installment_index = sprintf("payments.%s.errors", $number);
+
+		return ShopifyExcelUpload::find($_id)->update([$installment_index => $error]);
+	}
+
 	/**
 	 * @param $_id Object ID - Primary key
 	 *

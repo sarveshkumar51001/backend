@@ -8,11 +8,6 @@ class DataRaw
 {
 	public $data = [];
 
-	public static $validNoteAttributes = [
-		'mode_of_payment', 'chequedd_no', 'micr_code', 'chequedd_date', 'drawee_name', 'drawee_account_number',
-		'bank_name', 'bank_branch'
-	];
-
 	/**
 	 * DataRaw constructor.
 	 *
@@ -161,17 +156,10 @@ class DataRaw
 	 *
 	 * @return array
 	 */
-	public static function GetInstallmentData(array $installment, $number) {
+	public static function GetInstallmentData(array $installment, $number, $notes_array) {
+
 		if (empty($installment) || strtolower($installment['processed']) == 'yes') {
 			return [];
-		}
-
-		$note = '';
-		foreach ($installment as $key => $value) {
-			$key = strtolower($key);
-			if (!empty($value) && in_array($key, self::$validNoteAttributes)) {
-				$note .= Excel::$headerMap[$key] . ": $value | ";
-			}
 		}
 
 		$transaction_data = [
@@ -179,16 +167,24 @@ class DataRaw
 			"amount" => $installment['amount']
 		];
 
+		$i =1;
+		foreach ($notes_array as $note){
+			if(empty($note)){
+				continue;
+			}
+
+			$notes_packet = [
+				"name"  => "Payment"."_".$i,
+				"value" => rtrim($note, '| ')
+				];
+			$i++;
+			$notes_array_packet[] = $notes_packet;	
+			}
+		
 		$installment_details = [
-			"note_attributes" => [
-				[
-					"name"  => sprintf( "Installment-%s", $number),
-					"value" => rtrim($note, '| ')
-				]
-			]
+			"note_attributes" => $notes_array_packet
 		];
 
 		return [$transaction_data, $installment_details];
 	}
 }
-

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Library\Shopify;
+use App\Models\ShopifyExcelUpload;
 
 use Illuminate\Support\Facades\Validator;
 
@@ -103,7 +104,32 @@ class ExcelValidator
 	 */
 	private function get_amount_total() {
 		$cashTotal = $chequeTotal = $onlineTotal = 0;
+		$previouscashTotal = $previouschequeTotal = $previousonlineTotal = 0;
+
 		foreach ($this->File->GetFormattedData() as $index => $row) {
+	            // Get the primary combination to lookup in database
+            $date_enroll = $row['date_of_enrollment'];
+            $activity_id = $row['shopify_activity_id'];
+            $std_enroll_no = $row['school_enrollment_no'];
+
+        	$DatabaseRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)
+                           ->where('shopify_activity_id', $activity_id)
+                           ->where('school_enrollment_no', $std_enroll_no)
+                           ->first();
+
+	        if(!empty($DatabaseRow)){
+	        	foreach ($DatabaseRow['payments'] as $payment){
+	        		$paymentMode = strtolower( $payment["mode_of_payment"] );
+					if ( $paymentMode == 'cash' ) {
+						$previouscashTotal += $payment["amount"];
+					} elseif ( $paymentMode == 'cheque' ) {
+						$previouschequeTotal += $payment["amount"];
+					} elseif ( $paymentMode == 'online' ) {
+						$previousonlineTotal += $payment["amount"];
+						}
+	        		}
+	        	}
+	        	              	
 			foreach ($row['payments'] as $payment ) {
 				$paymentMode = strtolower( $payment["mode_of_payment"] );
 				if ( $paymentMode == 'cash' ) {
@@ -117,12 +143,11 @@ class ExcelValidator
 				}
 			}
 		}
-
 		return [
-			'cash_total' => $cashTotal,
-			'cheque_total' => $chequeTotal,
-			'online_total' => $onlineTotal
-		];
+			'cash_total' => $cashTotal - $previouscashTotal ,
+			'cheque_total' => $chequeTotal - $previouschequeTotal,
+			'online_total' => $onlineTotal - $previousonlineTotal
+			];
 	}
 
 	 private function ValidateChequeDetails(array $data) {
