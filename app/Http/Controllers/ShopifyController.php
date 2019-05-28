@@ -16,7 +16,7 @@ ini_set('max_execution_time', 180);
 
 class ShopifyController extends BaseController
 {
-	private static $adminTeam = [
+	public static $adminTeam = [
 		'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com'
 	];
 
