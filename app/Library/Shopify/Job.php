@@ -13,7 +13,7 @@ class Job {
 
 	public static $validNoteAttributes = [
 		'mode_of_payment', 'chequedd_no', 'micr_code', 'chequedd_date', 'drawee_name', 'drawee_account_number',
-		'bank_name', 'bank_branch'
+		'bank_name', 'bank_branch','txn_reference_number_only_in_case_of_paytm_or_online'
 	];
 	/**
 	 * @param DataRaw $Data
