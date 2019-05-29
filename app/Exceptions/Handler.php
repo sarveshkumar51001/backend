@@ -48,6 +48,12 @@ class Handler extends ExceptionHandler
 			// Run your custom code here
 			self::PostOnSlack(self::GetPayload($exception));
 		}
+
+		if (app()->bound('sentry') && $this->shouldReport($exception)) {
+        app('sentry')->captureException($exception);
+    }
+
+    	parent::report($exception);
 	}
     /**
      * Render an exception into an HTTP response.
