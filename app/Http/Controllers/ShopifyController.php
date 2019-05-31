@@ -11,6 +11,8 @@ use App\Library\Shopify\ExcelValidator;
 use MongoDB\Driver\Exception\BulkWriteException;
 use App\Library\Shopify\DB;
 use App\Library\Shopify\API;
+use Illuminate\Support\Facades\Validator;
+
 
 ini_set('max_execution_time', 180);
 
@@ -38,6 +40,8 @@ class ShopifyController extends BaseController
     	if (!$request->isMethod('post')){
     		return redirect('/bulkupload/');
 	    }
+
+	    Validator::make($request->all(),['file' => 'mimes:xls'], ['mimes' => 'The format for the uploaded file should be .:values.'])->validate();
 
 	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Upload Preview' => ''];
 
