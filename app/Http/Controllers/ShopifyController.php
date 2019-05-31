@@ -41,11 +41,7 @@ class ShopifyController extends BaseController
     		return redirect('/bulkupload/');
 	    }
 
-	    $validator = Validator::make($request->all(),['file' => 'mimes:xls']);
-
-	    if ($validator->fails()) { 
-            return view('shopify.orders-bulk-upload')->withErrors($validator);
-        }
+	    Validator::make($request->all(),['file' => 'mimes:xls'], ['mimes' => 'The format for the uploaded file should be .:values.'])->validate();
 
 	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Upload Preview' => ''];
 

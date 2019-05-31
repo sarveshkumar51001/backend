@@ -11,6 +11,11 @@
             </div>
         </div>
         <div class="card-body">
+            @foreach($errors->all() as $key => $value)
+                <div class="alert alert-danger">
+                    {{ $value }}
+                </div>
+            @endforeach
             <form method="POST" action="{{ route('bulkupload.upload_preview') }}" enctype="multipart/form-data">
                 <div class="row">
                     <div class="col-sm-3">
@@ -54,12 +59,7 @@
                         </div>
                     </div>
                 </div>
-            </form>
-            @if(!empty($errors))
-            <div class="alert alert-danger">
-                    <?php echo 'It seems that you have uploaded file in .ods or .xlsx format. We request you to upload the file in .xls format.'; ?>
-            </div>
-            @endif
+            </form>            
     </div>
 @endsection
 
