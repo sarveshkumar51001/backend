@@ -1,6 +1,6 @@
 @extends('admin.app')
 @section('content')
-
+    
     <div class="card">
         <div class="card-header">
             <i class="fa fa-cloud-upload"></i>Bulk Upload
@@ -55,7 +55,11 @@
                     </div>
                 </div>
             </form>
-        </div>
+            @if(!empty($errors))
+            <div class="alert alert-danger">
+                    <?php echo 'It seems that you have uploaded file in .ods or .xlsx format. We request you to upload the file in .xls format.'; ?>
+            </div>
+            @endif
     </div>
 @endsection
 
