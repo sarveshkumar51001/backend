@@ -12,40 +12,25 @@
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('bulkupload.upload_preview') }}" enctype="multipart/form-data">
-                <div class="row">
-                    <div class="col-sm-3">
+                    <fieldset>
+                    <legend>Amount Collected:</legend>
                         <div class="form-group">
-                            <label>Select Date</label>
-                            <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                <input autocomplete="off" name="date" maxlength="50" type="text" class="form-control datepicker" value="{{ date('m/d/Y') }}"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <div class="form-group">
-                            <label>Total amount by cash: </label>
+                            <label>In Cash</label>
                             <input autocomplete="off" type="text" name="cash-total" required="required" class="form-control" value="0">
                         </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <label>Total amount by cheque:</label>
+                        <label>By Cheque</label>
                         <div class="input-group">
                             <input autocomplete="off" type="text" name="cheque-total" required="required" class="form-control" value="0">
-                        </div>
                     </div>
-                    <div class="col-sm-3">
-                        <label>Total amount by online:</label>
+                        <label>Online</label>
                         <div class="input-group">
                             <input autocomplete="off" type="text" name="online-total" required="required" class="form-control" value="0">
                         </div>
-                    </div>
-                    <div class="col-sm-3">
+                    </fieldset>
                         <div class="form-group">
                             <label>Select file </label>
-                            <input autocomplete="off" type="file" name="file" required="required" accept=".xls ,.xlsx" class="form-control">
+                            <input autocomplete="off" type="file" name="file" required="required" accept=".xls" class="form-control">
                         </div>
-                    </div>
                     {{ csrf_field() }}
                     <div class="col-sm-3">
                         <label>&nbsp;</label>
