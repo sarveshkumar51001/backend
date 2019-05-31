@@ -132,11 +132,11 @@ class ExcelValidator
 	        	              	
 			foreach ($row['payments'] as $payment ) {
 				$paymentMode = strtolower( $payment["mode_of_payment"] );
-				if ( $paymentMode == 'cash' ) {
+				if ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_CASH)) {
 					$cashTotal += $payment["amount"];
-				} elseif ( $paymentMode == 'cheque' ) {
+				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_CHEQUE)) {
 					$chequeTotal += $payment["amount"];
-				} elseif ( $paymentMode == 'online' ) {
+				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_ONLINE)) {
 					$onlineTotal += $payment["amount"];
 				} else {
 					$this->errors[] = "Invalid mode_of_payment [$paymentMode] received for row no " . ( $index + 1 );
