@@ -60,7 +60,8 @@
                     </div>
                 </div>
             </form>            
-    </div>
+    	</div>
+	</div>
 @endsection
 
 @section('footer-js')
