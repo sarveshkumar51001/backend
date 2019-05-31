@@ -120,11 +120,11 @@ class ExcelValidator
 	        if(!empty($DatabaseRow)){
 	        	foreach ($DatabaseRow['payments'] as $payment){
 	        		$paymentMode = strtolower( $payment["mode_of_payment"] );
-					if ( $paymentMode == 'cash' ) {
+					if ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_CASH)) {
 						$previouscashTotal += $payment["amount"];
-					} elseif ( $paymentMode == 'cheque' ) {
+					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_CHEQUE)) {
 						$previouschequeTotal += $payment["amount"];
-					} elseif ( $paymentMode == 'online' ) {
+					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_ONLINE)) {
 						$previousonlineTotal += $payment["amount"];
 						}
 	        		}
