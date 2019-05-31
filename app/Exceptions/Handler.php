@@ -44,14 +44,17 @@ class Handler extends ExceptionHandler
 	{
 		parent::report($exception);
 
-		if ($this->shouldReport($exception) && !\App::isLocal()) {
+		if ($this->shouldReport($exception)) {
 			// Run your custom code here
+			
+			// Post Exception on Slack
 			self::PostOnSlack(self::GetPayload($exception));
+			
+			// Capture Exception on Sentry
+			if (app()->bound('sentry')) {
+			    app('sentry')->captureException($exception);
+			}
 		}
-
-		if (app()->bound('sentry') && $this->shouldReport($exception)) {
-            app('sentry')->captureException($exception);
-        }
 
     	parent::report($exception);
 	}
@@ -74,7 +77,7 @@ class Handler extends ExceptionHandler
 	 */
 	private static function PostOnSlack(string $payload) {
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL,"https://hooks.slack.com/services/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");
+		curl_setopt($ch, CURLOPT_URL,env('SLACK_WEBHOOK', null));
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
