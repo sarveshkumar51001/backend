@@ -17,10 +17,16 @@ class Job {
 	 * @throws Exception
 	 */
 	public static function run(DataRaw $Data) {
+
 		// Process only if the status of object is pending
 		if (strtolower($Data->GetJobStatus()) != ShopifyExcelUpload::JOB_STATUS_PENDING) {
 			return;
 		}
+
+		// Sync products from shopify into database
+		DB::sync_all_products_from_shopify();
+		// Sync customers from shopify into database
+		DB::sync_all_customers_from_shopify();
 
 		// Check 1: check if correct activity id is given and exist in database
 		$variantID = DB::get_variant_id($Data->GetActivityID(), $Data->GetActivityFee());

@@ -55,7 +55,7 @@
     <div class="body">
         <div class="row pull-right m-2">
             <a href="{{ route('bulkupload.upload') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-plus"> &nbsp;</i>New Upload</button></a>
-            <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Upload History</button></a>
+            <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i> File Upload History</button></a>
             <a href="{{ route('bulkupload.previous_orders') }}?filter=team"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-users"> &nbsp;</i>Team Uploads</button></a>
         </div>
         <div class="clearfix mt-2"></div>
@@ -87,8 +87,10 @@
                                     @endif
                                     ">
                                         @if($key == 'order_id')
+                                            @if(!$row['order_id'] == 0)
                                             <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}">View <i class="fa fa-external-link"></i></a>
                                             <strong onclick="render_upload_details('{{$row['_id']}}');" class="text-muted aside-menu-toggler"><i class="fa fa-money fa-2x"></i>&nbsp; </strong>
+                                            @endif
                                         @else
                                             {{ $row[$key] }}
                                         @endif
