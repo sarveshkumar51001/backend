@@ -13,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //Error reporting set as false for deprecated errors
+        //Preventing error reporting for deprecated functions
         error_reporting(E_ALL ^ E_DEPRECATED);
     }
 
