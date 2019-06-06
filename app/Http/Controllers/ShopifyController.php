@@ -297,6 +297,14 @@ class ShopifyController extends BaseController
 					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
 				    }
+				    else if($mode == 'paytm qr code') {
+					    $modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['total'] += $payment['amount'];
+					    $modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['count'] += 1;
+					}
+					else if($mode == 'neft') {
+					    $modeWiseData[ShopifyExcelUpload::MODE_NEFT]['total'] += $payment['amount'];
+					    $modeWiseData[ShopifyExcelUpload::MODE_NEFT]['count'] += 1;
+					}
 			    }
 		    }
 	    }

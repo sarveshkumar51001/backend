@@ -29,7 +29,7 @@ class ShopifyExcelUpload extends Base
 		self::MODE_DD => 'DD',
 		self::MODE_PDC => 'PDC Cheque',
 		self::MODE_ONLINE => 'Online',
-		self::MODE_PAYTM => 'Paytm',
+		self::MODE_PAYTM => 'Paytm QR Code',
 		self::MODE_NEFT => 'NEFT'
 	];
 }

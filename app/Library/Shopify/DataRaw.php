@@ -69,6 +69,9 @@ class DataRaw
 	public function HasInstallment() {
 		return ($this->data['order_type'] == ShopifyExcelUpload::TYPE_INSTALLMENT);
 	}
+	public function GetPaymentMode(){
+		return $this->data['payments'][0]['mode_of_payment'] ?? '';
+	}
 
 	/**
 	 * @return array
