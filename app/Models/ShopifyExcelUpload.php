@@ -20,12 +20,16 @@ class ShopifyExcelUpload extends Base
 	const MODE_DD = 3;
 	const MODE_PDC = 4;
 	const MODE_ONLINE = 5;
+	const MODE_PAYTM = 6;
+	const MODE_NEFT = 7;
 
 	public static $modesTitle = [
 		self::MODE_CASH => 'Cash',
 		self::MODE_CHEQUE => 'Cheque',
 		self::MODE_DD => 'DD',
 		self::MODE_PDC => 'PDC Cheque',
-		self::MODE_ONLINE => 'Online'
+		self::MODE_ONLINE => 'Online',
+		self::MODE_PAYTM => 'Paytm',
+		self::MODE_NEFT => 'NEFT'
 	];
 }

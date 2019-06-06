@@ -3,6 +3,7 @@
 namespace App\Library\Shopify;
 
 use Illuminate\Support\Facades\Validator;
+use App\Models\ShopifyExcelUpload;
 
 /**
  * Class ExcelValidator
@@ -105,12 +106,12 @@ class ExcelValidator
 		$cashTotal = $chequeTotal = $onlineTotal = 0;
 		foreach ($this->File->GetFormattedData() as $index => $row) {
 			foreach ($row['payments'] as $payment ) {
-				$paymentMode = strtolower( $payment["mode_of_payment"] );
-				if ( $paymentMode == 'cash' ) {
+				$paymentMode = strtolower( $payment["mode_of_payment"]);
+				if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[1])) {
 					$cashTotal += $payment["amount"];
-				} elseif ( $paymentMode == 'cheque' ) {
+				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[2])) {
 					$chequeTotal += $payment["amount"];
-				} elseif ( $paymentMode == 'online' ) {
+				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[5]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[6]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[7])) {
 					$onlineTotal += $payment["amount"];
 				} else {
 					$this->errors[] = "Invalid mode_of_payment [$paymentMode] received for row no " . ( $index + 1 );
@@ -128,7 +129,7 @@ class ExcelValidator
 	 private function ValidateChequeDetails(array $data) {
 		 foreach ($data['payments'] as $payment ) {
 		 	$mode = strtolower($payment['mode_of_payment']);
-		 	if ($mode == 'cheque' || $mode == 'dd') {
+		 	if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[2]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[3])) {
 			    $cheque_no = $payment['chequedd_no'];
 			    $account_no = $payment['drawee_account_number'];
 			    $micr_code = $payment['micr_code'];
