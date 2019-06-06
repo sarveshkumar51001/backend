@@ -3,6 +3,7 @@
 namespace App\Library\Shopify;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 /**
  * Class ExcelValidator
@@ -49,6 +50,9 @@ class ExcelValidator
 	}
 
 	private function ValidateData(array $data) {
+
+		$valid_branch_names = ['Faridabad 15','Charkhi Dadri','Faridabad 21 D','Sheikh Sarai International','Greater Kailash','Greater Noida','Mahavir Marg','Kharghar','Nerul','Noida','Pitampura','Rama Mandi','Saket','Sheikh Sarai'];
+
 		$rules = [
 			"shopify_activity_id" => "required|string|min:3",
 			"school_name" => "required|string",
@@ -57,11 +61,14 @@ class ExcelValidator
 			"email_id" => "email|regex:/^.+@.+$/i",
 			"date_of_enrollment" => "required",
 			"final_fee_incl_gst" => "numeric",
-			"activity_fee" => "required"
+			"activity_fee" => "required",
+			"final_fee_incl_gst"=> "required",
+			"branch" => Rule::in($valid_branch_names),
+			"activity" => "required",
+			"external_internal" => Rule::requiredIf(!strpos($data['school_name'],'Apeejay'))
 		];
 
-		$validator = Validator::make($data, $rules);
-
+		$validator = Validator::make($data, $rules);	
 		$errors = $validator->getMessageBag()->toArray();
 		if (!empty($errors)) {
 			$this->errors[$data['sno']] = $errors;
