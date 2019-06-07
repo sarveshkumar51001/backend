@@ -6,8 +6,16 @@
                 <div class="alert-danger p-2">
                     <p style = "font-weight:bold">Following rows of your excel file are erroneous. Please correct before submitting again.</p>
                     <ul>
-                        @foreach($errored_data as $key => $value)
-                            <li>#{{ $key }}: {{ is_array($value) ? json_encode($value) : $value }}</li>
+                        @foreach($errored_data as $error_key => $error_value)
+                            @if(is_int($error_key))
+                                @foreach($error_value as $key => $value)
+                                    @foreach($value as $k => $v)
+                                        <li>{{ is_array($v) ? json_encode($v) : $v }} for row number {{ $error_key }}</li>
+                                    @endforeach
+                                @endforeach
+                            @else
+                            <span style="background-color: #FFFF00">{{ $error_value }}</span>
+                            @endif
                         @endforeach
                     </ul>
                 </div>

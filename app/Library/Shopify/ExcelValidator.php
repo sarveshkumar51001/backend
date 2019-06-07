@@ -4,6 +4,8 @@ namespace App\Library\Shopify;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Models\ShopifyExcelUpload;
+
 
 /**
  * Class ExcelValidator
@@ -38,6 +40,7 @@ class ExcelValidator
 
 		foreach ($this->File->GetFormattedData() as $data) {
 			$this->ValidateData($data);
+			$this->ValidateFieldValues($data);
 		}
 
 		$this->ValidateAmount();
@@ -59,18 +62,19 @@ class ExcelValidator
 			"school_enrollment_no" => "required|string|min:4",
 			"mobile_number" => "required|regex:/^[0-9]{10}$/",
 			"email_id" => "email|regex:/^.+@.+$/i",
-			"date_of_enrollment" => "required",
+			"date_of_enrollment" => "required|date_format:m-d-Y",
 			"final_fee_incl_gst" => "numeric",
 			"activity_fee" => "required",
 			"final_fee_incl_gst"=> "required",
-			"branch" => Rule::in($valid_branch_names),
+			"branch" => ["required",Rule::in($valid_branch_names)],
 			"activity" => "required",
-			"external_internal" => Rule::requiredIf(!strpos($data['school_name'],'Apeejay')),
 			"payments.*.amount" => "numeric",
 			"payments.*.chequedd_no" => "numeric",
-			"payments.*.chequedd_date" => "date",
+			"payments.*.chequedd_date" => "date_format:m-d-Y",
 			"payments.*.drawee_name" => "string",
-			"payments.*.drawee_account_number" => "numeric"
+			"payments.*.drawee_account_number" => "numeric",
+			"payments.*.micr_code" => "numeric",
+			"external_internal" => "required"
 		];
 
 		$validator = Validator::make($data, $rules);	
@@ -152,4 +156,26 @@ class ExcelValidator
 		    }
 		 }
 	 }
+
+	 private function ValidateFieldValues(array $data){
+
+	 	foreach($data['payments'] as $index => $payment){
+			$mode = strtolower($payment['mode_of_payment']);
+	 		$amount = $payment['amount'];
+
+	 		if($mode == ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]){
+	 			if(empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])){
+	 			$this->errors[$data['sno']] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
+	 			}
+	 		}
+	 		if($amount > $data['final_fee_incl_gst']){
+	 			$this->errors[$data['sno']] = "Amount captured as payment is more than the final value of the order.";
+	 		}
+	 	}
+	 	if(!stripos($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)){ 
+			if(strtolower($data['external_internal']) == ShopifyExcelUpload::INTERNAL_ORDER){
+	 		$this->errors[$data['sno']] = "The order type should be external in case of schools outside Apeejay.";
+	 		}
+	 	}
+	}
 }

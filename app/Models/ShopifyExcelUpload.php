@@ -8,6 +8,11 @@ class ShopifyExcelUpload extends Base
 	protected $collection = 'shopify_excel_uploads';
 	protected $guarded = [];
 
+	const DATE_FORMAT = "m/d/Y";
+	const SCHOOL_TITLE = "Apeejay";
+	const INTERNAL_ORDER = "internal";
+	const EXTERNAL_ORDER = "external";
+
 	const TYPE_INSTALLMENT = 'installment';
 	const TYPE_ONETIME = 'one_time';
 
