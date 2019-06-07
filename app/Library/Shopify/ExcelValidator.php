@@ -163,18 +163,23 @@ class ExcelValidator
 			$mode = strtolower($payment['mode_of_payment']);
 	 		$amount = $payment['amount'];
 
-	 		if($mode == ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]){
+	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])){
 	 			if(empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])){
-	 			$this->errors[$data['sno']] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
+	 				$this->errors['Transaction Error'] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
+	 			}
+	 		}
+	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])){
+	 			if(empty($payment['chequedd_date']) || empty($payment['chequedd_no']) || empty($payment['micr_code']) || empty($payment['drawee_account_number'])){
+	 				$this->errors['Cheque Details Error'] = "Cheque Details are mandatory for transactions having payment mode as cheque.";
 	 			}
 	 		}
 	 		if($amount > $data['final_fee_incl_gst']){
-	 			$this->errors[$data['sno']] = "Amount captured as payment is more than the final value of the order.";
+	 			$this->errors['Amount Error'] = "Amount captured as payment is more than the final value of the order.";
 	 		}
 	 	}
 	 	if(!stripos($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)){ 
 			if(strtolower($data['external_internal']) == ShopifyExcelUpload::INTERNAL_ORDER){
-	 		$this->errors[$data['sno']] = "The order type should be external in case of schools outside Apeejay.";
+	 		$this->errors['Type Error'] = "The order type should be external in case of schools outside Apeejay.";
 	 		}
 	 	}
 	}
