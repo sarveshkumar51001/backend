@@ -51,7 +51,7 @@ class ExcelValidator
 
 	private function ValidateData(array $data) {
 
-		$valid_branch_names = ['Faridabad 15','Charkhi Dadri','Faridabad 21 D','Sheikh Sarai International','Greater Kailash','Greater Noida','Mahavir Marg','Kharghar','Nerul','Noida','Pitampura','Rama Mandi','Saket','Sheikh Sarai'];
+		$valid_branch_names = ['Faridabad 15','Charkhi Dadri','Faridabad 21 D','Sheikh Sarai International','Greater Kailash','Greater Noida','Mahavir Marg','Kharghar','Nerul','Noida','Pitampura','Rama Mandi','Saket','Sheikh Sarai']; 
 
 		$rules = [
 			"shopify_activity_id" => "required|string|min:3",
@@ -65,7 +65,12 @@ class ExcelValidator
 			"final_fee_incl_gst"=> "required",
 			"branch" => Rule::in($valid_branch_names),
 			"activity" => "required",
-			"external_internal" => Rule::requiredIf(!strpos($data['school_name'],'Apeejay'))
+			"external_internal" => Rule::requiredIf(!strpos($data['school_name'],'Apeejay')),
+			"payments.*.amount" => "numeric",
+			"payments.*.chequedd_no" => "numeric",
+			"payments.*.chequedd_date" => "date",
+			"payments.*.drawee_name" => "string",
+			"payments.*.drawee_account_number" => "numeric"
 		];
 
 		$validator = Validator::make($data, $rules);	
