@@ -284,24 +284,22 @@ class ShopifyController extends BaseController
 				    if (!empty($payment['chequedd_date']) && strtotime($payment['chequedd_date']) > time()) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['count'] += 1;
-				    } else if($mode == 'cash') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['count'] += 1;
-				    } else if($mode == 'cheque') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['count'] += 1;
-				    } else if($mode == 'dd') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
-				    } else if($mode == 'online') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
-				    }
-				    else if($mode == 'paytm qr code') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['count'] += 1;
-					}
-					else if($mode == 'neft') {
+					}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_NEFT]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_NEFT]['count'] += 1;
 					}

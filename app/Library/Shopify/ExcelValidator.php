@@ -107,11 +107,11 @@ class ExcelValidator
 		foreach ($this->File->GetFormattedData() as $index => $row) {
 			foreach ($row['payments'] as $payment ) {
 				$paymentMode = strtolower( $payment["mode_of_payment"]);
-				if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[1])) {
+				if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 					$cashTotal += $payment["amount"];
-				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[2])) {
+				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
 					$chequeTotal += $payment["amount"];
-				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[5]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[6]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[7])) {
+				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT])) {
 					$onlineTotal += $payment["amount"];
 				} else {
 					$this->errors[] = "Invalid mode_of_payment [$paymentMode] received for row no " . ( $index + 1 );
@@ -129,7 +129,7 @@ class ExcelValidator
 	 private function ValidateChequeDetails(array $data) {
 		 foreach ($data['payments'] as $payment ) {
 		 	$mode = strtolower($payment['mode_of_payment']);
-		 	if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[2]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[3])) {
+		 	if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
 			    $cheque_no = $payment['chequedd_no'];
 			    $account_no = $payment['drawee_account_number'];
 			    $micr_code = $payment['micr_code'];
