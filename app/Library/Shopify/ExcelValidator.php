@@ -119,12 +119,12 @@ class ExcelValidator
 
 	        if(!empty($DatabaseRow)){
 	        	foreach ($DatabaseRow['payments'] as $payment){
-	        		$paymentMode = strtolower( $payment["mode_of_payment"] );
-					if ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_CASH)) {
+	        		$paymentMode = strtolower($payment["mode_of_payment"]);
+					if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 						$previouscashTotal += $payment["amount"];
-					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_CHEQUE)) {
+					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
 						$previouschequeTotal += $payment["amount"];
-					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_ONLINE)) {
+					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) ) {
 						$previousonlineTotal += $payment["amount"];
 						}
 	        		}
@@ -132,11 +132,11 @@ class ExcelValidator
 	        	              	
 			foreach ($row['payments'] as $payment ) {
 				$paymentMode = strtolower( $payment["mode_of_payment"] );
-				if ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_CASH)) {
+				if ( $paymentMode == "cash") {
 					$cashTotal += $payment["amount"];
-				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_CHEQUE)) {
+				} elseif ($paymentMode == "cheque") {
 					$chequeTotal += $payment["amount"];
-				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::MODE_ONLINE)) {
+				} elseif ($paymentMode == "online") {
 					$onlineTotal += $payment["amount"];
 				} else {
 					$this->errors[] = "Invalid mode_of_payment [$paymentMode] received for row no " . ( $index + 1 );
