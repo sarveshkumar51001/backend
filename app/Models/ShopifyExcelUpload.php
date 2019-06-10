@@ -25,7 +25,7 @@ class ShopifyExcelUpload extends Base
 	const MODE_DD = 3;
 	const MODE_PDC = 4;
 	const MODE_ONLINE = 5;
-
+	
 	public static $modesTitle = [
 		self::MODE_CASH => 'Cash',
 		self::MODE_CHEQUE => 'Cheque',

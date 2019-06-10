@@ -62,7 +62,7 @@ class ExcelValidator
 			"school_enrollment_no" => "required|string|min:4",
 			"mobile_number" => "required|regex:/^[0-9]{10}$/",
 			"email_id" => "email|regex:/^.+@.+$/i",
-			"date_of_enrollment" => "required|date_format:m-d-Y",
+			"date_of_enrollment" => "required|date_format:".ShopifyExcelUpload::DATE_FORMAT,
 			"final_fee_incl_gst" => "numeric",
 			"activity_fee" => "required",
 			"final_fee_incl_gst"=> "required",
@@ -70,7 +70,7 @@ class ExcelValidator
 			"activity" => "required",
 			"payments.*.amount" => "numeric",
 			"payments.*.chequedd_no" => "numeric",
-			"payments.*.chequedd_date" => "date_format:m-d-Y",
+			"payments.*.chequedd_date" => "date_format:".ShopifyExcelUpload::DATE_FORMAT,
 			"payments.*.drawee_name" => "string",
 			"payments.*.drawee_account_number" => "numeric",
 			"payments.*.micr_code" => "numeric",
@@ -163,12 +163,13 @@ class ExcelValidator
 			$mode = strtolower($payment['mode_of_payment']);
 	 		$amount = $payment['amount'];
 
-	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])){
+	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]))
+	 		{
 	 			if(empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])){
 	 				$this->errors['Transaction Error'] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
 	 			}
 	 		}
-	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])){
+	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode = strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])){
 	 			if(empty($payment['chequedd_date']) || empty($payment['chequedd_no']) || empty($payment['micr_code']) || empty($payment['drawee_account_number'])){
 	 				$this->errors['Cheque Details Error'] = "Cheque Details are mandatory for transactions having payment mode as cheque.";
 	 			}

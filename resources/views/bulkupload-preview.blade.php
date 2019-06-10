@@ -14,7 +14,7 @@
                                     @endforeach
                                 @endforeach
                             @else
-                            <span style="background-color: #FFFF00">{{ $error_value }}</span>
+                            <span style="background-color: #FFFF00">{{ $error_value }}<br></span>
                             @endif
                         @endforeach
                     </ul>
