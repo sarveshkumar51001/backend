@@ -3,7 +3,6 @@
 namespace App\Library\Shopify;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use App\Models\ShopifyExcelUpload;
 
 
@@ -169,7 +168,7 @@ class ExcelValidator
 	 				$this->errors['Transaction Error'] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
 	 			}
 	 		}
-	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode = strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])){
+	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])){
 	 			if(empty($payment['chequedd_date']) || empty($payment['chequedd_no']) || empty($payment['micr_code']) || empty($payment['drawee_account_number'])){
 	 				$this->errors['Cheque Details Error'] = "Cheque Details are mandatory for transactions having payment mode as cheque.";
 	 			}
