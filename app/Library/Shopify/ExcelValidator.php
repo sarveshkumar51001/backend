@@ -104,7 +104,7 @@ class ExcelValidator
 	 */
 	private function get_amount_total() {
 		$cashTotal = $chequeTotal = $onlineTotal = 0;
-		$previouscashTotal = $previouschequeTotal = $previousonlineTotal = 0;
+		$PreviousCashTotal = $PreviousChequeTotal = $PreviousOnlineTotal = 0;
 
 		foreach ($this->File->GetFormattedData() as $index => $row) {
 	            // Get the primary combination to lookup in database
@@ -121,17 +121,17 @@ class ExcelValidator
 	        	foreach ($DatabaseRow['payments'] as $payment){
 	        		$paymentMode = strtolower($payment["mode_of_payment"]);
 					if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
-						$previouscashTotal += $payment["amount"];
+						$PreviousCashTotal += $payment["amount"];
 					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
-						$previouschequeTotal += $payment["amount"];
+						$PreviousChequeTotal += $payment["amount"];
 					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) ) {
-						$previousonlineTotal += $payment["amount"];
+						$PreviousOnlineTotal += $payment["amount"];
 						}
 	        		}
 	        	}
 	        	              	
 			foreach ($row['payments'] as $payment ) {
-				$paymentMode = strtolower( $payment["mode_of_payment"] );
+				$paymentMode = strtolower($payment["mode_of_payment"]);
 				if ( $paymentMode == "cash") {
 					$cashTotal += $payment["amount"];
 				} elseif ($paymentMode == "cheque") {
@@ -139,14 +139,18 @@ class ExcelValidator
 				} elseif ($paymentMode == "online") {
 					$onlineTotal += $payment["amount"];
 				} else {
-					$this->errors[] = "Invalid mode_of_payment [$paymentMode] received for row no " . ( $index + 1 );
+					$this->errors[] = "Invalid mode_of_payment [$paymentMode] received for row no " . ($index + 1 );
 				}
+			}
+
+			if(!empty($DatabaseRow) && ($PreviousCashTotal + $PreviousChequeTotal + $PreviousOnlineTotal) == 0){
+	            $this->errors[] = "Either same excel uploaded again or existing installments can't be modified.";	
 			}
 		}
 		return [
-			'cash_total' => $cashTotal - $previouscashTotal ,
-			'cheque_total' => $chequeTotal - $previouschequeTotal,
-			'online_total' => $onlineTotal - $previousonlineTotal
+			'cash_total' => $cashTotal - $PreviousCashTotal,
+			'cheque_total' => $chequeTotal - $PreviousChequeTotal,
+			'online_total' => $onlineTotal - $PreviousOnlineTotal
 			];
 	}
 

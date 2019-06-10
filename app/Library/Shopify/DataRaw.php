@@ -8,6 +8,11 @@ class DataRaw
 {
 	public $data = [];
 
+	public static $validNoteAttributes = [
+		'mode_of_payment', 'chequedd_no', 'micr_code', 'chequedd_date', 'drawee_name', 'drawee_account_number',
+		'bank_name', 'bank_branch','txn_reference_number_only_in_case_of_paytm_or_online'
+	];
+
 	/**
 	 * DataRaw constructor.
 	 *
@@ -150,6 +155,26 @@ class DataRaw
 		return $this->data['payments'] ?? [];
 	}
 
+	public static function GetPaymentDetails(array $payments){
+
+		$notes_array = [];
+		$note = "";
+
+		foreach($payments as $index => $installment){
+
+		if(!strtotime($installment['chequedd_date']) > time() || empty($installment['chequedd_date'])){
+			foreach ($installment as $key => $value) {
+				$key = strtolower($key);
+				if (!empty($value) && in_array($key, self::$validNoteAttributes)) {
+					$note = Excel::$headerMap[$key] . ": $value | ";
+				}	
+			}
+			$notes_array[] = $note;
+		}	
+	}
+		return $notes_array;
+	}
+
 	/**
 	 * @param array $installment
 	 * @param int $number
@@ -167,7 +192,9 @@ class DataRaw
 			"amount" => $installment['amount']
 		];
 
+		$notes_array_packet = [];
 		$i =1;
+
 		foreach ($notes_array as $note){
 			if(empty($note)){
 				continue;

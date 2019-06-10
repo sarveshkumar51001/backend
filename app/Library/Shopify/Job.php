@@ -11,10 +11,6 @@ use Exception;
  */
 class Job {
 
-	public static $validNoteAttributes = [
-		'mode_of_payment', 'chequedd_no', 'micr_code', 'chequedd_date', 'drawee_name', 'drawee_account_number',
-		'bank_name', 'bank_branch','txn_reference_number_only_in_case_of_paytm_or_online'
-	];
 	/**
 	 * @param DataRaw $Data
 	 *
@@ -67,24 +63,15 @@ class Job {
 
 			DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId);
 		}
-
-		$notes_array = [];
-		$note = "";
-		foreach ($Data->GetPaymentData() as $index => $installment){
-			if(!strtotime($installment['chequedd_date']) > time() || !in_array('chequedd_date',$installment)){
-				foreach ($installment as $key => $value) {
-				$key = strtolower($key);
-				if (!empty($value) && in_array($key, self::$validNoteAttributes)) {
-					$note = Excel::$headerMap[$key] . ": $value | ";
-			}	
-		}
-		$notes_array[] = $note;
-	}
-}
+		
+		// Payment notes array
+		$notes_array = DataRaw::GetPaymentDetails($Data->GetPaymentData());
+		
 		// Loop through all the installments in system for the order
 		foreach ($Data->GetPaymentData() as $index => $installment) {
 	
 			$installmentData = DataRaw::GetInstallmentData($installment, $index, $notes_array);
+
 			if (empty($installmentData) || (!empty($installment['chequedd_date']) && strtotime($installment['chequedd_date']) > time())) {
 				continue;
 			}
