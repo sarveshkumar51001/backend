@@ -11,12 +11,14 @@ use App\Library\Shopify\ExcelValidator;
 use MongoDB\Driver\Exception\BulkWriteException;
 use App\Library\Shopify\DB;
 use App\Library\Shopify\API;
+use Illuminate\Support\Facades\Validator;
+
 
 ini_set('max_execution_time', 180);
 
 class ShopifyController extends BaseController
 {
-	private static $adminTeam = [
+	public static $adminTeam = [
 		'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com'
 	];
 
@@ -38,6 +40,8 @@ class ShopifyController extends BaseController
     	if (!$request->isMethod('post')){
     		return redirect('/bulkupload/');
 	    }
+
+	    Validator::make($request->all(),['file' => 'mimes:xls'], ['mimes' => 'The format for the uploaded file should be .:values.'])->validate();
 
 	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Upload Preview' => ''];
 
@@ -261,8 +265,7 @@ class ShopifyController extends BaseController
 
 	    if ($start && $end) {
 		    if (request('filter') == 'team' && in_array(\Auth::user()->email, self::$adminTeam)) {
-			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
-			                                         ->get();
+			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->get();
 		    } else {
 			    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
 			                                         ->whereBetween('payments.upload_date', [$start, $end])
@@ -277,26 +280,34 @@ class ShopifyController extends BaseController
 	        $modeWiseData[$mode]['count'] = $modeWiseData[$mode]['total'] = 0;
         }
 
-	    foreach ($mongodb_records as $document) {
+        $successful_records = $mongodb_records->where('job_status','!=','failed');
+
+	    foreach ($successful_records as $document) {
 		    foreach ($document['payments'] as $payment) {
 		    	if (!empty($payment['upload_date']) && $payment['upload_date'] >= $start && $payment['upload_date'] <= $end) {
 				    $mode = strtolower($payment['mode_of_payment']);
 				    if (!empty($payment['chequedd_date']) && strtotime($payment['chequedd_date']) > time()) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['count'] += 1;
-				    } else if($mode == 'cash') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['count'] += 1;
-				    } else if($mode == 'cheque') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['count'] += 1;
-				    } else if($mode == 'dd') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
-				    } else if($mode == 'online') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
-				    }
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM])) {
+					    $modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['total'] += $payment['amount'];
+					    $modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['count'] += 1;
+					}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT])) {
+					    $modeWiseData[ShopifyExcelUpload::MODE_NEFT]['total'] += $payment['amount'];
+					    $modeWiseData[ShopifyExcelUpload::MODE_NEFT]['count'] += 1;
+					}
 			    }
 		    }
 	    }
