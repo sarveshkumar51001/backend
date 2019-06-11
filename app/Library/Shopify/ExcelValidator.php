@@ -4,6 +4,7 @@ namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 /**
  * Class ExcelValidator
