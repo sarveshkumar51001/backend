@@ -135,7 +135,7 @@ class ExcelValidator
 	        		$paymentMode = strtolower($payment["mode_of_payment"]);
 					if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 						$PreviousCashTotal += $payment["amount"];
-					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD]) ) {
+					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD]) ) {
 						$PreviousChequeTotal += $payment["amount"];
 					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) ) {
 						$PreviousOnlineTotal += $payment["amount"];
@@ -147,7 +147,7 @@ class ExcelValidator
 				$paymentMode = strtolower( $payment["mode_of_payment"]);
 				if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 					$cashTotal += $payment["amount"];
-				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
+				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
 					$chequeTotal += $payment["amount"];
 				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])
 				           || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM])
