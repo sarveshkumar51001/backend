@@ -38,6 +38,7 @@ class ExcelValidator
 
 		foreach ($this->File->GetFormattedData() as $data) {
 			$this->ValidateData($data);
+			$this->ValidateFieldValues($data);
 		}
 
 		$this->ValidateAmount();
@@ -50,19 +51,30 @@ class ExcelValidator
 	}
 
 	private function ValidateData(array $data) {
+
+		$valid_branch_names = ['Faridabad 15','Charkhi Dadri','Faridabad 21 D','Sheikh Sarai International','Greater Kailash','Greater Noida','Mahavir Marg','Kharghar','Nerul','Noida','Pitampura','Rama Mandi','Saket','Sheikh Sarai']; 
+
 		$rules = [
 			"shopify_activity_id" => "required|string|min:3",
 			"school_name" => "required|string",
 			"school_enrollment_no" => "required|string|min:4",
 			"mobile_number" => "required|regex:/^[0-9]{10}$/",
 			"email_id" => "email|regex:/^.+@.+$/i",
-			"date_of_enrollment" => "required",
-			"final_fee_incl_gst" => "numeric",
-			"activity_fee" => "required"
+			"date_of_enrollment" => "required|date_format:".ShopifyExcelUpload::DATE_FORMAT,
+			"activity_fee" => "required",
+			"final_fee_incl_gst"=> "required|numeric",
+			"branch" => ["required",Rule::in($valid_branch_names)],
+			"activity" => "required",
+			"payments.*.amount" => "numeric",
+			"payments.*.chequedd_no" => "numeric",
+			"payments.*.chequedd_date" => "date_format:".ShopifyExcelUpload::DATE_FORMAT,
+			"payments.*.drawee_name" => "string",
+			"payments.*.drawee_account_number" => "numeric",
+			"payments.*.micr_code" => "numeric",
+			"external_internal" => "required"
 		];
 
-		$validator = Validator::make($data, $rules);
-
+		$validator = Validator::make($data, $rules);	
 		$errors = $validator->getMessageBag()->toArray();
 		if (!empty($errors)) {
 			$this->errors[$data['sno']] = $errors;
@@ -172,4 +184,32 @@ class ExcelValidator
 		    }
 		 }
 	 }
+
+	 private function ValidateFieldValues(array $data){
+
+	 	foreach($data['payments'] as $index => $payment){
+			$mode = strtolower($payment['mode_of_payment']);
+	 		$amount = $payment['amount'];
+
+	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]))
+	 		{
+	 			if(empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])){
+	 				$this->errors['Transaction Error'] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
+	 			}
+	 		}
+	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])){
+	 			if(empty($payment['chequedd_date']) || empty($payment['chequedd_no']) || empty($payment['micr_code']) || empty($payment['drawee_account_number'])){
+	 				$this->errors['Cheque Details Error'] = "Cheque Details are mandatory for transactions having payment mode as cheque.";
+	 			}
+	 		}
+	 		if($amount > $data['final_fee_incl_gst']){
+	 			$this->errors['Amount Error'] = "Amount captured as payment is more than the final value of the order.";
+	 		}
+	 	}
+	 	if(!stripos($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)){ 
+			if(strtolower($data['external_internal']) == ShopifyExcelUpload::INTERNAL_ORDER){
+	 		$this->errors['Type Error'] = "The order type should be external in case of schools outside Apeejay.";
+	 		}
+	 	}
+	}
 }
