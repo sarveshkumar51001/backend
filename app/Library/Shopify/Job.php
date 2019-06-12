@@ -17,7 +17,7 @@ class Job {
 	 *
 	 * @throws Exception
 	 */
-	public static function run(DataRaw $Data) {
+	public static function run(DataRaw $Data, $Job) {
 		// Process only if the status of object is pending
 		if (strtolower($Data->GetJobStatus()) != ShopifyExcelUpload::JOB_STATUS_PENDING || $Data->IsOnlinePayment()) {
 			return;
@@ -90,7 +90,7 @@ class Job {
 				DB::populate_error_in_payments_array($Data->ID(),$index,[
         		'message' => $e->getMessage(),
 		        'time' => time(),
-		        'job_id' => $this->job->getJobId()
+		        'job_id' => $Job->getJobId()
 	        ]);
 			}
 

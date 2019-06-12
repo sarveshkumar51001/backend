@@ -29,7 +29,7 @@ class ShopifyOrderCreation implements ShouldQueue
     }
 
     public function handle() {
-	    $Data = new DataRaw($this->data->toArray());
+	    $Data = new DataRaw($this->data->toArray(), $this);
 
 	    try {
 	    	Job::run($Data);
