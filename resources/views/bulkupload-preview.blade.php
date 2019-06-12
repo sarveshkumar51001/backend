@@ -7,7 +7,7 @@
                     <p style = "font-weight:bold">Following rows of your excel file are erroneous. Please correct before submitting again.</p>
                     <ul>
                         @foreach($errored_data as $error_key => $error_value)
-                            @if(is_int($error_key))
+                            @if(is_int($error_key) && is_array($error_value))
                                 @foreach($error_value as $key => $value)
                                     @foreach($value as $k => $v)
                                         <li>{{ is_array($v) ? json_encode($v) : $v }} for row number {{ $error_key }}</li>

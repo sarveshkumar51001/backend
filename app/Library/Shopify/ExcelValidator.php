@@ -5,6 +5,7 @@ namespace App\Library\Shopify;
 use App\Models\ShopifyExcelUpload;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 /**
  * Class ExcelValidator
@@ -40,6 +41,7 @@ class ExcelValidator
 		foreach ($this->File->GetFormattedData() as $data) {
 			$this->ValidateData($data);
 			$this->ValidateFieldValues($data);
+			$this->ValidateDate($data);
 		}
 
 		$this->ValidateAmount();
@@ -61,14 +63,13 @@ class ExcelValidator
 			"school_enrollment_no" => "required|string|min:4",
 			"mobile_number" => "required|regex:/^[0-9]{10}$/",
 			"email_id" => "email|regex:/^.+@.+$/i",
-			"date_of_enrollment" => "required|date_format:".ShopifyExcelUpload::DATE_FORMAT,
+			"date_of_enrollment" => "required",
 			"activity_fee" => "required",
 			"final_fee_incl_gst"=> "required|numeric",
 			"branch" => ["required",Rule::in($valid_branch_names)],
 			"activity" => "required",
 			"payments.*.amount" => "numeric",
 			"payments.*.chequedd_no" => "numeric",
-			"payments.*.chequedd_date" =>"date_format:".ShopifyExcelUpload::DATE_FORMAT,
 			"payments.*.drawee_name" => "string",
 			"payments.*.drawee_account_number" => "numeric",
 			"payments.*.micr_code" => "numeric",
@@ -215,5 +216,22 @@ class ExcelValidator
 	 		$this->errors['External Type Error'] = "Row Number- ".$data['sno']." The order type should be internal for schools under Apeejay Education Society.";
 
 	 	}
+	}
+
+	private function ValidateDate(array $data){
+
+		if(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment']) == false) {
+			dd('hello');
+   			$this->errors['Date Error'] = "Row Number- ".$data['sno']." The enrollment date is not in correct format.";
+		}
+
+		foreach($data['payments'] as $index => $payment){
+
+			if(!empty($payment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']) == false){
+
+
+   				$this->errors['Cheque Date Error'] = "Row Number- ".$data['sno']." Incorrect format of cheque date in payment no. ".($index + 1);
+			}
+		}
 	}
 }
