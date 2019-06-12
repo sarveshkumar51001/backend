@@ -214,20 +214,19 @@ class ExcelValidator
 	 	}
 	 	elseif(!strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) == ShopifyExcelUpload::INTERNAL_ORDER){
 	 		$this->errors['external_type_error'] = "Row Number- ".$data['sno']." The order type should be internal for schools under Apeejay Education Society.";
-
 	 	}
 	}
 
 	private function ValidateDate(array $data){
 
-		if(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment']) == false) {
-   			$this->errors['date_error'] = "Row Number- ".$data['sno']." The enrollment date is not in correct format.";
+		if(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment']) == false || strlen(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment'])->year) == ShopifyExcelUpload::YEAR_COUNT) {
+   			$this->errors['date_error'] = "Row Number- ".$data['sno']." The enrollment date is not in correct format. For eg.The correct format is 17/06/2019";
 		}
 
 		foreach($data['payments'] as $index => $payment){
 
-			if(!empty($payment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']) == false){
-   				$this->errors['cheque_date_error'] = "Row Number- ".$data['sno']." Incorrect format of cheque date in payment no. ".($index + 1);
+			if(!empty($payment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']) == false || strlen(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment'])->year) == ShopifyExcelUpload::YEAR_COUNT){
+   				$this->errors['cheque_date_error'] = "Row Number- ".$data['sno']." Incorrect format of cheque date in payment no. ".($index + 1)."The correct format is 17/06/2019";
 			}
 		}
 	}

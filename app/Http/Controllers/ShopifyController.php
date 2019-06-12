@@ -12,7 +12,7 @@ use MongoDB\Driver\Exception\BulkWriteException;
 use App\Library\Shopify\DB;
 use App\Library\Shopify\API;
 use Illuminate\Support\Facades\Validator;
-use \Carbon\Carbon;
+use Carbon\Carbon;
 
 
 ini_set('max_execution_time', 180);
