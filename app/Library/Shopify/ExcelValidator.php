@@ -61,8 +61,8 @@ class ExcelValidator
 			"shopify_activity_id" => "required|string|min:3",
 			"school_name" => "required|string",
 			"school_enrollment_no" => "required|string|min:4",
-			"mobile_number" => "required|regex:/^[0-9]{10}$/",
-			"email_id" => "email|regex:/^.+@.+$/i",
+			"mobile_number" => "required|regex:^[6-9][0-9]{9}$^",
+			"email_id" => "required|email",
 			"date_of_enrollment" => "required",
 			"activity_fee" => "required",
 			"final_fee_incl_gst"=> "required|numeric",
@@ -196,24 +196,24 @@ class ExcelValidator
 	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]))
 	 		{
 	 			if(empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])){
-	 				$this->errors['Transaction Error'] = "Row Number- ".$data['sno']." Transaction Reference No. is mandatory in case of online and Paytm transactions.";
+	 				$this->errors['transaction_error'] = "Row Number- ".$data['sno']." Transaction Reference No. is mandatory in case of online and Paytm transactions.";
 	 			}
 	 		}
 	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])){
 	 			if(empty($payment['chequedd_date']) || empty($payment['chequedd_no']) || empty($payment['micr_code']) || empty($payment['drawee_account_number'])){
-	 				$this->errors['Cheque Details Error'] = "Row Number- ".$data['sno']." Cheque Details are mandatory for transactions having payment mode as cheque.";
+	 				$this->errors['cheque_details_error'] = "Row Number- ".$data['sno']." Cheque Details are mandatory for transactions having payment mode as cheque.";
 	 			}
 	 		}
 	 		if($amount > $data['final_fee_incl_gst']){
-	 			$this->errors['Amount Error'] = "Row Number- ".$data['sno']." Amount captured as payment is more than the final value of the order.";
+	 			$this->errors['amount_error'] = "Row Number- ".$data['sno']." Amount captured as payment is more than the final value of the order.";
 	 		}
 	 	}
 
 	 	if(strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER){
-	 		$this->errors['Internal Type Error'] = "Row Number- ".$data['sno']." The order type should be external in case of schools outside Apeejay.";
+	 		$this->errors['internal_type_error'] = "Row Number- ".$data['sno']." The order type should be external in case of schools outside Apeejay.";
 	 	}
 	 	elseif(!strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) == ShopifyExcelUpload::INTERNAL_ORDER){
-	 		$this->errors['External Type Error'] = "Row Number- ".$data['sno']." The order type should be internal for schools under Apeejay Education Society.";
+	 		$this->errors['external_type_error'] = "Row Number- ".$data['sno']." The order type should be internal for schools under Apeejay Education Society.";
 
 	 	}
 	}
@@ -221,16 +221,13 @@ class ExcelValidator
 	private function ValidateDate(array $data){
 
 		if(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment']) == false) {
-			dd('hello');
-   			$this->errors['Date Error'] = "Row Number- ".$data['sno']." The enrollment date is not in correct format.";
+   			$this->errors['date_error'] = "Row Number- ".$data['sno']." The enrollment date is not in correct format.";
 		}
 
 		foreach($data['payments'] as $index => $payment){
 
 			if(!empty($payment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']) == false){
-
-
-   				$this->errors['Cheque Date Error'] = "Row Number- ".$data['sno']." Incorrect format of cheque date in payment no. ".($index + 1);
+   				$this->errors['cheque_date_error'] = "Row Number- ".$data['sno']." Incorrect format of cheque date in payment no. ".($index + 1);
 			}
 		}
 	}
