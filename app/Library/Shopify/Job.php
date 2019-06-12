@@ -4,6 +4,7 @@ namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
 use Exception;
+use Carbon\Carbon;
 
 /**
  * Helper Job class
@@ -72,7 +73,7 @@ class Job {
 	
 			$installmentData = DataRaw::GetInstallmentData($installment, $index, $notes_array);
 
-			if (empty($installmentData) || (!empty($installment['chequedd_date']) && strtotime($installment['chequedd_date']) > time())) {
+			if (empty($installmentData) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp > time())) {
 				continue;
 			}
 			// Get the installment data in proper format

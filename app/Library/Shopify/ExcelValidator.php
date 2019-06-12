@@ -5,6 +5,7 @@ namespace App\Library\Shopify;
 use App\Models\ShopifyExcelUpload;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 /**
  * Class ExcelValidator
@@ -40,6 +41,7 @@ class ExcelValidator
 		foreach ($this->File->GetFormattedData() as $data) {
 			$this->ValidateData($data);
 			$this->ValidateFieldValues($data);
+			$this->ValidateDate($data);
 		}
 
 		$this->ValidateAmount();
@@ -59,16 +61,15 @@ class ExcelValidator
 			"shopify_activity_id" => "required|string|min:3",
 			"school_name" => "required|string",
 			"school_enrollment_no" => "required|string|min:4",
-			"mobile_number" => "required|regex:/^[0-9]{10}$/",
-			"email_id" => "email|regex:/^.+@.+$/i",
-			"date_of_enrollment" => "required|date_format:".ShopifyExcelUpload::DATE_FORMAT,
+			"mobile_number" => "required|regex:^[6-9][0-9]{9}$^",
+			"email_id" => "required|email",
+			"date_of_enrollment" => "required",
 			"activity_fee" => "required",
 			"final_fee_incl_gst"=> "required|numeric",
 			"branch" => ["required",Rule::in($valid_branch_names)],
 			"activity" => "required",
 			"payments.*.amount" => "numeric",
 			"payments.*.chequedd_no" => "numeric",
-			"payments.*.chequedd_date" => "date_format:".ShopifyExcelUpload::DATE_FORMAT,
 			"payments.*.drawee_name" => "string",
 			"payments.*.drawee_account_number" => "numeric",
 			"payments.*.micr_code" => "numeric",
@@ -135,7 +136,7 @@ class ExcelValidator
 	        		$paymentMode = strtolower($payment["mode_of_payment"]);
 					if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 						$PreviousCashTotal += $payment["amount"];
-					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
+					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD]) ) {
 						$PreviousChequeTotal += $payment["amount"];
 					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) ) {
 						$PreviousOnlineTotal += $payment["amount"];
@@ -147,7 +148,7 @@ class ExcelValidator
 				$paymentMode = strtolower( $payment["mode_of_payment"]);
 				if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 					$cashTotal += $payment["amount"];
-				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
+				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
 					$chequeTotal += $payment["amount"];
 				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])
 				           || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM])
@@ -195,22 +196,39 @@ class ExcelValidator
 	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]))
 	 		{
 	 			if(empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])){
-	 				$this->errors['Transaction Error'] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
+	 				$this->errors['transaction_error'] = "Row Number- ".$data['sno']." Transaction Reference No. is mandatory in case of online and Paytm transactions.";
 	 			}
 	 		}
 	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])){
 	 			if(empty($payment['chequedd_date']) || empty($payment['chequedd_no']) || empty($payment['micr_code']) || empty($payment['drawee_account_number'])){
-	 				$this->errors['Cheque Details Error'] = "Cheque Details are mandatory for transactions having payment mode as cheque.";
+	 				$this->errors['cheque_details_error'] = "Row Number- ".$data['sno']." Cheque Details are mandatory for transactions having payment mode as cheque.";
 	 			}
 	 		}
 	 		if($amount > $data['final_fee_incl_gst']){
-	 			$this->errors['Amount Error'] = "Amount captured as payment is more than the final value of the order.";
+	 			$this->errors['amount_error'] = "Row Number- ".$data['sno']." Amount captured as payment is more than the final value of the order.";
 	 		}
 	 	}
-	 	if(!stripos($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)){ 
-			if(strtolower($data['external_internal']) == ShopifyExcelUpload::INTERNAL_ORDER){
-	 		$this->errors['Type Error'] = "The order type should be external in case of schools outside Apeejay.";
-	 		}
+
+	 	if(strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER){
+	 		$this->errors['internal_type_error'] = "Row Number- ".$data['sno']." The order type should be external in case of schools outside Apeejay.";
 	 	}
+	 	elseif(!strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) == ShopifyExcelUpload::INTERNAL_ORDER){
+	 		$this->errors['external_type_error'] = "Row Number- ".$data['sno']." The order type should be internal for schools under Apeejay Education Society.";
+
+	 	}
+	}
+
+	private function ValidateDate(array $data){
+
+		if(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment']) == false) {
+   			$this->errors['date_error'] = "Row Number- ".$data['sno']." The enrollment date is not in correct format.";
+		}
+
+		foreach($data['payments'] as $index => $payment){
+
+			if(!empty($payment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']) == false){
+   				$this->errors['cheque_date_error'] = "Row Number- ".$data['sno']." Incorrect format of cheque date in payment no. ".($index + 1);
+			}
+		}
 	}
 }
