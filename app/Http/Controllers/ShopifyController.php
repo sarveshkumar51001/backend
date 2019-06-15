@@ -137,8 +137,6 @@ class ShopifyController extends BaseController
 	                           ->where('school_enrollment_no', $std_enroll_no)
 	                           ->first();
 
-
-
 	            if (empty($OrderRow)) {
 		            $upsertList[] = $valid_row;
 	            } else {
@@ -148,19 +146,23 @@ class ShopifyController extends BaseController
 
 	                $isUpdateInInstallment = false;
 		            $existingPaymentData = $OrderRow->payments;
-		            $existingPaymentInstallments = array_column($existingPaymentData, 'installment');
 
-		            // If there is any installments details provided in excel
-                    foreach ($valid_row["payments"] as $payment) {
+		            // If there is any change in installments details provided in excel
+                    foreach ($valid_row["payments"] as $index => $payment) {
 	                    /**
-	                     * Consider the payment data only if it is not uploaded before
+	                     * Consider the payment data only if the payment is unprocessed
 	                     * Any update in already stored installments will be ignored
 	                     */
-                    	if (!in_array($payment['installment'], $existingPaymentInstallments)) {
-		                    $existingPaymentData[$payment['installment']] = $payment;
+                    	if (strtolower($existingPaymentData[$index]['processed']) == 'no') {
+		                    $existingPaymentData[$index] = $payment;
 		                    $isUpdateInInstallment = true;
 	                    }
                     }
+                    // Reducing the payments array if there is any reduction in number of payments
+                    $diff_element = array_diff_key($existingPaymentData,$valid_row["payments"]);
+                    foreach($diff_element as $key => $value){
+                    	unset($existingPaymentData[$key]);
+					}
 
 	                $total_installment_amount = 0;
                     foreach ($existingPaymentData as $updatedPayment) {
@@ -228,12 +230,12 @@ class ShopifyController extends BaseController
 		        ]);
 	        }
 
-	        if (!empty($objectIDList)) {
-		        // Finally dispatch the data into queue for processing
-		        foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
-			        ShopifyOrderCreation::dispatch($Object);
-		        }
-	        }
+	        // if (!empty($objectIDList)) {
+		       //  // Finally dispatch the data into queue for processing
+		       //  foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
+			      //   ShopifyOrderCreation::dispatch($Object);
+		       //  }
+	        // }
 
 		    return view('bulkupload-preview')
 			    ->with('errored_data', $errors)

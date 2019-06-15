@@ -42,6 +42,7 @@ class ExcelValidator
 			$this->ValidateData($data);
 			$this->ValidateFieldValues($data);
 			$this->ValidateDate($data);
+			$this->ValidateExpectedAmountDate($data);
 		}
 
 		$this->ValidateAmount();
@@ -68,12 +69,12 @@ class ExcelValidator
 			"final_fee_incl_gst"=> "required|numeric",
 			"branch" => ["required",Rule::in($valid_branch_names)],
 			"activity" => "required",
-			"payments.*.amount" => "numeric",
 			"payments.*.chequedd_no" => "numeric",
 			"payments.*.drawee_name" => "string",
 			"payments.*.drawee_account_number" => "numeric",
 			"payments.*.micr_code" => "numeric",
-			"external_internal" => "required"
+			"external_internal" => "required",
+			"payments.*.amount" => "numeric"
 		];
 
 		$validator = Validator::make($data, $rules);	
@@ -134,6 +135,8 @@ class ExcelValidator
 	        if(!empty($DatabaseRow)) {
 	        	foreach ($DatabaseRow['payments'] as $payment) {
 	        		$paymentMode = strtolower($payment["mode_of_payment"]);
+	        		// Checking whether the payment is captured by using payment mode 
+	        		if(!empty($paymentMode)){
 					if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 						$PreviousCashTotal += $payment["amount"];
 					} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD]) ) {
@@ -143,9 +146,13 @@ class ExcelValidator
 					}
 	        	}
 	        }
+	    }
+
 	        	              	
 			foreach ($row['payments'] as $payment) {
 				$paymentMode = strtolower( $payment["mode_of_payment"]);
+				// Checking whether the payment is captured by using payment mode // 
+				if(!empty($paymentMode)){
 				if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 					$cashTotal += $payment["amount"];
 				} elseif ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
@@ -158,6 +165,7 @@ class ExcelValidator
 					$this->errors[] = "Invalid mode_of_payment [$paymentMode] received for row no " . ($index + 1 );
 				}
 			}
+		}
 
 			if(!empty($DatabaseRow) && ($PreviousCashTotal + $PreviousChequeTotal + $PreviousOnlineTotal) == 0) {
 	            $this->errors[] = "Either same excel uploaded again or existing installments can't be modified.";	
@@ -175,16 +183,19 @@ class ExcelValidator
 		 foreach ($data['payments'] as $payment ) {
 		 	$mode = strtolower($payment['mode_of_payment']);
 		 	if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
+
 			    $cheque_no = $payment['chequedd_no'];
 			    $account_no = $payment['drawee_account_number'];
 			    $micr_code = $payment['micr_code'];
 
+			    if(!empty($cheque_no) && !empty($account_no) && !empty($micr_code)){
 			    // Check if the combination of cheque no., micr_code and account_no. exists in database
 			    if(DB::check_if_already_used($cheque_no, $micr_code, $account_no)){
 				    $this->errors[$data['sno']] = "Cheque/DD Details already used before.";
-			    }
-		    }
-		 }
+			    	}
+		    	}
+			}
+		}
 	 }
 
 	 private function ValidateFieldValues(array $data){
@@ -226,8 +237,27 @@ class ExcelValidator
 		foreach($data['payments'] as $index => $payment){
 
 			if(!empty($payment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']) == false || strlen(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment'])->year) == ShopifyExcelUpload::YEAR_COUNT){
-   				$this->errors['cheque_date_error'] = "Row Number- ".$data['sno']." Incorrect format of cheque date in payment no. ".($index + 1)." The correct format is 17/06/2019";
+   				$this->errors['cheque_date_error'] = "Row Number- ".$data['sno']." Incorrect format of date in payment no. ".($index + 1)." The correct format is 17/06/2019";
 			}
 		}
+	}
+
+	// Function for checking wthether the combination of amount and date present for each installment. THe cheque date is being treated as the expected date of collection for the payment. 
+	Private function ValidateExpectedAmountDate(array $data){
+		$total_amount = 0;
+		foreach($data['payments'] as $payment){
+			if($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT){
+				if(empty($payment['amount']) && empty($payment['chequedd_date'])){
+					$this->errors['expected_amount_date'] = "Row Number- ".$data['sno']."Expected Amount and Expected date of collection required for every installment of this order.";
+				}
+			}
+
+			$total_amount += $payment['amount'];
+		}
+
+		if($total_amount != $data['final_fee_incl_gst']){
+			$this->errors['amount_sum_error'] = "Row Number- ".$data['sno']."Sum of all the payments to be made should not be more or less than the final fee of the order.";
+		}
+
 	}
 }
