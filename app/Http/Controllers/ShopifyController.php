@@ -147,9 +147,12 @@ class ShopifyController extends BaseController
 	                     * Any update in already posted installments will be ignored
 	                     */
                     	if (strtolower($existingPaymentData[$index]['processed']) == 'no') {
-		                    $existingPaymentData[$index] = $payment;
-		                    $isUpdateInInstallment = true;
-	                    }
+
+                    		if($existingPaymentData[$index]['amount'] != $payment['amount'] || $existingPaymentData[$index]['chequedd_date'] != $payment['chequedd_date'] || $existingPaymentData[$index]['mode_of_payment'] != $payment['mode_of_payment']){
+		                    	$existingPaymentData[$index] = $payment;
+		                    	$isUpdateInInstallment = true;
+	                    	}
+	                	}
                     }
                     // Reducing the payments array if there is any reduction in number of payments
                     $diff_element = array_diff_key($existingPaymentData,$valid_row["payments"]);
