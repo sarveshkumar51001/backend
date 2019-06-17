@@ -186,6 +186,7 @@ class DataRaw
 	 */
 	public static function GetInstallmentData(array $installment, $number, $notes_array) {
 
+		//Check if installment is empty or mode of payment is empty or installment is processed.
 		if (empty($installment) || empty($installment['mode_of_payment']) || strtolower($installment['processed']) == 'yes') {
 			return [];
 		}
