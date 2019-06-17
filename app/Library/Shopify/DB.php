@@ -26,11 +26,13 @@ class DB
 
 	public static function check_activity_fee_value($activity_fee,$activity_id) {
 		$product =  \DB::table('shopify_products')->where('variants.sku', $activity_id)->first();
+		if($product){
 		foreach($product['variants'] as $variant){
 			if($variant['price'] == $activity_fee){
 				return true;
 			}
 		}
+	}
 
 		return false;
 	}
