@@ -43,6 +43,7 @@ class ExcelValidator
 			$this->ValidateFieldValues($data);
 			$this->ValidateDate($data);
 			$this->ValidateExpectedAmountDate($data);
+			$this->ValidateActivityDetails($data);
 		}
 
 		$this->ValidateAmount();
@@ -135,7 +136,7 @@ class ExcelValidator
 	        if(!empty($DatabaseRow)) {
 	        	foreach ($DatabaseRow['payments'] as $payment) {
 	        		$paymentMode = strtolower($payment["mode_of_payment"]);
-	        		// Checking whether the payment is captured by using payment mode 
+	        		// Checking whether the payment has any payment mode //
 	        		if(!empty($paymentMode)){
 					if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 						$PreviousCashTotal += $payment["amount"];
@@ -151,7 +152,7 @@ class ExcelValidator
 	        	              	
 			foreach ($row['payments'] as $payment) {
 				$paymentMode = strtolower( $payment["mode_of_payment"]);
-				// Checking whether the payment is captured by using payment mode // 
+				// Checking whether the payment has any payment mode // 
 				if(!empty($paymentMode)){
 				if ( $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 					$cashTotal += $payment["amount"];
@@ -258,6 +259,27 @@ class ExcelValidator
 		if($total_amount != $data['final_fee_incl_gst']){
 			$this->errors['amount_sum_error'] = "Row Number- ".$data['sno']."Sum of all the payments to be made should not be more or less than the final fee of the order.";
 		}
+	}
 
+	Private function ValidateActivityDetails(array $data){
+
+		$activity_id = $data['shopify_activity_id'];
+		$activity_fee = $data['activity_fee'];
+		$final_fee = $data['final_fee_incl_gst'];
+
+		$Product = DB::get_shopify_product_from_database($activity_id);
+	    if(!$Product){
+	        $this->errors['activity_id_error'] = "Row Number- ".$data['sno']." The activity id is not present in the database.";
+	  	}
+
+	    if(!DB::check_activity_fee_value($activity_fee,$activity_id)){
+	    	$this->errors['activity_fee_error'] = "Row Number- ".$data['sno']." Activity Fee entered is incorrect.";
+	    }
+
+	    if(empty($data['scholarship_discount'])){
+	    	if( $activity_fee != $final_fee ){
+	    		$this->errors['final_fee_error'] = "Row Number- ".$data['sno']." Final Fee  is not equal to the activity fee.";
+	    	}
+	    }
 	}
 }

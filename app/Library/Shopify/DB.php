@@ -23,6 +23,17 @@ class DB
 		return 0;
 	}
 
+
+	public static function check_activity_fee_value($activity_fee,$activity_id) {
+		$product =  \DB::table('shopify_products')->where('variants.sku', $activity_id)->first();
+		foreach($product['variants'] as $variant){
+			if($variant['price'] == $activity_fee){
+				return true;
+			}
+		}
+
+		return false;
+	}
 	/**
 	 * @param $object_id
 	 * @param $shopify_order_id

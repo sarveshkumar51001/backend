@@ -123,13 +123,6 @@ class ShopifyController extends BaseController
 	            $activity_id = $valid_row['shopify_activity_id'];
 	            $std_enroll_no = $valid_row['school_enrollment_no'];
 
-	            $Product = DB::get_shopify_product_from_database($activity_id);
-	            if(!$Product){
-	                $errors[$valid_row['sno']] = "The activity id is not present in the database";
-	            } else if (empty($valid_row['activity'])) {
-	            	$valid_row['activity'] = $Product['title'];
-	            }
-
 	            // Attempt to lookup in database with the key combination
 		        // Ex: 06/05/2019, VAL-12345-002, SS-1112
 	            $OrderRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)
@@ -151,7 +144,7 @@ class ShopifyController extends BaseController
                     foreach ($valid_row["payments"] as $index => $payment) {
 	                    /**
 	                     * Consider the payment data only if the payment is unprocessed
-	                     * Any update in already stored installments will be ignored
+	                     * Any update in already posted installments will be ignored
 	                     */
                     	if (strtolower($existingPaymentData[$index]['processed']) == 'no') {
 		                    $existingPaymentData[$index] = $payment;
