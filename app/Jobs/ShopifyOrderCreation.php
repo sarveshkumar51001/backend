@@ -32,7 +32,9 @@ class ShopifyOrderCreation implements ShouldQueue
 	    $Data = new DataRaw($this->data->toArray(), $this);
 
 	    try {
-	    	Job::run($Data);
+            $Job = $this->job;
+
+	    	Job::run($Data,$Job);
         } catch(\Exception $e) {
         	DB::mark_status_failed($Data->ID(), [
         		'message' => $e->getMessage(),

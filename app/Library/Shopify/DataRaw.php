@@ -186,7 +186,7 @@ class DataRaw
 	 */
 	public static function GetInstallmentData(array $installment, $number, $notes_array) {
 
-		if (empty($installment) || strtolower($installment['processed']) == 'yes') {
+		if (empty($installment) || empty($installment['mode_of_payment']) || strtolower($installment['processed']) == 'yes') {
 			return [];
 		}
 
