@@ -33,9 +33,10 @@ class ShopifyOrderCreation implements ShouldQueue
 
 	    try {
             $Job = $this->job;
-
+            
 	    	Job::run($Data,$Job);
         } catch(\Exception $e) {
+            if (app()->bound('sentry')) { app('sentry')->captureException($e); }
         	DB::mark_status_failed($Data->ID(), [
         		'message' => $e->getMessage(),
 		        'time' => time(),

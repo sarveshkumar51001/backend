@@ -238,8 +238,10 @@ class ExcelValidator
 
 		foreach($data['payments'] as $index => $payment){
 
-			if(!empty($payment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']) == false || strlen(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment'])->year) == ShopifyExcelUpload::YEAR_COUNT){
+			if(!empty($payment['chequedd_date'])){
+			 if(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']) == false || strlen(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment'])->year) == ShopifyExcelUpload::YEAR_COUNT){
    				$this->errors['cheque_date_error'] = "Row Number- ".$data['sno']." Incorrect format of date in payment no. ".($index + 1)." The correct format is 17/06/2019";
+				}
 			}
 		}
 	}
@@ -249,8 +251,8 @@ class ExcelValidator
 		$total_amount = 0;
 		foreach($data['payments'] as $payment){
 			if($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT){
-				if(empty($payment['amount']) && empty($payment['chequedd_date'])){
-					$this->errors['expected_amount_date'] = "Row Number- ".$data['sno']."Expected Amount and Expected date of collection required for every installment of this order.";
+				if(empty($payment['amount']) || empty($payment['chequedd_date'])){
+					$this->errors['expected_amount_date'] = "Row Number- ".$data['sno']." Expected Amount and Expected date of collection required for every installment of this order.";
 				}
 			}
 
@@ -258,7 +260,7 @@ class ExcelValidator
 		}
 
 		if($total_amount != $data['final_fee_incl_gst']){
-			$this->errors['amount_sum_error'] = "Row Number- ".$data['sno']."Sum of all the payments to be made should not be more or less than the final fee of the order.";
+			$this->errors['amount_sum_error'] = "Row Number- ".$data['sno']." Sum of all the payments to be made should not be more or less than the final fee of the order.";
 		}
 	}
 
