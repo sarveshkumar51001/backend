@@ -130,6 +130,10 @@ class DataRaw
 			throw new \Exception('Empty product variant id given');
 		}
 
+		if(!empty($this->data['scholarship_discount'])){
+			$order_data['total_discounts'] = $this->data['scholarship_discount'];
+		}
+
 		$order_data['line_items'] = [[
 			"variant_id" => $productVariantID
 		]];

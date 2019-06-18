@@ -68,6 +68,7 @@ class ExcelValidator
 			"date_of_enrollment" => "required",
 			"activity_fee" => "required",
 			"final_fee_incl_gst"=> "required|numeric",
+			"scholarship_discount" => "numeric",
 			"branch" => ["required",Rule::in($valid_branch_names)],
 			"activity" => "required",
 			"payments.*.chequedd_no" => "numeric",
