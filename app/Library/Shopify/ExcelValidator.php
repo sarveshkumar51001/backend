@@ -76,7 +76,8 @@ class ExcelValidator
 			"payments.*.drawee_account_number" => "numeric",
 			"payments.*.micr_code" => "numeric",
 			"external_internal" => "required",
-			"payments.*.amount" => "numeric"
+			"payments.*.amount" => "numeric",
+			"payments" => "required"
 		];
 
 		$validator = Validator::make($data, $rules);	
@@ -209,38 +210,47 @@ class ExcelValidator
 	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]))
 	 		{
 	 			if(empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])){
-	 				$this->errors['transaction_error'] = "Row Number- ".$data['sno']." Transaction Reference No. is mandatory in case of online and Paytm transactions.";
+	 				$this->errors[] = "Row Number- ".$data['sno']." Transaction Reference No. is mandatory in case of online and Paytm transactions.";
 	 			}
 	 		}
+
 	 		if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])){
 	 			if(empty($payment['chequedd_date']) || empty($payment['chequedd_no']) || empty($payment['micr_code']) || empty($payment['drawee_account_number'])){
-	 				$this->errors['cheque_details_error'] = "Row Number- ".$data['sno']." Cheque Details are mandatory for transactions having payment mode as cheque.";
+	 				$this->errors[] = "Row Number- ".$data['sno']." Cheque Details are mandatory for transactions having payment mode as cheque.";
 	 			}
 	 		}
+
 	 		if($amount > $data['final_fee_incl_gst']){
-	 			$this->errors['amount_error'] = "Row Number- ".$data['sno']." Amount captured as payment is more than the final value of the order.";
+	 			$this->errors[] = "Row Number- ".$data['sno']." Amount captured as payment is more than the final value of the order.";
 	 		}
 	 	}
 
 	 	if(strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER){
-	 		$this->errors['internal_type_error'] = "Row Number- ".$data['sno']." The order type should be external in case of schools outside Apeejay.";
+	 		$this->errors[] = "Row Number- ".$data['sno']." The order type should be internal for schools under Apeejay Education Society.";
 	 	}
-	 	elseif(!strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) == ShopifyExcelUpload::INTERNAL_ORDER){
-	 		$this->errors['external_type_error'] = "Row Number- ".$data['sno']." The order type should be internal for schools under Apeejay Education Society.";
+
+	 	if(!strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) == ShopifyExcelUpload::INTERNAL_ORDER){
+	 		$this->errors[] = "Row Number- ".$data['sno']." The order type should be external for schools outside Apeejay.";
 	 	}
 	}
 
 	private function ValidateDate(array $data){
 
-		if(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment']) == false || strlen(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment'])->year) == ShopifyExcelUpload::YEAR_COUNT) {
-   			$this->errors['date_error'] = "Row Number- ".$data['sno']." The enrollment date is not in correct format. For eg. The correct format is 17/06/2019";
+		$enrollment_date = str_replace('-', '/', $data['date_of_enrollment']);
+
+		if(!empty($enrollment_date)){
+			if(strlen(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $enrollment_date)->year) == ShopifyExcelUpload::YEAR_COUNT) {
+   				$this->errors[] = "Row Number- ".$data['sno']." The enrollment date is not in correct format. For eg. The correct format is 17/06/2019";
+			}
 		}
 
 		foreach($data['payments'] as $index => $payment){
 
-			if(!empty($payment['chequedd_date'])){
-			 if(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']) == false || strlen(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['date_of_enrollment'])->year) == ShopifyExcelUpload::YEAR_COUNT){
-   				$this->errors['cheque_date_error'] = "Row Number- ".$data['sno']." Incorrect format of date in payment no. ".($index + 1)." The correct format is 17/06/2019";
+			$payment_date = str_replace('-', '/', $payment['chequedd_date']);
+
+			if(!empty($payment_date)){
+				if(strlen(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date'])->year) == ShopifyExcelUpload::YEAR_COUNT){
+   					$this->errors[] = "Row Number- ".$data['sno']." Incorrect format of date in payment no. ".($index + 1)." The correct format is 17/06/2019";
 				}
 			}
 		}
@@ -251,16 +261,18 @@ class ExcelValidator
 		$total_amount = 0;
 		foreach($data['payments'] as $payment){
 			if($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT){
+				if(empty($payment['mode_of_payment'])){
 				if(empty($payment['amount']) || empty($payment['chequedd_date'])){
-					$this->errors['expected_amount_date'] = "Row Number- ".$data['sno']." Expected Amount and Expected date of collection required for every installment of this order.";
+					$this->errors[] = "Row Number- ".$data['sno']." Expected Amount and Expected date of collection required for every installment of this order.";
+						}
+					}
 				}
-			}
 
-			$total_amount += $payment['amount'];
-		}
+		$total_amount += $payment['amount'];
+	}
 
 		if($total_amount != $data['final_fee_incl_gst']){
-			$this->errors['amount_sum_error'] = "Row Number- ".$data['sno']." Sum of all the payments to be made should not be more or less than the final fee of the order.";
+			$this->errors[] = "Row Number- ".$data['sno']." Sum of all the payments to be made should not be more or less than the final fee of the order.";
 		}
 	}
 
@@ -272,16 +284,16 @@ class ExcelValidator
 
 		$Product = DB::get_shopify_product_from_database($activity_id);
 	    if(!$Product){
-	        $this->errors['activity_id_error'] = "Row Number- ".$data['sno']." The activity id is not present in the database.";
+	        $this->errors[] = "Row Number- ".$data['sno']." The activity id is not present in the database.";
 	  	}
 
 	    if(!DB::check_activity_fee_value($activity_fee,$activity_id)){
-	    	$this->errors['activity_fee_error'] = "Row Number- ".$data['sno']." Activity Fee entered is incorrect.";
+	    	$this->errors[] = "Row Number- ".$data['sno']." Activity Fee entered is incorrect.";
 	    }
 
 	    if(empty($data['scholarship_discount'])){
 	    	if( $activity_fee != $final_fee ){
-	    		$this->errors['final_fee_error'] = "Row Number- ".$data['sno']." Final Fee  is not equal to the activity fee.";
+	    		$this->errors[] = "Row Number- ".$data['sno']." Final Fee  is not equal to the activity fee.";
 	    	}
 	    }
 	}
