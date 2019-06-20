@@ -41,11 +41,13 @@
                                                 <thead>
                                                 <td>No.</td>
                                                 @php $head = reset($row[$key]) @endphp
+                                                @if(!is_bool($head))
                                                 @foreach(array_keys($head) as $instKey)
                                                     @if(isset(\App\Library\Shopify\Excel::$headerMap[$instKey]))
                                                         <td>{{ $instKey }}</td>
                                                     @endif
                                                 @endforeach
+                                                @endif
                                                 </thead>
 
                                                 @foreach($row[$key] as $index => $installment)
