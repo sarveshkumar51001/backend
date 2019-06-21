@@ -38,18 +38,25 @@ class ExcelValidator
 			return $this->errors;
 		}
 
+		//Finding data validation errors
 		foreach ($this->File->GetFormattedData() as $data) {
 			$this->ValidateData($data);
+		}
+
+		//Checking if there is any validation error then return from here
+		if(count($this->errors) >= 1){
+			return $this->errors;
+		}
+
+		$this->ValidateAmount();			
+
+		//Finding Error Scenarios
+		foreach ($this->File->GetFormattedData() as $data) {
+			$this->ValidateChequeDetails($data);
 			$this->ValidateFieldValues($data);
 			$this->ValidateDate($data);
 			$this->ValidateExpectedAmountDate($data);
 			$this->ValidateActivityDetails($data);
-		}
-
-		$this->ValidateAmount();
-
-		foreach ($this->File->GetFormattedData() as $data) {
-			$this->ValidateChequeDetails($data);
 		}
 
 		return $this->errors;
@@ -77,7 +84,8 @@ class ExcelValidator
 			"payments.*.micr_code" => "numeric",
 			"external_internal" => "required",
 			"payments.*.amount" => "numeric",
-			"payments" => "required"
+			"payments" => "required",
+			"payments.0.mode_of_payment" => "required|string"
 		];
 
 		$validator = Validator::make($data, $rules);	
