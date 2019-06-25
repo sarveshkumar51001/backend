@@ -85,7 +85,9 @@ class ExcelValidator
 			"external_internal" => "required",
 			"payments.*.amount" => "numeric",
 			"payments" => "required",
-			"payments.0.mode_of_payment" => "required|string"
+			"payments.0.mode_of_payment" => "required|string",
+			"payments.0.amount" => "required|numeric",
+			"payments.*.mode_of_payment" => "string"
 		];
 
 		$validator = Validator::make($data, $rules);	
@@ -244,21 +246,15 @@ class ExcelValidator
 
 	private function ValidateDate(array $data){
 
-		$enrollment_date = str_replace('-', '/', $data['date_of_enrollment']);
-
-		if(!empty($enrollment_date)){
-			if(!preg_match(ShopifyExcelUpload::DATE_REGEX,$enrollment_date)) {
-			$this->errors[] = "Row Number- ".$data['sno']." Incorrect format of enrollment date.The correct format is 07/06/2019";
+		if(!preg_match(ShopifyExcelUpload::DATE_REGEX,$data['date_of_enrollment'])) {
+			$this->errors[] = "Row Number- ".$data['sno']." Incorrect format of enrollment date.The correct format is {Date/Month/Year} i.e. 01/07/2019";
     		}
-    	}
 
 		foreach($data['payments'] as $index => $payment){
 
-			$payment_date = str_replace('-', '/', $payment['chequedd_date']);
-
 			if(!empty($payment_date)){
 				if(!preg_match(ShopifyExcelUpload::DATE_REGEX,$payment_date)){
-   					$this->errors[] = "Row Number- ".$data['sno']." Incorrect format of date in payment no. ".($index + 1)." The correct format is 07/06/2019";
+   					$this->errors[] = "Row Number- ".$data['sno']." Incorrect format of date in payment no. ".($index + 1)." The correct format is {Date/Month/Year} i.e. 01/07/2019";
 				}
 			}
 		}
