@@ -24,6 +24,7 @@ class SocialAuthGoogleController extends Controller
 				$user->google_id = $googleUser->id;
 				$user->password = md5(rand(1,10000));
 				$user->last_login_at = time();
+				$user->shopify_id = "";
 				$user->save();
 				Auth::loginUsingId($user->id);
 			}
