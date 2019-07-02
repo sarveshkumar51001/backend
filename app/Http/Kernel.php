@@ -41,6 +41,11 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
         ],
+        
+        'webhook' => [
+            'throttle:60,1',
+            \App\Http\Middleware\Webhooks\HandleWebhookDataMiddleware::class
+        ],
     ];
 
     /**
