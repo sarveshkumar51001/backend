@@ -22,6 +22,11 @@ Route::prefix('shopify')->namespace('Shopify')->group(function () {
     });
 });
 
+// https://backend.valedra.com/webhook/qwilr/projectAccepted",
+Route::prefix('qwilr')->namespace('Qwilr')->group(function() {
+    Route::post('projectAccepted', 'ProjectAccepted@handle');
+});
+
 Route::any("{path}", function () {
     return response()->json([
         'webhook_id' => request()->webhook_id
