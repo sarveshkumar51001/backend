@@ -43,7 +43,8 @@ class Kernel extends HttpKernel
         ],
         
         'webhook' => [
-            'throttle:60,1'
+            'throttle:60,1',
+            \App\Http\Middleware\Webhooks\HandleWebhookDataMiddleware::class
         ],
     ];
 
@@ -64,7 +65,6 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'webhook.shopify' => \App\Http\Middleware\Webhooks\Shopify::class,
     ];
 
     /**
