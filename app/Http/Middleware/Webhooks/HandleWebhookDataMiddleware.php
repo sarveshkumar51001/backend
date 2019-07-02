@@ -36,8 +36,10 @@ class HandleWebhookDataMiddleware
         $Webhook->{Webhook::ISAUTHENTICATED} = $this->authenticateWebhook($source, $request);
         $Webhook->{Webhook::CreatedAt} = time();
         $Webhook->save();
+        
+        $request->webhook_id = $Webhook->{Webhook::ID};
 
-        $this->postToSlack($fields, $event);
+        //$this->postToSlack($fields, $event);
 
         return $next($request);
     }
