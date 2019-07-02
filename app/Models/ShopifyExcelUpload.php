@@ -9,10 +9,10 @@ class ShopifyExcelUpload extends Base
 	protected $guarded = [];
 
 	const DATE_FORMAT = "d/m/Y";
-	const YEAR_COUNT = 2;
 	const SCHOOL_TITLE = "Apeejay";
 	const INTERNAL_ORDER = "internal";
 	const EXTERNAL_ORDER = "external";
+	const DATE_REGEX = '/^([0-2][0-9]|(3)[0-1])(\/)(((0)[0-9])|((1)[0-2]))(\/)\d{4}$/';
 
 	const TYPE_INSTALLMENT = 'installment';
 	const TYPE_ONETIME = 'one_time';
