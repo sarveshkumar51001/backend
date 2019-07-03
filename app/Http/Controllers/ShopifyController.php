@@ -71,6 +71,7 @@ class ShopifyController extends BaseController
 	        $fileName = time() . '_' . $originalFileName;
 	        $filePath = storage_path('uploads/' . $user_name);
 	        $path = $excel_file->move($filePath, $fileName);
+	        $file_id = 'shopify-'.crc32(uniqid()); # Unique identifier for the documents belonging to a single file
 
 	        // Loading the excel file
 	        $ExlReader = Excel::load($path->getRealPath(), function () {
@@ -81,7 +82,7 @@ class ShopifyController extends BaseController
 		    $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
 		        'upload_date' => $request['date'],
 			    'uploaded_by' => Auth::user()->id,
-			    'file_id' => uniqid('shopify_'), # Unique identifier for the documents belonging to a single file
+			    'file_id' => $file_id,
 			    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
 			    'order_id' => 0,
 			    'customer_id' => 0
@@ -218,6 +219,7 @@ class ShopifyController extends BaseController
 		        Upload::create([
 			        'user_id' => \Auth::user()->id,
 			        'file_name' => $originalFileName,
+			        'file_id' => $file_id,
 			        'path' => $path->getRealPath(),
 			        'metadata' => $metadata,
 			        'status' => Upload::STATUS_SUCCESS,

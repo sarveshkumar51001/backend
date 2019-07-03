@@ -77,42 +77,13 @@ class DataRaw
 	 * @return array
 	 */
 	public function GetCustomerCreateData() {
+		
 		$customerData = [
-			"first_name" => $this->data["student_first_name"],
-			"last_name" => $this->data["student_last_name"],
+			"first_name" => $this->data["student_first_name"]. " ".$this->data["student_last_name"],
+			"last_name" => $this->data['school_enrollment_no'],
 			"email" => $this->data["email_id"],
 			"phone" => (string) $this->data["mobile_number"],
 			"verified_email" => true,
-			"metafields" => [[
-				"key" => "School Name",
-				"value" => $this->data["school_name"],
-				"value_type" => "string",
-				"namespace" => "global"
-			], [
-				"key" => "Class",
-				"value" => $this->data["class"],
-				"value_type" => "integer",
-				"namespace" => "global"
-			], [
-				"key" => "Section",
-				"value" => $this->data["section"],
-				"value_type" => "string",
-				"namespace" => "global"
-			], [
-				"key" => "School Enrollment No.",
-				"value" => $this->data["school_enrollment_no"],
-				"value_type" => "string",
-				"namespace" => "global"
-			], [
-				"key" => "Parent First Name",
-				"value" => $this->data["parent_first_name"],
-				"value_type" => "string",
-				"namespace" => "global"
-			], [
-				"key" => "Parent Last Name",
-				"value" => $this->data["parent_last_name"],
-				"value_type" => "string",
-				"namespace" => "global"]]
 		];
 
 		return $customerData;
@@ -142,7 +113,13 @@ class DataRaw
 		    "id" => $customer_id
         ];
 
-		$order_data['tags'] = "backend-app";
+        $class = 'Class '.$this->data['class'];
+        $section = 'Section '.$this->data['section'];
+        $school_name = $this->data['school_name'];
+        $branch = $this->data['branch'];
+
+        $tags = sprintf("backend-app, %s, %s, %s, %s",$class, $section, $school_name, $branch);
+		$order_data['tags'] = $tags;
 		if (strtolower($this->data['order_type']) == 'installment') {
 			$order_data['tags'] .= ",installments";
 		}
