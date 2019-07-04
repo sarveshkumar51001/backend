@@ -69,9 +69,9 @@ class ExcelValidator
 		$rules = [
 			"shopify_activity_id" => "required|string|min:3",
 			"school_name" => "required|string",
-			"school_enrollment_no" => "required|string|min:4",
-			"mobile_number" => "required|regex:^[6-9][0-9]{9}$^",
-			"email_id" => "required|email",
+			"school_enrollment_no" => "required|string|min:4|regex:^[A-Z]+-[0-9]+^",
+			"mobile_number" => "required_without:email|regex:^[6-9][0-9]{9}$^",
+			"email_id" => "required_without:mobile_number|email",
 			"date_of_enrollment" => "required",
 			"activity_fee" => "required",
 			"final_fee_incl_gst"=> "required|numeric",
@@ -90,7 +90,7 @@ class ExcelValidator
 			"payments.*.mode_of_payment" => "string"
 		];
 
-		$validator = Validator::make($data, $rules);	
+		$validator = Validator::make($data, $rules, ['required_without' => 'Either Mobile Number or Email is required']);
 		$errors = $validator->getMessageBag()->toArray();
 		if (!empty($errors)) {
 			$this->errors['laravel'][$data['sno']] = $errors;
