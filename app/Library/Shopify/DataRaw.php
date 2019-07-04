@@ -142,16 +142,18 @@ class DataRaw
 		    "id" => $customer_id
         ];
 
-        $class = 'Class '.$this->data['class'];
-        $section = 'Section '.$this->data['section'];
-        $school_name = $this->data['school_name'];
-        $branch = $this->data['branch'];
-        $user_email = 'backend_'.\Auth::user()->email;
 
-        $tag_array = array('backend-app',$class,$section,$school_name,$branch,$user_email);
-		$tags = implode(' , ',$tag_array);
+        $tags_array = [];
+        $tags_array[] = 'Class '.$this->data['class'];
+        $tags_array[] = 'Section '.$this->data['section'];
+        $tags_array[] = $this->data['school_name'];
+        $tags_array[] = $this->data['branch'];
+        $tags_array[] = 'backend_'.\Auth::user()->email;
+        $tags_array[] = 'backend-app';
 
+		$tags = implode(',',$tags_array);
 		$order_data['tags'] = $tags;
+
 		if (strtolower($this->data['order_type']) == 'installment') {
 			$order_data['tags'] .= ",installments";
 		}
