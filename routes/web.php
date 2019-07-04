@@ -80,3 +80,30 @@ Route::get("process_oauth_result",function(\Illuminate\Http\Request $request)
 
 	dd("Access token is " . $accessToken);
 });
+
+Route::get("/qwilr/quote_status", function () {
+	$json = '{
+  "total": 490,
+  "quote_id": "12345",
+  "opportunity_id": "10002203033"
+  "checkout_url": "https://backend-valedra.myshopify.com/4333928494/invoices/537541f81b14d477bca5a55823e1a35d",
+  "qoute_pdf_url": "https://vault.qwilr.com/G3kMoHnoGoctWc4-y1uO4-OSE4yY4w-project.pdf",
+  "line_items": [
+    {
+      "code": "BD-TF",
+      "desc": "Tournament Fee",
+      "qty": 1,
+      "unit_price": 180,
+      "total_price": 180
+    },
+    {
+      "code": "BD-TF-TA",
+      "desc": "Addon: Accommodation (Twin-Sharing)",
+      "qty": 1,
+      "unit_price": 310,
+      "total_price": 310
+    }
+  ]
+}';
+	return response()->json(json_decode($json));
+})->middleware('cors');
