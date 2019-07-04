@@ -80,10 +80,39 @@ class DataRaw
 		
 		$customerData = [
 			"first_name" => $this->data["student_first_name"]. " ".$this->data["student_last_name"],
-			"last_name" => $this->data['school_enrollment_no'],
+			"last_name" => '(' .$this->data['school_enrollment_no'].')',
 			"email" => $this->data["email_id"],
 			"phone" => (string) $this->data["mobile_number"],
-			"verified_email" => true,
+			"metafields" => [[
+				"key" => "School Name",
+				"value" => $this->data["school_name"],
+				"value_type" => "string",
+				"namespace" => "student-info"
+			], [
+				"key" => "Class",
+				"value" => $this->data["class"],
+				"value_type" => "string",
+				"namespace" => "student-info"
+			], [
+				"key" => "Section",
+				"value" => $this->data["section"],
+				"value_type" => "string",
+				"namespace" => "student-info"
+			], [
+				"key" => "School Enrollment No.",
+				"value" => $this->data["school_enrollment_no"],
+				"value_type" => "string",
+				"namespace" => "student-info"
+			], [
+				"key" => "Parent First Name",
+				"value" => $this->data["parent_first_name"],
+				"value_type" => "string",
+				"namespace" => "student-info"
+			], [
+				"key" => "Parent Last Name",
+				"value" => $this->data["parent_last_name"],
+				"value_type" => "string",
+				"namespace" => "student-info"]]
 		];
 
 		return $customerData;
@@ -117,8 +146,11 @@ class DataRaw
         $section = 'Section '.$this->data['section'];
         $school_name = $this->data['school_name'];
         $branch = $this->data['branch'];
+        $user_email = 'backend_'.\Auth::user()->email;
 
-        $tags = sprintf("backend-app, %s, %s, %s, %s",$class, $section, $school_name, $branch);
+        $tag_array = array('backend-app',$class,$section,$school_name,$branch,$user_email);
+		$tags = implode(' , ',$tag_array);
+
 		$order_data['tags'] = $tags;
 		if (strtolower($this->data['order_type']) == 'installment') {
 			$order_data['tags'] .= ",installments";
