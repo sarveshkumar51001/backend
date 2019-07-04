@@ -147,10 +147,6 @@ class DataRaw
 			$order_data['tags'] .= ",installments";
 		}
 
-		if(!empty(\Auth::user()->shopify_id)){
-			$order_data['tags'] .= ", ".\Auth::user()->shopify_id;
-		}
-
 		$order_data['transactions'] = [[
 			"amount" => $this->data['final_fee_incl_gst'],
 			"kind" => "authorization"
