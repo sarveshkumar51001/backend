@@ -58,6 +58,15 @@ class API
 	public function CreateOrder(array $data) {
 		return $this->Shopify->Order->post($data);
 	}
+	
+	/**
+	 * @param array $data
+	 *
+	 * @return array
+	 */
+	public function CreateDraftOrder(array $data) {
+	    return $this->Shopify->DraftOrder->post($data);
+	}
 
 	/**
 	 * @param int $orderID
