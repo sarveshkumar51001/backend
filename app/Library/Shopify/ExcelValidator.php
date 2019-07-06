@@ -69,7 +69,7 @@ class ExcelValidator
 		$rules = [
 			"shopify_activity_id" => "required|string|min:3",
 			"school_name" => "required|string",
-			// "school_enrollment_no" => "required|string|min:4|regex:^[A-Z]+-[0-9]+^",
+			"school_enrollment_no" => "required|string|min:4|regex:^[A-Z]+-[0-9]+^",
 			"mobile_number" => "regex:^[6-9][0-9]{9}$^",
 			"email_id" => "email",
 			"date_of_enrollment" => "required",
@@ -236,7 +236,7 @@ class ExcelValidator
 	 	}
 
 	 	if(empty($data['mobile_number']) && empty($data['email_id'])){
-	 		$this->errors[] = "Row Number- ".$data['sno']." Either Email ID or Mobile Number is mandatory.";
+	 		$this->errors[] = "Row Number- ".$data['sno']." Either Email or Mobile Number is mandatory.";
 	 	}
 
 	 	if(strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER){
