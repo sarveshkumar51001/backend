@@ -3,6 +3,7 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use App\Library\Shopify\DB;
 
 class DataRaw
 {
@@ -142,13 +143,15 @@ class DataRaw
 		    "id" => $customer_id
         ];
 
+        $user_id = $this->data['uploaded_by'];
+        $user_email = DB::get_user_email_id_from_database($user_id);
 
         $tags_array = [];
         $tags_array[] = 'Class '.$this->data['class'];
         $tags_array[] = 'Section '.$this->data['section'];
         $tags_array[] = $this->data['school_name'];
         $tags_array[] = $this->data['branch'];
-        $tags_array[] = 'backend_'.\Auth::user()->email;
+        $tags_array[] = 'backend_'.$user_email;
         $tags_array[] = 'backend-app';
 
 		$tags = implode(',',$tags_array);

@@ -125,6 +125,10 @@ class DB
     	return \DB::table('shopify_products')->where('id',$customer_id)->exists();
     }
 
+    public static function get_user_email_id_from_database($id){
+    	return \DB::table('users')->where('_id',$id)->first()['email'];
+    }
+
     public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0){
 		$ORM = ShopifyExcelUpload::where('payments.chequedd_no', $cheque_no);
 		
