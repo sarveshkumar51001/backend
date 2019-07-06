@@ -45,9 +45,7 @@ function get_render_template(data) {
                 template += '<div>'+title + ': <strong>' +value+'</strong></div>';
             }
         });
-        template +='<small class="text-muted mr-3"><i class="icon-calendar"></i>&nbsp; '+(new Date(parseInt(payment.order_update_at * 1000)))+'</small>\n' +
-        '</div><hr class="mx-3 my-0">';
-
+        
         index++;
     });
 
