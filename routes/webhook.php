@@ -22,8 +22,19 @@ Route::prefix('shopify')->namespace('Shopify')->group(function () {
     });
 });
 
-Route::any("{path}", function () {
+// https://backend.valedra.com/webhook/qwilr/projectAccepted",
+Route::prefix('qwilr')->namespace('Qwilr')->group(function () {
+    Route::post('projectAccepted', 'ProjectAccepted@handle');
+});
+
+Route::post("{path}", function () {
     return response()->json([
         'webhook_id' => request()->webhook_id
     ], 200);
 })->where('path', '.*');
+
+Route::fallback(function () {
+    return response()->json([
+        'error' => 'Not Found'
+    ], 404);
+});
