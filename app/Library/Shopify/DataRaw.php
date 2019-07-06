@@ -151,7 +151,7 @@ class DataRaw
         $tags_array[] = 'Section '.$this->data['section'];
         $tags_array[] = $this->data['school_name'];
         $tags_array[] = $this->data['branch'];
-        $tags_array[] = 'backend_'.$user_email;
+        $tags_array[] = 'created_by: '.$user_email;
         $tags_array[] = 'backend-app';
 
 		$tags = implode(',',$tags_array);
