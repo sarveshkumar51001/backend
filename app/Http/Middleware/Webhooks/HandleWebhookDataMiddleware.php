@@ -21,25 +21,27 @@ class HandleWebhookDataMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $url = Str::replaceFirst('webhook/', '', $request->path());
-        $data = explode('/', $url);
-        $source = $data[0];
-        $name = implode('-', array_slice($data, 1));
-        $event = str_replace('/', '-', $url);
-        $fields = $request->all();
+        if ($request->isMethod('POST')) {
+            $url = Str::replaceFirst('webhook/', '', $request->path());
+            $data = explode('/', $url);
+            $source = $data[0];
+            $name = implode('-', array_slice($data, 1));
+            $event = str_replace('/', '-', $url);
+            $fields = $request->all();
 
-        $Webhook = new Webhook();
-        $Webhook->{Webhook::EVENT} = $event;
-        $Webhook->{Webhook::NAME} = $name;
-        $Webhook->{Webhook::SOURCE} = $source;
-        $Webhook->{Webhook::DATA} = $fields;
-        $Webhook->{Webhook::ISAUTHENTICATED} = $this->authenticateWebhook($source, $request);
-        $Webhook->{Webhook::CreatedAt} = time();
-        $Webhook->save();
-        
-        $request->webhook_id = $Webhook->{Webhook::ID};
+            $Webhook = new Webhook();
+            $Webhook->{Webhook::EVENT} = $event;
+            $Webhook->{Webhook::NAME} = $name;
+            $Webhook->{Webhook::SOURCE} = $source;
+            $Webhook->{Webhook::DATA} = $fields;
+            $Webhook->{Webhook::ISAUTHENTICATED} = $this->authenticateWebhook($source, $request);
+            $Webhook->{Webhook::CreatedAt} = time();
+            $Webhook->save();
 
-        //$this->postToSlack($fields, $event);
+            $request->webhook_id = $Webhook->{Webhook::ID};
+
+            $this->postToSlack($Webhook);
+        }
 
         return $next($request);
     }
@@ -62,24 +64,19 @@ class HandleWebhookDataMiddleware
         return false;
     }
 
-    private function postToSlack($fields, $event)
+    private function postToSlack(Webhook $Webhook)
     {
-        $WebhookNotification = WebhookNotification::where(WebhookNotification::CHANNEL, 'slack')->where(WebhookNotification::EVENT, $event)->first();
+        $data = array(
+            'WEBHOOK_ID' => $Webhook->{Webhook::ID},
+            "EVENT" => $Webhook->{Webhook::EVENT},
+            "SOURCE" => $Webhook->{Webhook::SOURCE},
+            "URL" => request()->fullUrl()
+        );
 
-        if ($WebhookNotification) {
+        $title = sprintf("New Incoming Webhook from %s", $Webhook->{Webhook::SOURCE});
 
-            $SlackTranslation = new SlackTranslation($fields, $event);
-
-            $postdata = $SlackTranslation->handle();
-
-            slack($postdata['data'], $postdata['title'])->webhook($WebhookNotification->{WebhookNotification::DATA})
-                ->info()
-                ->post();
-        }
-    }
-
-    private function getInstapageData($data)
-    {
-        //
+        slack($data, $title)->webhook(env('SLACK_WEBHOOK_NOTIFICATION'), null)
+            ->info()
+            ->post();
     }
 }
