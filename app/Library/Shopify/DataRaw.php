@@ -10,7 +10,7 @@ class DataRaw
 
 	public static $validNoteAttributes = [
 		'mode_of_payment', 'chequedd_no', 'micr_code', 'chequedd_date', 'drawee_name', 'drawee_account_number',
-		'bank_name', 'bank_branch'
+		'bank_name', 'bank_branch','txn_reference_number_only_in_case_of_paytm_or_online'
 	];
 
 	/**
@@ -68,6 +68,9 @@ class DataRaw
 
 	public function HasInstallment() {
 		return ($this->data['order_type'] == ShopifyExcelUpload::TYPE_INSTALLMENT);
+	}
+	public function IsOnlinePayment(){
+		return (strtolower($this->data['payments'][0]['mode_of_payment']) == 'online');
 	}
 
 	/**
@@ -127,6 +130,10 @@ class DataRaw
 			throw new \Exception('Empty product variant id given');
 		}
 
+		if(!empty($this->data['scholarship_discount'])){
+			$order_data['total_discounts'] = $this->data['scholarship_discount'];
+		}
+
 		$order_data['line_items'] = [[
 			"variant_id" => $productVariantID
 		]];
@@ -155,23 +162,37 @@ class DataRaw
 		return $this->data['payments'] ?? [];
 	}
 
+	public static function GetPaymentDetails(array $payments){
+
+		$notes_array = [];
+		$note = "";
+
+		foreach($payments as $index => $installment){
+
+		if(!strtotime($installment['chequedd_date']) > time() || empty($installment['chequedd_date'])){
+			foreach ($installment as $key => $value) {
+				$key = strtolower($key);
+				if (!empty($value) && in_array($key, self::$validNoteAttributes)) {
+					$note = Excel::$headerMap[$key] . ": $value | ";
+				}	
+			}
+			$notes_array[] = $note;
+		}	
+	}
+		return $notes_array;
+	}
+
 	/**
 	 * @param array $installment
 	 * @param int $number
 	 *
 	 * @return array
 	 */
-	public static function GetInstallmentData(array $installment, $number) {
-		if (empty($installment) || strtolower($installment['processed']) == 'yes') {
-			return [];
-		}
+	public static function GetInstallmentData(array $installment, $number, $notes_array) {
 
-		$note = '';
-		foreach ($installment as $key => $value) {
-			$key = strtolower($key);
-			if (!empty($value) && in_array($key, self::$validNoteAttributes)) {
-				$note .= Excel::$headerMap[$key] . ": $value | ";
-			}
+		//Check if installment is empty or mode of payment is empty or installment is processed.
+		if (empty($installment) || empty($installment['mode_of_payment']) || strtolower($installment['processed']) == 'yes') {
+			return [];
 		}
 
 		$transaction_data = [
@@ -179,16 +200,26 @@ class DataRaw
 			"amount" => $installment['amount']
 		];
 
+		$notes_array_packet = [];
+		$i =1;
+
+		foreach ($notes_array as $note){
+			if(empty($note)){
+				continue;
+			}
+
+			$notes_packet = [
+				"name"  => "Payment"."_".$i,
+				"value" => rtrim($note, '| ')
+				];
+			$i++;
+			$notes_array_packet[] = $notes_packet;	
+			}
+		
 		$installment_details = [
-			"note_attributes" => [
-				[
-					"name"  => sprintf( "Installment-%s", $number),
-					"value" => rtrim($note, '| ')
-				]
-			]
+			"note_attributes" => $notes_array_packet
 		];
 
 		return [$transaction_data, $installment_details];
 	}
 }
-

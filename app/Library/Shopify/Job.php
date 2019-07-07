@@ -4,6 +4,7 @@ namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
 use Exception;
+use Carbon\Carbon;
 
 /**
  * Helper Job class
@@ -16,9 +17,9 @@ class Job {
 	 *
 	 * @throws Exception
 	 */
-	public static function run(DataRaw $Data) {
+	public static function run(DataRaw $Data, $Job) {
 		// Process only if the status of object is pending
-		if (strtolower($Data->GetJobStatus()) != ShopifyExcelUpload::JOB_STATUS_PENDING) {
+		if (strtolower($Data->GetJobStatus()) != ShopifyExcelUpload::JOB_STATUS_PENDING || $Data->IsOnlinePayment()) {
 			return;
 		}
 
@@ -63,23 +64,35 @@ class Job {
 
 			DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId);
 		}
-
+		
+		// Payment notes array
+		$notes_array = DataRaw::GetPaymentDetails($Data->GetPaymentData());
+		
 		// Loop through all the installments in system for the order
 		foreach ($Data->GetPaymentData() as $index => $installment) {
+	
+			$installmentData = DataRaw::GetInstallmentData($installment, $index, $notes_array);
 
-			$installmentData = DataRaw::GetInstallmentData($installment, $index);
-			if (empty($installmentData) || (!empty($installment['chequedd_date']) && strtotime($installment['chequedd_date']) > time())) {
+			if (empty($installmentData) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp > time())) {
 				continue;
 			}
-
 			// Get the installment data in proper format
 			list($transaction_data, $installment_details) = $installmentData;
 
+			try{
 			// Shopify Update: Posting new transaction part of installments
 			$ShopifyAPI->PostTransaction($shopifyOrderId, $transaction_data);
-
 			// Shopify Update: Append transaction data in given order
 			$ShopifyAPI->UpdateOrder($shopifyOrderId, $installment_details);
+			}
+			catch(\Exception $e){
+				// Catching error exception while posting a transaction 
+				DB::populate_error_in_payments_array($Data->ID(),$index,[
+        		'message' => $e->getMessage(),
+		        'time' => time(),
+		        'job_id' => $Job->getJobId()
+	        ]);
+			}
 
 			// DB UPDATE: Mark the installment node as
 			DB::mark_installment_status_processed($Data->ID(), $index);

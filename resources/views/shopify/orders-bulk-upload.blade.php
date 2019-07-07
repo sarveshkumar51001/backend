@@ -1,6 +1,6 @@
 @extends('admin.app')
 @section('content')
-
+    
     <div class="card">
         <div class="card-header">
             <i class="fa fa-cloud-upload"></i>Bulk Upload
@@ -11,6 +11,11 @@
             </div>
         </div>
         <div class="card-body">
+            @foreach($errors->all() as $key => $value)
+                <div class="alert alert-danger">
+                    {{ $value }}
+                </div>
+            @endforeach
             <form method="POST" action="{{ route('bulkupload.upload_preview') }}" enctype="multipart/form-data">
                     <fieldset>
                     <legend>Amount Collected:</legend>
@@ -39,9 +44,9 @@
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
-    </div>
+            </form>            
+    	</div>
+	</div>
 @endsection
 
 @section('footer-js')

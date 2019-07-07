@@ -6,14 +6,21 @@
                 <div class="alert-danger p-2">
                     <p style = "font-weight:bold">Following rows of your excel file are erroneous. Please correct before submitting again.</p>
                     <ul>
-                        @foreach($errored_data as $key => $value)
-                            <li>#{{ $key }}: {{ is_array($value) ? json_encode($value) : $value }}</li>
+                        @foreach($errored_data as $error_key => $error_value)
+                            @if(is_int($error_key) && is_array($error_value))
+                                @foreach($error_value as $key => $value)
+                                    @foreach($value as $k => $v)
+                                        <li>{{ $v }} for row number {{ $error_key }}</li>
+                                    @endforeach
+                                @endforeach
+                            @else
+                            <li><span style="background-color: #FFFF00">{{ $error_value }}<br></span></li>
+                            @endif
                         @endforeach
                     </ul>
                 </div>
             @else
-                <div class="alert alert-success">
-                    <?php echo 'Thank You! Your file was successfully uploaded. Your orders will be created in few hours.'; ?>
+                <div class="alert alert-success">'Thank You! Your file was successfully uploaded. Your orders will be created in few hours.'; ?>
                 </div>
             @endif
             <table class="table table-striped table-bordered table-responsive">
@@ -34,11 +41,13 @@
                                                 <thead>
                                                 <td>No.</td>
                                                 @php $head = reset($row[$key]) @endphp
+                                                @if(!is_bool($head))
                                                 @foreach(array_keys($head) as $instKey)
                                                     @if(isset(\App\Library\Shopify\Excel::$headerMap[$instKey]))
                                                         <td>{{ $instKey }}</td>
                                                     @endif
                                                 @endforeach
+                                                @endif
                                                 </thead>
 
                                                 @foreach($row[$key] as $index => $installment)
