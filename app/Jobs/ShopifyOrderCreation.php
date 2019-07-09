@@ -36,7 +36,7 @@ class ShopifyOrderCreation implements ShouldQueue
             
 	    	Job::run($Data,$Job);
         }
-        catch(\ResourceRateLimitException $e ) {
+        catch(PHPShopify\Exception\ResourceRateLimitException $e ) {
                 $this->release(2);
             }
         catch(\Exception $e) {
@@ -60,6 +60,7 @@ class ShopifyOrderCreation implements ShouldQueue
         	// Marking Job as Failed
             $this->fail($e);
         }
+        sleep(6);
     }
     
     protected  static function GetPayload(\Exception $exception, $JobId, $JobData) {
