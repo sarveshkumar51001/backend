@@ -35,7 +35,11 @@ class ShopifyOrderCreation implements ShouldQueue
             $Job = $this->job;
             
 	    	Job::run($Data,$Job);
-        } catch(\Exception $e) {
+        }
+        catch(\ResourceRateLimitException $e ) {
+                $this->release(2);
+            }
+        catch(\Exception $e) {
             if (app()->bound('sentry')) { app('sentry')->captureException($e); }
         	DB::mark_status_failed($Data->ID(), [
         		'message' => $e->getMessage(),
