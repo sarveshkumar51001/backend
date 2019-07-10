@@ -17,25 +17,33 @@
                 </div>
             @endforeach
             <form method="POST" action="{{ route('bulkupload.upload_preview') }}" enctype="multipart/form-data">
-                    <fieldset>
-                    <legend>Amount Collected:</legend>
+                 <h4><b>Amount Collected:</b></h4><br>
+                  <div class="row">
+                    <div class="col-sm-3">
                         <div class="form-group">
-                            <label>In Cash</label>
+                            <label>In Cash</label> <img src="https://img.icons8.com/android/24/000000/money.png">
                             <input autocomplete="off" type="text" name="cash-total" required="required" class="form-control" value="0">
                         </div>
-                        <label>By Cheque</label>
-                        <div class="input-group">
-                            <input autocomplete="off" type="text" name="cheque-total" required="required" class="form-control" value="0">
                     </div>
-                        <label>Online</label>
+                    <div class="col-sm-3">
+
+                        <label>By Cheque</label> <img src="https://img.icons8.com/metro/26/000000/check-book.png">
                         <div class="input-group">
-                            <input autocomplete="off" type="text" name="online-total" required="required" class="form-control" value="0">
+                            <input type="text" name="cheque-total" required="required" class="form-control" value="0">
                         </div>
-                    </fieldset>
-                        <div class="form-group">
-                            <label>Select file </label>
-                            <input autocomplete="off" type="file" name="file" required="required" accept=".xls" class="form-control">
+                    </div>
+                    <div class="col-sm-3">
+                        <label>Online</label> <img src="https://img.icons8.com/material-outlined/24/000000/macbook-money.png">
+                        <div class="input-group">
+                            <input type="text" name="online-total" required="required" class="form-control" value="0">
                         </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <label>Select file </label>
+                        <input type="file" name="file" required="required" accept=".xls" class="form-control">
+                    </div>
                     {{ csrf_field() }}
                     <div class="col-sm-3">
                         <label>&nbsp;</label>
