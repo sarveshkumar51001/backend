@@ -229,7 +229,7 @@ class ShopifyController extends BaseController
 	        if (!empty($objectIDList)) {
 		        // Finally dispatch the data into queue for processing
 		        foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
-			        ShopifyOrderCreation::dispatch($Object);
+			        ShopifyOrderCreation::dispatch($Object)->delay(now()->addSeconds(10));
 		        }
 	        }
 
