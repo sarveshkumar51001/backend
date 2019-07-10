@@ -7,12 +7,14 @@
                     <p style = "font-weight:bold">Following rows of your excel file are erroneous. Please correct before submitting again.</p>
                     <ul>
                         @foreach($errored_data as $error_key => $error_value)
-                            @if(is_int($error_key) && is_array($error_value))
+                            @if(is_string($error_key) && is_array($error_value))
                                 @foreach($error_value as $key => $value)
-                                    @foreach($value as $k => $v)
-                                        <li>{{ $v }} for row number {{ $error_key }}</li>
+                                    @foreach($value as $k => $val)
+                                        @foreach($val as $e_key => $e_val)
+                                            <li>{{ $e_val }} for row number {{ $key }}</li>
                                     @endforeach
                                 @endforeach
+                            @endforeach
                             @else
                             <li><span style="background-color: #FFFF00">{{ $error_value }}<br></span></li>
                             @endif
