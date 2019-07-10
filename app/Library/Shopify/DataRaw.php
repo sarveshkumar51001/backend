@@ -91,12 +91,12 @@ class DataRaw
 				"namespace" => "student-info"
 			], [
 				"key" => "Class",
-				"value" => $this->data["class"],
+				"value" => "Class: ".$this->data["class"],
 				"value_type" => "string",
 				"namespace" => "student-info"
 			], [
 				"key" => "Section",
-				"value" => $this->data["section"],
+				"value" => "Section: ".$this->data["section"],
 				"value_type" => "string",
 				"namespace" => "student-info"
 			], [
