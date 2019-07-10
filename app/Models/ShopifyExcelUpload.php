@@ -9,7 +9,6 @@ class ShopifyExcelUpload extends Base
 	protected $guarded = [];
 
 	const DATE_FORMAT = "d/m/Y";
-	const YEAR_COUNT = 2;
 	const SCHOOL_TITLE = "Apeejay";
 	const INTERNAL_ORDER = "internal";
 	const EXTERNAL_ORDER = "external";

@@ -79,7 +79,7 @@ class ShopifyController extends BaseController
 	        // Create Excel Raw object
 	        $header = $ExlReader->first()->keys()->toArray();
 		    $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
-		        'upload_date' => date('d/m/Y',time()),
+		        'upload_date' => date(ShopifyExcelUpload::DATE_FORMAT,time()),
 			    'uploaded_by' => Auth::user()->id,
 			    'file_id' => uniqid('shopify_'), # Unique identifier for the documents belonging to a single file
 			    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,

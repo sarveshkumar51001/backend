@@ -21,19 +21,18 @@
                   <div class="row">
                     <div class="col-sm-3">
                         <div class="form-group">
-                            <label>In Cash</label> <img src="https://img.icons8.com/android/24/000000/money.png">
+                            <label>In Cash</label>
                             <input autocomplete="off" type="text" name="cash-total" required="required" class="form-control" value="0">
                         </div>
                     </div>
                     <div class="col-sm-3">
-
-                        <label>By Cheque</label> <img src="https://img.icons8.com/metro/26/000000/check-book.png">
+                        <label>By Cheque</label>
                         <div class="input-group">
                             <input type="text" name="cheque-total" required="required" class="form-control" value="0">
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <label>Online</label> <img src="https://img.icons8.com/material-outlined/24/000000/macbook-money.png">
+                        <label>Online</label>
                         <div class="input-group">
                             <input type="text" name="online-total" required="required" class="form-control" value="0">
                         </div>
