@@ -3,7 +3,9 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use App\Models\Product;
 use App\Library\Shopify\API;
+use App\User;
 
 class DB
 {
@@ -14,7 +16,7 @@ class DB
 	 * @return int
 	 */
 	public static function get_variant_id($activity_id, $activity_fee) {
-		$product =  \DB::table('shopify_products')->where('variants.sku', $activity_id)->get()->first();
+		$product =  Product::where('variants.sku', $activity_id)->get()->first();
 		foreach($product['variants'] as $variant){
 			if($variant['price'] == $activity_fee){
 				return $variant['id'];
@@ -25,7 +27,7 @@ class DB
 
 
 	public static function check_activity_fee_value($activity_fee,$activity_id) {
-		$product =  \DB::table('shopify_products')->where('variants.sku', $activity_id)->first();
+		$product =  Product::where('variants.sku', $activity_id)->first();
 		if($product){
 		foreach($product['variants'] as $variant){
 			if($variant['price'] == $activity_fee){
@@ -111,22 +113,25 @@ class DB
 	    return ShopifyExcelUpload::find($object_id)->update(['customer_id' => $shopify_customer_id]);
     }
     
-    public static function check_shopify_activity_id_in_database($product_sku){
-    	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
-    }
+    # Not used
+    // public static function check_shopify_activity_id_in_database($product_sku){
+    // 	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
+    // }
+
     public static function get_shopify_product_from_database($product_sku){
-		return \DB::table('shopify_products')->where('variants.sku', $product_sku)->first();
+		return Product::where('variants.sku', $product_sku)->first();
 	}
     public static function check_product_existence_in_database($product_id){
-    	return \DB::table('shopify_products')->where('id', $product_id)->exists();
+    	return Product::where('id', $product_id)->exists();
     }
 
-    public static function check_customer_existence_in_database($customer_id){
-    	return \DB::table('shopify_products')->where('id',$customer_id)->exists();
-    }
+    # Not used
+    // public static function check_customer_existence_in_database($customer_id){
+    // 	return \DB::table('shopify_customers')->where('id',$customer_id)->exists();
+    // }
 
     public static function get_user_email_id_from_database($id){
-    	return \DB::table('users')->where('_id',$id)->first()['email'];
+    	return User::where('_id',$id)->first()['email'];
     }
 
     public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0){
@@ -142,48 +147,49 @@ class DB
 		
     	return $ORM->exists();
     }   
-    
-    public static function sync_all_products_from_shopify(){
-    	$ShopifyAPI = new API();
-    	$page = 1;
-    	$hasProducts = true;
-    	while($hasProducts) {
-	    	$params = ['limit' => 5,'page'=> $page];
-	    	$products = $ShopifyAPI->GetProducts($params);
+   
+  # Not used 
+ //    public static function sync_all_products_from_shopify(){
+ //    	$ShopifyAPI = new API();
+ //    	$page = 1;
+ //    	$hasProducts = true;
+ //    	while($hasProducts) {
+	//     	$params = ['limit' => 5,'page'=> $page];
+	//     	$products = $ShopifyAPI->GetProducts($params);
 	    	
-	    	if (!count($products)) {
-	    		$hasProducts = false;
-	    	} else {
-	    		foreach($products as $product){
-	    			if(!DB::check_product_existence_in_database($product["id"])){
-						\DB::table('shopify_products')->insert($product);	    		
-	    			}
-	    		}
-			}
+	//     	if (!count($products)) {
+	//     		$hasProducts = false;
+	//     	} else {
+	//     		foreach($products as $product){
+	//     			if(!DB::check_product_existence_in_database($product["id"])){
+	// 					\DB::table('shopify_products')->insert($product);	    		
+	//     			}
+	//     		}
+	// 		}
+	//    		$page++;
+	// 	}
+	// }
 
-	   		$page++;
-		}
-	}
+	# Not Used
+	// public static function sync_all_customers_from_shopify(){
+	// 	$ShopifyAPI = new API();
+ //    	$page = 1;
+ //    	$hasCustomers = true;
+ //    	while($hasCustomers) {
+	//     	$params = ['page'=> $page];
+	//     	$customers = $ShopifyAPI->GetCustomers($params);
 
-	public static function sync_all_customers_from_shopify(){
-		$ShopifyAPI = new API();
-    	$page = 1;
-    	$hasCustomers = true;
-    	while($hasCustomers) {
-	    	$params = ['page'=> $page];
-	    	$customers = $ShopifyAPI->GetCustomers($params);
+	//     	if (!count($customers)) {
+	//     		$hasCustomers = false;
+	//     	} else {
+	//     		foreach($customers as $customer){
+	//     			if(!DB::check_customer_existence_in_database($customer["id"])){
+	// 					\DB::table('shopify_customers')->insert($customer);	    		
+	//     			}
+	//     		}
+	// 		}
 
-	    	if (!count($customers)) {
-	    		$hasCustomers = false;
-	    	} else {
-	    		foreach($customers as $customer){
-	    			if(!DB::check_customer_existence_in_database($customer["id"])){
-						\DB::table('shopify_customers')->insert($customer);	    		
-	    			}
-	    		}
-			}
-
-		    $page++;
-	   	}
-	}
+	// 	    $page++;
+	//    	}
+	// }
 }
