@@ -23,11 +23,6 @@ class Job {
 			return;
 		}
 
-		// Sync products from shopify into database
-		DB::sync_all_products_from_shopify();
-		// Sync customers from shopify into database
-		DB::sync_all_customers_from_shopify();
-
 		// Check 1: check if correct activity id is given and exist in database
 		$variantID = DB::get_variant_id($Data->GetActivityID(), $Data->GetActivityFee());
 
