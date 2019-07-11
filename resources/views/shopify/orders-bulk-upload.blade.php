@@ -28,13 +28,13 @@
                     <div class="col-sm-3">
                         <label>By Cheque</label>
                         <div class="input-group">
-                            <input type="text" name="cheque-total" required="required" class="form-control" value="0">
+                            <input autocomplete="off" type="text" name="cheque-total" required="required" class="form-control" value="0">
                         </div>
                     </div>
                     <div class="col-sm-3">
                         <label>Online</label>
                         <div class="input-group">
-                            <input type="text" name="online-total" required="required" class="form-control" value="0">
+                            <input autocomplete="off" type="text" name="online-total" required="required" class="form-control" value="0">
                         </div>
                     </div>
                 </div>
