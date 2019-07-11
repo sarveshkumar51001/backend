@@ -11,12 +11,15 @@ use App\Library\Shopify\ExcelValidator;
 use MongoDB\Driver\Exception\BulkWriteException;
 use App\Library\Shopify\DB;
 use App\Library\Shopify\API;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
+
 
 ini_set('max_execution_time', 180);
 
 class ShopifyController extends BaseController
 {
-	private static $adminTeam = [
+	public static $adminTeam = [
 		'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com'
 	];
 
@@ -38,6 +41,8 @@ class ShopifyController extends BaseController
     	if (!$request->isMethod('post')){
     		return redirect('/bulkupload/');
 	    }
+
+	    Validator::make($request->all(),['file' => 'mimes:xls'], ['mimes' => 'The format for the uploaded file should be .:values.'])->validate();
 
 	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Upload Preview' => ''];
 
@@ -118,21 +123,12 @@ class ShopifyController extends BaseController
 	            $activity_id = $valid_row['shopify_activity_id'];
 	            $std_enroll_no = $valid_row['school_enrollment_no'];
 
-	            $Product = DB::get_shopify_product_from_database($activity_id);
-	            if(!$Product){
-	                $errors[$valid_row['sno']] = "The activity id is not present in the database";
-	            } else if (empty($valid_row['activity'])) {
-	            	$valid_row['activity'] = $Product['title'];
-	            }
-
 	            // Attempt to lookup in database with the key combination
 		        // Ex: 06/05/2019, VAL-12345-002, SS-1112
 	            $OrderRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)
 	                           ->where('shopify_activity_id', $activity_id)
 	                           ->where('school_enrollment_no', $std_enroll_no)
 	                           ->first();
-
-
 
 	            if (empty($OrderRow)) {
 		            $upsertList[] = $valid_row;
@@ -143,19 +139,26 @@ class ShopifyController extends BaseController
 
 	                $isUpdateInInstallment = false;
 		            $existingPaymentData = $OrderRow->payments;
-		            $existingPaymentInstallments = array_column($existingPaymentData, 'installment');
 
-		            // If there is any installments details provided in excel
-                    foreach ($valid_row["payments"] as $payment) {
+		            // If there is any change in installments details provided in excel
+                    foreach ($valid_row["payments"] as $index => $payment) {
 	                    /**
-	                     * Consider the payment data only if it is not uploaded before
-	                     * Any update in already stored installments will be ignored
+	                     * Consider the payment data only if the payment is unprocessed
+	                     * Any update in already posted installments will be ignored
 	                     */
-                    	if (!in_array($payment['installment'], $existingPaymentInstallments)) {
-		                    $existingPaymentData[$payment['installment']] = $payment;
-		                    $isUpdateInInstallment = true;
-	                    }
+                    	if (strtolower($existingPaymentData[$index]['processed']) == 'no') {
+
+                    		if($existingPaymentData[$index]['amount'] != $payment['amount'] || $existingPaymentData[$index]['chequedd_date'] != $payment['chequedd_date'] || $existingPaymentData[$index]['mode_of_payment'] != $payment['mode_of_payment']){
+		                    	$existingPaymentData[$index] = $payment;
+		                    	$isUpdateInInstallment = true;
+	                    	}
+	                	}
                     }
+                    // Reducing the payments array if there is any reduction in number of payments
+                    $diff_element = array_diff_key($existingPaymentData,$valid_row["payments"]);
+                    foreach($diff_element as $key => $value){
+                    	unset($existingPaymentData[$key]);
+					}
 
 	                $total_installment_amount = 0;
                     foreach ($existingPaymentData as $updatedPayment) {
@@ -226,7 +229,7 @@ class ShopifyController extends BaseController
 	        if (!empty($objectIDList)) {
 		        // Finally dispatch the data into queue for processing
 		        foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
-			        ShopifyOrderCreation::dispatch($Object);
+			        ShopifyOrderCreation::dispatch($Object)->delay(now()->addSeconds(10));
 		        }
 	        }
 
@@ -261,8 +264,7 @@ class ShopifyController extends BaseController
 
 	    if ($start && $end) {
 		    if (request('filter') == 'team' && in_array(\Auth::user()->email, self::$adminTeam)) {
-			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
-			                                         ->get();
+			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->get();
 		    } else {
 			    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
 			                                         ->whereBetween('payments.upload_date', [$start, $end])
@@ -277,26 +279,36 @@ class ShopifyController extends BaseController
 	        $modeWiseData[$mode]['count'] = $modeWiseData[$mode]['total'] = 0;
         }
 
-	    foreach ($mongodb_records as $document) {
+        $successful_records = $mongodb_records->where('job_status','!=','failed');
+
+	    foreach ($successful_records as $document) {
 		    foreach ($document['payments'] as $payment) {
 		    	if (!empty($payment['upload_date']) && $payment['upload_date'] >= $start && $payment['upload_date'] <= $end) {
 				    $mode = strtolower($payment['mode_of_payment']);
-				    if (!empty($payment['chequedd_date']) && strtotime($payment['chequedd_date']) > time()) {
+				    if(!empty($mode)){
+				    if(!empty($payment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$payment['chequedd_date'])->timestamp > time()) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['count'] += 1;
-				    } else if($mode == 'cash') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['count'] += 1;
-				    } else if($mode == 'cheque') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['count'] += 1;
-				    } else if($mode == 'dd') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
-				    } else if($mode == 'online') {
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])) {
 					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
 					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
-				    }
+				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM])) {
+					    $modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['total'] += $payment['amount'];
+					    $modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['count'] += 1;
+					}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT])) {
+					    $modeWiseData[ShopifyExcelUpload::MODE_NEFT]['total'] += $payment['amount'];
+					    $modeWiseData[ShopifyExcelUpload::MODE_NEFT]['count'] += 1;
+						}
+					}
 			    }
 		    }
 	    }
