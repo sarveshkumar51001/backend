@@ -147,8 +147,8 @@ class DataRaw
         $user_email = DB::get_user_email_id_from_database($user_id);
 
         $tags_array = [];
-        $tags_array[] = 'Class '.$this->data['class'];
-        $tags_array[] = 'Section '.$this->data['section'];
+        $tags_array[] = 'Class: '.$this->data['class'];
+        $tags_array[] = 'Section: '.$this->data['section'];
         $tags_array[] = $this->data['school_name'];
         $tags_array[] = $this->data['branch'];
         $tags_array[] = 'created_by: '.$user_email;
