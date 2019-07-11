@@ -132,6 +132,7 @@ class Excel
 
 					$new_slice['installment'] = $installment;
 					$new_slice['processed'] = 'No';
+					$new_slice['errors'] = [];
 					$new_slice['upload_date'] = time();
 					if ($offset_value == 21) {
 						$new_slice['type'] = ShopifyExcelUpload::TYPE_ONETIME;

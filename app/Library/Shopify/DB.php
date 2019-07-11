@@ -23,6 +23,19 @@ class DB
 		return 0;
 	}
 
+
+	public static function check_activity_fee_value($activity_fee,$activity_id) {
+		$product =  \DB::table('shopify_products')->where('variants.sku', $activity_id)->first();
+		if($product){
+		foreach($product['variants'] as $variant){
+			if($variant['price'] == $activity_fee){
+				return true;
+			}
+		}
+	}
+
+		return false;
+	}
 	/**
 	 * @param $object_id
 	 * @param $shopify_order_id
@@ -44,6 +57,13 @@ class DB
 		$order_update_node = sprintf("payments.%s.order_update_at", $number);
 
 		return ShopifyExcelUpload::find($_id)->update([$installment_index => 'Yes', $order_update_node => time()]);
+	}
+
+	public static function populate_error_in_payments_array($_id,$number,$error){
+
+		$installment_index = sprintf("payments.%s.errors", $number);
+
+		return ShopifyExcelUpload::find($_id)->update([$installment_index => $error]);
 	}
 
 	/**
@@ -106,29 +126,18 @@ class DB
     }
 
     public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0){
-		$ORM = ShopifyExcelUpload::where('chequedd_no', $cheque_no);
-
+		$ORM = ShopifyExcelUpload::where('payments.chequedd_no', $cheque_no);
+		
 		if (!empty($micr_code)) {
-			$ORM->where('micr_code', $micr_code);
+			$ORM->where('payments.micr_code', $micr_code);
 		}
 
 		if (!empty($account_no)) {
-			$ORM->where('drawee_account_number', $account_no);
+			$ORM->where('payments.drawee_account_number', $account_no);
 		}
-
+		
     	return $ORM->exists();
-    }
-
-    public static function check_installment_cheque_details_existence($i,$cheque_no,$micr_code,$account_no){
-    	$cheque_no_index = sprintf("payments.%s.cheque_no",$i);
-    	$micr_code_index = sprintf("payments.%s.micr_code",$i);
-    	$account_no_index = sprintf("payments.%s.drawee_account_number",$i);
-
-    	return ShopifyExcelUpload::where($cheque_no_index, $cheque_no)
-	                           ->where($micr_code_index, $micr_code)
-	                           ->where($account_no_index, $account_no)
-	                           ->exists();
-    }
+    }   
     
     public static function sync_all_products_from_shopify(){
     	$ShopifyAPI = new API();
