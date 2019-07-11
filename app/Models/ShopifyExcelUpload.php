@@ -21,6 +21,9 @@ class ShopifyExcelUpload extends Base
 	const JOB_STATUS_COMPLETED = 'completed';
 	const JOB_STATUS_FAILED = 'failed';
 
+	const ADMIN = 'is_admin';
+	const BULKUPLOAD_ACCESS = 'bulkupload_access';
+
 	const MODE_CASH = 1;
 	const MODE_CHEQUE = 2;
 	const MODE_DD = 3;

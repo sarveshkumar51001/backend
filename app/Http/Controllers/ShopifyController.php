@@ -13,15 +13,25 @@ use App\Library\Shopify\DB;
 use App\Library\Shopify\API;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
-
+use \App\User;
+use Closure;
 
 ini_set('max_execution_time', 180);
 
 class ShopifyController extends BaseController
 {
-	public static $adminTeam = [
-		'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com'
-	];
+	public function __construct(){
+
+       $this->middleware(function($request, Closure $next){
+
+       	$HasShopifyAccess = User::where('email',Auth::user()->email)->where('permissions',ShopifyExcelUpload::BULKUPLOAD_ACCESS)->exists();
+
+           if (!$HasShopifyAccess) {
+               return redirect('home');
+           }
+           return $next($request);
+       });
+   }
 
     public function upload() {
 	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'New Upload' => ''];
@@ -262,6 +272,8 @@ class ShopifyController extends BaseController
 		    }
 	    }
 
+	    $IsAdmin = User::where('email',Auth::user()->email)->where('permissions',ShopifyExcelUpload::ADMIN)->exists();
+
 	    if ($start && $end) {
 		    if (request('filter') == 'team' && in_array(\Auth::user()->email, self::$adminTeam)) {
 			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->get();
@@ -319,6 +331,7 @@ class ShopifyController extends BaseController
 	    return view('shopify.previous-orders')
 		    ->with('records_array', $mongodb_records)
 		    ->with('breadcrumb', $breadcrumb)
+		    ->with('admin',$IsAdmin)
 		    ->with('metadata', $modeWiseData);
     }
 
