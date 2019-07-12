@@ -148,48 +148,54 @@ class DB
     	return $ORM->exists();
     }   
    
-  # Not used 
- //    public static function sync_all_products_from_shopify(){
- //    	$ShopifyAPI = new API();
- //    	$page = 1;
- //    	$hasProducts = true;
- //    	while($hasProducts) {
-	//     	$params = ['limit' => 5,'page'=> $page];
-	//     	$products = $ShopifyAPI->GetProducts($params);
-	    	
-	//     	if (!count($products)) {
-	//     		$hasProducts = false;
-	//     	} else {
-	//     		foreach($products as $product){
-	//     			if(!DB::check_product_existence_in_database($product["id"])){
-	// 					\DB::table('shopify_products')->insert($product);	    		
-	//     			}
-	//     		}
-	// 		}
-	//    		$page++;
-	// 	}
-	// }
+    /**
+     * Not in Use
+     * @ignore
+     */
+    public static function sync_all_products_from_shopify() {
+    	$ShopifyAPI = new API();
+    	$page = 1;
+    	$hasProducts = true;
+    	while($hasProducts) {
+        	$params = ['limit' => 5,'page'=> $page];
+        	$products = $ShopifyAPI->GetProducts($params);
+        	
+        	if (!count($products)) {
+        		$hasProducts = false;
+        	} else {
+        		foreach($products as $product){
+        			if(!DB::check_product_existence_in_database($product["id"])){
+    					\DB::table('shopify_products')->insert($product);	    		
+        			}
+        		}
+    		}
+       		$page++;
+	   }
+	}
 
-	# Not Used
-	// public static function sync_all_customers_from_shopify(){
-	// 	$ShopifyAPI = new API();
- //    	$page = 1;
- //    	$hasCustomers = true;
- //    	while($hasCustomers) {
-	//     	$params = ['page'=> $page];
-	//     	$customers = $ShopifyAPI->GetCustomers($params);
+	/**
+	 * Not in Use
+	 * @ignore
+	 */
+	public static function sync_all_customers_from_shopify() {
+		$ShopifyAPI = new API();
+    	$page = 1;
+    	$hasCustomers = true;
+    	while($hasCustomers) {
+	    	$params = ['page'=> $page];
+	    	$customers = $ShopifyAPI->GetCustomers($params);
 
-	//     	if (!count($customers)) {
-	//     		$hasCustomers = false;
-	//     	} else {
-	//     		foreach($customers as $customer){
-	//     			if(!DB::check_customer_existence_in_database($customer["id"])){
-	// 					\DB::table('shopify_customers')->insert($customer);	    		
-	//     			}
-	//     		}
-	// 		}
+	    	if (!count($customers)) {
+	    		$hasCustomers = false;
+	    	} else {
+	    		foreach($customers as $customer){
+	    			if(!DB::check_customer_existence_in_database($customer["id"])){
+						\DB::table('shopify_customers')->insert($customer);	    		
+	    			}
+	    		}
+			}
+		    $page++;
+   	   }
+   }
 
-	// 	    $page++;
-	//    	}
-	// }
 }

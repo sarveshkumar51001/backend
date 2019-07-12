@@ -35,7 +35,11 @@ class ShopifyOrderCreation implements ShouldQueue
             $Job = $this->job;
             
 	    	Job::run($Data,$Job);
-        } catch(\Exception $e) {
+        }
+        catch(PHPShopify\Exception\ResourceRateLimitException $e ) {
+                $this->release(2);
+            }
+        catch(\Exception $e) {
             if (app()->bound('sentry')) { app('sentry')->captureException($e); }
         	DB::mark_status_failed($Data->ID(), [
         		'message' => $e->getMessage(),
@@ -56,6 +60,7 @@ class ShopifyOrderCreation implements ShouldQueue
         	// Marking Job as Failed
             $this->fail($e);
         }
+        sleep(6);
     }
     
     protected  static function GetPayload(\Exception $exception, $JobId, $JobData) {

@@ -7,7 +7,6 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Auth\AuthenticationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-
 class Handler extends ExceptionHandler
 {
 	/**
@@ -48,12 +47,7 @@ class Handler extends ExceptionHandler
 			// Run your custom code here
 			
 			// Post Exception on Slack
-			self::PostOnSlack(self::GetPayload($exception));
-			
-			// Capture Exception on Sentry
-			if (app()->bound('sentry')) {
-			    app('sentry')->captureException($exception);
-			}
+		    slack($exception)->post();
 		}
 
     	parent::report($exception);
