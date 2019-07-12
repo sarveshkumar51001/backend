@@ -30,7 +30,7 @@ function get_render_template(data) {
             var title = _Payload.headers[key];
             if(value != '') {
                 if(key == 'upload_date' || key == 'order_update_at') {
-                    value = (new Date(parseInt(value * 1000)));
+                    value = ((new Date(parseInt(value * 1000))).toLocaleString());
                 }
                 if(key == 'upload_date') {
                     return;

@@ -90,7 +90,7 @@
                                     ">
                                         @if($key == 'order_id')
                                         <div>
-                                            <strong onclick="render_upload_details('{{$row['_id']}}');" class="text-muted aside-menu-toggler"><a title="Payment Details"><i class="fa fa-money fa-2x"></i></a>&nbsp; </strong>
+                                            <strong onclick="render_upload_details('{{$row['_id']}}');" class="text-muted aside-menu-toggler" style="cursor: pointer"><a title="Payment Details"><i class="fa fa-money fa-2x"></i></a>&nbsp; </strong>
                                         </div>
                                             @if(!$row['order_id'] == 0)
                                             <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}">View <i class="fa fa-external-link"></i></a>
