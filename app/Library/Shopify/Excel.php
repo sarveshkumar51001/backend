@@ -58,7 +58,7 @@ class Excel
 
 	public static $headerViewMap = [
 		'order_id' => 'Shopify Order',
-		'job_status' => 'job_status',
+		'job_status' => 'Job Status',
 		'upload_date' => 'Upload Date',
 		'date_of_enrollment' => 'Date of enrollment',
 		'shopify_activity_id' => 'Shopify Activity ID',
