@@ -33,7 +33,7 @@ class ExcelValidator
 	 */
 	public function Validate() {
 		if (!$this->HasAllValidHeaders()) {
-			$this->errors['incorrect_headers'] = 'Few headers are incorrect, download the latest sample format';
+			$this->errors['incorrect_headers'] = 'Either few headers are incorrect or wrong sheet uploaded, download the latest sample format.';
 
 			return $this->errors;
 		}

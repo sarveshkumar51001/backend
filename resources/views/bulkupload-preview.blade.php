@@ -25,6 +25,8 @@
                 <div class="alert alert-success">'Thank You! Your file was successfully uploaded. Your orders will be created in few hours.'; ?>
                 </div>
             @endif
+
+            @if(!array_key_exists('incorrect_headers', $errored_data))
             <table class="table table-striped table-bordered table-responsive">
                 <tbody>
                     <tr>
@@ -76,6 +78,7 @@
                     @endforeach
                 </tbody>
             </table>
+            @endif
             <div class="pull-left">
                 <a href="/bulkupload">
                     <button class="btn btn-lg btn-success">Go Back</button>
