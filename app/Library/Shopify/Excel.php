@@ -82,6 +82,7 @@ class Excel
 		'final_fee_incl_gst' => 'Final fee (incl GST)',
 		'payments' => 'Payments',
 		'errors' => 'Errors',
+		'file_id' => "File ID"
 	];
 
 	public function __construct(array $header, array $data, array $append = []) {

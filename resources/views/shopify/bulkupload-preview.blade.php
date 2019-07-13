@@ -3,38 +3,57 @@
     <div class ="body">
         <div class = "card">
             @if(!empty($errored_data))
-                <div class="alert-danger p-2">
-                    <p style = "font-weight:bold">Following rows of your excel file are erroneous. Please correct before submitting again.</p>
+               <div class="alert-danger p-2">
+               <p style = "font-weight:bold">Err !!! There are few errors. Please correct before submitting again.</p>
+               @if(!empty($errored_data['sheet']))
+               		<h6>Sheet Errors</h6>
                     <ul>
-                        @foreach($errored_data as $error_key => $error_value)
-                            @if(is_string($error_key) && is_array($error_value))
-                                @foreach($error_value as $key => $value)
-                                    @foreach($value as $k => $val)
-                                        @foreach($val as $e_key => $e_val)
-                                            <li>{{ $e_val }} for row number {{ $key }}</li>
-                                    @endforeach
-                                @endforeach
-                            @endforeach
-                            @else
-                            <li><span style="background-color: #FFFF00">{{ $error_value }}<br></span></li>
-                            @endif
-                        @endforeach
+                    @foreach($errored_data['sheet'] as $sheet_errors)
+                    	<li>{{ $sheet_errors }}</li>
+                    @endforeach
                     </ul>
-                </div>
+                @endif
+                
+                @if(!empty($errored_data['rows']))
+                    <div class="pull-right">
+                    	<a href="#" onclick="$('.collapse').collapse('hide');" class="mr-2">Collapse All <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+                    	<a href="#" onclick="$('.collapse').collapse('show');">Expand All <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+                    </div>
+                	<h6>Rows Error</h6>
+                	<ul>
+                	@foreach($errored_data['rows'] as $row_no => $errors)
+                		@if(count($errors) > 1)
+                			<li><a href="#row-{{ $row_no }}" data-toggle="collapse"><b>Row {{ $row_no }} ({{ count($errors)}} Errors) <i class="fa fa-angle-double-down" aria-hidden="true"></i></b></a>
+                				<div id="row-{{ $row_no }}" class="collapse">
+                    				<ul>
+                    				@foreach($errors as $error)
+                    					<li>{{ $error }}</li>
+                    				@endforeach
+                    				</ul>
+								</div>                    				
+                			</li>
+                		@else
+                			<li><b>Row {{ $row_no }}</b> - {{ $errors[0] }}
+            			@endif
+                	@endforeach
+                	</ul>
+            	@endif
+            	</div>
             @else
-                <div class="alert alert-success">'Thank You! Your file was successfully uploaded. Your orders will be created in few hours.'; ?>
+                <div class="alert alert-success">Thank You! Your file was successfully uploaded. Your orders will be processed in few hours.
                 </div>
             @endif
-            <table class="table table-striped table-bordered table-responsive">
-                <tbody>
+            <table class="table table-striped table-bordered table-responsive table-fixed">
+                <thead>
                     <tr>
                         @foreach(\App\Library\Shopify\Excel::$headerMap as $header)
-                            <td><strong>{{ $header }}</strong></td>
+                            <th><strong>{{ $header }}</strong></th>
                         @endforeach
                     </tr>
+                    </thead>
 
-                    @foreach($excel_response as $row)
-                        <tr @if(!empty($errored_data[$row['sno']])) style="background: yellow;" @endif>
+                    @foreach($excel_response as $index => $row)
+                        <tr @if(!empty($errored_data['rows'][$index+1])) style="background: yellow;" @endif>
                             @foreach(\App\Library\Shopify\Excel::$headerMap as $key => $header)
                                 @if(isset($row[$key]))
                                     @if(is_array($row[$key]))
@@ -66,13 +85,13 @@
                                             </table>
                                         </td>
                                     @else
-                                        <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif ">{{ $row[$key] }}</td>
+                                        <td class="@if(!empty($errored_data['rows'][$index+1][$key])) alert-danger @endif ">{{ $row[$key] }}</td>
                                     @endif
                                 @else
-                                    <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "></td>
+                                    <td class="@if(!empty($errored_data['rows'][$index+1][$key])) alert-danger @endif "></td>
                                 @endif
                             @endforeach
-                        </tr>
+                        </tr>                  
                     @endforeach
                 </tbody>
             </table>

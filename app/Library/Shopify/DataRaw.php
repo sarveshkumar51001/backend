@@ -3,6 +3,7 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use App\Library\Shopify\DB;
 
 class DataRaw
 {
@@ -77,42 +78,42 @@ class DataRaw
 	 * @return array
 	 */
 	public function GetCustomerCreateData() {
+		
 		$customerData = [
-			"first_name" => $this->data["student_first_name"],
-			"last_name" => $this->data["student_last_name"],
+			"first_name" => $this->data["student_first_name"]. " ".$this->data["student_last_name"],
+			"last_name" => '(' .$this->data['school_enrollment_no'].')',
 			"email" => $this->data["email_id"],
 			"phone" => (string) $this->data["mobile_number"],
-			"verified_email" => true,
 			"metafields" => [[
 				"key" => "School Name",
 				"value" => $this->data["school_name"],
 				"value_type" => "string",
-				"namespace" => "global"
+				"namespace" => "student-info"
 			], [
 				"key" => "Class",
-				"value" => $this->data["class"],
-				"value_type" => "integer",
-				"namespace" => "global"
+				"value" => "Class: ".$this->data["class"],
+				"value_type" => "string",
+				"namespace" => "student-info"
 			], [
 				"key" => "Section",
-				"value" => $this->data["section"],
+				"value" => "Section: ".$this->data["section"],
 				"value_type" => "string",
-				"namespace" => "global"
+				"namespace" => "student-info"
 			], [
 				"key" => "School Enrollment No.",
 				"value" => $this->data["school_enrollment_no"],
 				"value_type" => "string",
-				"namespace" => "global"
+				"namespace" => "student-info"
 			], [
 				"key" => "Parent First Name",
 				"value" => $this->data["parent_first_name"],
 				"value_type" => "string",
-				"namespace" => "global"
+				"namespace" => "student-info"
 			], [
 				"key" => "Parent Last Name",
 				"value" => $this->data["parent_last_name"],
 				"value_type" => "string",
-				"namespace" => "global"]]
+				"namespace" => "student-info"]]
 		];
 
 		return $customerData;
@@ -142,7 +143,20 @@ class DataRaw
 		    "id" => $customer_id
         ];
 
-		$order_data['tags'] = "backend-app";
+        $user_id = $this->data['uploaded_by'];
+        $user_email = DB::get_user_email_id_from_database($user_id);
+
+        $tags_array = [];
+        $tags_array[] = 'Class: '.$this->data['class'];
+        $tags_array[] = 'Section: '.$this->data['section'];
+        $tags_array[] = $this->data['school_name'];
+        $tags_array[] = $this->data['branch'];
+        $tags_array[] = 'created_by: '.$user_email;
+        $tags_array[] = 'backend-app';
+
+		$tags = implode(',',$tags_array);
+		$order_data['tags'] = $tags;
+
 		if (strtolower($this->data['order_type']) == 'installment') {
 			$order_data['tags'] .= ",installments";
 		}
