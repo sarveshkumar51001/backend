@@ -17,30 +17,36 @@
                 </div>
             @endforeach
             <form method="POST" action="{{ route('bulkupload.upload_preview') }}" enctype="multipart/form-data">
-                 <h4><b>Amount Collected:</b></h4><br>
-                  <div class="row">
-                    <div class="col-sm-3">
-                        <div class="form-group">
-                            <label>In Cash</label>
-                            <input autocomplete="off" type="text" name="cash-total" required="required" class="form-control" value="0">
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <label>By Cheque</label>
-                        <div class="input-group">
-                            <input autocomplete="off" type="text" name="cheque-total" required="required" class="form-control" value="0">
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <label>Online</label>
-                        <div class="input-group">
-                            <input autocomplete="off" type="text" name="online-total" required="required" class="form-control" value="0">
+                <div class="card">
+            		<div class="card-header">
+            			Amount Collected
+            		</div>
+                 	<div class="card-body">
+                          <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label><i class="fa fa-money" aria-hidden="true"></i> In Cash</label>
+                                    <input autocomplete="off" type="text" name="cash-total" required="required" class="form-control" value="0">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <label><i class="fa fa-university" aria-hidden="true"></i> By Cheque</label>
+                                <div class="input-group">
+                                    <input autocomplete="off" type="text" name="cheque-total" required="required" class="form-control" value="0">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <label><i class="fa fa-globe" aria-hidden="true"></i> Online</label>
+                                <div class="input-group">
+                                    <input autocomplete="off" type="text" name="online-total" required="required" class="form-control" value="0">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-sm-3">
-                        <label>Select file </label>
+                    <div class="col-sm-4">
+                        <label><i class="fa fa-file-excel-o" aria-hidden="true"></i> Upload file (only .xls files allowed)</label>
                         <input type="file" name="file" required="required" accept=".xls" class="form-control">
                     </div>
                     {{ csrf_field() }}
