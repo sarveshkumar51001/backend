@@ -19,7 +19,7 @@ class DB
 		$product =  Product::where('variants.sku', $activity_id)->get()->first();
 		foreach($product['variants'] as $variant){
 			if($variant['price'] == $activity_fee){
-				return $variant['id'];
+				return (string) $variant['id'];
 			}
 		}
 		return 0;
@@ -131,7 +131,7 @@ class DB
     // }
 
     public static function get_user_email_id_from_database($id){
-    	return User::where('_id',$id)->first()['email'];
+    	return User::findOrFail($id)['email'];
     }
 
     public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0){
