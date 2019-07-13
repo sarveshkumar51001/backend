@@ -47,7 +47,7 @@ class ExcelValidator
     public function Validate()
     {
         if (! $this->HasAllValidHeaders()) {
-            $this->errors['sheet'][] = 'Few headers are incorrect, download the latest sample format';
+            $this->errors['incorrect_headers'] = 'Either few headers are incorrect or wrong sheet uploaded, to resolve download the latest sample format.';
             return $this->errors;
         }
 
@@ -232,6 +232,7 @@ class ExcelValidator
 
         foreach ($this->FileFormattedData as $index => $row) {
             // Get the primary combination to lookup in database
+
             $date_enroll = $row['date_of_enrollment'];
             $activity_id = $row['shopify_activity_id'];
             $std_enroll_no = $row['school_enrollment_no'];

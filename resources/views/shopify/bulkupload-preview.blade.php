@@ -43,60 +43,67 @@
                 <div class="alert alert-success">Thank You! Your file was successfully uploaded. Your orders will be processed in few hours.
                 </div>
             @endif
-            <table class="table table-striped table-bordered table-responsive table-fixed">
-                <thead>
-                    <tr>
-                        @foreach(\App\Library\Shopify\Excel::$headerMap as $header)
-                            <th><strong>{{ $header }}</strong></th>
-                        @endforeach
-                    </tr>
-                    </thead>
-
-                    @foreach($excel_response as $index => $row)
-                        <tr @if(!empty($errored_data['rows'][$index+1])) style="background: yellow;" @endif>
-                            @foreach(\App\Library\Shopify\Excel::$headerMap as $key => $header)
-                                @if(isset($row[$key]))
-                                    @if(is_array($row[$key]))
-                                        <td>
-                                            <table>
-                                                <thead>
-                                                <td>No.</td>
-                                                @php $head = reset($row[$key]) @endphp
-                                                @if(!is_bool($head))
-                                                @foreach(array_keys($head) as $instKey)
-                                                    @if(isset(\App\Library\Shopify\Excel::$headerMap[$instKey]))
-                                                        <td>{{ $instKey }}</td>
-                                                    @endif
-                                                @endforeach
-                                                @endif
-                                                </thead>
-
-                                                @foreach($row[$key] as $index => $installment)
-                                                    <tr>
-                                                        <td>{{$index}}</td>
-                                                        @foreach($installment as $key => $value)
-                                                            @if(isset(\App\Library\Shopify\Excel::$headerMap[$key]))
-                                                                <td>{{ $value }}</td>
-                                                            @endif
-                                                        @endforeach
-                                                    </tr>
-
-                                                @endforeach
-                                            </table>
-                                        </td>
-                                    @else
-                                        <td class="@if(!empty($errored_data['rows'][$index+1][$key])) alert-danger @endif ">{{ $row[$key] }}</td>
-                                    @endif
-                                @else
-                                    <td class="@if(!empty($errored_data['rows'][$index+1][$key])) alert-danger @endif "></td>
-                                @endif
+			
+			@if(!array_key_exists('incorrect_headers', $errored_data))
+                <table class="table table-striped table-bordered table-responsive table-fixed">
+                    <thead>
+                        <tr>
+                            @foreach(\App\Library\Shopify\Excel::$headerMap as $header)
+                                <th><strong>{{ $header }}</strong></th>
                             @endforeach
-                        </tr>                  
-                    @endforeach
-                </tbody>
-            </table>
-            <div class="pull-left">
-                <a href="/bulkupload">
+                        </tr>
+                        </thead>
+    
+                        @foreach($excel_response as $index => $row)
+                            <tr @if(!empty($errored_data['rows'][$index+1])) style="background: yellow;" @endif>
+                                @foreach(\App\Library\Shopify\Excel::$headerMap as $key => $header)
+                                    @if(isset($row[$key]))
+                                        @if(is_array($row[$key]))
+                                            <td>
+                                                <table>
+                                                    <thead>
+                                                    <td>No.</td>
+                                                    @php $head = reset($row[$key]) @endphp
+                                                    @if(!is_bool($head))
+                                                    @foreach(array_keys($head) as $instKey)
+                                                        @if(isset(\App\Library\Shopify\Excel::$headerMap[$instKey]))
+                                                            <td>{{ $instKey }}</td>
+                                                        @endif
+                                                    @endforeach
+                                                    @endif
+                                                    </thead>
+    
+                                                    @foreach($row[$key] as $index => $installment)
+                                                        <tr>
+                                                            <td>{{$index}}</td>
+                                                            @foreach($installment as $key => $value)
+                                                                @if(isset(\App\Library\Shopify\Excel::$headerMap[$key]))
+                                                                    <td>{{ $value }}</td>
+                                                                @endif
+                                                            @endforeach
+                                                        </tr>
+    
+                                                    @endforeach
+                                                </table>
+                                            </td>
+                                        @else
+                                            <td class="@if(!empty($errored_data['rows'][$index+1][$key])) alert-danger @endif ">{{ $row[$key] }}</td>
+                                        @endif
+                                    @else
+                                        <td class="@if(!empty($errored_data['rows'][$index+1][$key])) alert-danger @endif "></td>
+                                    @endif
+                                @endforeach
+                            </tr>                  
+                        @endforeach
+                    </tbody>
+                </table>
+            @else
+            	<div class="alert-danger p-2" style="text-align: center;">
+            		<h3>{{ $errored_data['incorrect_headers'] }}</h3>
+            	</div>
+            @endif
+            <div class="pull-left mt-2">
+                <a href="{{ route('bulkupload.upload') }}">
                     <button class="btn btn-lg btn-success">Go Back</button>
                 </a>
             </div>

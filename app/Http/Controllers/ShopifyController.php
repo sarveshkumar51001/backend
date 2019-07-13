@@ -18,7 +18,7 @@ class ShopifyController extends BaseController
 	];
 
     public function upload() {
-	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'New Upload' => ''];
+	    $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'New Upload' => ''];
 
 	    return view('shopify.orders-bulk-upload')
 		    ->with('breadcrumb', $breadcrumb);
@@ -35,7 +35,7 @@ class ShopifyController extends BaseController
 
 	    Validator::make($request->all(),['file' => 'mimes:xls'], ['mimes' => 'The format for the uploaded file should be .:values.'])->validate();
 
-	    $breadcrumb = ['Shopify' => './previous/orders', 'Upload Preview' => ''];
+	    $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Upload Preview' => ''];
 
 	    # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
         try {
@@ -207,7 +207,7 @@ class ShopifyController extends BaseController
     }
 
     public function previous_uploads() {
-	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Previous uploads' => ''];
+        $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Previous uploads' => ''];
 
 	    $Uploads = Upload::where('user_id', Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->get();
 
@@ -276,7 +276,7 @@ class ShopifyController extends BaseController
 		    }
 	    }
 
-	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Previous orders' => ''];
+	    $breadcrumb = ['Shopify' => route('bulkupload.upload'), 'Previous orders' => ''];
 
 
 	    return view('shopify.previous-orders')
@@ -288,7 +288,7 @@ class ShopifyController extends BaseController
     public function download_previous($id) {
 	    $Uploads = Upload::find($id);
 
-	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Download' => ''];
+	    $breadcrumb = ['Shopify' => route('bulkupload.upload'), 'Download' => ''];
 	    if ($Uploads['user_id'] == Auth::user()->id) {
 		    return response()->download($Uploads['path']);
 	    }
