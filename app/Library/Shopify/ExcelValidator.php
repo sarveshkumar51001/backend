@@ -60,11 +60,9 @@ class ExcelValidator
             }
 
             $this->ValidateData($data);
-            $this->ValidateInstallmentFinalFee($data);
-            $this->ValidateChequeDetails($data);
+            $this->ValidatePaymentDetails($data);
             $this->ValidateFieldValues($data);
             $this->ValidateDate($data);
-            $this->ValidateExpectedAmountDate($data);
             $this->ValidateActivityDetails($data);
         }
 
@@ -122,16 +120,6 @@ class ExcelValidator
         return $is_duplicate;
     }
 
-    private function ValidateInstallmentFinalFee(array $data)
-    {
-        $total_installment_amount = array_sum(array_column($data['payments'], 'amount'));
-        $final_fee = $data['final_fee_incl_gst'];
-
-        if ($total_installment_amount != $final_fee) {
-            $this->errors['rows'][$this->row_no][] = "Total Installment Amount ($total_installment_amount) and Final Fee Amount ($final_fee) does not match";
-        }
-    }
-
     private function ValidateData(array $data)
     {
         $valid_branch_names = [
@@ -182,13 +170,13 @@ class ExcelValidator
         $errors = $validator->getMessageBag()->toArray();
 
         if (! empty($errors)) {
-            $this->errors['rows'][$this->row_no][] = $errors;
+            $this->errors['rows'][$this->row_no] = Arr::flatten(array_values($errors));
         }
     }
 
     private function ValidateAmount()
     {
-        if (count($this->FileFormattedData) == 0)
+        if (count($this->FileFormattedData) < 1)
             return;
 
         // Fetching collected amount in cash, cheque and online from request
@@ -203,10 +191,10 @@ class ExcelValidator
             $this->errors['sheet'][] = "Cash total mismatch, Entered total $amount_collected_cash, Calculated total " . $modeWiseTotal['cash_total'];
         }
         if ($amount_collected_cheque != $modeWiseTotal['cheque_total']) {
-            $this->errors['sheet'][] = "Cheque total mismatch, Entered total $amount_collected_cash, Calculated total " . $modeWiseTotal['cheque_total'];
+            $this->errors['sheet'][] = "Cheque total mismatch, Entered total $amount_collected_cheque, Calculated total " . $modeWiseTotal['cheque_total'];
         }
         if ($amount_collected_online != $modeWiseTotal['online_total']) {
-            $this->errors['sheet'][] = "Online total mismatch, Entered total $amount_collected_cash, Calculated total " . $modeWiseTotal['online_total'];
+            $this->errors['sheet'][] = "Online total mismatch, Entered total $amount_collected_online, Calculated total " . $modeWiseTotal['online_total'];
         }
     }
 
@@ -230,7 +218,7 @@ class ExcelValidator
         $cashTotal = $chequeTotal = $onlineTotal = 0;
         $PreviousCashTotal = $PreviousChequeTotal = $PreviousOnlineTotal = 0;
 
-        foreach ($this->FileFormattedData as $index => $row) {
+        foreach ($this->FileFormattedData as $row) {
             // Get the primary combination to lookup in database
 
             $date_enroll = $row['date_of_enrollment'];
@@ -269,8 +257,6 @@ class ExcelValidator
                         $chequeTotal += $payment["amount"];
                     } elseif ($paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT])) {
                         $onlineTotal += $payment["amount"];
-                    } else {
-                        $this->errors['rows'][$this->row_no][] = "Invalid mode_of_payment [$paymentMode] received for row no " . ($index + 1);
                     }
                 }
             }
@@ -283,49 +269,66 @@ class ExcelValidator
         ];
     }
 
-    private function ValidateChequeDetails(array $data)
+    private function ValidatePaymentDetails(array $data)
     {
+        $amount = 0;
+        $final_fee = $data['final_fee_incl_gst'];
         foreach ($data['payments'] as $payment) {
             $mode = strtolower($payment['mode_of_payment']);
-            if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
+            $amount += $payment['amount'];
 
-                $cheque_no = $payment['chequedd_no'];
+            $offline_modes = [
+                ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE],
+                ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD]
+            ];
+
+            $online_modes = [
+                ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE],
+                ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM],
+                ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]
+            ];
+
+            // Checking for offline mode payments
+            if (in_array($mode, array_map('strtolower', $offline_modes))) {
+                $instrument_no = $payment['chequedd_no'];
                 $account_no = $payment['drawee_account_number'];
                 $micr_code = $payment['micr_code'];
 
-                if (! empty($cheque_no) && ! empty($account_no) && ! empty($micr_code)) {
+                if (! empty($instrument_no) && ! empty($account_no) && ! empty($micr_code)) {
                     // Check if the combination of cheque no., micr_code and account_no. exists in database
-                    if (DB::check_if_already_used($cheque_no, $micr_code, $account_no)) {
+                    if (DB::check_if_already_used($instrument_no, $micr_code, $account_no)) {
                         $this->errors['rows'][$this->row_no][] = "Cheque/DD Details already used before.";
+                    }
+                } else {
+                    $this->errors['rows'][$this->row_no][] = "For Payment mode Cheque/DD, Instrument No, Account No and MICR Code are mandatory.";
+                }
+            } // Checking for online mode payments
+            else if (in_array($mode, array_map('strtolower', $online_modes))) {
+                if (empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])) {
+                    $this->errors['rows'][$this->row_no][] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
+                }
+            } else {
+                $this->errors['rows'][$this->row_no][] = "Invalid Payment Mode - $mode";
+            }
+
+            // Function for checking wthether the combination of amount and date present for each installment.
+            // The cheque date is being treated as the expected date of collection for the payment.
+            if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
+                if (empty($payment['mode_of_payment'])) {
+                    if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
+                        $this->errors['rows'][$this->row_no][] = "Expected Amount and Expected date of collection required for every installment of this order.";
                     }
                 }
             }
+        }
+
+        if ($amount != $final_fee) {
+            $this->errors['rows'][$this->row_no][] = "Total Installment Amount ($amount) and Final Fee Amount ($final_fee) does not match";
         }
     }
 
     private function ValidateFieldValues(array $data)
     {
-        foreach ($data['payments'] as $payment) {
-            $mode = strtolower($payment['mode_of_payment']);
-            $amount = $payment['amount'];
-
-            if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT])) {
-                if (empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])) {
-                    $this->errors['rows'][$this->row_no][] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
-                }
-            }
-
-            if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
-                if (empty($payment['chequedd_date']) || empty($payment['chequedd_no']) || empty($payment['micr_code']) || empty($payment['drawee_account_number'])) {
-                    $this->errors['rows'][$this->row_no][] = "Cheque Details are mandatory for transactions having payment mode as cheque.";
-                }
-            }
-
-            if ($amount > $data['final_fee_incl_gst']) {
-                $this->errors['rows'][$this->row_no][] = "Amount captured as payment is more than the final value of the order.";
-            }
-        }
-
         if (empty($data['mobile_number']) && empty($data['email_id'])) {
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
         }
@@ -352,27 +355,6 @@ class ExcelValidator
                     $this->errors['rows'][$this->row_no][] = "Incorrect format of date in payment no. " . ($index + 1) . " The correct format is {DD/MM/YYYY} i.e. 01/07/2019";
                 }
             }
-        }
-    }
-
-    // Function for checking wthether the combination of amount and date present for each installment. THe cheque date is being treated as the expected date of collection for the payment.
-    Private function ValidateExpectedAmountDate(array $data)
-    {
-        $total_amount = 0;
-        foreach ($data['payments'] as $payment) {
-            if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
-                if (empty($payment['mode_of_payment'])) {
-                    if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
-                        $this->errors['rows'][$this->row_no][] = "Expected Amount and Expected date of collection required for every installment of this order.";
-                    }
-                }
-            }
-
-            $total_amount += $payment['amount'];
-        }
-
-        if ($total_amount != $data['final_fee_incl_gst']) {
-            $this->errors['rows'][$this->row_no][] = "Sum of all the payments to be made should not be more or less than the final fee of the order.";
         }
     }
 
