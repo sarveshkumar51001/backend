@@ -3,20 +3,13 @@ namespace App\Http\Controllers;
 
 use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
-use Auth, Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Jobs\ShopifyOrderCreation;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Library\Shopify\ExcelValidator;
-use MongoDB\Driver\Exception\BulkWriteException;
-use App\Library\Shopify\DB;
-use App\Library\Shopify\API;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
-use \App\User;
-use Closure;
-
-ini_set('max_execution_time', 180);
 
 class ShopifyController extends BaseController
 {
@@ -34,7 +27,7 @@ class ShopifyController extends BaseController
    }
 
     public function upload() {
-	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'New Upload' => ''];
+	    $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'New Upload' => ''];
 
 	    return view('shopify.orders-bulk-upload')
 		    ->with('breadcrumb', $breadcrumb);
@@ -44,17 +37,14 @@ class ShopifyController extends BaseController
 	 * @param Request $request
 	 *
 	 * @return $this
-	 * @throws Exception
+	 * @throws \Exception
 	 */
     public function upload_preview(Request $request)
     {
-    	if (!$request->isMethod('post')){
-    		return redirect('/bulkupload/');
-	    }
 
 	    Validator::make($request->all(),['file' => 'mimes:xls'], ['mimes' => 'The format for the uploaded file should be .:values.'])->validate();
 
-	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Upload Preview' => ''];
+	    $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Upload Preview' => ''];
 
 	    # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
         try {
@@ -81,6 +71,7 @@ class ShopifyController extends BaseController
 	        $fileName = time() . '_' . $originalFileName;
 	        $filePath = storage_path('uploads/' . $user_name);
 	        $path = $excel_file->move($filePath, $fileName);
+	        $file_id = 'shopify-'.crc32(uniqid()); # Unique identifier for the documents belonging to a single file
 
 	        // Loading the excel file
 	        $ExlReader = Excel::load($path->getRealPath(), function () {
@@ -89,9 +80,9 @@ class ShopifyController extends BaseController
 	        // Create Excel Raw object
 	        $header = $ExlReader->first()->keys()->toArray();
 		    $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
-		        'upload_date' => $request['date'],
+		        'upload_date' => date(ShopifyExcelUpload::DATE_FORMAT,time()),
 			    'uploaded_by' => Auth::user()->id,
-			    'file_id' => uniqid('shopify_'), # Unique identifier for the documents belonging to a single file
+			    'file_id' => $file_id,
 			    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
 			    'order_id' => 0,
 			    'customer_id' => 0
@@ -115,90 +106,59 @@ class ShopifyController extends BaseController
 			    'online-total' => $metadata["online-total"]
 		    ]))->Validate();
 
-		    // If any error, Return from here only
-	        if ($errors) {
-	        	return view('bulkupload-preview')
-			        ->with('errored_data', $errors)
-			        ->with('excel_response', $formattedData)
-			        ->with('breadcrumb', $breadcrumb)
-			        ->with('headers', $ExcelRaw->GetFormattedHeader());
-	        }
-
-	        // EVERYTHING LOOKS GOOD TO GO.......
-		    # Inserting data to MongoDB after validation
-	        $upsertList = [];
-		    foreach ($formattedData as $valid_row) {
-	            // Get the primary combination to lookup in database
-	            $date_enroll = $valid_row['date_of_enrollment'];
-	            $activity_id = $valid_row['shopify_activity_id'];
-	            $std_enroll_no = $valid_row['school_enrollment_no'];
-
-	            // Attempt to lookup in database with the key combination
-		        // Ex: 06/05/2019, VAL-12345-002, SS-1112
-	            $OrderRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)
-	                           ->where('shopify_activity_id', $activity_id)
-	                           ->where('school_enrollment_no', $std_enroll_no)
-	                           ->first();
-
-	            if (empty($OrderRow)) {
-		            $upsertList[] = $valid_row;
-	            } else {
-	                $doc_id = $OrderRow->_id;
-	                $order_id = $OrderRow->order_id;
-	                $final_fee = $OrderRow->final_fee_incl_gst;
-
-	                $isUpdateInInstallment = false;
-		            $existingPaymentData = $OrderRow->payments;
-
-		            // If there is any change in installments details provided in excel
-                    foreach ($valid_row["payments"] as $index => $payment) {
-	                    /**
-	                     * Consider the payment data only if the payment is unprocessed
-	                     * Any update in already posted installments will be ignored
-	                     */
-                    	if (strtolower($existingPaymentData[$index]['processed']) == 'no') {
-
-                    		if($existingPaymentData[$index]['amount'] != $payment['amount'] || $existingPaymentData[$index]['chequedd_date'] != $payment['chequedd_date'] || $existingPaymentData[$index]['mode_of_payment'] != $payment['mode_of_payment']){
-		                    	$existingPaymentData[$index] = $payment;
-		                    	$isUpdateInInstallment = true;
-	                    	}
-	                	}
-                    }
-                    // Reducing the payments array if there is any reduction in number of payments
-                    $diff_element = array_diff_key($existingPaymentData,$valid_row["payments"]);
-                    foreach($diff_element as $key => $value){
-                    	unset($existingPaymentData[$key]);
-					}
-
-	                $total_installment_amount = 0;
-                    foreach ($existingPaymentData as $updatedPayment) {
-	                    $total_installment_amount += $updatedPayment['amount'];
-                    }
-
-                    if ($total_installment_amount > $final_fee) {
-                        $exception_msg = sprintf("Fee collected for the Order ID %u exceeded the order value.", $order_id);
-	                    $errors[$valid_row['sno']] = $exception_msg;
-                    }
-
-                    if (!$isUpdateInInstallment) {
-	                    $errors[$valid_row['sno']] = "Either same excel uploaded again or existing installments can't be modified.";
-                    }
-
-	                // If there is no error so far then only we proceed for updates
-	                if (empty($errors[$valid_row['sno']])) {
-		                $upsertList[] = [
-		                    'payments' => $existingPaymentData,
-		                    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
-		                    '_id' => $doc_id
-	                    ];
-                    }
-	            }
-	        }
-
-	        $metadata['new_order'] = $metadata['update_order'] = 0;
-
-		    $objectIDList = [];
+		    // EVERYTHING LOOKS GOOD TO GO.......
 	        if (empty($errors)) {
+    		    # Inserting data to MongoDB after validation
+    	        $upsertList = [];
+    		    foreach ($formattedData as $valid_row) {
+    	            // Get the primary combination to lookup in database
+    	            $date_enroll = $valid_row['date_of_enrollment'];
+    	            $activity_id = $valid_row['shopify_activity_id'];
+    	            $std_enroll_no = $valid_row['school_enrollment_no'];
+    
+    	            // Attempt to lookup in database with the key combination
+    		        // Ex: 06/05/2019, VAL-12345-002, SS-1112
+    	            $OrderRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)
+    	                           ->where('shopify_activity_id', $activity_id)
+    	                           ->where('school_enrollment_no', $std_enroll_no)
+    	                           ->first();
+    
+    	            if (empty($OrderRow)) {
+    		            $upsertList[] = $valid_row;
+    	            } else {
+    	                 $existingPaymentData = $OrderRow->payments;
+    		            // If there is any change in installments details provided in excel
+                        foreach ($valid_row["payments"] as $index => $payment) {
+    	                    /**
+    	                     * Consider the payment data only if the payment is unprocessed
+    	                     * Any update in already posted installments will be ignored
+    	                     */
+                        	if ($existingPaymentData[$index]['processed'] == 'No') {
+    	                    	$existingPaymentData[$index] = $payment;
+    	                	}
+                        }
+                        
+                        // Reducing the payments array if there is any reduction in number of payments
+                        $diff_element = array_diff_key($existingPaymentData,$valid_row["payments"]);
+                        foreach($diff_element as $key => $value){
+                        	unset($existingPaymentData[$key]);
+    					}
+    
+    	                // Updating Order Data
+    	                $upsertList[] = [
+    	                    'payments' => $existingPaymentData,
+    	                    'errors' => [],
+    	                    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
+    	                    '_id' => $OrderRow->_id
+                        ];
+                        
+    	            }
+    	        }
+    
+    	        $metadata['new_order'] = $metadata['update_order'] = 0;
+    
+    		    $objectIDList = [];
+    	        
 	            foreach ($upsertList as $document) {
 		            /**
 		             * KEEP SEARCHABLE PAYMENTS BY SETTING THE KEYS IN ORDER
@@ -226,37 +186,39 @@ class ShopifyController extends BaseController
 
 		        // Upload the file with metadata
 		        Upload::create([
-			        'user_id' => \Auth::user()->id,
+			        'user_id' => Auth::user()->id,
 			        'file_name' => $originalFileName,
+			        'file_id' => $file_id,
 			        'path' => $path->getRealPath(),
 			        'metadata' => $metadata,
 			        'status' => Upload::STATUS_SUCCESS,
 			        'type' => Upload::TYPE_SHOPIFY_ORDERS,
 			        'created_at' => time()
 		        ]);
+    	        
+    
+    	        if (!empty($objectIDList)) {
+    		        // Finally dispatch the data into queue for processing
+    		        foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
+    			        ShopifyOrderCreation::dispatch($Object)->delay(now()->addSeconds(10));
+    		        }
+    	        }
 	        }
 
-	        if (!empty($objectIDList)) {
-		        // Finally dispatch the data into queue for processing
-		        foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
-			        ShopifyOrderCreation::dispatch($Object)->delay(now()->addSeconds(10));
-		        }
-	        }
-
-		    return view('bulkupload-preview')
+		    return view('shopify.bulkupload-preview')
 			    ->with('errored_data', $errors)
 			    ->with('excel_response', $formattedData)
 			    ->with('breadcrumb', $breadcrumb)
 			    ->with('headers', $ExcelRaw->GetFormattedHeader());
-        } catch (BulkWriteException $bulk) {
-            return view('uploaderror');
+        } catch (\Exception $bulk) {
+            return view('shopify.uploaderror');
         }
     }
 
     public function previous_uploads() {
-	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Previous uploads' => ''];
+        $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Previous uploads' => ''];
 
-	    $Uploads = Upload::where('user_id', \Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->get();
+	    $Uploads = Upload::where('user_id', Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->get();
 
         return view( 'shopify.past-files-upload')->with('files', $Uploads)->with('breadcrumb', $breadcrumb);
     }
@@ -275,7 +237,7 @@ class ShopifyController extends BaseController
 	    $IsAdmin = User::where('email',Auth::user()->email)->where('permissions',ShopifyExcelUpload::ADMIN)->exists();
 
 	    if ($start && $end) {
-		    if (request('filter') == 'team' && in_array(\Auth::user()->email, self::$adminTeam)) {
+		    if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
 			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->get();
 		    } else {
 			    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
@@ -325,7 +287,7 @@ class ShopifyController extends BaseController
 		    }
 	    }
 
-	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Previous orders' => ''];
+	    $breadcrumb = ['Shopify' => route('bulkupload.upload'), 'Previous orders' => ''];
 
 
 	    return view('shopify.previous-orders')
@@ -338,8 +300,8 @@ class ShopifyController extends BaseController
     public function download_previous($id) {
 	    $Uploads = Upload::find($id);
 
-	    $breadcrumb = ['Shopify' => '/bulkupload/previous/orders', 'Download' => ''];
-	    if ($Uploads['user_id'] == \Auth::user()->id) {
+	    $breadcrumb = ['Shopify' => route('bulkupload.upload'), 'Download' => ''];
+	    if ($Uploads['user_id'] == Auth::user()->id) {
 		    return response()->download($Uploads['path']);
 	    }
 
