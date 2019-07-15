@@ -3,8 +3,8 @@ namespace App\Http\Controllers\Webhooks\Shopify;
 
 use App\Models\Product as ProductModel;
 use Illuminate\Http\Request;
-use App\Models\ShopifyExcelUpload;
 use App\Library\Shopify\API;
+use App\Models\ShopifyExcelUpload;
 
 class Product
 {

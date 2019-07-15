@@ -22,6 +22,15 @@ Route::prefix('shopify')->namespace('Shopify')->group(function () {
     });
 });
 
+// Put Instapage Related Webhooks Here
+Route::prefix('instapage')->namespace('Instapage')->group(function () {
+	// Leads Webhooks
+	Route::prefix('lead')->group(function () {
+
+		Route::post('create', 'Lead@create');
+    });
+});
+
 Route::any("{path}", function () {
     return response()->json([
         'webhook_id' => request()->webhook_id
