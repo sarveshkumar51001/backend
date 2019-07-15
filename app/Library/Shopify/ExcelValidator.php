@@ -62,7 +62,6 @@ class ExcelValidator
             $this->ValidateData($data);
             $this->ValidatePaymentDetails($data);
             $this->ValidateFieldValues($data);
-            $this->ValidateDate($data);
             $this->ValidateActivityDetails($data);
         }
 
@@ -145,7 +144,7 @@ class ExcelValidator
             "school_enrollment_no" => "required|string|min:4|regex:/[A-Z]+-[0-9]+/",
             "mobile_number" => "regex:/[6-9][0-9]{9}/",
             "email_id" => "email",
-            "date_of_enrollment" => "required",
+            "date_of_enrollment" => ["required","regex:".ShopifyExcelUpload::DATE_REGEX],
             "activity_fee" => "required",
             "final_fee_incl_gst" => "required|numeric",
             "scholarship_discount" => "numeric",
@@ -163,7 +162,8 @@ class ExcelValidator
             "payments" => "required",
             "payments.0.mode_of_payment" => "required|string",
             "payments.0.amount" => "required|numeric",
-            "payments.*.mode_of_payment" => "string"
+            "payments.*.mode_of_payment" => "string",
+            "payments.*.chequedd_date" => ["regex:".ShopifyExcelUpload::DATE_REGEX]
         ];
 
         $validator = Validator::make($data, $rules);
@@ -300,16 +300,17 @@ class ExcelValidator
                         $this->errors['rows'][$this->row_no][] = "Cheque/DD Details already used before.";
                     }
                 } else {
-                    $this->errors['rows'][$this->row_no][] = "For Payment mode Cheque/DD, Instrument No, Account No and MICR Code are mandatory.";
+                    $this->errors['rows'][$this->row_no][] = "For Payment mode Cheque/DD - Instrument No, Account No and MICR Code are mandatory.";
                 }
             } // Checking for online mode payments
             else if (in_array($mode, array_map('strtolower', $online_modes))) {
                 if (empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])) {
                     $this->errors['rows'][$this->row_no][] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
                 }
-            } else {
-                $this->errors['rows'][$this->row_no][] = "Invalid Payment Mode - $mode";
             }
+        else if($mode != ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH] && !empty($mode)) {
+               $this->errors['rows'][$this->row_no][] = "Invalid Payment Mode - $mode";
+           }
 
             // Function for checking wthether the combination of amount and date present for each installment.
             // The cheque date is being treated as the expected date of collection for the payment.
@@ -317,15 +318,15 @@ class ExcelValidator
                 if (empty($payment['mode_of_payment'])) {
                     if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
                         $this->errors['rows'][$this->row_no][] = "Expected Amount and Expected date of collection required for every installment of this order.";
+                        }
                     }
                 }
             }
-        }
 
         if ($amount != $final_fee) {
             $this->errors['rows'][$this->row_no][] = "Total Installment Amount ($amount) and Final Fee Amount ($final_fee) does not match";
-        }
-    }
+                }
+            }
 
     private function ValidateFieldValues(array $data)
     {
@@ -342,27 +343,12 @@ class ExcelValidator
         }
     }
 
-    private function ValidateDate(array $data)
-    {
-        if (! preg_match(ShopifyExcelUpload::DATE_REGEX, $data['date_of_enrollment'])) {
-            $this->errors['rows'][$this->row_no][] = "Incorrect format of enrollment date. The correct format is {DD/MM/YYYY} i.e. 01/07/2019";
-        }
-
-        foreach ($data['payments'] as $index => $payment) {
-            $chequedd_date = $payment['chequedd_date'];
-            if (! empty($chequedd_date)) {
-                if (! preg_match(ShopifyExcelUpload::DATE_REGEX, $chequedd_date)) {
-                    $this->errors['rows'][$this->row_no][] = "Incorrect format of date in payment no. " . ($index + 1) . " The correct format is {DD/MM/YYYY} i.e. 01/07/2019";
-                }
-            }
-        }
-    }
-
     private function ValidateActivityDetails(array $data)
     {
         $activity_id = $data['shopify_activity_id'];
         $activity_fee = $data['activity_fee'];
         $final_fee = $data['final_fee_incl_gst'];
+        $scholarship_amount = $data['scholarship_discount'];
 
         $Product = DB::get_shopify_product_from_database($activity_id);
         if (! $Product) {
@@ -373,9 +359,14 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = "Activity Fee entered is incorrect.";
         }
 
-        if (empty($data['scholarship_discount'])) {
+        if (empty($scholarship_amount)) {
             if ($activity_fee != $final_fee) {
                 $this->errors['rows'][$this->row_no][] = "Final Fee  is not equal to the activity fee.";
+            }
+        }
+        else{             
+            if ( $final_fee != $activity_fee - $scholarship_amount) {
+                $this->errors['rows'][$this->row_no][] = "After applying discount ($scholarship_amount), the Final fee entered is incorrect.";          
             }
         }
     }
