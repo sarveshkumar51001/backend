@@ -118,7 +118,7 @@ class ExcelValidator
 
                 if ($existingpayments[$payment_index]['processed'] == 'Yes') {
                     if ($existing_amount != $payment['amount'] || $existing_date != $payment['chequedd_date'] || $existing_mode != $payment['mode_of_payment']){
-                        $this->errors['rows'][$this->row_no][] = "Already Processed installments can't be modified. Installment $payment_index have been modified";
+                        $this->errors['rows'][$this->row_no][] = "Already Processed installments can't be modified. Installment ".($payment_index+1)." have been modified";
                         }
                     }
                 }
