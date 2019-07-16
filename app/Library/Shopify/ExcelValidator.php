@@ -161,6 +161,10 @@ class ExcelValidator
             "activity_fee" => "required",
             "final_fee_incl_gst" => "required|numeric",
             "scholarship_discount" => "numeric",
+            "student_first_name" => "required",
+            "class" => "required",
+            "section" => "required",
+            "parent_first_name" => "required",
             "branch" => [
                 "required",
                 Rule::in($valid_branch_names)
@@ -182,7 +186,7 @@ class ExcelValidator
         $errors = $validator->getMessageBag()->toArray();
 
         if (! empty($errors)) {
-            $this->errors['rows'][$this->row_no][] = $errors;
+            $this->errors['rows'][$this->row_no] = $errors;
         }
     }
 
@@ -316,8 +320,8 @@ class ExcelValidator
             }
 
             if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
-                if (empty($payment['chequedd_date']) || empty($payment['chequedd_no']) || empty($payment['micr_code']) || empty($payment['drawee_account_number'])) {
-                    $this->errors['rows'][$this->row_no][] = "Cheque Details are mandatory for transactions having payment mode as cheque.";
+                if (empty($payment['chequedd_date']) || empty($payment['chequedd_no']) || empty($payment['micr_code']) || empty($payment['drawee_account_number']) || empty($payment['drawee_name']) || empty($payment['bank_name']) || empty($payment['bank_branch'])) {
+                    $this->errors['rows'][$this->row_no][] = " All Cheque Details are mandatory for transactions having payment mode as cheque.";
                 }
             }
 
@@ -381,10 +385,11 @@ class ExcelValidator
         $activity_id = $data['shopify_activity_id'];
         $activity_fee = $data['activity_fee'];
         $final_fee = $data['final_fee_incl_gst'];
+        $activity_name = $data['activity'];
 
-        $Product = DB::get_shopify_product_from_database($activity_id);
-        if (! $Product) {
-            $this->errors['rows'][$this->row_no][] = "The activity id is not present in the database.";
+        
+        if (! DB::get_shopify_product_from_database($activity_id,$activity_name)) {
+            $this->errors['rows'][$this->row_no][] = "Either activity id or sctivity name is incorrect.";
         }
 
         if (! DB::check_activity_fee_value($activity_fee, $activity_id)) {
