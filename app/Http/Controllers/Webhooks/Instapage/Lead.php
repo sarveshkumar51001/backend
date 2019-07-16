@@ -6,30 +6,53 @@ use App\Library\Shopify\API;
 use zcrmsdk\crm\crud\ZCRMModule;
 use zcrmsdk\crm\crud\ZCRMRecord;
 use zcrmsdk\crm\crud\ZohoOAuth;
-use zcrmsdk\crm\crud\ZCRMRestClient;
+// use zcrmsdk\crm\crud\ZCRMRestClient;
+use zcrmsdk\crm\setup\restclient\ZCRMRestClient;
+// require 'vendor/autoload.php';
 
 $configuration = [
-	'Client ID' => env('ZOHO_CLIENT_ID'),
-	'Client Secret' => env('ZOHO_SECRET'),
-	'Client Name' => env('ZOHO_CLIENT'),
-	'Client Domain' => env('ZOHO_CLIENT_DOMAIN'),
-	'Authorized redirect URIs' => env('ZOHO_REDIRECT')
+	'client_id' => env('ZOHO_CLIENT_ID'),
+	'client_secret' => env('ZOHO_SECRET'),
+	'redirect_uri' => env('ZOHO_REDIRECT'),
+	'currentUserEmail'=> env('ZOHO_USER')
 ];
 
 class Lead
 {
+	public function __construct()
+    {
+        $configuration = array(
+			'client_id' => env('ZOHO_CLIENT_ID'),
+			'client_secret' => env('ZOHO_SECRET'),
+			'redirect_uri' => env('ZOHO_REDIRECT'),
+			'currentUserEmail'=> env('ZOHO_USER'),
+			'token_persistence_path'=> 'C:\xampp\htdocs\backend\storage\zcrm'   	
+		);
 
-	public function setclient()
-	{
-	    ZCRMRestClient::initialize($configuration);
-	    $oAuthClient = ZohoOAuth::getClientInstance();
-	    $grantToken = 'xxxx';
-	    $oAuthTokens = $oAuthClient->generateAccessToken($grantToken);
-	}
+        ZCRMRestClient::initialize($configuration);
+    }
+
+	// public function setclient()
+	// {
+	//     ZCRMRestClient::initialize($configuration);
+	    // $oAuthClient = ZohoOAuth::getClientInstance();
+	    // $grantToken = 'xxxx';
+	    // $oAuthTokens = $oAuthClient->generateAccessToken($grantToken);
+	// }
 
 	public function create(Request $request)
 	{
-		$client_response = $this->setclient();
+		// $client_response = $this->setclient();
+
+		// $configuration = array(
+		// 	'Client ID' => env('ZOHO_CLIENT_ID'),
+		// 	'Client Secret' => env('ZOHO_SECRET'),
+		// 	'Client Name' => env('ZOHO_CLIENT'),
+		// 	'Client Domain' => env('ZOHO_CLIENT_DOMAIN'),
+		// 	'currentUserEmail'=>'pankaj@valedra.com')
+		// );
+
+		// ZCRMRestClient::initialize($configuration);
 
 		$module = ZCRMModule::getInstance('Leads');
 		$record = $this->create_lead_array($request);
