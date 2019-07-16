@@ -63,24 +63,19 @@ class HandleWebhookDataMiddleware
         return false;
     }
 
-    private function postToSlack($fields, $event)
+    private function postToSlack(Webhook $Webhook)
     {
-        $WebhookNotification = WebhookNotification::where(WebhookNotification::CHANNEL, 'slack')->where(WebhookNotification::EVENT, $event)->first();
+        $data = array(
+            'WEBHOOK_ID' => $Webhook->{Webhook::ID},
+            "EVENT" => $Webhook->{Webhook::EVENT},
+            "SOURCE" => $Webhook->{Webhook::SOURCE},
+            "URL" => request()->fullUrl()
+        );
 
-        if ($WebhookNotification) {
+        $title = sprintf("New Incoming Webhook from %s", $Webhook->{Webhook::SOURCE});
 
-            $SlackTranslation = new SlackTranslation($fields, $event);
-
-            $postdata = $SlackTranslation->handle();
-
-            slack($postdata['data'], $postdata['title'])->webhook($WebhookNotification->{WebhookNotification::DATA})
-                ->info()
-                ->post();
-        }
-    }
-
-    private function getInstapageData($data)
-    {
-        //
+        slack($data, $title)->webhook(env('SLACK_WEBHOOK_NOTIFICATION'), null)
+            ->info()
+            ->post();
     }
 }

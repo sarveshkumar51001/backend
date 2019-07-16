@@ -25,3 +25,20 @@ function start_of_the_day(string $date) {
 function end_of_day(string $date) {
 	return \Carbon\Carbon::createFromTimestamp(strtotime($date. " UTC"))->endOfDay()->timestamp;
 }
+
+/**
+ * Return instance of library for posting notifications on Slack
+ * @param mixed $data
+ * @param string $title
+ * @return \App\Library\Slack\Slack
+ */
+function slack($data, string $title = null)
+{
+    return new \App\Library\Slack\Slack($data, $title);
+}
+
+function isArrayAssoc(array $arr)
+{
+    if (array() === $arr) return false;
+    return array_keys($arr) !== range(0, count($arr) - 1);
+}
