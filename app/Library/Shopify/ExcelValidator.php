@@ -102,15 +102,27 @@ class ExcelValidator
                 $this->errors['rows'][$this->row_no][] = "Only Payment data can be updated for an Order. Field(s) " . implode($fields_updated, ",") . " has been changed";
             }
 
+            // Existing payments array
+            $existingpayments = $DatabaseRow["payments"];
+
             foreach ($row["payments"] as $payment_index => $payment) {
-                if ($DatabaseRow[$payment_index]['processed'] == 'Yes') {
-                    if ($DatabaseRow[$payment_index]['amount'] != $payment['amount'] || $DatabaseRow[$payment_index]['chequedd_date'] != $payment['chequedd_date'] || $DatabaseRow[$payment_index]['mode_of_payment'] != $payment['mode_of_payment']) {
-                        $is_duplicate = false;
+
+                // Existing data
+                $existing_amount = $existingpayments[$payment_index]['amount'];
+                $existing_date = $existingpayments[$payment_index]['chequedd_date'];
+                $existing_mode = $existingpayments[$payment_index]['mode_of_payment'];
+
+                if ($existing_amount != $payment['amount'] || $existing_date != $payment['chequedd_date'] || $existing_mode != $payment['mode_of_payment']) {
+                    $is_duplicate = false;
+                }
+
+                if ($existingpayments[$payment_index]['processed'] == 'Yes') {
+                    if ($existing_amount != $payment['amount'] || $existing_date != $payment['chequedd_date'] || $existing_mode != $payment['mode_of_payment']){
                         $this->errors['rows'][$this->row_no][] = "Already Processed installments can't be modified. Installment $payment_index have been modified";
+                        }
                     }
                 }
             }
-        }
 
         if ($is_duplicate) {
             $this->errors['rows'][$this->row_no][] = "This order has already been processed";
@@ -231,8 +243,6 @@ class ExcelValidator
 
             if (! empty($DatabaseRow)) {
                 foreach ($DatabaseRow['payments'] as $payment) {
-                    if ($payment['processed'] == 'Yes')
-                        continue;
                     $paymentMode = strtolower($payment["mode_of_payment"]);
                     // Checking whether the payment has any payment mode //
                     if (! empty($paymentMode)) {
@@ -308,7 +318,7 @@ class ExcelValidator
                     $this->errors['rows'][$this->row_no][] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
                 }
             }
-        else if($mode != ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH] && !empty($mode)) {
+        else if($mode != strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH]) && !empty($mode)) {
                $this->errors['rows'][$this->row_no][] = "Invalid Payment Mode - $mode";
            }
 
