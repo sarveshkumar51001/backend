@@ -25,7 +25,7 @@ class HandleWebhookDataMiddleware
         $data = explode('/', $url);
         $source = $data[0];
         $name = implode('-', array_slice($data, 1));
-        $event = str_replace('/', '-', $url);
+        $event = printf("%s.%s", $source, $name);
         $fields = $request->all();
 
         $Webhook = new Webhook();
@@ -37,6 +37,7 @@ class HandleWebhookDataMiddleware
         $Webhook->{Webhook::CreatedAt} = time();
         $Webhook->save();
         
+        event($event, $Webhook);
         $request->webhook_id = $Webhook->{Webhook::ID};
 
         //$this->postToSlack($fields, $event);
