@@ -29,6 +29,9 @@ class EventServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        //
+        // Listening all webhook event function
+        Event::listen('webhook.*', function ($eventName, array $data) {
+            logger($eventName, $data);
+        });
     }
 }
