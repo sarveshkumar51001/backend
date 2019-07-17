@@ -51,6 +51,11 @@ class ExcelValidator
             return $this->errors;
         }
 
+        if (count($this->FileFormattedData) < 1) {
+            $this->errors['sheet']['empty_file'] = 'No data was found in the uploaded file';
+            return $this->errors;
+        }
+
         // Finding data validation errors
         foreach ($this->FileFormattedData as $index => $data) {
             $this->row_no ++;
@@ -106,18 +111,9 @@ class ExcelValidator
             $existingpayments = $DatabaseRow["payments"];
 
             foreach ($row["payments"] as $payment_index => $payment) {
-
-                // Existing data
-                $existing_amount = $existingpayments[$payment_index]['amount'];
-                $existing_date = $existingpayments[$payment_index]['chequedd_date'];
-                $existing_mode = $existingpayments[$payment_index]['mode_of_payment'];
-
-                if ($existing_amount != $payment['amount'] || $existing_date != $payment['chequedd_date'] || $existing_mode != $payment['mode_of_payment']) {
+                if (array_diff_assoc($existingpayments[$payment_index], $payment)) {
                     $is_duplicate = false;
-                }
-
-                if ($existingpayments[$payment_index]['processed'] == 'Yes') {
-                    if ($existing_amount != $payment['amount'] || $existing_date != $payment['chequedd_date'] || $existing_mode != $payment['mode_of_payment']) {
+                    if ($existingpayments[$payment_index]['processed'] == 'Yes') {
                         $this->errors['rows'][$this->row_no][] = "Already Processed installments can't be modified. Installment " . ($payment_index + 1) . " have been modified";
                     }
                 }
@@ -313,7 +309,6 @@ class ExcelValidator
                 $instrument_no = $payment['chequedd_no'];
                 $account_no = $payment['drawee_account_number'];
                 $micr_code = $payment['micr_code'];
-
                 if (! empty($instrument_no) && ! empty($account_no) && ! empty($micr_code) && ! empty($payment['chequedd_date']) && ! empty($payment['drawee_name']) && ! empty($payment['bank_name']) && ! empty($payment['bank_branch'])) {
 
                     // Check if the combination of cheque no., micr_code and account_no. exists in database
@@ -354,11 +349,11 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
         }
 
-        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) !=  strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
             $this->errors['rows'][$this->row_no][] = "The order type should be internal for schools under Apeejay Education Society and delivery institution should be Apeejay.";
         }
 
-        if (! strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER || strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+        if (! strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
             $this->errors['rows'][$this->row_no][] = "The order type should be external for schools outside Apeejay and delivery institution should be other than Apeejay.";
         }
     }
@@ -368,11 +363,10 @@ class ExcelValidator
         $activity_id = $data['shopify_activity_id'];
         $activity_fee = $data['activity_fee'];
         $final_fee = $data['final_fee_incl_gst'];
-        $activity_name = $data['activity'];
         $scholarship_amount = $data['scholarship_discount'];
 
-        if (! DB::get_shopify_product_from_database($activity_id, $activity_name)) {
-            $this->errors['rows'][$this->row_no][] = "Either activity id or sctivity name is incorrect.";
+        if (! DB::get_shopify_product_from_database($activity_id)) {
+            $this->errors['rows'][$this->row_no][] = "Activity ID is incorrect.";
         }
 
         if (! DB::check_activity_fee_value($activity_fee, $activity_id)) {
@@ -384,8 +378,8 @@ class ExcelValidator
                 $this->errors['rows'][$this->row_no][] = "Final Fee  is not equal to the activity fee.";
             }
         } else {
-            if ($final_fee != $activity_fee - $scholarship_amount) {
-                $this->errors['rows'][$this->row_no][] = "After applying discount ($scholarship_amount), the Final fee entered is incorrect.";
+            if ($final_fee != ($activity_fee - $scholarship_amount)) {
+                $this->errors['rows'][$this->row_no][] = "After applying discount ($scholarship_amount), the Final Fee ($final_fee) entered is incorrect.";
             }
         }
     }

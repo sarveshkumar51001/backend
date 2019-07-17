@@ -14,7 +14,7 @@ use Carbon\Carbon;
 class ShopifyController extends BaseController
 {
 	public static $adminTeam = [
-		'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com'
+		'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com', 'ankur@valedra.com'
 	];
 
     public function upload() {

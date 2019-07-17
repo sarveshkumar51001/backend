@@ -117,14 +117,15 @@ class DB
     // 	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
     // }
 
-    public static function get_shopify_product_from_database($product_sku,$product_name){
+    public static function get_shopify_product_from_database($product_sku){
     	
     	$product = Product::where('variants.sku', $product_sku)->first();
 
-    	if(!$product){
-    		return false ;
+    	if($product) {
+    		return true ;
     	}
-
+    	return false;
+        /*
     	if(sizeof($product['variants']) == 1 && $product['title'] == $product_name){
 			return true ;
 		}else{
@@ -135,6 +136,7 @@ class DB
 			}
 		}
 		return false ;
+		*/
 	}
 
     public static function check_product_existence_in_database($product_id){
