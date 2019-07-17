@@ -14,7 +14,7 @@ use Carbon\Carbon;
 class ShopifyController extends BaseController
 {
 	public static $adminTeam = [
-		'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com'
+		'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com', 'ankur@valedra.com'
 	];
 
     public function upload() {
@@ -38,7 +38,6 @@ class ShopifyController extends BaseController
 	    $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Upload Preview' => ''];
 
 	    # Configuring Laravel Excel for skipping header row and modifying the duplicate header names
-        try {
 	        config([
 	            'excel.import.startRow' => 2,
 		        'excel.import.heading' => 'slugged_with_count',
@@ -201,10 +200,7 @@ class ShopifyController extends BaseController
 			    ->with('excel_response', $formattedData)
 			    ->with('breadcrumb', $breadcrumb)
 			    ->with('headers', $ExcelRaw->GetFormattedHeader());
-        } catch (\Exception $bulk) {
-            return view('shopify.uploaderror');
-        }
-    }
+    		}
 
     public function previous_uploads() {
         $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Previous uploads' => ''];
