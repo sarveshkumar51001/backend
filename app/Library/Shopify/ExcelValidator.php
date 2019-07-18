@@ -97,6 +97,20 @@ class ExcelValidator
                 'customer_id',
                 'upload_date'
             ];
+
+            $check_fields = [
+                'chequedd_date',
+                'chequedd_no',
+                'amount',
+                'mode_of_payment',
+                'drawee_name',
+                'drawee_account_number',
+                'bank_name',
+                'bank_branch',
+                'micr_code',
+                'txn_reference_number_only_in_case_of_paytm_or_online'
+            ];
+
             foreach (Arr::except($row, $except) as $index => $value) {
                 if ($value != $DatabaseRow[$index]) {
                     $fields_updated[] = $index;
@@ -111,7 +125,8 @@ class ExcelValidator
             $existingpayments = $DatabaseRow["payments"];
 
             foreach ($row["payments"] as $payment_index => $payment) {
-                if (array_diff_assoc($existingpayments[$payment_index], $payment)) {
+
+                if (array_diff_assoc(Arr::only($existingpayments[$payment_index],$check_fields), Arr::only($payment,$check_fields))){
                     $is_duplicate = false;
                     if ($existingpayments[$payment_index]['processed'] == 'Yes') {
                         $this->errors['rows'][$this->row_no][] = "Already Processed installments can't be modified. Installment " . ($payment_index + 1) . " have been modified";
@@ -336,11 +351,17 @@ class ExcelValidator
                     }
                 }
             }
+
+            if(!empty($mode) && ! empty($payment['chequedd_date'])){
+                if(!in_array($mode,array_map('strtolower', $offline_modes))){
+                    $this->errors['rows'][$this->row_no][] = "Cheque/DD date is only applicable in case of payments having mode of payment as Cheque or DD.";
+                }
+            }
         }
 
         if ($amount != $final_fee) {
             $this->errors['rows'][$this->row_no][] = "Total Installment Amount ($amount) and Final Fee Amount ($final_fee) does not match";
-        }
+            }
     }
 
     private function ValidateFieldValues(array $data)
@@ -349,12 +370,16 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
         }
 
-        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)){
+         if (strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)){
             $this->errors['rows'][$this->row_no][] = "The order type should be internal for schools under Apeejay Education Society and delivery institution should be Apeejay.";
+            }
         }
 
-        if (! strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+        if (! strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)){ 
+        if (strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER && strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
             $this->errors['rows'][$this->row_no][] = "The order type should be external for schools outside Apeejay and delivery institution should be other than Apeejay.";
+            }
         }
     }
 
