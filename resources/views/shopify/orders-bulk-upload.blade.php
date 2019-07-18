@@ -25,6 +25,12 @@
                           <div class="row">
                             <div class="col-sm-4">
                                 <div class="form-group">
+                                    <label><i class="fa fa-calendar" aria-hidden="true"></i> Upload Date</label>
+                                    <input autocomplete="off" type="date" name="upload-date" required="required" class="form-control" value= "d/m/Y">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
                                     <label><i class="fa fa-money" aria-hidden="true"></i> In Cash</label>
                                     <input autocomplete="off" type="text" name="cash-total" required="required" class="form-control" value="0">
                                 </div>
