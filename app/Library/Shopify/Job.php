@@ -5,6 +5,7 @@ namespace App\Library\Shopify;
 use App\Models\ShopifyExcelUpload;
 use Exception;
 use Carbon\Carbon;
+use App\Jobs\ShopifyOrderCreation;
 
 /**
  * Helper Job class
@@ -73,9 +74,17 @@ class Job {
 	
 			$installmentData = DataRaw::GetInstallmentData($installment, $index, $notes_array);
 
-			if (empty($installmentData) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp > time())) {
+			if (empty($installmentData)){
 				continue;
 			}
+
+			if ( (!empty($installment['chequedd_date'])) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp > time()) {
+				$object = ShopifyExcelUpload::find($Data->ID());
+				$delay = Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp - time();
+				// Dispatching new job with delay if PDC recorded
+				ShopifyOrderCreation::dispatch($object)->delay(now()->addSeconds($delay)->addHours(13));
+			}
+			else{
 			// Get the installment data in proper format
 			list($transaction_data, $installment_details) = $installmentData;
 
@@ -96,6 +105,7 @@ class Job {
 
 			// DB UPDATE: Mark the installment node as
 			DB::mark_installment_status_processed($Data->ID(), $index);
+			}
 		}
 
 		// Finally mark the object as process completed
