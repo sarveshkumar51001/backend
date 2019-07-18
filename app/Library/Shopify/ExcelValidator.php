@@ -98,19 +98,7 @@ class ExcelValidator
                 'upload_date'
             ];
 
-            $check_fields = [
-                'chequedd_date',
-                'chequedd_no',
-                'amount',
-                'mode_of_payment',
-                'drawee_name',
-                'drawee_account_number',
-                'bank_name',
-                'bank_branch',
-                'micr_code',
-                'txn_reference_number_only_in_case_of_paytm_or_online'
-            ];
-
+            
             foreach (Arr::except($row, $except) as $index => $value) {
                 if ($value != $DatabaseRow[$index]) {
                     $fields_updated[] = $index;
@@ -126,7 +114,7 @@ class ExcelValidator
 
             foreach ($row["payments"] as $payment_index => $payment) {
 
-                if (array_diff_assoc(Arr::only($existingpayments[$payment_index],$check_fields), Arr::only($payment,$check_fields))){
+                if (array_diff_assoc(Arr::only($existingpayments[$payment_index],ShopifyExcelUpload::$check_fields), Arr::only($payment,ShopifyExcelUpload::$check_fields))){
                     $is_duplicate = false;
                     if ($existingpayments[$payment_index]['processed'] == 'Yes') {
                         $this->errors['rows'][$this->row_no][] = "Already Processed installments can't be modified. Installment " . ($payment_index + 1) . " have been modified";
@@ -333,12 +321,15 @@ class ExcelValidator
                 } else {
                     $this->errors['rows'][$this->row_no][] = " All Cheque Details are mandatory for transactions having payment mode as cheque/DD.";
                 }
-            } // Checking for online mode payments
-            else if (in_array($mode, array_map('strtolower', $online_modes))) {
+            }
+            // add else condition here
+            // Checking for online mode payments
+            if (in_array($mode, array_map('strtolower', $online_modes))) {
                 if (empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])) {
                     $this->errors['rows'][$this->row_no][] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
                 }
-            } else if ($mode != strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH]) && ! empty($mode)) {
+            } 
+            if ($mode != strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH]) && ! empty($mode)) {
                 $this->errors['rows'][$this->row_no][] = "Invalid Payment Mode - $mode";
             }
 

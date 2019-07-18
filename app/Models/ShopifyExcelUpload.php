@@ -38,4 +38,28 @@ class ShopifyExcelUpload extends Base
 		self::MODE_PAYTM => 'Paytm QR Code',
 		self::MODE_NEFT => 'NEFT'
 	];
+
+	public static $cheque_payment_fields = [
+
+                'chequedd_date',
+                'chequedd_no',
+                'drawee_name',
+                'drawee_account_number',
+                'bank_name',
+                'bank_branch',
+                'micr_code',
+            ];
+
+    public static $check_fields = [
+                'chequedd_date',
+                'chequedd_no',
+                'amount',
+                'mode_of_payment',
+                'drawee_name',
+                'drawee_account_number',
+                'bank_name',
+                'bank_branch',
+                'micr_code',
+                'txn_reference_number_only_in_case_of_paytm_or_online'
+            ];
 }
