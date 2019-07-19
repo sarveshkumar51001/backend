@@ -4,7 +4,7 @@ namespace App\Library\Webhook\Events\Shopify;
 use App\Models\Product;
 use App\Models\Webhook;
 
-class ProductUpdated
+class ProductUpdate
 {
 
     public static function handle(Webhook $Webhook)
