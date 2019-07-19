@@ -89,9 +89,11 @@ class ExcelValidator
         if (! empty($DatabaseRow)) {
             $is_duplicate = true;
             $fields_updated = [];
-            
 
-            foreach (Arr::except($row, ShopifyExcelUpload::$except) as $index => $value) {
+            $except_payment_and_metadata = ShopifyExcelUpload::METADATA_FIELDS;
+            array_push($except_payment_and_metadata, 'payments');
+            
+            foreach (Arr::except($row, $except_payment_and_metadata) as $index => $value) {
                 if ($value != $DatabaseRow[$index]) {
                     $fields_updated[] = $index;
                 }
@@ -106,7 +108,7 @@ class ExcelValidator
 
             foreach ($row["payments"] as $payment_index => $payment) {
 
-                if (array_diff_assoc(Arr::only($existingpayments[$payment_index],ShopifyExcelUpload::$check_fields), Arr::only($payment,ShopifyExcelUpload::$check_fields))){
+                if (array_diff_assoc(Arr::only($existingpayments[$payment_index], ShopifyExcelUpload::CHEQUE_DD_FIELDS), Arr::only($payment, ShopifyExcelUpload::CHEQUE_DD_FIELDS))) {
                     $is_duplicate = false;
                     if ($existingpayments[$payment_index]['processed'] == 'Yes') {
                         $this->errors['rows'][$this->row_no][] = "Already Processed installments can't be modified. Installment " . ($payment_index + 1) . " have been modified";
@@ -284,7 +286,17 @@ class ExcelValidator
     {
         $amount = 0;
         $final_fee = $data['final_fee_incl_gst'];
+
         foreach ($data['payments'] as $payment) {
+            $payment = Arr::except($payment, ShopifyExcelUpload::PAYMENT_METAFIELDS);
+
+            if (empty($payment['amount'])) {
+                if (! array_filter(Arr::except($payment, 'amount'))) {
+                    $this->errors['rows'][$this->row_no][] = "Amount is required for any payment.";
+                }
+                continue;
+            }
+
             $mode = strtolower($payment['mode_of_payment']);
             $amount += $payment['amount'];
 
@@ -299,33 +311,34 @@ class ExcelValidator
                 ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]
             ];
 
-            // Checking for offline mode payments
-            if (in_array($mode, array_map('strtolower', $offline_modes))) {
-                $instrument_no = $payment['chequedd_no'];
-                $account_no = $payment['drawee_account_number'];
-                $micr_code = $payment['micr_code'];
-                if (! empty($instrument_no) && ! empty($account_no) && ! empty($micr_code) && ! empty($payment['chequedd_date']) && ! empty($payment['drawee_name']) && ! empty($payment['bank_name']) && ! empty($payment['bank_branch'])) {
+            $cheque_dd_fields = Arr::only($payment, ShopifyExcelUpload::CHEQUE_DD_FIELDS);
+            $online_fields = Arr::only($payment, ShopifyExcelUpload::ONLINE_FIELDS);
 
-                    // Check if the combination of cheque no., micr_code and account_no. exists in database
-                    if (DB::check_if_already_used($instrument_no, $micr_code, $account_no)) {
+            if (in_array($mode, array_map('strtolower', $offline_modes))) {
+                // Checking for offline mode payments
+                if (array_filter($cheque_dd_fields)) {
+                    // Checking for blank cheque/dd details
+                    $this->errors['rows'][$this->row_no][] = "Cheque/DD Details are mandatory for transactions having payment mode as Cheque/DD.";
+                } else {
+                    if (DB::check_if_already_used($payment['chequedd_no'], $payment['micr_code'], $payment['drawee_account_number'])) {
+                        // Check if the combination of cheque no., micr_code and account_no. exists in database
                         $this->errors['rows'][$this->row_no][] = "Cheque/DD Details already used before.";
                     }
-                } else {
-                    $this->errors['rows'][$this->row_no][] = " All Cheque Details are mandatory for transactions having payment mode as cheque/DD.";
                 }
-            }
-            else{
-                if(!empty($mode) && array_filter(Arr::except($payment,ShopifyExcelUpload::$cheque_except_fields))){
-                    $this->errors['rows'][$this->row_no][] = " Cheque/DD details are only applicable in case of payments having mode of payment as Cheque or DD.";
-                }
-            }
-            // Checking for online mode payments
-            if (in_array($mode, array_map('strtolower', $online_modes))) {
-                if (empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])) {
+            } else if (in_array($mode, array_map('strtolower', $online_modes))) {
+                // Checking for online mode payments
+                if (array_filter($online_fields)) {
+                    // Checking for blank online details
                     $this->errors['rows'][$this->row_no][] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
                 }
-            } 
-            if ($mode != strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH]) && ! empty($mode)) {
+            } else if ($mode == ShopifyExcelUpload::MODE_CASH) {
+                // Checking for cash mode payments
+                if (! array_filter($cheque_dd_fields) || ! array_filter($online_fields)) {
+                    // Cheque/DD/Online should be blank for cash payments
+                    $this->errors['rows'][$this->row_no][] = "For Cash payments, Cheque/DD/Online payment details are not applicable.";
+                }
+            } else if (! empty($mode)) {
+                // Checking for invalid paymemt mode
                 $this->errors['rows'][$this->row_no][] = "Invalid Payment Mode - $mode";
             }
 
@@ -342,7 +355,7 @@ class ExcelValidator
 
         if ($amount != $final_fee) {
             $this->errors['rows'][$this->row_no][] = "Total Installment Amount ($amount) and Final Fee Amount ($final_fee) does not match";
-            }
+        }
     }
 
     private function ValidateFieldValues(array $data)
@@ -351,15 +364,13 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
         }
 
-        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)){
-         if (strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)){
-            $this->errors['rows'][$this->row_no][] = "The order type should be internal for schools under Apeejay Education Society and delivery institution should be Apeejay.";
+        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)) {
+            if (strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+                $this->errors['rows'][$this->row_no][] = "The order type should be internal for schools under Apeejay Education Society and delivery institution should be Apeejay.";
             }
-        }
-
-        if (! strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)){ 
-        if (strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER && strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
-            $this->errors['rows'][$this->row_no][] = "The order type should be external for schools outside Apeejay and delivery institution should be other than Apeejay.";
+        } else {
+            if (strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER || strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+                $this->errors['rows'][$this->row_no][] = "The order type should be external for schools outside Apeejay and delivery institution should be other than Apeejay.";
             }
         }
     }

@@ -32,8 +32,18 @@ class ShopifyController extends BaseController
 	 */
     public function upload_preview(Request $request)
     {
-
-	    Validator::make($request->all(),['file' => 'mimes:xls'], ['mimes' => 'The format for the uploaded file should be .:values.'])->validate();
+        $rules = [
+                'file' => 'mimes:xls',
+                'date' => [
+                    "required",
+                    "regex:" . ShopifyExcelUpload::DATE_REGEX
+                ],
+                'cash-total' => 'numeric',
+                'cheque-total' => 'numeric',
+                'online-total' => 'numeric'
+            ];
+        
+	    Validator::make($request->all(), $rules, ['mimes' => 'The format for the uploaded file should be .:values.'])->validate();
 
 	    $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Upload Preview' => ''];
 
@@ -67,12 +77,14 @@ class ShopifyController extends BaseController
 	        $ExlReader = Excel::load($path->getRealPath(), function () {
 	        })->get()->first();
 
-	        $upload_date_timestamp = Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$request['date'])->timestamp;
-
 	        // Create Excel Raw object
+	        if(empty($ExlReader->getHeading())) {
+	            return back()->withErrors(['No data was found in the uploaded file']);
+	        }
+	        
 	        $header = $ExlReader->first()->keys()->toArray();
 		    $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
-		        'upload_date' => $upload_date_timestamp,
+		        'upload_date' => $request['date'],
 			    'uploaded_by' => Auth::user()->id,
 			    'file_id' => $file_id,
 			    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
