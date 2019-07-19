@@ -67,10 +67,12 @@ class ShopifyController extends BaseController
 	        $ExlReader = Excel::load($path->getRealPath(), function () {
 	        })->get()->first();
 
+	        $upload_date_timestamp = Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$request['date'])->timestamp;
+
 	        // Create Excel Raw object
 	        $header = $ExlReader->first()->keys()->toArray();
 		    $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
-		        'upload_date' => $request['date'],
+		        'upload_date' => gettype($upload_date_timestamp),
 			    'uploaded_by' => Auth::user()->id,
 			    'file_id' => $file_id,
 			    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,

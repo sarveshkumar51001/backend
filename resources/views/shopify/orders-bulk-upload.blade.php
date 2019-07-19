@@ -18,17 +18,17 @@
             @endforeach
             <form method="POST" action="{{ route('bulkupload.upload_preview') }}" enctype="multipart/form-data">
                 <div class="card">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Select Date <i class="fa fa-calendar"></i></label>
+                                <input autocomplete="off" name="date" maxlength="50" type="text" class="form-control datepicker" value="{{ date('d/m/Y') }}"/>
+                        </div>
+                    </div>
             		<div class="card-header">
             			Amount Collected
             		</div>
                  	<div class="card-body">
                           <div class="row">
-                            <div class="col-sm-4">
-                                <div class="form-group">
-                                    <label><i class="fa fa-calendar" aria-hidden="true"></i> Upload Date</label>
-                                    <input autocomplete="off" type="date" name="upload-date" required="required" class="form-control" value= "d/m/Y">
-                                </div>
-                            </div>
                             <div class="col-sm-4">
                                 <div class="form-group">
                                     <label><i class="fa fa-money" aria-hidden="true"></i> In Cash</label>
@@ -74,7 +74,7 @@
     <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
     <script>
         // Load date picker
-        $('.datepicker').datepicker().on('changeDate', function(ev) {
+        $('.datepicker').datepicker({format: 'dd/mm/yyyy'}).on('changeDate', function(ev) {
             $(this).datepicker('hide');
         });
     </script>

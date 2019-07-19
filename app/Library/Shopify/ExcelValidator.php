@@ -89,17 +89,9 @@ class ExcelValidator
         if (! empty($DatabaseRow)) {
             $is_duplicate = true;
             $fields_updated = [];
-            $except = [
-                'payments',
-                'file_id',
-                'job_status',
-                'order_id',
-                'customer_id',
-                'upload_date'
-            ];
-
             
-            foreach (Arr::except($row, $except) as $index => $value) {
+
+            foreach (Arr::except($row, ShopifyExcelUpload::$except) as $index => $value) {
                 if ($value != $DatabaseRow[$index]) {
                     $fields_updated[] = $index;
                 }
@@ -322,7 +314,11 @@ class ExcelValidator
                     $this->errors['rows'][$this->row_no][] = " All Cheque Details are mandatory for transactions having payment mode as cheque/DD.";
                 }
             }
-            // add else condition here
+            else{
+                if(!empty($mode) && array_filter(Arr::except($payment,ShopifyExcelUpload::$cheque_except_fields))){
+                    $this->errors['rows'][$this->row_no][] = " Cheque/DD details are only applicable in case of payments having mode of payment as Cheque or DD.";
+                }
+            }
             // Checking for online mode payments
             if (in_array($mode, array_map('strtolower', $online_modes))) {
                 if (empty($payment['txn_reference_number_only_in_case_of_paytm_or_online'])) {
@@ -340,12 +336,6 @@ class ExcelValidator
                     if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
                         $this->errors['rows'][$this->row_no][] = "Expected Amount and Expected date of collection required for every installment of this order.";
                     }
-                }
-            }
-
-            if(!empty($mode) && ! empty($payment['chequedd_date'])){
-                if(!in_array($mode,array_map('strtolower', $offline_modes))){
-                    $this->errors['rows'][$this->row_no][] = "Cheque/DD date is only applicable in case of payments having mode of payment as Cheque or DD.";
                 }
             }
         }
