@@ -11,17 +11,6 @@
  * |
  */
 
-// Put Shopify Related Webhooks Here
-Route::prefix('shopify')->namespace('Shopify')->group(function () {
-    // Products Webhooks
-    Route::prefix('product')->group(function () {
-
-        Route::post('create', 'Product@create');
-        Route::post('update', 'Product@update');
-        Route::post('delete', 'Product@delete');
-    });
-});
-
 Route::post("{path}", function () {
     return response()->json([
         'webhook_id' => request()->webhook_id

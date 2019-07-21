@@ -43,6 +43,11 @@ function isArrayAssoc(array $arr)
     return array_keys($arr) !== range(0, count($arr) - 1);
 }
 
+
 function array_contains_empty_value(array $arr) {
     return boolval(count(array_filter($arr)) !== count($arr));
+}
+
+function log_error(\Exception $e) {
+    slack($e)->post();
 }
