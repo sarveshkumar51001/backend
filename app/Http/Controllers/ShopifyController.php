@@ -302,7 +302,7 @@ class ShopifyController extends BaseController
 	    $Uploads = Upload::find($id);
 
 	    $breadcrumb = ['Shopify' => route('bulkupload.upload'), 'Download' => ''];
-	    if ($Uploads['user_id'] == Auth::user()->id) {
+	    if ($Uploads['user_id'] == Auth::user()->id && file_exists($Uploads['path'])) {
 		    return response()->download($Uploads['path']);
 	    }
 
