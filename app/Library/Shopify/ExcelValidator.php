@@ -234,9 +234,9 @@ class ExcelValidator
 
     public function HasAllValidHeaders()
     {
-        $has_valid_header =  false;
-        foreach ($this->File->GetFormattedHeader() as $header) {
-            if (! isset(Excel::$headerMap[$header])) {
+        $has_valid_header = false;
+        foreach (Excel::$headerMap as $header) {
+            if (! isset($this->File->GetFormattedHeader()[$header])) {
                 $has_valid_header = false;
                 break;
             } else {
