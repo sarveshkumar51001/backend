@@ -32,8 +32,18 @@ class ShopifyController extends BaseController
 	 */
     public function upload_preview(Request $request)
     {
-
-	    Validator::make($request->all(),['file' => 'mimes:xls'], ['mimes' => 'The format for the uploaded file should be .:values.'])->validate();
+        $rules = [
+                'file' => 'mimes:xls',
+                'date' => [
+                    "required",
+                    "regex:" . ShopifyExcelUpload::DATE_REGEX
+                ],
+                'cash-total' => 'numeric',
+                'cheque-total' => 'numeric',
+                'online-total' => 'numeric'
+            ];
+        
+	    Validator::make($request->all(), $rules)->validate();
 
 	    $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Upload Preview' => ''];
 
@@ -41,7 +51,8 @@ class ShopifyController extends BaseController
 	        config([
 	            'excel.import.startRow' => 2,
 		        'excel.import.heading' => 'slugged_with_count',
-		        'excel.import.dates.enabled' => false
+		        'excel.import.dates.enabled' => false,
+	            'excel.import.force_sheets_collection' => true
 	        ]);
 
 	        # Fetching uploaded file and moving it to a destination specific for a user.
@@ -68,9 +79,13 @@ class ShopifyController extends BaseController
 	        })->get()->first();
 
 	        // Create Excel Raw object
+	        if(empty($ExlReader->getHeading())) {
+	            return back()->withErrors(['No data was found in the uploaded file']);
+	        }
+	        
 	        $header = $ExlReader->first()->keys()->toArray();
 		    $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
-		        'upload_date' => date(ShopifyExcelUpload::DATE_FORMAT,time()),
+		        'upload_date' => $request['date'],
 			    'uploaded_by' => Auth::user()->id,
 			    'file_id' => $file_id,
 			    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
@@ -242,30 +257,32 @@ class ShopifyController extends BaseController
 
 	    foreach ($successful_records as $document) {
 		    foreach ($document['payments'] as $payment) {
-		    	if (!empty($payment['upload_date']) && $payment['upload_date'] >= $start && $payment['upload_date'] <= $end) {
+		    	if (!empty($payment['upload_date']) && $payment['upload_date'] >= $start && $payment['upload_date'] <= $end){
 				    $mode = strtolower($payment['mode_of_payment']);
 				    if(!empty($mode)){
-				    if(!empty($payment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$payment['chequedd_date'])->timestamp > time()) {
-					    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'];
-					    $modeWiseData[ShopifyExcelUpload::MODE_PDC]['count'] += 1;
-				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
-					    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'];
-					    $modeWiseData[ShopifyExcelUpload::MODE_CASH]['count'] += 1;
-				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
-					    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'];
-					    $modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['count'] += 1;
-				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
-					    $modeWiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'];
-					    $modeWiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
-				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])) {
-					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
-					    $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
-				    }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM])) {
-					    $modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['total'] += $payment['amount'];
-					    $modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['count'] += 1;
-					}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT])) {
-					    $modeWiseData[ShopifyExcelUpload::MODE_NEFT]['total'] += $payment['amount'];
-					    $modeWiseData[ShopifyExcelUpload::MODE_NEFT]['count'] += 1;
+				    	if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])){
+				    	if(!empty($payment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$payment['chequedd_date'])->timestamp > time()) {
+					    	$modeWiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_PDC]['count'] += 1;
+				    	}
+						}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
+					    	$modeWiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_CASH]['count'] += 1;
+				    	}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
+					    	$modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['count'] += 1;
+				    	}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
+					    	$modeWiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
+				    	}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])) {
+					    	$modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
+				    	}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM])) {
+					    	$modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['total'] += $payment['amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['count'] += 1;
+						}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT])) {
+					    	$modeWiseData[ShopifyExcelUpload::MODE_NEFT]['total'] += $payment['amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_NEFT]['count'] += 1;
 						}
 					}
 			    }

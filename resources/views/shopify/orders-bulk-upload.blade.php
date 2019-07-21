@@ -7,7 +7,7 @@
             <div class="row pull-right">
                 <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i> File Upload History</button></a>
                 <a href="{{ route('bulkupload.previous_orders') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Previous Orders</button></a>
-                <a href="{{ URL::asset('shopify/sample_shopify_file.xls') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-download"> &nbsp;</i>Download sample file</button></a>
+                <a href="{{ URL::asset('shopify/sample_shopify_file.xls') }}"><button type="button" class="btn btn-outline-primary btn-sm ml-2"><i class="fa fa-download"> &nbsp;</i>Download sample file</button></a>
             </div>
         </div>
         <div class="card-body">
@@ -45,12 +45,18 @@
                     </div>
                 </div>
                 <div class="row">
+                	<div class="col-sm-4">
+                        <div class="form-group">
+                            <label><i class="fa fa-calendar"></i> Select Date</label>
+                                <input autocomplete="off" name="date" maxlength="50" type="text" class="form-control datepicker" required value="{{ date('d/m/Y') }}"/>
+                        </div>
+                    </div>
                     <div class="col-sm-4">
                         <label><i class="fa fa-file-excel-o" aria-hidden="true"></i> Upload file (only .xls files allowed)</label>
                         <input type="file" name="file" required="required" accept=".xls" class="form-control">
                     </div>
                     {{ csrf_field() }}
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                         <label>&nbsp;</label>
                         <div class="input-group">
                             <button id="file-upload-btn" type="submit" class="btn btn-group-sm btn-success"><i class="fa fa-upload"></i> &nbsp; Upload</button>
@@ -68,7 +74,7 @@
     <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
     <script>
         // Load date picker
-        $('.datepicker').datepicker().on('changeDate', function(ev) {
+        $('.datepicker').datepicker({format: 'dd/mm/yyyy'}).on('changeDate', function(ev) {
             $(this).datepicker('hide');
         });
     </script>
