@@ -234,13 +234,17 @@ class ExcelValidator
 
     public function HasAllValidHeaders()
     {
+        $has_valid_header =  false;
         foreach ($this->File->GetFormattedHeader() as $header) {
             if (! isset(Excel::$headerMap[$header])) {
-                return false;
+                $has_valid_header = false;
+                break;
+            } else {
+                $has_valid_header = true;
             }
         }
 
-        return true;
+        return $has_valid_header;
     }
 
     /**
