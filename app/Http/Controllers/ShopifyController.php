@@ -43,7 +43,7 @@ class ShopifyController extends BaseController
                 'online-total' => 'numeric'
             ];
         
-	    Validator::make($request->all(), $rules, ['mimes' => 'The format for the uploaded file should be .:values.'])->validate();
+	    Validator::make($request->all(), $rules)->validate();
 
 	    $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Upload Preview' => ''];
 
@@ -51,7 +51,8 @@ class ShopifyController extends BaseController
 	        config([
 	            'excel.import.startRow' => 2,
 		        'excel.import.heading' => 'slugged_with_count',
-		        'excel.import.dates.enabled' => false
+		        'excel.import.dates.enabled' => false,
+	            'excel.import.force_sheets_collection' => true
 	        ]);
 
 	        # Fetching uploaded file and moving it to a destination specific for a user.

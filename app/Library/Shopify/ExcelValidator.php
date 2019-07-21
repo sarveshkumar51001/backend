@@ -5,6 +5,7 @@ use App\Models\ShopifyExcelUpload;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 /**
  * Class ExcelValidator
@@ -92,7 +93,7 @@ class ExcelValidator
 
             $except_payment_and_metadata = ShopifyExcelUpload::METADATA_FIELDS;
             array_push($except_payment_and_metadata, 'payments');
-            
+
             foreach (Arr::except($row, $except_payment_and_metadata) as $index => $value) {
                 if ($value != $DatabaseRow[$index]) {
                     $fields_updated[] = $index;
@@ -144,41 +145,59 @@ class ExcelValidator
         ];
 
         $rules = [
-            "shopify_activity_id" => "required|string|min:3",
-            "school_name" => "required|string",
-            "school_enrollment_no" => "required|string|min:4|regex:/[A-Z]+-[0-9]+/",
-            "mobile_number" => "regex:/[6-9][0-9]{9}/",
-            "email_id" => "email",
+            // Activity Details
             "date_of_enrollment" => [
                 "required",
                 "regex:" . ShopifyExcelUpload::DATE_REGEX
             ],
-            "activity_fee" => "required",
-            "final_fee_incl_gst" => "required|numeric",
-            "scholarship_discount" => "numeric",
-            "student_first_name" => "required",
-            "class" => "required",
-            "section" => "required",
-            "parent_first_name" => "required",
+            "shopify_activity_id" => "required|string|min:3",
             "delivery_institution" => "required",
             "branch" => [
                 "required",
                 Rule::in($valid_branch_names)
             ],
-            "activity" => "required",
-            "payments.*.chequedd_no" => "numeric",
-            "payments.*.drawee_name" => "string",
-            "payments.*.drawee_account_number" => "numeric",
-            "payments.*.micr_code" => "numeric",
             "external_internal" => "required",
-            "payments.*.amount" => "numeric",
-            "payments" => "required",
-            "payments.0.mode_of_payment" => "required|string",
+            "school_name" => "required|string",
+
+            // Student Details
+            "student_first_name" => "required",
+            "activity" => "required",
+            "school_enrollment_no" => "required|string|min:4|regex:/[A-Z]+-[0-9]+/",
+            "class" => "required|numeric",
+            "section" => "required",
+
+            // Parent Details
+            "parent_first_name" => "required",
+            "mobile_number" => "regex:/[6-9][0-9]{9}/",
+            "email_id" => "email",
+
+            // Fee Details
+            "activity_fee" => "required",
+            "scholarship_discount" => "numeric",
+            "after_discount_fee" => "numeric",
+            "final_fee_incl_gst" => "required|numeric",
+            "amount" => "numeric",
+
+            // Registration/Booking Fee
+            "payments.0.mode_of_payment" => [
+                "required",
+                Rule::in(ShopifyExcelUpload::payment_modes())
+            ],
             "payments.0.amount" => "required|numeric",
-            "payments.*.mode_of_payment" => "string",
+
+            // All Payments
+            "payments" => "required",
+            "payments.*.amount" => "numeric",
+            "payments.*.mode_of_payment" => [
+                Rule::in(ShopifyExcelUpload::payment_modes())
+            ],
+            "payments.*.chequedd_no" => "numeric",
+            "payments.*.micr_code" => "numeric",
             "payments.*.chequedd_date" => [
                 "regex:" . ShopifyExcelUpload::DATE_REGEX
-            ]
+            ],
+            "payments.*.drawee_name" => "string",
+            "payments.*.drawee_account_number" => "numeric"
         ];
 
         $validator = Validator::make($data, $rules);
@@ -287,13 +306,11 @@ class ExcelValidator
         $amount = 0;
         $final_fee = $data['final_fee_incl_gst'];
 
-        foreach ($data['payments'] as $payment) {
+        foreach ($data['payments'] as $payment_index => $payment) {
             $payment = Arr::except($payment, ShopifyExcelUpload::PAYMENT_METAFIELDS);
 
             if (empty($payment['amount'])) {
-                if (! array_filter(Arr::except($payment, 'amount'))) {
-                    $this->errors['rows'][$this->row_no][] = "Amount is required for any payment.";
-                }
+                $this->errors['rows'][$this->row_no][] = "Installment " . ($payment_index + 1) . " - Amount is required for any payment.";
                 continue;
             }
 
@@ -316,30 +333,30 @@ class ExcelValidator
 
             if (in_array($mode, array_map('strtolower', $offline_modes))) {
                 // Checking for offline mode payments
-                if (array_filter($cheque_dd_fields)) {
+                if (array_contains_empty_value($cheque_dd_fields)) {
                     // Checking for blank cheque/dd details
-                    $this->errors['rows'][$this->row_no][] = "Cheque/DD Details are mandatory for transactions having payment mode as Cheque/DD.";
+                    $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Cheque/DD Details are mandatory for transactions having payment mode as Cheque/DD.";
                 } else {
                     if (DB::check_if_already_used($payment['chequedd_no'], $payment['micr_code'], $payment['drawee_account_number'])) {
                         // Check if the combination of cheque no., micr_code and account_no. exists in database
-                        $this->errors['rows'][$this->row_no][] = "Cheque/DD Details already used before.";
+                        $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Cheque/DD Details already used before.";
                     }
                 }
             } else if (in_array($mode, array_map('strtolower', $online_modes))) {
                 // Checking for online mode payments
-                if (array_filter($online_fields)) {
+                if (array_contains_empty_value($online_fields)) {
                     // Checking for blank online details
-                    $this->errors['rows'][$this->row_no][] = "Transaction Reference No. is mandatory in case of online and Paytm transactions.";
+                    $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Transaction Reference No. is mandatory in case of Online Payment.";
                 }
-            } else if ($mode == ShopifyExcelUpload::MODE_CASH) {
+            } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
                 // Checking for cash mode payments
-                if (! array_filter($cheque_dd_fields) || ! array_filter($online_fields)) {
+                if (! array_contains_empty_value($cheque_dd_fields) || ! array_contains_empty_value($online_fields)) {
                     // Cheque/DD/Online should be blank for cash payments
-                    $this->errors['rows'][$this->row_no][] = "For Cash payments, Cheque/DD/Online payment details are not applicable.";
+                    $this->errors['rows'][$this->row_no][] = "Installment $payment_index - For Cash payments, Cheque/DD/Online payment details are not applicable.";
                 }
             } else if (! empty($mode)) {
                 // Checking for invalid paymemt mode
-                $this->errors['rows'][$this->row_no][] = "Invalid Payment Mode - $mode";
+                $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Invalid Payment Mode - $mode";
             }
 
             // Function for checking wthether the combination of amount and date present for each installment.
@@ -347,14 +364,26 @@ class ExcelValidator
             if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
                 if (empty($payment['mode_of_payment'])) {
                     if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
-                        $this->errors['rows'][$this->row_no][] = "Expected Amount and Expected date of collection required for every installment of this order.";
+                        $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Expected Amount and Expected date of collection required for every installment of this order.";
+                    } else {
+                        if (Carbon::now()->diffInDays(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']), false) > 1) {
+                            $except_amount_date = [
+                                'amount',
+                                'chequedd_date'
+                            ];
+                            if (! array_contains_empty_value(Arr::except($cheque_dd_fields, $except_amount_date)) || ! array_contains_empty_value($online_fields)) {
+                                $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Future Installments with no payment mode cannot have Cheque/DD/Online details";
+                            }
+                        } else {
+                            $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Payment date should be in future for future installments";
+                        }
                     }
                 }
             }
         }
 
         if ($amount != $final_fee) {
-            $this->errors['rows'][$this->row_no][] = "Total Installment Amount ($amount) and Final Fee Amount ($final_fee) does not match";
+            $this->errors['rows'][$this->row_no][] = "Total Installment Amount and Final Fee Amount does not match";
         }
     }
 
@@ -396,7 +425,7 @@ class ExcelValidator
             }
         } else {
             if ($final_fee != ($activity_fee - $scholarship_amount)) {
-                $this->errors['rows'][$this->row_no][] = "After applying discount ($scholarship_amount), the Final Fee ($final_fee) entered is incorrect.";
+                $this->errors['rows'][$this->row_no][] = "After applying discount and Final Fee amount does not match.";
             }
         }
     }

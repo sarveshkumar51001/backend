@@ -42,3 +42,7 @@ function isArrayAssoc(array $arr)
     if (array() === $arr) return false;
     return array_keys($arr) !== range(0, count($arr) - 1);
 }
+
+function array_contains_empty_value(array $arr) {
+    return boolval(count(array_filter($arr)) !== count($arr));
+}

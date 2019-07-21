@@ -44,16 +44,6 @@ class ShopifyExcelUpload extends Base
 
     const MODE_NEFT = 7;
 
-    public static $modesTitle = [
-        self::MODE_CASH => 'Cash',
-        self::MODE_CHEQUE => 'Cheque',
-        self::MODE_DD => 'DD',
-        self::MODE_PDC => 'PDC Cheque',
-        self::MODE_ONLINE => 'Online',
-        self::MODE_PAYTM => 'Paytm QR Code',
-        self::MODE_NEFT => 'NEFT'
-    ];
-
     const CHEQUE_DD_FIELDS = [
         'chequedd_no',
         'drawee_account_number',
@@ -82,4 +72,19 @@ class ShopifyExcelUpload extends Base
         'customer_id',
         'upload_date'
     ];
+
+    public static $modesTitle = [
+        self::MODE_CASH => 'Cash',
+        self::MODE_CHEQUE => 'Cheque',
+        self::MODE_DD => 'DD',
+        self::MODE_PDC => 'PDC Cheque',
+        self::MODE_ONLINE => 'Online',
+        self::MODE_PAYTM => 'Paytm QR Code',
+        self::MODE_NEFT => 'NEFT'
+    ];
+
+    public static function payment_modes()
+    {
+        return array_values(self::$modesTitle);
+    }
 }
