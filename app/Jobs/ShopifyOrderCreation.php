@@ -46,10 +46,8 @@ class ShopifyOrderCreation implements ShouldQueue
 
             // Posting to slack and sentry if job fails
             slack($e)->post();
-
             // Marking Job as Failed
             $this->fail($e);
         }
-        sleep(6);
     }
 }
