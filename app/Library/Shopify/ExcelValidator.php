@@ -235,15 +235,17 @@ class ExcelValidator
     public function HasAllValidHeaders()
     {
         $has_valid_header = false;
-        foreach (Excel::$headerMap as $header) {
-            if (! isset($this->File->GetFormattedHeader()[$header])) {
-                $has_valid_header = false;
-                break;
-            } else {
-                $has_valid_header = true;
+        if($raw_headers = array_slice($this->File->GetRawHeaders(), 0, 90)) {
+            foreach ($this->File->GetExcelHeaders() as $header) {
+                if (! in_array($header, $raw_headers)) {
+                    $has_valid_header = false;
+                    break;
+                } else {
+                    $has_valid_header = true;
+                }
             }
         }
-
+        
         return $has_valid_header;
     }
 
@@ -370,7 +372,7 @@ class ExcelValidator
                     if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
                         $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Expected Amount and Expected date of collection required for every installment of this order.";
                     } else {
-                        if (Carbon::now()->diffInDays(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']), false) > 1) {
+                        if (Carbon::now()->diffInDays(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']), false) > 0) {
                             $except_amount_date = [
                                 'amount',
                                 'chequedd_date'
