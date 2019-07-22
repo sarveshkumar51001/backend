@@ -33,6 +33,7 @@ class HandleWebhookDataMiddleware
             return $next($request);
         } catch (\Exception $e) {
             log_error($e);
+            logger($e);
         }
 
         return response('error', 500);
