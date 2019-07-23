@@ -12,7 +12,6 @@ class LeadCreate
     {
         self::postToSlack($Webhook);
     }
-
     private static function postToSlack(Webhook $Webhook)
     {
         $data = Handler::getFormData($Webhook->body());
