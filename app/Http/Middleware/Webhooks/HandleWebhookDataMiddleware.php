@@ -27,7 +27,7 @@ class HandleWebhookDataMiddleware
             $request->webhook_id = $this->Webhook->{Webhook::ID};
 
             $this->dispatchWebhookJob();
-
+            
             $this->postToSlack($this->Webhook);
 
             return $next($request);

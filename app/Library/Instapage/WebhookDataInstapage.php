@@ -1,11 +1,11 @@
 <?php
 namespace App\Library\Instapage;
 
-class Handler
+use App\Models\Webhook;
+
+class WebhookDataInstapage
 {
-	const METAFIELDS= [
-            'page_id',
-            'page_name',
+	const INSTA_METAFIELDS= [
             'page_url',
             'pageshown',
             'variationshown',
@@ -21,10 +21,7 @@ class Handler
 
 	public static function getFormData(array $data)
     {
-        // Removing metadata fields from post data
-        $data = array_except($data, self::METAFIELDS);
-
+        $data = array_except($data, self::INSTA_METAFIELDS);
         return $data;
     }
-    
 }
