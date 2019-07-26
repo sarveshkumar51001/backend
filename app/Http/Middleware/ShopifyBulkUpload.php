@@ -22,7 +22,7 @@ class ShopifyBulkUpload
         $HasBulkUploadAccess = Auth::user()->hasPermission(Permission::BULKUPLOAD_ACCESS);
 
         if (!$HasBulkUploadAccess) {
-            return redirect();
+            return response()->view('admin.403');
         }
         
         return $next($request);
