@@ -73,10 +73,6 @@ class ShopifyExcelUpload extends Base
         'upload_date'
     ];
 
-    const ADMIN = 'is_admin';
-
-    const BULKUPLOAD_ACCESS = 'bulkupload_access';
-
     public static $modesTitle = [
         self::MODE_CASH => 'Cash',
         self::MODE_CHEQUE => 'Cheque',

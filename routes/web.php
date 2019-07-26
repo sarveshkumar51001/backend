@@ -38,7 +38,7 @@ Route::prefix('imagereco')->group(function() {
     Route::get('/search/image', 'ImageRecognitionController@searchByImage')->name('imagereco.search-by-image');
     Route::post('/search/image', 'ImageRecognitionController@searchByImage_result')->name('imagereco.search-by-image-result');
 });
-Route::prefix('bulkupload')->group(function() {
+Route::prefix('bulkupload')->middleware('shopifybulkupload')->group(function() {
 	Route::get('/', 'ShopifyController@upload')->name('bulkupload.upload');
 	Route::post('/preview', 'ShopifyController@upload_preview')->name('bulkupload.upload_preview');
 	Route::get('/preview', function() { return redirect()->route('bulkupload.upload'); });

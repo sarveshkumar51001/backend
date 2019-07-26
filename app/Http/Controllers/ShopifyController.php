@@ -12,25 +12,13 @@ use App\Library\Shopify\ExcelValidator;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use App\Models\ShopifyExcelUpload;
+use App\Library\Permission\Permission;
 
 class ShopifyController extends BaseController
 {
-	public function __construct(){
-
-       $this->middleware(function($request, Closure $next){
-
-       	$HasShopifyAccess = User::where('email',Auth::user()->email)->where('permissions',ShopifyExcelUpload::BULKUPLOAD_ACCESS)->exists();
-
-           if (!$HasShopifyAccess) {
-               return redirect('home');
-           }
-           return $next($request);
-       });
-   }
-
     public function upload() {
 	    $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'New Upload' => ''];
-
+	    
 	    return view('shopify.orders-bulk-upload')
 		    ->with('breadcrumb', $breadcrumb);
     }
@@ -247,10 +235,16 @@ class ShopifyController extends BaseController
 		    }
 	    }
 
-	    $IsAdmin = User::where('email',Auth::user()->email)->where('permissions',ShopifyExcelUpload::ADMIN)->exists();
+	    // Checking if a user is authorized to view the team upload button
+	    $IsAuthorized = false;
+	    $user_permissions = Auth::user()->permissions;
+
+	    if(in_array(Permission::ADMIN,$user_permissions) || in_array(Permission::RM_MANAGER,$user_permissions)){
+	    	$IsAuthorized = true;
+	    }
 
 	    if ($start && $end) {
-		    if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
+		    if (request('filter') == 'team' && $IsAuthorized) {
 			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->get();
 		    } else {
 			    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
@@ -308,7 +302,7 @@ class ShopifyController extends BaseController
 	    return view('shopify.previous-orders')
 		    ->with('records_array', $mongodb_records)
 		    ->with('breadcrumb', $breadcrumb)
-		    ->with('admin',$IsAdmin)
+		    ->with('authorized',$IsAuthorized)
 		    ->with('metadata', $modeWiseData);
     }
 
