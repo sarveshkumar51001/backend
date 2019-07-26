@@ -235,7 +235,7 @@ class ExcelValidator
     public function HasAllValidHeaders()
     {
         $has_valid_header = false;
-        if($raw_headers = array_slice($this->File->GetRawHeaders(), 0, 90)) {
+        if($raw_headers = array_slice($this->File->GetRawHeaders(), 0, 91)) {
             foreach ($this->File->GetExcelHeaders() as $header) {
                 if (! in_array($header, $raw_headers)) {
                     $has_valid_header = false;

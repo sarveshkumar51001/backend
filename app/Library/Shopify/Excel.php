@@ -118,7 +118,7 @@ class Excel
 			if (array_filter($data)) {
 				# Making chunk of installments from the flat array
 
-				$offset_array = array(21, 32, 43, 54, 65, 76);
+				$offset_array = array(22, 33, 44, 55, 66, 77);
 				$final_slice = [];
 				$pattern = '/(.+)(_[\d]+)/i';
 
@@ -214,6 +214,7 @@ class Excel
 	        'branch',
 	        'external_internal',
 	        'school_name',
+	        'student_school_location',
 	        'student_first_name',
 	        'student_last_name',
 	        'activity',
