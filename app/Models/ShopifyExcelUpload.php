@@ -87,4 +87,82 @@ class ShopifyExcelUpload extends Base
     {
         return array_values(self::$modesTitle);
     }
+
+    const school_address_mapping = [
+
+        "Apeejay Sheikh Sarai" => [
+            "city" => "Delhi",
+            "state" => "Delhi",
+            "pincode" => "110017"
+        ],
+        "Apeejay Pitampura" => [
+            "city" => "Delhi",
+            "state" => "Delhi",
+            "pincode" => "110034"
+        ],
+        "Apeejay Saket" => [
+            "city" => "Delhi",
+            "state" => "Delhi",
+            "pincode" => "110017"
+        ],
+        "Apeejay Noida" => [
+            "city" => "Noida",
+            "state" => "UP",
+            "pincode" => "201301"
+        ],
+        "Apeejay Nerul" => [
+            "city" => "Mumbai",
+            "state" => "Maharashtra",
+            "pincode" => "400706"
+        ],
+        "Apeejay Kharghar" => [
+            "city" => "Mumbai",
+            "state" => "Maharashtra",
+            "pincode" => "410210"
+        ],
+        "Apeejay Faridabad 15" => [
+            "city" => "Faridabad",
+            "state" => "Haryana",
+            "pincode" => "121007"
+        ],
+        "Apeejay Faridabad 21 D" => [
+            "city" => "Faridabad",
+            "state" => "Haryana",
+            "pincode" => "121012"
+        ],
+        "Apeejay Charkhi Dadri" => [
+            "city" => "Charkhi Dadri",
+            "state" => "Haryana",
+            "pincode" => "127306"
+        ],
+        "Apeejay Mahavir Marg" => [
+            "city" => "Jalandhar",
+            "state" => "Punjab",
+            "pincode" => "144001"
+        ],
+        "Apeejay Rama Mandi" => [
+            "city" => "Jalandhar",
+            "state" => "Punjab",
+            "pincode" => "144023"
+        ],
+        "Apeejay Tanda Road" => [
+            "city" =>"Jalandhar",
+            "state" => "Punjab",
+            "pincode" => "144001"
+        ],
+        "Apeejay Greater Noida" => [
+            "city" => "Noida",
+            "state" => "UP",
+            "pincode" => "201306"
+        ],
+        "Apeejay Greater Kailash" => [
+            "city" => "Delhi",
+            "state" => "Delhi",
+            "pincode" => "110048"
+        ],
+        "Apeejay Sheikh Sarai International" => [
+            "city" => "Delhi",
+            "state" => "Delhi",
+            "pincode" => "110017"
+        ]];
 }

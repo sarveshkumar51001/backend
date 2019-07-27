@@ -10,7 +10,7 @@ class DataRaw
 	public $data = [];
 
 	public static $validNoteAttributes = [
-		'mode_of_payment', 'chequedd_no', 'micr_code', 'chequedd_date', 'drawee_name', 'drawee_account_number',
+		'amount','mode_of_payment', 'chequedd_no', 'micr_code', 'chequedd_date', 'drawee_name', 'drawee_account_number',
 		'bank_name', 'bank_branch','txn_reference_number_only_in_case_of_paytm_or_online'
 	];
 
@@ -81,7 +81,7 @@ class DataRaw
 		
 		$customerData = [
 			"first_name" => $this->data["student_first_name"]. " ".$this->data["student_last_name"],
-			"last_name" => '(' .$this->data['school_enrollment_no'].')',
+			"last_name" => '(' .$this->data['school_enrollment_no']. ')',
 			"email" => $this->data["email_id"],
 			"phone" => (string) $this->data["mobile_number"],
 			"metafields" => [[
@@ -143,6 +143,34 @@ class DataRaw
 		    "id" => $customer_id
         ];
 
+        $delivery_location = $this->data['delivery_institution']." ".$this->data['branch'];
+
+        if(array_key_exists($delivery_location,ShopifyExcelUpload::school_address_mapping)){
+        	$location = ShopifyExcelUpload::school_address_mapping[$delivery_location];
+        }
+
+        $order_data['billing_address'] = [
+      			"first_name"=> $this->data['parent_first_name'],
+				"last_name" => $this->data['parent_last_name'],
+				"address1" => $this->data['school_name'],
+				"phone" => $this->data['mobile_number'],
+				"city" => $location['city'],
+				"province" => $location['state'],
+				"country" => "India",
+				"zip" => $location['pincode']
+    		];
+
+    	$order_data['shipping_address'] = [
+			     "first_name" => $this->data['student_first_name']. " ".$this->data['student_last_name'],
+			     "last_name" => '(' .$this->data['school_enrollment_no']. ')',
+			     "address1" => $this->data['delivery_institution']." ".$this->data['branch'] ,
+			     "phone" => $this->data['mobile_number'],
+			     "city" => $location['city'],
+			     "province" => $location['state'],
+			     "country" => "India",
+			     "zip" => $location['pincode']
+			    ];
+
         $user_id = $this->data['uploaded_by'];
         $user_email = DB::get_user_email_id_from_database($user_id);
 
@@ -153,6 +181,7 @@ class DataRaw
         $tags_array[] = $this->data['branch'];
         $tags_array[] = 'created_by: '.$user_email;
         $tags_array[] = 'backend-app';
+        $tags_array[] = $this->data['external_internal'];
 
 		$tags = implode(',',$tags_array);
 		$order_data['tags'] = $tags;
@@ -172,6 +201,17 @@ class DataRaw
 
 	}
 
+	public function GetCustomerUpdateData(){
+
+		$customer_data = [
+			"first_name" => $this->data["student_first_name"]. " ".$this->data["student_last_name"],
+			"last_name" => '(' .$this->data['school_enrollment_no']. ')',
+			"email" => $this->data["email_id"],
+			"phone" => (string) $this->data["mobile_number"]
+		];
+		return $customer_data;
+	}
+
 	public function GetPaymentData() {
 		return $this->data['payments'] ?? [];
 	}
@@ -180,19 +220,22 @@ class DataRaw
 
 		$notes_array = [];
 		$note = "";
+		$notes = "";
 
 		foreach($payments as $index => $installment){
 
-		if(!strtotime($installment['chequedd_date']) > time() || empty($installment['chequedd_date'])){
-			foreach ($installment as $key => $value) {
-				$key = strtolower($key);
-				if (!empty($value) && in_array($key, self::$validNoteAttributes)) {
-					$note = Excel::$headerMap[$key] . ": $value | ";
-				}	
+			if(!empty($installment['mode_of_payment'])){
+				foreach ($installment as $key => $value) {
+					$key = strtolower($key);
+					if (!empty($value) && in_array($key, self::$validNoteAttributes)) {
+						$note = Excel::$headerMap[$key] . ": $value | ";
+						$notes.= $note;
+					}
+				}
+			$notes_array[] = $notes;
+			$notes = "";
 			}
-			$notes_array[] = $note;
-		}	
-	}
+		}
 		return $notes_array;
 	}
 
@@ -202,7 +245,7 @@ class DataRaw
 	 *
 	 * @return array
 	 */
-	public static function GetInstallmentData(array $installment, $number, $notes_array) {
+	public static function GetTransactionData(array $installment) {
 
 		//Check if installment is empty or mode of payment is empty or installment is processed.
 		if (empty($installment) || empty($installment['mode_of_payment']) || strtolower($installment['processed']) == 'yes') {
@@ -214,6 +257,10 @@ class DataRaw
 			"amount" => $installment['amount']
 		];
 
+		return $transaction_data;
+	}
+
+	public function GetNotes(array $notes_array,$collected_amount) {
 		$notes_array_packet = [];
 		$i =1;
 
@@ -229,11 +276,31 @@ class DataRaw
 			$i++;
 			$notes_array_packet[] = $notes_packet;	
 			}
-		
-		$installment_details = [
+
+			$notes_array_packet[] = [
+				"name" => "Student School Location",
+				"value" => $this->data['student_school_location']
+			];
+
+			$notes_array_packet[] = [
+				"name" => "Date of Enrollment",
+				"value" => $this->data['date_of_enrollment']
+			];
+
+			$notes_array_packet[] = [
+				"name" => "Amount Collected",
+				"value" => $collected_amount
+			];
+
+			$notes_array_packet[] = [
+				"name" => "Amount Pending",
+				"value" => $this->data['final_fee_incl_gst'] - $collected_amount
+				];
+
+		$order_details = [
 			"note_attributes" => $notes_array_packet
 		];
 
-		return [$transaction_data, $installment_details];
+		return $order_details;
 	}
 }

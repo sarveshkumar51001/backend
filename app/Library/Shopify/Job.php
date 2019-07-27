@@ -44,6 +44,8 @@ class Job {
 			$shopifyCustomerId = $new_customer["id"];
 		} else {
 			$shopifyCustomerId = $customer[0]["id"];
+			// Updating Customer details in case Customer found
+			$ShopifyAPI->UpdateCustomer($shopifyCustomerId, $Data->GetCustomerUpdateData());
 		}
 
 		// Check 3: Make sure by now we have customer id
@@ -67,23 +69,39 @@ class Job {
 		
 		// Payment notes array
 		$notes_array = DataRaw::GetPaymentDetails($Data->GetPaymentData());
-		
+
+		$previous_collected_amount = 0;
 		// Loop through all the installments in system for the order
 		foreach ($Data->GetPaymentData() as $index => $installment) {
-	
-			$installmentData = DataRaw::GetInstallmentData($installment, $index, $notes_array);
 
-			if (empty($installmentData) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp > time())) {
+			//Getting previously collected amount for the order
+			if(strtolower($installment['processed']) == 'yes'){
+				$previous_collected_amount += $installment['amount'];
+			}
+
+			$transaction_data = DataRaw::GetTransactionData($installment);
+
+			if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp > time())) {
 				continue;
 			}
-			// Get the installment data in proper format
-			list($transaction_data, $installment_details) = $installmentData;
-
 			try{
-			// Shopify Update: Posting new transaction part of installments
-			$ShopifyAPI->PostTransaction($shopifyOrderId, $transaction_data);
-			// Shopify Update: Append transaction data in given order
-			$ShopifyAPI->UpdateOrder($shopifyOrderId, $installment_details);
+				// Shopify Update: Posting new transaction part of installments
+				$transaction_response = $ShopifyAPI->PostTransaction($shopifyOrderId, $transaction_data);
+
+				if(!empty($transaction_response)){
+
+					// Adding current collected amount to previously collected amount
+					$collected_amount = $installment['amount'] + $previous_collected_amount;
+
+					// DB UPDATE: Mark the installment node as
+					DB::mark_installment_status_processed($Data->ID(), $index);
+
+					// Additional Order details 
+					$order_details = $Data->GetNotes($notes_array,$collected_amount);
+
+					// Shopify Update: Append transaction data in given order
+					$ShopifyAPI->UpdateOrder($shopifyOrderId, $order_details);
+				}
 			}
 			catch(\Exception $e){
 				// Catching error exception while posting a transaction 
@@ -93,9 +111,6 @@ class Job {
 		        'job_id' => $Job->getJobId()
 	        ]);
 			}
-
-			// DB UPDATE: Mark the installment node as
-			DB::mark_installment_status_processed($Data->ID(), $index);
 		}
 
 		// Finally mark the object as process completed

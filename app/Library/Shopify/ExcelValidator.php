@@ -141,7 +141,8 @@ class ExcelValidator
             'Pitampura',
             'Rama Mandi',
             'Saket',
-            'Sheikh Sarai'
+            'Sheikh Sarai',
+            'Tanda Road',
         ];
 
         $rules = [
