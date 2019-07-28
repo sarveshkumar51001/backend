@@ -16,7 +16,7 @@
                     {{ $value }}
                 </div>
             @endforeach
-            <form method="POST" action="{{ route('bulkupload.upload_preview') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('bulkupload.upload_preview') }}" enctype="multipart/form-data" onsubmit="form_submit()">
                 <div class="card">
             		<div class="card-header">
             			Amount Collected
@@ -69,6 +69,9 @@
 @endsection
 
 @section('footer-js')
+    <script src="{{ URL::asset('vendors/js/spin.min.js') }}"></script>
+    <script src="{{ URL::asset('vendors/js/ladda.min.js') }}"></script>
+    <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
     <script src="{{ URL::asset('vendors/js/jquery-ui.min.js') }}"></script>
     <script src="{{ URL::asset('js/views/datepicker.js') }}"></script>
     <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
@@ -77,5 +80,9 @@
         $('.datepicker').datepicker({format: 'dd/mm/yyyy'}).on('changeDate', function(ev) {
             $(this).datepicker('hide');
         });
+        function form_submit() {
+        	var loader = Ladda.create(document.querySelector('#file-upload-btn')).start();
+        	loader.start();
+        }
     </script>
 @endsection
