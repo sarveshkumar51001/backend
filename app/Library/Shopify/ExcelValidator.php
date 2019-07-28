@@ -130,7 +130,7 @@ class ExcelValidator
         $valid_branch_names = [
             'Faridabad 15',
             'Charkhi Dadri',
-            'Faridabad 21 D',
+            'Faridabad 21D',
             'Sheikh Sarai International',
             'Greater Kailash',
             'Greater Noida',
@@ -141,7 +141,8 @@ class ExcelValidator
             'Pitampura',
             'Rama Mandi',
             'Saket',
-            'Sheikh Sarai'
+            'Sheikh Sarai',
+            'Tanda Road'
         ];
 
         $rules = [
@@ -235,7 +236,8 @@ class ExcelValidator
     public function HasAllValidHeaders()
     {
         $has_valid_header = false;
-        if($raw_headers = array_slice($this->File->GetRawHeaders(), 0, 91)) {
+        if ($raw_headers = array_slice($this->File->GetRawHeaders(), 0, 91)) {
+
             foreach ($this->File->GetExcelHeaders() as $header) {
                 if (! in_array($header, $raw_headers)) {
                     $has_valid_header = false;
@@ -245,7 +247,7 @@ class ExcelValidator
                 }
             }
         }
-        
+
         return $has_valid_header;
     }
 
@@ -397,6 +399,10 @@ class ExcelValidator
     {
         if (empty($data['mobile_number']) && empty($data['email_id'])) {
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
+        }
+
+        if (! ShopifyExcelUpload::getSchoolLocation($data['delivery_institution'], $data['branch'])) {
+            $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
         }
 
         if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)) {
