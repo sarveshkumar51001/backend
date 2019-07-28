@@ -158,9 +158,10 @@ class ExcelValidator
                 Rule::in($valid_branch_names)
             ],
             "external_internal" => "required",
-            "school_name" => "required|string",
 
             // Student Details
+            "school_name" => "required|string",
+            "student_school_location" => "required|string",
             "student_first_name" => "required",
             "activity" => "required",
             "school_enrollment_no" => "required|string|min:4|regex:/[A-Z]+-[0-9]+/",
