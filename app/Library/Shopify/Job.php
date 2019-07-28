@@ -91,26 +91,29 @@ class Job {
 				if(!empty($transaction_response)){
 
 					// Adding current collected amount to previously collected amount
-					$collected_amount = $installment['amount'] + $previous_collected_amount;
+					$order_amount += $installment['amount'];
 
 					// DB UPDATE: Mark the installment node as
 					DB::mark_installment_status_processed($Data->ID(), $index);
 
-					// Additional Order details 
-					$order_details = $Data->GetNotes($notes_array,$collected_amount);
-
-					// Shopify Update: Append transaction data in given order
-					$ShopifyAPI->UpdateOrder($shopifyOrderId, $order_details);
+					
 				}
 			}
 			catch(\Exception $e){
 				// Catching error exception while posting a transaction 
-				DB::populate_error_in_payments_array($Data->ID(),$index,[
-        		'message' => $e->getMessage(),
-		        'time' => time(),
-		        'job_id' => $Job->getJobId()
-	        ]);
+				DB::populate_error_in_payments_array($Data->ID(), $index, [
+            		'message' => $e->getMessage(),
+    		        'time' => time(),
+    		        'job_id' => $Job->getJobId()
+               ]);
 			}
+			
+			$collected_amount = $order_amount + $previous_collected_amount;
+			// Additional Order details
+			$order_details = $Data->GetNotes($notes_array,$collected_amount);
+			
+			// Shopify Update: Append transaction data in given order
+			$ShopifyAPI->UpdateOrder($shopifyOrderId, $order_details);
 		}
 
 		// Finally mark the object as process completed

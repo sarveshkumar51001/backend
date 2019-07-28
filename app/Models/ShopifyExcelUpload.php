@@ -88,81 +88,105 @@ class ShopifyExcelUpload extends Base
         return array_values(self::$modesTitle);
     }
 
-    const school_address_mapping = [
+    const SCHOOL_ADDRESS_MAPPING = [
+        "Apeejay" => [
+            "Sheikh Sarai" => [
+                "city" => "Delhi",
+                "state" => "Delhi",
+                "pincode" => "110017"
+            ],
+            "Sheikh Sarai International" => [
+                "city" => "Delhi",
+                "state" => "Delhi",
+                "pincode" => "110017"
+            ],
+            "Pitampura" => [
+                "city" => "Delhi",
+                "state" => "Delhi",
+                "pincode" => "110034"
+            ],
+            "Saket" => [
+                "city" => "Delhi",
+                "state" => "Delhi",
+                "pincode" => "110017"
+            ],
+            "Noida" => [
+                "city" => "Noida",
+                "state" => "UP",
+                "pincode" => "201301"
+            ],
+            "Nerul" => [
+                "city" => "Mumbai",
+                "state" => "Maharashtra",
+                "pincode" => "400706"
+            ],
+            "Kharghar" => [
+                "city" => "Mumbai",
+                "state" => "Maharashtra",
+                "pincode" => "410210"
+            ],
+            "Faridabad 15" => [
+                "city" => "Faridabad",
+                "state" => "Haryana",
+                "pincode" => "121007"
+            ],
+            "Faridabad 21D" => [
+                "city" => "Faridabad",
+                "state" => "Haryana",
+                "pincode" => "121012"
+            ],
+            "Charkhi Dadri" => [
+                "city" => "Charkhi Dadri",
+                "state" => "Haryana",
+                "pincode" => "127306"
+            ],
+            "Mahavir Marg" => [
+                "city" => "Jalandhar",
+                "state" => "Punjab",
+                "pincode" => "144001"
+            ],
+            "Rama Mandi" => [
+                "city" => "Jalandhar",
+                "state" => "Punjab",
+                "pincode" => "144023"
+            ],
+            "Tanda Road" => [
+                "city" => "Jalandhar",
+                "state" => "Punjab",
+                "pincode" => "144001"
+            ],
+            "Greater Noida" => [
+                "city" => "Noida",
+                "state" => "UP",
+                "pincode" => "201306"
+            ],
+            "Greater Kailash" => [
+                "city" => "Delhi",
+                "state" => "Delhi",
+                "pincode" => "110048"
+            ]
+        ]
+    ];
 
-        "Apeejay Sheikh Sarai" => [
-            "city" => "Delhi",
-            "state" => "Delhi",
-            "pincode" => "110017"
-        ],
-        "Apeejay Pitampura" => [
-            "city" => "Delhi",
-            "state" => "Delhi",
-            "pincode" => "110034"
-        ],
-        "Apeejay Saket" => [
-            "city" => "Delhi",
-            "state" => "Delhi",
-            "pincode" => "110017"
-        ],
-        "Apeejay Noida" => [
-            "city" => "Noida",
-            "state" => "UP",
-            "pincode" => "201301"
-        ],
-        "Apeejay Nerul" => [
-            "city" => "Mumbai",
-            "state" => "Maharashtra",
-            "pincode" => "400706"
-        ],
-        "Apeejay Kharghar" => [
-            "city" => "Mumbai",
-            "state" => "Maharashtra",
-            "pincode" => "410210"
-        ],
-        "Apeejay Faridabad 15" => [
-            "city" => "Faridabad",
-            "state" => "Haryana",
-            "pincode" => "121007"
-        ],
-        "Apeejay Faridabad 21 D" => [
-            "city" => "Faridabad",
-            "state" => "Haryana",
-            "pincode" => "121012"
-        ],
-        "Apeejay Charkhi Dadri" => [
-            "city" => "Charkhi Dadri",
-            "state" => "Haryana",
-            "pincode" => "127306"
-        ],
-        "Apeejay Mahavir Marg" => [
-            "city" => "Jalandhar",
-            "state" => "Punjab",
-            "pincode" => "144001"
-        ],
-        "Apeejay Rama Mandi" => [
-            "city" => "Jalandhar",
-            "state" => "Punjab",
-            "pincode" => "144023"
-        ],
-        "Apeejay Tanda Road" => [
-            "city" =>"Jalandhar",
-            "state" => "Punjab",
-            "pincode" => "144001"
-        ],
-        "Apeejay Greater Noida" => [
-            "city" => "Noida",
-            "state" => "UP",
-            "pincode" => "201306"
-        ],
-        "Apeejay Greater Kailash" => [
-            "city" => "Delhi",
-            "state" => "Delhi",
-            "pincode" => "110048"
-        ],
-        "Apeejay Sheikh Sarai International" => [
-            "city" => "Delhi",
-            "state" => "Delhi",
-            "pincode" => "110017"
-        ]];
+    /**
+     * Returns Delivery Location
+     *
+     * @param string $delivery_institution
+     * @param string $branch
+     * @return array|boolean
+     */
+    public static function getSchoolLocation($delivery_institution, $branch)
+    {
+        // Checking for group
+        if (array_key_exists($delivery_institution, self::SCHOOL_ADDRESS_MAPPING)) {
+            $locations = self::SCHOOL_ADDRESS_MAPPING[$delivery_institution];
+
+            // Checkng for locations
+            if (array_key_exists($branch, $locations)) {
+                return $locations[$branch];
+            }
+        }
+
+        return false;
+    }
 }
