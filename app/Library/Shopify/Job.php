@@ -71,6 +71,8 @@ class Job {
 		$notes_array = DataRaw::GetPaymentDetails($Data->GetPaymentData());
 
 		$previous_collected_amount = 0;
+		$order_amount = 0;
+		$collected_amount = 0;
 		// Loop through all the installments in system for the order
 		foreach ($Data->GetPaymentData() as $index => $installment) {
 
@@ -94,10 +96,16 @@ class Job {
 					$order_amount += $installment['amount'];
 
 					// DB UPDATE: Mark the installment node as
-					DB::mark_installment_status_processed($Data->ID(), $index);
-
-					
+					DB::mark_installment_status_processed($Data->ID(), $index);					
 				}
+
+				$collected_amount = $order_amount + $previous_collected_amount;
+
+				// Additional Order details
+				$order_details = $Data->GetNotes($notes_array,$collected_amount);
+			
+				// Shopify Update: Append transaction data in given order
+				$ShopifyAPI->UpdateOrder($shopifyOrderId, $order_details);
 			}
 			catch(\Exception $e){
 				// Catching error exception while posting a transaction 
@@ -107,13 +115,6 @@ class Job {
     		        'job_id' => $Job->getJobId()
                ]);
 			}
-			
-			$collected_amount = $order_amount + $previous_collected_amount;
-			// Additional Order details
-			$order_details = $Data->GetNotes($notes_array,$collected_amount);
-			
-			// Shopify Update: Append transaction data in given order
-			$ShopifyAPI->UpdateOrder($shopifyOrderId, $order_details);
 		}
 
 		// Finally mark the object as process completed
