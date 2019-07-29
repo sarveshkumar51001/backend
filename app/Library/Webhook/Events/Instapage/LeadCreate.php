@@ -22,10 +22,13 @@ class LeadCreate
         unset($data['page_id']);
         unset($data['page_name']);
 
-        $channel_url = Channel::SlackUrl($page_id);
+        $channel = Channel::SlackUrl($page_id);
 
-        slack($data, $title)->webhook($channel_url)
-            ->success()
-            ->post();
+        foreach ($channel as $value) {
+            $webhook_url = $value['to']['webhook_url'];
+            slack($data, $title)->webhook($webhook_url)
+                ->success()
+                ->post();
+        }
     }
 }
