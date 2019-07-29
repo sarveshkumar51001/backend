@@ -55,6 +55,11 @@ class API
 		return $this->Shopify->Customer->search($query);
 	}
 
+	public function UpdateCustomer($customer_id, array $data) {
+		$this->delay_request();
+		return $this->Shopify->Customer($customer_id)->put($data);
+	}
+
 	/**
 	 * @param array $data
 	 *
