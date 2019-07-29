@@ -5,6 +5,8 @@ use App\Models\Webhook;
 use Illuminate\Support\Str;
 use Closure;
 use function slack;
+use App\Models\WebhookNotification;
+use App\Jobs\WebhookEventJob;
 
 class HandleWebhookDataMiddleware
 {
@@ -26,9 +28,14 @@ class HandleWebhookDataMiddleware
 
             $request->webhook_id = $this->Webhook->{Webhook::ID};
 
-            $this->dispatchWebhookJob();
-            
-            $this->postToSlack($this->Webhook);
+            // Dispatch Webhook if event class exists
+            if ($class_path = webhook_event_class($this->Webhook)) {
+
+                WebhookEventJob::dispatch($class_path, $this->Webhook);
+            } else {
+                // Post Default message to Slack Channel
+                $this->postToSlack($this->Webhook);
+            }
 
             return $next($request);
         } catch (\Exception $e) {
@@ -69,20 +76,6 @@ class HandleWebhookDataMiddleware
         return $Webhook;
     }
 
-    private function dispatchWebhookJob()
-    {
-        $namespace = '\App\Library\Webhook\Events';
-        $source = \Illuminate\Support\Str::title($this->Webhook->{Webhook::SOURCE});
-        $class_name = \Illuminate\Support\Str::studly($this->Webhook->{Webhook::NAME});
-
-        $class_path = sprintf("%s\%s\%s", $namespace, $source, $class_name);
-        if (class_exists($class_path)) {
-            if (method_exists($class_path, 'handle')) {
-                \App\Jobs\WebhookEventJob::dispatch($class_path, $this->Webhook);
-            }
-        }
-    }
-
     private function postToSlack(Webhook $Webhook)
     {
         $source = Str::ucfirst($Webhook->{Webhook::SOURCE});
@@ -95,9 +88,11 @@ class HandleWebhookDataMiddleware
 
         $title = sprintf("New Incoming Webhook from %s", $source);
 
-        slack($data, $title)->webhook(env('SLACK_WEBHOOK_NOTIFICATION'), null)
-            ->info()
-            ->post();
+        if ($DefaultWebhookURL = WebhookNotification::where('identifier', 'all')->first()) {
+            slack($data, $title)->webhook($DefaultWebhookURL['to']['webhook_url'])
+                ->info()
+                ->post();
+        }
     }
 
     private function authenticateWebhook()
