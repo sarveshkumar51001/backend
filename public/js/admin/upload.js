@@ -47,7 +47,7 @@ function get_render_template(data) {
                 template += '<div>'+title + ': <strong>' +value+'</strong></div>';
             }
         });
-        
+        template += '</div>'
         index++;
     });
 
