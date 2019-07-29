@@ -17,7 +17,7 @@ class Job {
 	 *
 	 * @throws Exception
 	 */
-	public static function run(DataRaw $Data, $Job) {
+	public static function run(DataRaw $Data) {
 		// Process only if the status of object is pending
 		if (strtolower($Data->GetJobStatus()) != ShopifyExcelUpload::JOB_STATUS_PENDING || $Data->IsOnlinePayment()) {
 			return;
@@ -86,17 +86,24 @@ class Job {
 			if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp > time())) {
 				continue;
 			}
+
+			try{
 				// Shopify Update: Posting new transaction part of installments
-			$transaction_response = $ShopifyAPI->PostTransaction($shopifyOrderId, $transaction_data);
+				$transaction_response = $ShopifyAPI->PostTransaction($shopifyOrderId, $transaction_data);
 
-			if(!empty($transaction_response)){
+				if(!empty($transaction_response)){
 
-				// Adding current collected amount to previously collected amount
-				$order_amount += $installment['amount'];
+					// Adding current collected amount to previously collected amount
+					$order_amount += $installment['amount'];
 
-				// DB UPDATE: Mark the installment node as
-				DB::mark_installment_status_processed($Data->ID(), $index);					
-			}		
+					// DB UPDATE: Mark the installment node as
+					DB::mark_installment_status_processed($Data->ID(), $index);					
+				}
+			} catch (\Exception $e) {
+            	DB::populate_error_in_payments_array($Data->ID(), $index , $e->getMessage());
+
+            	throw new Exception("Error in processing the latest payment",$e->getcode(),$e);
+            }		
 		}
 
 		$collected_amount = $order_amount + $previous_collected_amount;
