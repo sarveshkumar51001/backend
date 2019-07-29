@@ -1,8 +1,8 @@
 <?php
 namespace App\Library\Webhook\Events\Instapage;
 
-use App\Library\Webhook\Channel;
 use App\Library\Instapage\WebhookDataInstapage;
+use App\Library\Webhook\Channel;
 use App\Models\Webhook;
 use function slack;
 
