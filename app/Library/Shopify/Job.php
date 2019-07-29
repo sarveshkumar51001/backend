@@ -99,10 +99,10 @@ class Job {
 					// DB UPDATE: Mark the installment node as
 					DB::mark_installment_status_processed($Data->ID(), $index);					
 				}
-			} catch (\Exception $e) {
+			} catch (ApiException $e) {
             	DB::populate_error_in_payments_array($Data->ID(), $index , $e->getMessage());
 
-            	throw new Exception("Error in processing the latest payment",$e->getcode(),$e);
+            	throw new ApiException($e->getMessage(),$e->getCode(),$e);
             }		
 		}
 
