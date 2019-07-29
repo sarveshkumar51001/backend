@@ -1284,7 +1284,7 @@
             ],
             "authors": [
                 {
-                    "name": "LuÃ­s OtÃ¡vio Cobucci Oblonczyk",
+                    "name": "Luís Otávio Cobucci Oblonczyk",
                     "email": "lcobucci@gmail.com",
                     "role": "Developer"
                 }
@@ -2074,7 +2074,7 @@
             ],
             "authors": [
                 {
-                    "name": "MÃ¡rk SÃ¡gi-KazÃ¡r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com"
                 },
                 {
@@ -2134,7 +2134,7 @@
                     "email": "geloen.eric@gmail.com"
                 },
                 {
-                    "name": "MÃ¡rk SÃ¡gi-KazÃ¡r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com"
                 }
             ],
@@ -2181,7 +2181,7 @@
             ],
             "authors": [
                 {
-                    "name": "MÃ¡rk SÃ¡gi-KazÃ¡r",
+                    "name": "Márk Sági-Kazár",
                     "email": "mark.sagikazar@gmail.com"
                 },
                 {
@@ -2888,7 +2888,7 @@
             ],
             "authors": [
                 {
-                    "name": "Jean-FranÃ§ois Simon",
+                    "name": "Jean-François Simon",
                     "email": "jeanfrancois.simon@sensiolabs.com"
                 },
                 {
@@ -4274,7 +4274,7 @@
             ],
             "authors": [
                 {
-                    "name": "FranÃ§ois Zaninotto"
+                    "name": "François Zaninotto"
                 }
             ],
             "description": "Faker is a PHP library that generates fake data for you.",
@@ -4372,7 +4372,7 @@
             ],
             "authors": [
                 {
-                    "name": "PÃ¡draic Brady",
+                    "name": "Pádraic Brady",
                     "email": "padraic.brady@gmail.com",
                     "homepage": "http://blog.astrumfutura.com"
                 },
