@@ -164,7 +164,12 @@ class DB
 		}
 		
     	return $ORM->exists();
-    }   
+    }
+
+    // public static function get_all_pdc_records(){
+
+    // 	return ShopifyExcelUpload::where('payments.mode_of_payment',ShopifyExcelUpload::$modesTitle[self::MODE_CHEQUE])->where('payments.chequedd_date',)
+    // }
    
     /**
      * Not in Use
