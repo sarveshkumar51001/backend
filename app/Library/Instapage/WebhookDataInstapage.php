@@ -6,6 +6,8 @@ use App\Models\Webhook;
 class WebhookDataInstapage
 {
 	const INSTA_METAFIELDS= [
+            'page_id',
+            'page_name',
             'page_url',
             'pageshown',
             'variationshown',

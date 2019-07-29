@@ -1,5 +1,5 @@
 <?php
-namespace App\Library\Webhook\SlackChannelHandler;
+namespace App\Library\Webhook;
 
 use App\Models\WebhookNotification;
 
