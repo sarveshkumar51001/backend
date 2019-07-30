@@ -152,7 +152,7 @@ class DB
     	return User::findOrFail($id)['email'];
     }
 
-    public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0){
+    public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0,$payment_index, $activity_id, $enrollment_date, $enrollment_no) {
 		$ORM = ShopifyExcelUpload::where('payments.chequedd_no', $cheque_no);
 		
 		if (!empty($micr_code)) {
@@ -162,9 +162,20 @@ class DB
 		if (!empty($account_no)) {
 			$ORM->where('payments.drawee_account_number', $account_no);
 		}
-		
+
+		$document = $ORM->first(['payments','date_of_enrollment','shopify_activity_id','school_enrollment_no'])->toArray();
+
+		if($document['date_of_enrollment'] == $enrollment_date && $document['shopify_activity_id'] == $activity_id && $document['school_enrollment_no'] == $enrollment_no){
+
+			foreach($document['payments'] as $index => $payment){
+				if($payment['chequedd_no'] == $cheque_no && $payment['micr_code'] == $micr_code && $payment['drawee_account_number'] == $account_no && $index == $payment_index){
+					return false;
+				}
+			}
+		}
+
     	return $ORM->exists();
-    }   
+    }  
    
     /**
      * Not in Use

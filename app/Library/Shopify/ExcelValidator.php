@@ -92,7 +92,7 @@ class ExcelValidator
             $fields_updated = [];
 
             $except_payment_and_metadata = ShopifyExcelUpload::METADATA_FIELDS;
-            array_push($except_payment_and_metadata, 'payments');
+            array_push($except_payment_and_metadata, 'payments','paid','pdc_collected','pdc_to_be_collected');
 
             foreach (Arr::except($row, $except_payment_and_metadata) as $index => $value) {
                 if ($value != $DatabaseRow[$index]) {
@@ -319,7 +319,7 @@ class ExcelValidator
             $payment = Arr::except($payment, ShopifyExcelUpload::PAYMENT_METAFIELDS);
 
             if (empty($payment['amount'])) {
-                $this->errors['rows'][$this->row_no][] = "Installment " . ($payment_index + 1) . " - Amount is required for any payment.";
+                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Amount is required for any payment.";
                 continue;
             }
 
@@ -344,28 +344,28 @@ class ExcelValidator
                 // Checking for offline mode payments
                 if (array_contains_empty_value($cheque_dd_fields)) {
                     // Checking for blank cheque/dd details
-                    $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Cheque/DD Details are mandatory for transactions having payment mode as Cheque/DD.";
+                    $this->errors['rows'][$this->row_no][] = "Payment ".($payment_index + 1)." - Cheque/DD Details are mandatory for transactions having payment mode as Cheque/DD.";
                 } else {
-                    if (DB::check_if_already_used($payment['chequedd_no'], $payment['micr_code'], $payment['drawee_account_number'])) {
+                    if (DB::check_if_already_used($payment['chequedd_no'], $payment['micr_code'], $payment['drawee_account_number'], $payment_index , $data['shopify_activity_id'], $data['date_of_enrollment'], $data['school_enrollment_no'])) {
                         // Check if the combination of cheque no., micr_code and account_no. exists in database
-                        $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Cheque/DD Details already used before.";
+                        $this->errors['rows'][$this->row_no][] = "Payment ".($payment_index + 1)." - Cheque/DD Details already used before.";
                     }
                 }
             } else if (in_array($mode, array_map('strtolower', $online_modes))) {
                 // Checking for online mode payments
                 if (array_contains_empty_value($online_fields)) {
                     // Checking for blank online details
-                    $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Transaction Reference No. is mandatory in case of Online Payment.";
+                    $this->errors['rows'][$this->row_no][] = "Payment ".($payment_index + 1)." - Transaction Reference No. is mandatory in case of Online Payment.";
                 }
             } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
                 // Checking for cash mode payments
                 if (! array_contains_empty_value($cheque_dd_fields) || ! array_contains_empty_value($online_fields)) {
                     // Cheque/DD/Online should be blank for cash payments
-                    $this->errors['rows'][$this->row_no][] = "Installment $payment_index - For Cash payments, Cheque/DD/Online payment details are not applicable.";
+                    $this->errors['rows'][$this->row_no][] = "Payment ".($payment_index +1)." - For Cash payments, Cheque/DD/Online payment details are not applicable.";
                 }
             } else if (! empty($mode)) {
                 // Checking for invalid paymemt mode
-                $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Invalid Payment Mode - $mode";
+                $this->errors['rows'][$this->row_no][] = "Payment " .($payment_index + 1)." - Invalid Payment Mode - $mode";
             }
 
             // Function for checking wthether the combination of amount and date present for each installment.
@@ -373,7 +373,7 @@ class ExcelValidator
             if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
                 if (empty($payment['mode_of_payment'])) {
                     if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
-                        $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Expected Amount and Expected date of collection required for every installment of this order.";
+                        $this->errors['rows'][$this->row_no][] = " Payment ".($payment_index + 1)." - Expected Amount and Expected date of collection required for every installment of this order.";
                     } else {
                         if (Carbon::now()->diffInDays(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']), false) > 0) {
                             $except_amount_date = [
@@ -381,10 +381,10 @@ class ExcelValidator
                                 'chequedd_date'
                             ];
                             if (! array_contains_empty_value(Arr::except($cheque_dd_fields, $except_amount_date)) || ! array_contains_empty_value($online_fields)) {
-                                $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Future Installments with no payment mode cannot have Cheque/DD/Online details";
+                                $this->errors['rows'][$this->row_no][] = "Payment ".($payment_index + 1)." - Future Installments with no payment mode cannot have Cheque/DD/Online details";
                             }
                         } else {
-                            $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Payment date should be in future for future installments";
+                            $this->errors['rows'][$this->row_no][] = "Payment ".($payment_index +1)." - Payment date should be in future for future installments";
                         }
                     }
                 }
