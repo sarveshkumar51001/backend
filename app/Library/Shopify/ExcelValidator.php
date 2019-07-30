@@ -158,9 +158,10 @@ class ExcelValidator
                 Rule::in($valid_branch_names)
             ],
             "external_internal" => "required",
-            "school_name" => "required|string",
 
             // Student Details
+            "school_name" => "required|string",
+            "student_school_location" => "required|string",
             "student_first_name" => "required",
             "activity" => "required",
             "school_enrollment_no" => "required|string|min:4|regex:/[A-Z]+-[0-9]+/",
@@ -236,7 +237,8 @@ class ExcelValidator
     public function HasAllValidHeaders()
     {
         $has_valid_header = false;
-        if ($raw_headers = array_slice($this->File->GetRawHeaders(), 0, 90)) {
+        if ($raw_headers = array_slice($this->File->GetRawHeaders(), 0, 91)) {
+
             foreach ($this->File->GetExcelHeaders() as $header) {
                 if (! in_array($header, $raw_headers)) {
                     $has_valid_header = false;
