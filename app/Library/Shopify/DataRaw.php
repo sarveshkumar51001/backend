@@ -184,7 +184,7 @@ class DataRaw
         $order_data['billing_address'] = [
             "first_name" => $this->data['parent_first_name'],
             "last_name" => $this->data['parent_last_name'],
-            "address1" => $this->data['school_name'],
+            "address1" => sprintf("%s - %s", $this->data['school_name'], $this->data['student_school_location']),
             "phone" => $this->data['mobile_number'],
             "city" => $location['city'],
             "province" => $location['state'],
