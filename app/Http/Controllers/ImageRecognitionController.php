@@ -2,12 +2,12 @@
 namespace App\Http\Controllers;
 
 use Aws\S3;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use GuzzleHttp\Client;
 use function GuzzleHttp\json_encode;
-use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Contracts\Filesystem\Filesystem;
 
 class ImageRecognitionController extends BaseController
 {
