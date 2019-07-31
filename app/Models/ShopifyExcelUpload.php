@@ -70,7 +70,10 @@ class ShopifyExcelUpload extends Base
         'job_status',
         'order_id',
         'customer_id',
-        'upload_date'
+        'upload_date',
+        'paid',
+        'pdc_collected',
+        'pdc_to_be_collected'
     ];
 
     public static $modesTitle = [

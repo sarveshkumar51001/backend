@@ -92,7 +92,7 @@ class ExcelValidator
             $fields_updated = [];
 
             $except_payment_and_metadata = ShopifyExcelUpload::METADATA_FIELDS;
-            array_push($except_payment_and_metadata, 'payments','paid','pdc_collected','pdc_to_be_collected');
+            array_push($except_payment_and_metadata, 'payments');
 
             foreach (Arr::except($row, $except_payment_and_metadata) as $index => $value) {
                 if ($value != $DatabaseRow[$index]) {
