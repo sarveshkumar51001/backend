@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Library\Shopify\DB;
+use App\Models\ShopifyExcelUpload;
 
 class DailyPDCStatus extends Command
 {
@@ -38,6 +39,6 @@ class DailyPDCStatus extends Command
      */
     public function handle()
     {
-                   
+        $doc = DB::get_all_post_dated_payments();
     }
 }
