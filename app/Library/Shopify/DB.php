@@ -6,6 +6,7 @@ use App\Models\ShopifyExcelUpload;
 use App\Models\Product;
 use App\Library\Shopify\API;
 use App\User;
+use Exception;
 
 class DB
 {
@@ -27,7 +28,7 @@ class DB
 		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->get();
 
 		if(sizeof($product) > 1){
-			throw new Exception("More than one product found with the SKU in the database.");
+			throw new Exception("More than one product found with Product SKU [".$activity_id."] in the database.");
 		}
 		if($product){
 
