@@ -44,11 +44,11 @@ class SearchController extends BaseController
     }
 
     private function Products() {
-        return Product::where('domain_store', env('SHOPIFY_STORE'))->orwhere('id', 'like', "%$this->query%")
-                        ->orWhere('title', 'like', "%$this->query%")
+        return Product::orWhere('title', 'like', "%$this->query%")
                         ->orWhere('product_type', 'like', "%$this->query%")
                         ->orWhere('tags', 'like', "%$this->query%")
                         ->orWhere('variants.sku', 'like', "%$this->query%")
+                        ->where('domain_store', env('SHOPIFY_STORE'))
                         ->paginate($this->limit);
     }
 
