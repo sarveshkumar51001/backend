@@ -15,18 +15,16 @@ class DB
 	 *
 	 * @return int
 	 */
-	public static function get_variant_id($activity_id, $activity_fee) {
-		$product =  Product::where('variants.sku', $activity_id)->first();
-		foreach($product['variants'] as $variant){
-			if($variant['price'] == $activity_fee){
-				return (string) $variant['id'];
-			}
+	public static function get_variant_id($activity_id) {
+		$product =  Product::where('variants.sku', $activity_id)->first(['variants.id']);
+		if($product){
+			return (string) $product['variants'][0]['id'];
 		}
-		return 0;
+		return ;
 	}
 
 	public static function check_activity_fee_value($activity_fee,$activity_id) {
-		$product =  Product::where('variants.sku', $activity_id)->first();
+		$product =  Product::where('domain_store',env('SHOPIFY_STORE'))->where('published_at','!=',null)->where('variants.inventory_quantity','>',0)->where('variants.sku', $activity_id)->first();
 		if($product){
 		foreach($product['variants'] as $variant){
 			if($variant['price'] == $activity_fee){
