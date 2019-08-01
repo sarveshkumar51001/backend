@@ -44,7 +44,7 @@ class SearchController extends BaseController
     }
 
     private function Products() {
-	    return Product::ActiveProduct()->orwhere('id', 'like', "%$this->query%")
+        return Product::where('domain_store', env('SHOPIFY_STORE'))->orwhere('id', 'like', "%$this->query%")
                         ->orWhere('title', 'like', "%$this->query%")
                         ->orWhere('product_type', 'like', "%$this->query%")
                         ->orWhere('tags', 'like', "%$this->query%")
@@ -53,7 +53,7 @@ class SearchController extends BaseController
     }
 
     private function Orders() {
-	    return Order::->where('student name', 'like', "%$this->query%")
+	    return Order::where('student name', 'like', "%$this->query%")
                        ->orWhere('student_id', 'like', "%$this->query%")
                        ->orWhere('class', 'like', "%$this->query%")
                        ->orWhere('school', 'like', "%$this->query%")

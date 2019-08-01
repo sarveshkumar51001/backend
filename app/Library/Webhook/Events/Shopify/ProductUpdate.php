@@ -13,7 +13,12 @@ class ProductUpdate
     {
         $new_product_data = $Webhook->body();
         $product_id = $new_product_data['id'];
-        Product::where('id', $product_id)->update($new_product_data);
+        
+        if($Product = Product::where('id', $product_id)) {
+            $Product->update($new_product_data);
+        } else {
+            Product::create($new_product_data);
+        }
 
         self::postToSlack($Webhook);
     }

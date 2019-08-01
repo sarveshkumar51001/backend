@@ -17,27 +17,29 @@ class DB
 	 * @return int
 	 */
 	public static function get_variant_id($activity_id) {
-		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->first(['variants.id']);
-		if($product){
-			return (string) $product['variants'][0]['id'];
-		}
-		return ;
+	    $product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants.id']);
+		return (string) $product['variants'][0]['id'];
 	}
 
-	public static function check_activity_fee_value($activity_fee,$activity_id) {
-		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->get();
-
-		if(sizeof($product) > 1){
-			throw new Exception("More than one product found with Product SKU [".$activity_id."] in the database.");
-		}
-		if($product){
-
-		foreach($product['variants'] as $variant){
-			if($variant['price'] == $activity_fee){
-				return true;
-			}
-		}
+	public static function is_activity_duplicate($activity_id) {
+	    $product =  Product::where('domain_store', env('SHOPIFY_STORE'))->where('variants.sku', $activity_id)->get();
+	    if(sizeof($product) > 1) {
+	        return true;
+	    }
+	    
+	    return false;
 	}
+	
+	public static function check_activity_fee_value($activity_fee, $activity_id) {
+		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail();
+		
+		if(count($product)) {
+    		foreach($product['variants'] as $variant) {
+    			if($variant['price'] == $activity_fee){
+    				return true;
+    			}
+    		}
+    	}
 
 		return false;
 	}
@@ -121,26 +123,8 @@ class DB
     // 	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
     // }
 
-    public static function get_shopify_product_from_database($product_sku){
-    	
-    	$product = Product::where('variants.sku', $product_sku)->first();
-
-    	if($product) {
-    		return true ;
-    	}
-    	return false;
-        /*
-    	if(sizeof($product['variants']) == 1 && $product['title'] == $product_name){
-			return true ;
-		}else{
-			foreach($product['variants'] as $variant){
-				if($variant['sku'] == $product_sku && $variant['title'] == $product_name){
-					return true;
-				}
-			}
-		}
-		return false ;
-		*/
+    public static function shopify_product_database_exists($product_sku) {
+    	return Product::ActiveProduct()->where('variants.sku', $product_sku)->exists();
 	}
 
     public static function check_product_existence_in_database($product_id){
