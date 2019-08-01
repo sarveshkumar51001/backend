@@ -6,8 +6,8 @@
             <i class="icon-list"></i>Products
         </div>
         <div class="card-body">
-            <table class="table table-responsive-sm table-hover table-outline mb-0">
-                <thead class="thead-light">
+            <table class="table table-responsive-sm table-hover table-outline table-bordered table-striped table-sm datatable no-footer mb-0">
+                <thead>
                 <tr>
                     <th>Product ID</th>
                     <th>Variant ID</th>
@@ -16,6 +16,8 @@
                     <th>Product Type</th>
                     <th>Product Tags</th>
                     <th>Product Price</th>
+                    <th>Product Stock</th>
+                    <th>Product Status</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -30,6 +32,8 @@
                         <td>{{$product->product_type}}</td>
                         <td>{{$product->tags}}</td>
                         <td>{{$variant['price']}}</td>
+                        <td class="font-weight-bold">@if($variant['inventory_quantity'] > 0) <p class="text-success">In Stock</p> @else <p class="text-danger">Out of Stock</p> @endif</td>
+                        <td class="font-weight-bold">@if($product['published_at'] != null) <p class="text-success">Enabled</p> @else <p class="text-danger">Disabled</p> @endif</td>
                         @endforeach
                     </tr>
                     @else
@@ -42,6 +46,8 @@
                         <td>{{$product->product_type}}</td>
                         <td>{{$product->tags}}</td>
                         <td>{{$variant['price']}}</td>
+                        <td class="font-weight-bold">@if($variant['inventory_quantity'] > 0) <p class="text-success">In Stock</p> @else <p class="text-danger">Out of Stock</p> @endif</td>
+                        <td class="font-weight-bold">@if($product['published_at'] != null) <p class="text-success">Enabled</p> @else <p class="text-danger">Disabled</p> @endif</td>
                         </tr>
                         @endforeach
                     @endif

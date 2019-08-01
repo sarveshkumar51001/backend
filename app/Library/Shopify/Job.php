@@ -24,7 +24,7 @@ class Job {
 		}
 
 		// Check 1: check if correct activity id is given and exist in database
-		$variantID = DB::get_variant_id($Data->GetActivityID(), $Data->GetActivityFee());
+		$variantID = DB::get_variant_id($Data->GetActivityID());
 
 		if(empty($variantID)) {
 			throw new Exception("Variant ID [".$Data->GetActivityID()."] with amount [".$Data->GetActivityFee()."] doesn't exists in database");

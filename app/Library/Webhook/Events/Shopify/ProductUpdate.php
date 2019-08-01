@@ -13,7 +13,14 @@ class ProductUpdate
     {
         $new_product_data = $Webhook->body();
         $product_id = $new_product_data['id'];
-        Product::where('id', $product_id)->update($new_product_data);
+        
+        if($Product = Product::where('id', $product_id)->first()) {
+            $Product->update($new_product_data);
+        } else {
+            $domain_store = $Webhook->headers('x-shopify-shop-domain', null);
+            $new_product_data['domain_store'] = $domain_store;
+            Product::create($new_product_data);
+        }
 
         self::postToSlack($Webhook);
     }
