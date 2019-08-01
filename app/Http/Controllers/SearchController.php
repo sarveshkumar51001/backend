@@ -35,33 +35,14 @@ class SearchController extends BaseController
     }
 
     private function Customers() {
-	    return Customer::where('customer_id', 'like', "%$this->query%")
-	                  ->orWhere('customer_name', 'like', "%$this->query%")
-	                  ->orWhere('contact_no', 'like', "%$this->query%")
-	                  ->orWhere('contact_email', 'like', "%$this->query%")
-	                  ->orWhere('address', 'like', "%$this->query%")
-	                  ->paginate($this->limit);
+	    return Customer::CustomerSearch()->paginate($this->limit);
     }
 
     private function Products() {
-	    return Product::where('domain_store',env('SHOPIFY_STORE'))
-	    				->where('published_at','!=',null)
-	    				->where('variants.inventory_quantity','>',0)
-	    				->orwhere('id', 'like', "%$this->query%")
-	                   	->orWhere('title', 'like', "%$this->query%")
-	                   	->orWhere('product_type', 'like', "%$this->query%")
-	                   	->orWhere('tags', 'like', "%$this->query%")
-	                   	->orWhere('variants.sku', 'like', "%$this->query%")
-	                   	->paginate($this->limit);
+	    return Product::ActiveProduct()->SearchProduct()->paginate($this->limit);
     }
 
     private function Orders() {
-	    return Order::where('student name', 'like', "%$this->query%")
-	                   ->orWhere('student_id', 'like', "%$this->query%")
-	                   ->orWhere('class', 'like', "%$this->query%")
-	                   ->orWhere('school', 'like', "%$this->query%")
-	                   ->orWhere('contact_email', 'like', "%$this->query%")
-	                   ->orWhere('contact_no', 'like', "%$this->query%")
-	                   ->paginate($this->limit);
+	    return Order::SearchOrder()->paginate($this->limit);
     }
 }
