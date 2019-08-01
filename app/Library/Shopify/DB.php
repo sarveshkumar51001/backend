@@ -6,7 +6,6 @@ use App\Models\ShopifyExcelUpload;
 use App\Models\Product;
 use App\Library\Shopify\API;
 use App\User;
-use Exception;
 
 class DB
 {
@@ -33,13 +32,11 @@ class DB
 	public static function check_activity_fee_value($activity_fee, $activity_id) {
 		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail();
 		
-		if(count($product)) {
-    		foreach($product['variants'] as $variant) {
-    			if($variant['price'] == $activity_fee){
-    				return true;
-    			}
-    		}
-    	}
+		foreach($product['variants'] as $variant) {
+			if($variant['price'] == $activity_fee){
+				return true;
+			}
+		}
 
 		return false;
 	}
