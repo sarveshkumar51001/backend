@@ -8,7 +8,7 @@ class ProductController extends BaseController
 {
     public function index() {
 	    $limit = 100;
-	    $data = Product::where('domain_store',env('SHOPIFY_STORE'))->where('published_at','!=',null)->where('variants.inventory_quantity','>',0)->paginate($limit);
+	    $data = Product::ActiveProduct()->paginate($limit);
 	    $breadcrumb = ['Products' => ''];
 
 	    return view('products-list', ['products' => $data, 'breadcrumb' => $breadcrumb]);

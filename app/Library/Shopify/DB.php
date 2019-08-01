@@ -16,7 +16,7 @@ class DB
 	 * @return int
 	 */
 	public static function get_variant_id($activity_id) {
-		$product =  Product::where('variants.sku', $activity_id)->first(['variants.id']);
+		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->first(['variants.id']);
 		if($product){
 			return (string) $product['variants'][0]['id'];
 		}
@@ -24,8 +24,13 @@ class DB
 	}
 
 	public static function check_activity_fee_value($activity_fee,$activity_id) {
-		$product =  Product::where('domain_store',env('SHOPIFY_STORE'))->where('published_at','!=',null)->where('variants.inventory_quantity','>',0)->where('variants.sku', $activity_id)->first();
+		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->get();
+
+		if(sizeof($product) > 1){
+			throw new Exception("More than one product found with the SKU in the database.");
+		}
 		if($product){
+
 		foreach($product['variants'] as $variant){
 			if($variant['price'] == $activity_fee){
 				return true;
