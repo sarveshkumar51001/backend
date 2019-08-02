@@ -148,19 +148,22 @@ class DB
 			$ORM->where('payments.drawee_account_number', $account_no);
 		}
 
-		$document = $ORM->first(['payments','date_of_enrollment','shopify_activity_id','school_enrollment_no'])->toArray();
+		if($ORM->exists()) {
+			$document = $ORM->first(['payments','date_of_enrollment','shopify_activity_id','school_enrollment_no'])->toArray();
 
-		if($document['date_of_enrollment'] == $enrollment_date && $document['shopify_activity_id'] == $activity_id && $document['school_enrollment_no'] == $enrollment_no){
+			if($document['date_of_enrollment'] == $enrollment_date && $document['shopify_activity_id'] == $activity_id && $document['school_enrollment_no'] == $enrollment_no){
 
-			foreach($document['payments'] as $index => $payment){
-				if($payment['chequedd_no'] == $cheque_no && $payment['micr_code'] == $micr_code && $payment['drawee_account_number'] == $account_no && $index == $payment_index){
-					return false;
+				foreach($document['payments'] as $index => $payment){
+					if($payment['chequedd_no'] == $cheque_no && $payment['micr_code'] == $micr_code && $payment['drawee_account_number'] == $account_no && $index == $payment_index){
+						return false;
+					}
 				}
 			}
+			return true;
 		}
 
-    	return $ORM->exists();
-    }  
+    	return false;
+    }
    
     /**
      * Not in Use
