@@ -148,6 +148,11 @@ class DB
 			$ORM->where('payments.drawee_account_number', $account_no);
 		}
 
+		if(is_null($ORM->first())){
+			return false;
+		}
+		else{
+
 		$document = $ORM->first(['payments','date_of_enrollment','shopify_activity_id','school_enrollment_no'])->toArray();
 
 		if($document['date_of_enrollment'] == $enrollment_date && $document['shopify_activity_id'] == $activity_id && $document['school_enrollment_no'] == $enrollment_no){
@@ -158,9 +163,10 @@ class DB
 				}
 			}
 		}
+	}
 
     	return $ORM->exists();
-    }  
+    }
    
     /**
      * Not in Use
