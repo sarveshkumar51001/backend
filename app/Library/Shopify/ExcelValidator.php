@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * Class ExcelValidator
@@ -430,19 +431,16 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = "More than one product exists with Activity ID [$activity_id]";
         } else if (! DB::check_activity_fee_value($activity_fee, $activity_id)) {
             $this->errors['rows'][$this->row_no][] = "Activity Fee entered is incorrect.";
-            
-        } else if (empty($data['order_id'])){
-            try{
+        } else if (empty($data['order_id'])) {
+            try {
                 $variant_id = DB::get_variant_id($activity_id);
-                logger($variant_id);
-
-                if(!DB::check_inventory_status($activity_id)){
-                $this->errors['rows'][$this->row_no][] = "Inventory is nill or negative for the product given.";
+                if (! DB::check_inventory_status($variant_id)) {
+                    $this->errors['rows'][$this->row_no][] = "Product is out of stock or disabled.";
                 }
-            } catch(ModelNotFoundException $e){
-                    $this->errors['rows'][$this->row_no][] = "Product not available in the database.";
-                }
+            } catch (ModelNotFoundException $e) {
+                $this->errors['rows'][$this->row_no][] = "Product does not exists.";
             }
+        }
 
         if (empty($scholarship_amount)) {
             if ($activity_fee != $final_fee) {

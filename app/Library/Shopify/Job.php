@@ -25,12 +25,7 @@ class Job {
 			return;
 		}
 
-		try{
-		  // Check 1: check if correct activity id is given and exist in database
-            $variantID = DB::get_variant_id($Data->GetActivityID());
-		} catch(ModelNotFoundException $e){
-			throw new \Exception("Variant ID [".$Data->GetActivityID()."] with amount [".$Data->GetActivityFee()."] doesn't exists in database");
-		}
+		$variantID = DB::get_variant_id($Data->GetActivityID());
 
 		$ShopifyAPI = new API();
 		$customer= $ShopifyAPI->SearchCustomer($Data->GetPhone(),$Data->GetEmail());

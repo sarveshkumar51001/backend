@@ -4,7 +4,6 @@ namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
 use App\Models\Product;
-use App\Library\Shopify\API;
 use App\User;
 
 class DB
@@ -43,7 +42,10 @@ class DB
 
 
     public static function check_inventory_status($variant_id){
-    	$product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity']);
+        $variant_id = $variant_id + 0; // Converting string to integer for 32-bit systems
+        
+        $product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity']);
+        
     	if(!empty($product['variants'][0]['inventory_management'])){
     		if($product['variants'][0]['inventory_quantity'] <= 0){
     			return false;
@@ -180,50 +182,50 @@ class DB
      * Not in Use
      * @ignore
      */
-    public static function sync_all_products_from_shopify() {
-    	$ShopifyAPI = new API();
-    	$page = 1;
-    	$hasProducts = true;
-    	while($hasProducts) {
-        	$params = ['limit' => 5,'page'=> $page];
-        	$products = $ShopifyAPI->GetProducts($params);
+//     public static function sync_all_products_from_shopify() {
+//     	$ShopifyAPI = new API();
+//     	$page = 1;
+//     	$hasProducts = true;
+//     	while($hasProducts) {
+//         	$params = ['limit' => 5,'page'=> $page];
+//         	$products = $ShopifyAPI->GetProducts($params);
         	
-        	if (!count($products)) {
-        		$hasProducts = false;
-        	} else {
-        		foreach($products as $product){
-        			if(!DB::check_product_existence_in_database($product["id"])){
-    					\DB::table('shopify_products')->insert($product);	    		
-        			}
-        		}
-    		}
-       		$page++;
-	   }
-	}
+//         	if (!count($products)) {
+//         		$hasProducts = false;
+//         	} else {
+//         		foreach($products as $product){
+//         			if(!DB::check_product_existence_in_database($product["id"])){
+//     					\DB::table('shopify_products')->insert($product);	    		
+//         			}
+//         		}
+//     		}
+//        		$page++;
+// 	   }
+// 	}
 
 	/**
 	 * Not in Use
 	 * @ignore
 	 */
-	public static function sync_all_customers_from_shopify() {
-		$ShopifyAPI = new API();
-    	$page = 1;
-    	$hasCustomers = true;
-    	while($hasCustomers) {
-	    	$params = ['page'=> $page];
-	    	$customers = $ShopifyAPI->GetCustomers($params);
+// 	public static function sync_all_customers_from_shopify() {
+// 		$ShopifyAPI = new API();
+//     	$page = 1;
+//     	$hasCustomers = true;
+//     	while($hasCustomers) {
+// 	    	$params = ['page'=> $page];
+// 	    	$customers = $ShopifyAPI->GetCustomers($params);
 
-	    	if (!count($customers)) {
-	    		$hasCustomers = false;
-	    	} else {
-	    		foreach($customers as $customer){
-	    			if(!DB::check_customer_existence_in_database($customer["id"])){
-						\DB::table('shopify_customers')->insert($customer);	    		
-	    			}
-	    		}
-			}
-		    $page++;
-   	   }
-   }
+// 	    	if (!count($customers)) {
+// 	    		$hasCustomers = false;
+// 	    	} else {
+// 	    		foreach($customers as $customer){
+// 	    			if(!DB::check_customer_existence_in_database($customer["id"])){
+// 						\DB::table('shopify_customers')->insert($customer);	    		
+// 	    			}
+// 	    		}
+// 			}
+// 		    $page++;
+//    	   }
+//    }
 
 }
