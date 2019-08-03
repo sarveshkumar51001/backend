@@ -8,7 +8,7 @@ class ProductController extends BaseController
 {
     public function index() {
 	    $limit = 100;
-	    $data = Product::ActiveProduct()->paginate($limit);
+	    $data = Product::ActiveProduct()->orderby('updated_at','desc')->paginate($limit);
 	    $breadcrumb = ['Products' => ''];
 
 	    return view('products-list', ['products' => $data, 'breadcrumb' => $breadcrumb]);
