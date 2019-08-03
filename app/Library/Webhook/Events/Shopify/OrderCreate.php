@@ -3,18 +3,18 @@ namespace App\Library\Webhook\Events\Shopify;
 
 use App\Library\Shopify\WebhookDataShopify;
 use App\Library\Webhook\Channel;
-use App\Models\Product;
 use App\Models\Webhook;
+use App\Models\Order;
 
-class ProductCreate
+class OrderCreate
 {
 
     public static function handle(Webhook $Webhook)
     {
         $domain_store = $Webhook->headers('x-shopify-shop-domain', null);
-        $product_data = $Webhook->body();
-        $product_data['domain_store'] = $domain_store;
-        Product::create($product_data);
+        $order_data = $Webhook->body();
+        $order_data['domain_store'] = $domain_store;
+        Order::create($order_data);
 
         self::postToSlack($Webhook);
     }
@@ -23,7 +23,7 @@ class ProductCreate
     {
         $data = WebhookDataShopify::getFormData($Webhook->body());
         $store_name = $Webhook->body()['vendor'];
-        $title = ":tada: New Product Created - ".$Webhook->body()['title'];
+        $title = ":tada: You have a New Order - ".$Webhook->body()['name'];
 
         $channel_url = Channel::SlackUrl($store_name);
 
