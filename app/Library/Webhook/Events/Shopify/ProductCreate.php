@@ -1,6 +1,7 @@
 <?php
 namespace App\Library\Webhook\Events\Shopify;
 
+
 use App\Library\Shopify\WebhookDataShopify;
 use App\Library\Webhook\Channel;
 use App\Models\Product;
@@ -23,12 +24,15 @@ class ProductCreate
     {
         $data = WebhookDataShopify::getFormData($Webhook->body());
         $store_name = $Webhook->body()['vendor'];
-        $title = ":tada: New Product Created - ".$Webhook->body()['title'];
+        $title = ":tada: New Product Created - " . $Webhook->body()['title'];
 
-        $channel_url = Channel::SlackUrl($store_name);
-
-        slack($data, $title)->webhook($channel_url)
-            ->success()
-            ->post();
+        $channel = Channel::SlackUrl($store_name);
+        
+        foreach ($channel as $value) {
+            $webhook_url = $value['to']['webhook_url'];
+            slack($data, $title)->webhook($webhook_url)
+                ->success()
+                ->post();
+        }
     }
 }

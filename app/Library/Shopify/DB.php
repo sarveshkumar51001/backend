@@ -15,25 +15,28 @@ class DB
 	 *
 	 * @return int
 	 */
-	public static function get_variant_id($activity_id, $activity_fee) {
-		$product =  Product::where('variants.sku', $activity_id)->first();
-		foreach($product['variants'] as $variant){
-			if($variant['price'] == $activity_fee){
-				return (string) $variant['id'];
-			}
-		}
-		return 0;
+	public static function get_variant_id($activity_id) {
+	    $product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants.id']);
+		return (string) $product['variants'][0]['id'];
 	}
 
-	public static function check_activity_fee_value($activity_fee,$activity_id) {
-		$product =  Product::where('variants.sku', $activity_id)->first();
-		if($product){
-		foreach($product['variants'] as $variant){
+	public static function is_activity_duplicate($activity_id) {
+	    $product =  Product::where('domain_store', env('SHOPIFY_STORE'))->where('variants.sku', $activity_id)->get();
+	    if(sizeof($product) > 1) {
+	        return true;
+	    }
+	    
+	    return false;
+	}
+	
+	public static function check_activity_fee_value($activity_fee, $activity_id) {
+		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail();
+		
+		foreach($product['variants'] as $variant) {
 			if($variant['price'] == $activity_fee){
 				return true;
 			}
 		}
-	}
 
 		return false;
 	}
@@ -117,26 +120,8 @@ class DB
     // 	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
     // }
 
-    public static function get_shopify_product_from_database($product_sku){
-    	
-    	$product = Product::where('variants.sku', $product_sku)->first();
-
-    	if($product) {
-    		return true ;
-    	}
-    	return false;
-        /*
-    	if(sizeof($product['variants']) == 1 && $product['title'] == $product_name){
-			return true ;
-		}else{
-			foreach($product['variants'] as $variant){
-				if($variant['sku'] == $product_sku && $variant['title'] == $product_name){
-					return true;
-				}
-			}
-		}
-		return false ;
-		*/
+    public static function shopify_product_database_exists($product_sku) {
+    	return Product::ActiveProduct()->where('variants.sku', $product_sku)->exists();
 	}
 
     public static function check_product_existence_in_database($product_id){
@@ -152,7 +137,7 @@ class DB
     	return User::findOrFail($id)['email'];
     }
 
-    public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0){
+    public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0,$payment_index, $activity_id, $enrollment_date, $enrollment_no) {
 		$ORM = ShopifyExcelUpload::where('payments.chequedd_no', $cheque_no);
 		
 		if (!empty($micr_code)) {
@@ -162,9 +147,23 @@ class DB
 		if (!empty($account_no)) {
 			$ORM->where('payments.drawee_account_number', $account_no);
 		}
-		
-    	return $ORM->exists();
-    }   
+
+		if($ORM->exists()) {
+			$document = $ORM->first(['payments','date_of_enrollment','shopify_activity_id','school_enrollment_no'])->toArray();
+
+			if($document['date_of_enrollment'] == $enrollment_date && $document['shopify_activity_id'] == $activity_id && $document['school_enrollment_no'] == $enrollment_no){
+
+				foreach($document['payments'] as $index => $payment){
+					if($payment['chequedd_no'] == $cheque_no && $payment['micr_code'] == $micr_code && $payment['drawee_account_number'] == $account_no && $index == $payment_index){
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+
+    	return false;
+    }
    
     /**
      * Not in Use
