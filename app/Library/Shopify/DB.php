@@ -40,6 +40,17 @@ class DB
 
 		return false;
 	}
+
+
+    public static function check_inventory_status($variant_id){
+    	$product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity']);
+    	if(!empty($product['variants'][0]['inventory_management'])){
+    		if($product['variants'][0]['inventory_quantity'] <= 0){
+    			return false;
+    		}
+    	}
+    	return true;
+    }
 	/**
 	 * @param $object_id
 	 * @param $shopify_order_id

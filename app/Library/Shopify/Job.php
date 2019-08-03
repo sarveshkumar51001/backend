@@ -27,15 +27,17 @@ class Job {
 		$variantID = DB::get_variant_id($Data->GetActivityID());
 
 		if(empty($variantID)) {
-			throw new Exception("Variant ID [".$Data->GetActivityID()."] with amount [".$Data->GetActivityFee()."] doesn't exists in database");
+			throw new \Exception("Variant ID [".$Data->GetActivityID()."] with amount [".$Data->GetActivityFee()."] doesn't exists in database");
 		}
+
+
 
 		$ShopifyAPI = new API();
 		$customer= $ShopifyAPI->SearchCustomer($Data->GetPhone(),$Data->GetEmail());
 
 		// Check 2: Make sure there is only one customer with the given phone or email, otherwise fail
 		if(sizeof($customer) > 1) {
-			throw new Exception("More than one customer found with the email or mobile number provided.");
+			throw new \Exception("More than one customer found with the email or mobile number provided.");
 		}
 
 		// If customer is not found then create a new customer first
@@ -60,6 +62,10 @@ class Job {
 
 		// Is it a new order?
 		if (empty($Data->GetOrderID())) {
+
+			if(! DB::check_inventory_status($variantID)){
+				throw new \Exception("Product [".$Data->GetActivityID()."] is either out of stock or is disabled.");
+			}
 			$order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
 
 			$shopifyOrderId = $order['id'];
