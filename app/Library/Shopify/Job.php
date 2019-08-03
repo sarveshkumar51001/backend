@@ -5,6 +5,8 @@ namespace App\Library\Shopify;
 use App\Models\ShopifyExcelUpload;
 use Exception;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use PHPShopify\Exception\ApiException;
 
 /**
  * Helper Job class
@@ -26,6 +28,7 @@ class Job {
 		try{
 		// Check 1: check if correct activity id is given and exist in database
 		$variantID = DB::get_variant_id($Data->GetActivityID());
+
 		} catch( ModelNotFoundException $e){
 			throw new \Exception("Variant ID [".$Data->GetActivityID()."] with amount [".$Data->GetActivityFee()."] doesn't exists in database");
 		}

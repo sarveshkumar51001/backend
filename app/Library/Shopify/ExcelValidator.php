@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * Class ExcelValidator
@@ -442,6 +443,7 @@ class ExcelValidator
                 $this->errors['rows'][$this->row_no][] = "Inventory is nill or negative for the product given.";
                 }
             }
+        }
 
         if (empty($scholarship_amount)) {
             if ($activity_fee != $final_fee) {
