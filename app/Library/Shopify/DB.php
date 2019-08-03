@@ -30,7 +30,7 @@ class DB
 	}
 	
 	public static function check_activity_fee_value($activity_fee, $activity_id) {
-		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail();
+		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->first();
 		
 		foreach($product['variants'] as $variant) {
 			if($variant['price'] == $activity_fee){

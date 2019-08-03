@@ -13,7 +13,6 @@ class Product extends Base
     public function scopeActiveProduct($query)
     {
         return $query->where('domain_store', env('SHOPIFY_STORE'))
-            ->where('published_at', '!=', null)
-            ->where('variants.inventory_quantity', '>', 0);
+            ->where('published_at', '!=', null);
     }
 }
