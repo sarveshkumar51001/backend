@@ -21,11 +21,11 @@ class ProductCreate
 
     private static function postToSlack(Webhook $Webhook)
     {
-        $data = WebhookDataShopify::getFormData($Webhook->body());
         $store_name = $Webhook->body()['vendor'];
         $base_url = "<https://".$Webhook->headers()['x-shopify-shop-domain'][0]."/admin/";
         
         $title = $base_url."products/".$Webhook->body()['id']."|:tada: New Product Created - ".$Webhook->body()['title'].">";
+        $data = WebhookDataShopify::product_data($Webhook);
 
         $channel = Channel::SlackUrl($store_name);
         

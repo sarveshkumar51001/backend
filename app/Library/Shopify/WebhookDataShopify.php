@@ -5,99 +5,46 @@ use App\Models\Webhook;
 
 class WebhookDataShopify
 {
-    const SHOPIFY_PRODUCT_METAFIELDS= [
-            'admin_graphql_api_id',
-            'body_html',
-            'created_at',
-            'handle',
-            'id',
-            'image',
-            'images',
-            'options',
-            'published_at',
-            'published_scope',
-            'template_suffix',
-            'title',
-            'updated_at',
-            'variants'
-        ];
+    public static function product_data(Webhook $Webhook) {
+        
+        $product_data = array();
+        $data = $Webhook->body();
+        $base_url = "<https://".$Webhook->headers()['x-shopify-shop-domain'][0]."/admin/";
 
-    const SHOPIFY_ORDER_METAFIELDS= [
-            'id',
-            'email',
-            'closed_at',
-            'created_at',
-            'updated_at',
-            'number',
-            'note',
-            'token',
-            'gateway',
-            'test',
-            'subtotal_price',
-            'total_weight',
-            'total_tax',
-            'taxes_included',
-            'financial_status',
-            'confirmed',
-            'total_line_items_price',
-            'cart_token',
-            'buyer_accepts_marketing',
-            'name',
-            'referring_site',
-            'landing_site',
-            'cancelled_at',
-            'cancel_reason',
-            'checkout_token',
-            'reference',
-            'user_id',
-            'location_id',
-            'source_identifier',
-            'source_url',
-            'processed_at',
-            'device_id',
-            'phone',
-            'customer_locale',
-            'app_id',
-            'browser_ip',
-            'landing_site_ref',
-            'order_number',
-            'discount_applications',
-            'discount_codes',
-            'note_attributes',
-            'payment_gateway_names',
-            'processing_method',
-            'checkout_id',
-            'source_name',
-            'tax_lines',
-            'tags',
-            'contact_email',
-            'order_status_url',
-            'presentment_currency',
-            'total_line_items_price_set',
-            'total_discounts_set',
-            'total_shipping_price_set',
-            'subtotal_price_set',
-            'total_price_set',
-            'total_tax_set',
-            'total_tip_received',
-            'admin_graphql_api_id',
-            'shipping_lines',
-            'billing_address',
-            'shipping_address',
-            'fulfillments',
-            'refunds',
-            'fulfillment_status',
-            'total_price_usd'
-        ];    
+        $product_data['Vendor'] = $data['vendor'];
+        $product_data['Product Type'] = $data['product_type'];
+        $product_data['Tags'] = $data['tags'];
 
-	public static function getFormData(array $data)
-    {
-        if (array_key_exists('product_type', $data)){
-            $data = array_except($data, self::SHOPIFY_PRODUCT_METAFIELDS);
-        }
-        elseif (array_key_exists('order_number', $data)) {
-            $data = array_except($data, self::SHOPIFY_ORDER_METAFIELDS);
-        }
-        return $data;
+        return $product_data;
+    }
+    
+    public static function order_data(Webhook $Webhook) {
+
+        $items = "";
+        $order_data = array();
+        $data = $Webhook->body();
+        $base_url = "<https://".$Webhook->headers()['x-shopify-shop-domain'][0]."/admin/";
+
+        # Custom order data entries and hyperlinks
+        if (array_key_exists('customer', $data)) {
+            $order_data['Customer Name & Email'] = $base_url."customers/".$data['customer']['id']."|".$data['customer']['first_name'].' '.$data['customer']['last_name'].', '.$data['customer']['email'].">";
+        } else { $order_data['Customer Name & Email'] = ""; }
+
+        if (array_key_exists('line_items', $data)) {
+            foreach ($data['line_items'] as $key => $value) {
+                $items .= $base_url."products/".$value['product_id']."|".$value['title'].' X '.$value['quantity'].">\n";
+            }
+            $order_data['Item X Quantity'] = $items;
+        } else { $order_data['Item X Quantity'] = ""; }
+
+        if (array_key_exists('total_discounts', $data)) {
+            $order_data['Total Price'] = $data['total_price']. " ".$data['currency'];
+        } else { $order_data['Total Price'] = ""; }
+
+        if (array_key_exists('total_discounts', $data)) {
+            $order_data['Total Discount'] = $data['total_discounts']. " ".$data['currency'];
+        } else { $order_data['Total Discount'] = ""; }
+
+        return $order_data;
     }
 }

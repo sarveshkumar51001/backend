@@ -27,14 +27,14 @@ class ProductUpdate
 
     private static function postToSlack(Webhook $Webhook)
     {
-        $data = WebhookDataShopify::getFormData($Webhook->body());
         $store_name = $Webhook->body()['vendor'];
         $base_url = "<https://".$Webhook->headers()['x-shopify-shop-domain'][0]."/admin/";
-
+        
         $title = $base_url."products/".$Webhook->body()['id']."|:tada: Product Updated - ".$Webhook->body()['title'].">";
+        $data = WebhookDataShopify::product_data($Webhook);
 
         $channel = Channel::SlackUrl($store_name);
-
+        
         foreach ($channel as $value) {
             $webhook_url = $value['to']['webhook_url'];
             slack($data, $title)->webhook($webhook_url)
