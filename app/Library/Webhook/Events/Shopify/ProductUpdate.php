@@ -1,10 +1,10 @@
 <?php
 namespace App\Library\Webhook\Events\Shopify;
 
-use App\Models\Product;
-use App\Models\Webhook;
 use App\Library\Shopify\WebhookDataShopify;
 use App\Library\Webhook\Channel;
+use App\Models\Product;
+use App\Models\Webhook;
 
 class ProductUpdate
 {

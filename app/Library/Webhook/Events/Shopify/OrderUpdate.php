@@ -10,10 +10,16 @@ class OrderUpdate
 {
     public static function handle(Webhook $Webhook)
     {
-        $domain_store = $Webhook->headers('x-shopify-shop-domain', null);
-        $order_data = $Webhook->body();
-        $order_data['domain_store'] = $domain_store;
-        // Order::create($order_data);
+        $new_order_data = $Webhook->body();
+        $order_id = $new_order_data['id'];
+        
+        if($Order = Order::where('id', $order_id)->first()) {
+            $Order->update($new_order_data);
+        } else {
+            $domain_store = $Webhook->headers('x-shopify-shop-domain', null);
+            $new_order_data['domain_store'] = $domain_store;
+            Order::create($new_order_data);
+        }
 
         self::postToSlack($Webhook);
     }
