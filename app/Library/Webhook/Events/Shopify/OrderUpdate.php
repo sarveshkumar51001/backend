@@ -6,7 +6,7 @@ use App\Library\Webhook\Channel;
 use App\Models\Webhook;
 use App\Models\Order;
 
-class OrderCreate
+class OrderUpdate
 {
     public static function handle(Webhook $Webhook)
     {
@@ -17,7 +17,7 @@ class OrderCreate
 
         self::postToSlack($Webhook);
     }
-    
+
     private static function postToSlack(Webhook $Webhook)
     {
         $items = '';
@@ -25,7 +25,7 @@ class OrderCreate
         $base_url = "<https://".$Webhook->headers()['x-shopify-shop-domain'][0]."/admin/";
 
         # Custom data entries and hyperlinks
-        $title = $base_url."orders/".$Webhook->body()['id']."|:tada: You have a New Order - ".$Webhook->body()['name'].">";
+        $title = $base_url."orders/".$Webhook->body()['id']."|:tada: Order Updated - ".$Webhook->body()['name'].">";
         $data['Customer Name & Email'] = $base_url."customers/".$data['customer']['id']."|".$data['customer']['first_name'].' '.$data['customer']['last_name'].', '.$data['customer']['email'].">";
 
         foreach ($data['line_items'] as $key => $value) {

@@ -6,20 +6,20 @@ use App\Models\Webhook;
 class WebhookDataShopify
 {
     const SHOPIFY_PRODUCT_METAFIELDS= [
-            'id',
-            'title',
             'admin_graphql_api_id',
+            'body_html',
+            'created_at',
+            'handle',
+            'id',
+            'image',
+            'images',
+            'options',
+            'published_at',
             'published_scope',
             'template_suffix',
-            'published_at',
-            'created_at',
+            'title',
             'updated_at',
-            'body_html',
-            'variants',
-            'options',
-            'images',
-            'image',
-            'handle'
+            'variants'
         ];
 
     const SHOPIFY_ORDER_METAFIELDS= [
@@ -37,10 +37,8 @@ class WebhookDataShopify
             'total_weight',
             'total_tax',
             'taxes_included',
-            'currency',
             'financial_status',
             'confirmed',
-            'total_discounts',
             'total_line_items_price',
             'cart_token',
             'buyer_accepts_marketing',
@@ -87,15 +85,17 @@ class WebhookDataShopify
             'billing_address',
             'shipping_address',
             'fulfillments',
-            'refunds'
+            'refunds',
+            'fulfillment_status',
+            'total_price_usd'
         ];    
 
 	public static function getFormData(array $data)
     {
-        if ($data){
+        if (array_key_exists('product_type', $data)){
             $data = array_except($data, self::SHOPIFY_PRODUCT_METAFIELDS);
         }
-        elseif ($data) {
+        elseif (array_key_exists('order_number', $data)) {
             $data = array_except($data, self::SHOPIFY_ORDER_METAFIELDS);
         }
         return $data;

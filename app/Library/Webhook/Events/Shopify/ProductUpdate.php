@@ -29,7 +29,9 @@ class ProductUpdate
     {
         $data = WebhookDataShopify::getFormData($Webhook->body());
         $store_name = $Webhook->body()['vendor'];
-        $title = ":tada: Product Updated - " . $Webhook->body()['title'];
+        $base_url = "<https://".$Webhook->headers()['x-shopify-shop-domain'][0]."/admin/";
+
+        $title = $base_url."products/".$Webhook->body()['id']."|:tada: Product Updated - ".$Webhook->body()['title'].">";
 
         $channel = Channel::SlackUrl($store_name);
 

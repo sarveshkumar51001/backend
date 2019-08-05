@@ -1,7 +1,6 @@
 <?php
 namespace App\Library\Webhook\Events\Shopify;
 
-
 use App\Library\Shopify\WebhookDataShopify;
 use App\Library\Webhook\Channel;
 use App\Models\Product;
@@ -24,7 +23,9 @@ class ProductCreate
     {
         $data = WebhookDataShopify::getFormData($Webhook->body());
         $store_name = $Webhook->body()['vendor'];
-        $title = ":tada: New Product Created - " . $Webhook->body()['title'];
+        $base_url = "<https://".$Webhook->headers()['x-shopify-shop-domain'][0]."/admin/";
+        
+        $title = $base_url."products/".$Webhook->body()['id']."|:tada: New Product Created - ".$Webhook->body()['title'].">";
 
         $channel = Channel::SlackUrl($store_name);
         
