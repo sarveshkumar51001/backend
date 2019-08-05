@@ -5,7 +5,6 @@ namespace App\Library\Shopify;
 use App\Models\ShopifyExcelUpload;
 use Exception;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PHPShopify\Exception\ApiException;
 
 /**
