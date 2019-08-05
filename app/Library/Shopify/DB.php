@@ -121,7 +121,10 @@ class DB
 
 	public static function check_order_created($enrollment_date,$activity_id,$enrollment_no){
 
-		$ORM = ShopifyExcelUpload::where('date_of_enrollment',$enrollment_date)->where('shopify_activity_id',$activity_id)->where('school_enrollment_no',$enrollment_no)->first(['order_id'])->toArray();
+		$ORM = ShopifyExcelUpload::where('date_of_enrollment',$enrollment_date)
+		                          ->where('shopify_activity_id',$activity_id)
+		                          ->where('school_enrollment_no',$enrollment_no)
+		                          ->first(['order_id'])->toArray();
 
 		if(empty($ORM) || empty($ORM['order_id'])){
 			return false;

@@ -434,17 +434,16 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = "More than one product exists with Activity ID [$activity_id]";
         } else if (! DB::check_activity_fee_value($activity_fee, $activity_id)) {
             $this->errors['rows'][$this->row_no][] = "Activity Fee entered is incorrect.";
-
-        } else if (! DB::check_order_created($enrollment_date,$activity_id,$enrollment_no)) {
+        } else if (! DB::check_order_created($enrollment_date, $activity_id, $enrollment_no)) {
             try {
                 $variant_id = DB::get_variant_id($activity_id);
-            if (! DB::check_inventory_status($variant_id)) {
-                $this->errors['rows'][$this->row_no][] = "Product is out of stock or disabled.";
+                if (! DB::check_inventory_status($variant_id)) {
+                    $this->errors['rows'][$this->row_no][] = "Product is out of stock or disabled.";
                 }
             } catch (ModelNotFoundException $e) {
                 $this->errors['rows'][$this->row_no][] = "Product does not exists.";
-              }
-         }
+            }
+        }
 
         if (empty($scholarship_amount)) {
             if ($activity_fee != $final_fee) {
