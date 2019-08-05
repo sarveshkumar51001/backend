@@ -420,6 +420,8 @@ class ExcelValidator
 
     private function ValidateActivityDetails(array $data)
     {
+        $enrollment_date = $data['date_of_enrollment'];
+        $enrollment_no = $data['school_enrollment_no'];
         $activity_id = $data['shopify_activity_id'];
         $activity_fee = $data['activity_fee'];
         $final_fee = $data['final_fee_incl_gst'];
@@ -432,7 +434,7 @@ class ExcelValidator
         } else if (! DB::check_activity_fee_value($activity_fee, $activity_id)) {
             $this->errors['rows'][$this->row_no][] = "Activity Fee entered is incorrect.";
 
-        } else if (empty($data['order_id'])) {
+        } else if (! DB::check_order_created($enrollment_date,$activity_id,$enrollment_no)) {
             try {
                 $variant_id = DB::get_variant_id($activity_id);
             if (! DB::check_inventory_status($variant_id)) {

@@ -119,6 +119,19 @@ class DB
 		return ShopifyExcelUpload::find($_id)->update(['job_status' => ShopifyExcelUpload::JOB_STATUS_FAILED, 'errors' => $error]);
 	}
 
+	public static function check_order_created($enrollment_date,$activity_id,$enrollment_no){
+
+		$ORM = ShopifyExcelUpload::where('date_of_enrollment',$enrollment_date)->where('shopify_activity_id',$activity_id)->where('school_enrollment_no',$enrollment_no)->first(['order_id'])->toArray();
+
+		if(empty($ORM) || empty($ORM['order_id'])){
+			return false;
+		}
+
+		return true;
+	}
+
+
+
     /**
      * @param $object_id
      * @param $shopify_customer_id
