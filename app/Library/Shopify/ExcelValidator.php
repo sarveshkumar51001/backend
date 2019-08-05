@@ -61,12 +61,11 @@ class ExcelValidator
         // Finding data validation errors
         foreach ($this->FileFormattedData as $index => $data) {
             $this->row_no ++;
-            if ($this->ValidateDuplicateRow($data)) {
+            if ($this->ValidateDuplicateRow($data) || $this->ValidateData($data)) {
                 unset($this->FileFormattedData[$index]);
                 continue;
             }
 
-            $this->ValidateData($data);
             $this->ValidatePaymentDetails($data);
             $this->ValidateFieldValues($data);
             $this->ValidateActivityDetails($data);
@@ -208,7 +207,9 @@ class ExcelValidator
 
         if (! empty($errors)) {
             $this->errors['rows'][$this->row_no] = Arr::flatten(array_values($errors));
+            return true;
         }
+        return false;
     }
 
     private function ValidateAmount()
