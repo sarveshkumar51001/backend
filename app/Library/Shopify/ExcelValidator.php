@@ -60,12 +60,11 @@ class ExcelValidator
         // Finding data validation errors
         foreach ($this->FileFormattedData as $index => $data) {
             $this->row_no ++;
-            if ($this->ValidateDuplicateRow($data)) {
+            if ($this->ValidateDuplicateRow($data) || $this->ValidateData($data)) {
                 unset($this->FileFormattedData[$index]);
                 continue;
             }
 
-            $this->ValidateData($data);
             $this->ValidatePaymentDetails($data);
             $this->ValidateFieldValues($data);
             $this->ValidateActivityDetails($data);
@@ -207,7 +206,9 @@ class ExcelValidator
 
         if (! empty($errors)) {
             $this->errors['rows'][$this->row_no] = Arr::flatten(array_values($errors));
+            return true;
         }
+        return false;
     }
 
     private function ValidateAmount()
@@ -419,6 +420,8 @@ class ExcelValidator
 
     private function ValidateActivityDetails(array $data)
     {
+        $enrollment_date = $data['date_of_enrollment'];
+        $enrollment_no = $data['school_enrollment_no'];
         $activity_id = $data['shopify_activity_id'];
         $activity_fee = $data['activity_fee'];
         $final_fee = $data['final_fee_incl_gst'];
@@ -430,6 +433,11 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = "More than one product exists with Activity ID [$activity_id]";
         } else if (! DB::check_activity_fee_value($activity_fee, $activity_id)) {
             $this->errors['rows'][$this->row_no][] = "Activity Fee entered is incorrect.";
+        } else if (! DB::check_order_created($enrollment_date, $activity_id, $enrollment_no)) {
+            $variant_id = DB::get_variant_id($activity_id);
+            if (! DB::check_inventory_status($variant_id)) {
+                $this->errors['rows'][$this->row_no][] = "Product is out of stock.";
+            }
         }
 
         if (empty($scholarship_amount)) {

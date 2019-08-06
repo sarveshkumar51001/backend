@@ -5,6 +5,7 @@ namespace App\Library\Shopify;
 use App\Models\ShopifyExcelUpload;
 use Exception;
 use Carbon\Carbon;
+use PHPShopify\Exception\ApiException;
 
 /**
  * Helper Job class
@@ -23,14 +24,7 @@ class Job {
 			return;
 		}
 
-		// Check 1: check if correct activity id is given and exist in database
 		$variantID = DB::get_variant_id($Data->GetActivityID());
-
-		if(empty($variantID)) {
-			throw new \Exception("Variant ID [".$Data->GetActivityID()."] with amount [".$Data->GetActivityFee()."] doesn't exists in database");
-		}
-
-
 
 		$ShopifyAPI = new API();
 		$customer= $ShopifyAPI->SearchCustomer($Data->GetPhone(),$Data->GetEmail());
