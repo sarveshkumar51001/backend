@@ -60,12 +60,11 @@ class ExcelValidator
         // Finding data validation errors
         foreach ($this->FileFormattedData as $index => $data) {
             $this->row_no ++;
-            if ($this->ValidateDuplicateRow($data)) {
+            if ($this->ValidateDuplicateRow($data) || $this->ValidateData($data)) {
                 unset($this->FileFormattedData[$index]);
                 continue;
             }
 
-            $this->ValidateData($data);
             $this->ValidatePaymentDetails($data);
             $this->ValidateFieldValues($data);
             $this->ValidateActivityDetails($data);
@@ -207,7 +206,9 @@ class ExcelValidator
 
         if (! empty($errors)) {
             $this->errors['rows'][$this->row_no] = Arr::flatten(array_values($errors));
+            return true;
         }
+        return false;
     }
 
     private function ValidateAmount()
@@ -319,7 +320,7 @@ class ExcelValidator
             $payment = Arr::except($payment, ShopifyExcelUpload::PAYMENT_METAFIELDS);
 
             if (empty($payment['amount'])) {
-                $this->errors['rows'][$this->row_no][] = "Installment " . ($payment_index + 1) . " - Amount is required for any payment.";
+                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Amount is required for any payment.";
                 continue;
             }
 
@@ -344,28 +345,28 @@ class ExcelValidator
                 // Checking for offline mode payments
                 if (array_contains_empty_value($cheque_dd_fields)) {
                     // Checking for blank cheque/dd details
-                    $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Cheque/DD Details are mandatory for transactions having payment mode as Cheque/DD.";
+                    $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Cheque/DD Details are mandatory for transactions having payment mode as Cheque/DD.";
                 } else {
-                    if (DB::check_if_already_used($payment['chequedd_no'], $payment['micr_code'], $payment['drawee_account_number'])) {
+                    if (DB::check_if_already_used($payment['chequedd_no'], $payment['micr_code'], $payment['drawee_account_number'], $payment_index, $data['shopify_activity_id'], $data['date_of_enrollment'], $data['school_enrollment_no'])) {
                         // Check if the combination of cheque no., micr_code and account_no. exists in database
-                        $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Cheque/DD Details already used before.";
+                        $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Cheque/DD Details already used before.";
                     }
                 }
             } else if (in_array($mode, array_map('strtolower', $online_modes))) {
                 // Checking for online mode payments
                 if (array_contains_empty_value($online_fields)) {
                     // Checking for blank online details
-                    $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Transaction Reference No. is mandatory in case of Online Payment.";
+                    $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Transaction Reference No. is mandatory in case of Online Payment.";
                 }
             } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
                 // Checking for cash mode payments
                 if (! array_contains_empty_value($cheque_dd_fields) || ! array_contains_empty_value($online_fields)) {
                     // Cheque/DD/Online should be blank for cash payments
-                    $this->errors['rows'][$this->row_no][] = "Installment $payment_index - For Cash payments, Cheque/DD/Online payment details are not applicable.";
+                    $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - For Cash payments, Cheque/DD/Online payment details are not applicable.";
                 }
             } else if (! empty($mode)) {
                 // Checking for invalid paymemt mode
-                $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Invalid Payment Mode - $mode";
+                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Invalid Payment Mode - $mode";
             }
 
             // Function for checking wthether the combination of amount and date present for each installment.
@@ -373,7 +374,7 @@ class ExcelValidator
             if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
                 if (empty($payment['mode_of_payment'])) {
                     if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
-                        $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Expected Amount and Expected date of collection required for every installment of this order.";
+                        $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Expected Amount and Expected date of collection required for every installment of this order.";
                     } else {
                         if (Carbon::now()->diffInDays(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']), false) > 0) {
                             $except_amount_date = [
@@ -381,10 +382,10 @@ class ExcelValidator
                                 'chequedd_date'
                             ];
                             if (! array_contains_empty_value(Arr::except($cheque_dd_fields, $except_amount_date)) || ! array_contains_empty_value($online_fields)) {
-                                $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Future Installments with no payment mode cannot have Cheque/DD/Online details";
+                                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Future Installments with no payment mode cannot have Cheque/DD/Online details";
                             }
                         } else {
-                            $this->errors['rows'][$this->row_no][] = "Installment $payment_index - Payment date should be in future for future installments";
+                            $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Payment date should be in future for future installments";
                         }
                     }
                 }
@@ -419,17 +420,24 @@ class ExcelValidator
 
     private function ValidateActivityDetails(array $data)
     {
+        $enrollment_date = $data['date_of_enrollment'];
+        $enrollment_no = $data['school_enrollment_no'];
         $activity_id = $data['shopify_activity_id'];
         $activity_fee = $data['activity_fee'];
         $final_fee = $data['final_fee_incl_gst'];
         $scholarship_amount = $data['scholarship_discount'];
 
-        if (! DB::get_shopify_product_from_database($activity_id)) {
-            $this->errors['rows'][$this->row_no][] = "Activity ID is incorrect.";
-        }
-
-        if (! DB::check_activity_fee_value($activity_fee, $activity_id)) {
+        if (! DB::shopify_product_database_exists($activity_id)) {
+            $this->errors['rows'][$this->row_no][] = "Activity ID is either incorrect or not available.";
+        } else if (DB::is_activity_duplicate($activity_id)) {
+            $this->errors['rows'][$this->row_no][] = "More than one product exists with Activity ID [$activity_id]";
+        } else if (! DB::check_activity_fee_value($activity_fee, $activity_id)) {
             $this->errors['rows'][$this->row_no][] = "Activity Fee entered is incorrect.";
+        } else if (! DB::check_order_created($enrollment_date, $activity_id, $enrollment_no)) {
+            $variant_id = DB::get_variant_id($activity_id);
+            if (! DB::check_inventory_status($variant_id)) {
+                $this->errors['rows'][$this->row_no][] = "Product is out of stock.";
+            }
         }
 
         if (empty($scholarship_amount)) {
