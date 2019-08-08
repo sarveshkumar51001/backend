@@ -112,8 +112,7 @@ class DailyPDCStatus extends Command
         $data = [];
         foreach($count_array as $school => $count){
 
-            setlocale(LC_MONETARY, 'en_IN');
-            $data[$school] = "₹ ".money_format("%!n",$amount_array[$school]).' ('.$count.')';
+            $data[$school] = "₹ ".money_format("%.0n",floor($amount_array[$school])).' ('.$count.')';
         }
         return $data;
     }
