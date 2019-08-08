@@ -32,10 +32,12 @@ class Slack
 
     public function __construct($data = null, string $title = null)
     {
+        
         if (! empty($data)) {
             if ($data instanceof \Exception) {
                 $this->exception($data);
-            } elseif (isArrayAssoc($data)) {
+            } 
+            elseif (isArrayAssoc($data)) {
                 if (empty($title)) {
                     throw new \Exception('Title is required with custom message');
                 }
@@ -43,6 +45,8 @@ class Slack
             } else {
                 throw new \Exception('Should be either an Instance of an Associative Array or Exception');
             }
+        } elseif(! empty($title)) {
+            $this->title($title);
         }
     }
 
@@ -92,6 +96,12 @@ class Slack
     {
         $this->attachment['title'] = $title;
         $this->data = $data;
+        return $this;
+    }
+
+    public function title(string $title) {
+        $this->attachment['title'] = $title;
+        $this->data = [];
         return $this;
     }
 
@@ -181,7 +191,7 @@ class Slack
     }
 
     private function setPayload(array $data = [], array $attachment = [])
-    {
+    {   
         if (empty($data) && empty($attachment)) {
             throw new \Exception("No data to post on Slack");
         }

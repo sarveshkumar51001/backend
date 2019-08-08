@@ -160,7 +160,7 @@ class DB
     }
 
     public static function get_all_post_dated_payments(){
-    	$post_dated_payments = ShopifyExcelUpload::where('payments.is_pdc_payment',1)->first();
+    	$post_dated_payments = ShopifyExcelUpload::where('payments.is_pdc_payment',true)->get()->toArray();
 
     	return $post_dated_payments;
     }
@@ -201,7 +201,7 @@ class DB
 
     	return false;
     }
-       
+
     /**
      * Not in Use
      * @ignore

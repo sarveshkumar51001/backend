@@ -135,7 +135,7 @@ class Excel
 					$new_slice['processed'] = 'No';
 					$new_slice['errors'] = "";
 					$new_slice['upload_date'] = time();
-					$new_slice['is_pdc_payment'] = 0;
+					$new_slice['is_pdc_payment'] = false;
 					if ($offset_value == 21) {
 						$new_slice['type'] = ShopifyExcelUpload::TYPE_ONETIME;
 					} else {
