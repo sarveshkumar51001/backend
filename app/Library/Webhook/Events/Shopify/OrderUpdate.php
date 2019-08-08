@@ -8,8 +8,7 @@ use App\Models\Order;
 
 class OrderUpdate
 {
-    public static function handle(Webhook $Webhook)
-    {
+    public static function handle(Webhook $Webhook) {
         $new_order_data = $Webhook->body();
         $order_id = $new_order_data['id'];
         
@@ -24,12 +23,11 @@ class OrderUpdate
         self::postToSlack($Webhook);
     }
 
-    private static function postToSlack(Webhook $Webhook)
-    {
-        $base_url = "<https://".$Webhook->headers()['x-shopify-shop-domain'][0]."/admin/";
+    private static function postToSlack(Webhook $Webhook) {
+        $base_url = WebhookDataShopify::get_baseUrl($Webhook);
+        $data = WebhookDataShopify::order_data($Webhook);
         
         $title = $base_url."orders/".$Webhook->body()['id']."|:tada: Order Updated- ".$Webhook->body()['name'].">";
-        $data = WebhookDataShopify::order_data($Webhook);
 
         $channel = Channel::SlackUrl("");
         

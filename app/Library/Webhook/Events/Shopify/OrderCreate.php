@@ -8,8 +8,7 @@ use App\Models\Order;
 
 class OrderCreate
 {
-    public static function handle(Webhook $Webhook)
-    {
+    public static function handle(Webhook $Webhook) {
         $domain_store = $Webhook->headers('x-shopify-shop-domain', null);
         $order_data = $Webhook->body();
         $order_data['domain_store'] = $domain_store;
@@ -18,12 +17,11 @@ class OrderCreate
         self::postToSlack($Webhook);
     }
     
-    private static function postToSlack(Webhook $Webhook)
-    {
-        $base_url = "<https://".$Webhook->headers()['x-shopify-shop-domain'][0]."/admin/";
+    private static function postToSlack(Webhook $Webhook) {
+        $base_url = WebhookDataShopify::get_baseUrl($Webhook);
+        $data = WebhookDataShopify::order_data($Webhook);
         
         $title = $base_url."orders/".$Webhook->body()['id']."|:tada: You have a New Order - ".$Webhook->body()['name'].">";
-        $data = WebhookDataShopify::order_data($Webhook);
 
         $channel = Channel::SlackUrl("");
         
