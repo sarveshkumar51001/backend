@@ -327,7 +327,8 @@ class ShopifyController extends BaseController
 
 				$post_payment['order_id'] = $Payments['order_id'];
 				$post_payment['file_id'] = $Payments['file_id'];
-    			$post_payment['activity'] = $Payments['activity'].' ( '.$Payments['shopify_activity_id'].')';
+    			$post_payment['activity'] = $Payments['activity'];
+    			$post_payment['activity_id'] = $Payments['shopify_activity_id'];
     			$post_payment['school_enrollment_no'] = $Payments['school_enrollment_no'];
     			$post_payment['student_name'] = $Payments['student_first_name']." ".$Payments['student_last_name'];
     			$post_payment['student_school'] = $Payments['school_name'].' , '.$Payments['student_school_location'];

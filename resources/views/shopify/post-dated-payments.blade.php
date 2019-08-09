@@ -9,7 +9,7 @@
             <table class="table table-responsive-sm table-hover table-outline table-bordered table-striped table-sm datatable no-footer mb-0">
                 <thead>
                 <tr>
-                    <th>Order/File ID</th> 
+                    <th>Order/File ID</th>
                     <th>Activity</th>
                     <th>School Enrollment No</th>
                     <th>Student Name</th>
@@ -25,9 +25,9 @@
                         <td>@if(!$payments['order_id'] == 0)
                                 <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$payments['order_id']}}">View <i class="fa fa-external-link"></i></a>
                             @endif <br>{{ $payments['file_id'] }}</br></td>
-                        <td>{{ $payments['activity'] }}</td>
+                        <td><b>{{ $payments['activity'] }}</b> ({{ $payments['activity_id']}})</td>
                         <td>{{ $payments['school_enrollment_no'] }}</td>
-                        <td><b>{{ $payments['student_name'] }}</b></td>
+                        <td>{{ $payments['student_name'] }}</td>
                         <td>{{ $payments['student_school'] }}</td>
                         <td>{{ $payments['delivery_location'] }}</td>
                         <td>{{ $payments['expected_date'] }}</td>
