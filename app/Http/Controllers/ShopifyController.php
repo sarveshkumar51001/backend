@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Library\Shopify\ExcelValidator;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use App\Library\Shopify\DB;
 
 class ShopifyController extends BaseController
 {
@@ -308,6 +309,37 @@ class ShopifyController extends BaseController
 	    }
 
 	    return view('admin.404')->with('breadcrumb', $breadcrumb);
+    }
+
+    public function post_dated_payments(){
+
+    	$Post_Payment_Data = [];
+    	$post_payment = [];
+    	$Post_Dated_Payments = DB::get_all_post_dated_payments();
+
+    	foreach($Post_Dated_Payments as $Payments){
+			
+			$payment_array = $Payments['payments'];
+
+			$post_payment_keys = array_keys(array_column($payment_array, 'is_pdc_payment'), true);
+
+			foreach($post_payment_keys as $payment_key){
+
+				$post_payment['order_id'] = $Payments['order_id'];
+				$post_payment['file_id'] = $Payments['file_id'];
+    			$post_payment['activity'] = $Payments['activity'].' ( '.$Payments['shopify_activity_id'].')';
+    			$post_payment['school_enrollment_no'] = $Payments['school_enrollment_no'];
+    			$post_payment['student_name'] = $Payments['student_first_name']." ".$Payments['student_last_name'];
+    			$post_payment['student_school'] = $Payments['school_name'].' , '.$Payments['student_school_location'];
+    			$post_payment['delivery_location'] = $Payments['delivery_institution'].' , '.$Payments['branch'];
+    			$post_payment['expected_date'] = $payment_array[$payment_key]['chequedd_date'];
+    			$post_payment['expected_amount'] = $payment_array[$payment_key]['amount'];
+
+    			$Post_Payment_Data[] = $post_payment;
+			}	
+    	}
+    	return view('shopify.post-dated-payments')->with('collection_data',$Post_Payment_Data);
+    	
     }
 }
 
