@@ -13,7 +13,7 @@
                     @endforeach
                     </ul>
                 @endif
-                
+
                 @if(!empty($errored_data['rows']))
                     <div class="pull-right">
                     	<a href="#" onclick="$('.collapse').collapse('hide');" class="mr-2">Collapse All <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
@@ -27,10 +27,11 @@
                 				<div id="row-{{ $row_no }}" class="collapse">
                     				<ul>
                     				@foreach($errors as $error)
-                    					<li>{{ $error }}</li>
+                                        @php $error_slug = str_replace('+','-',urlencode('bkmrk-' . substr(strtolower(preg_replace('/s+/', '-', trim($error))), 0, 20))) @endphp
+                    					<li>{{ $error }} <a target="_blank" href="https://wiki.valedra.com/link/33#{{$error_slug}}"> Help <i class="fa fa-external-link"></i></a></li>
                     				@endforeach
                     				</ul>
-								</div>                    				
+								</div>    				
                 			</li>
                 		@else
                 			<li><b>Row {{ $row_no }}</b> - {{ $errors[0] }}

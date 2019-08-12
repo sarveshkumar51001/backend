@@ -80,7 +80,7 @@ class ShopifyController extends BaseController
 
 	        // Create Excel Raw object
 	        if(empty($ExlReader->getHeading())) {
-	            return back()->withErrors(['No data was found in the uploaded file']);
+	            return back()->withErrors([Errors::EMPTY_FILE_ERROR]);
 	        }
 	        
 	        $header = $ExlReader->first()->keys()->toArray();
