@@ -3,36 +3,33 @@ namespace App\Library\Webhook\Events\Shopify;
 
 use App\Library\Shopify\WebhookDataShopify;
 use App\Library\Webhook\Channel;
-use App\Models\Product;
 use App\Models\Webhook;
+use App\Models\Order;
 
-class ProductUpdate
+class OrderUpdate
 {
-
     public static function handle(Webhook $Webhook) {
-        $new_product_data = $Webhook->body();
-        $product_id = $new_product_data['id'];
+        $new_order_data = $Webhook->body();
+        $order_id = $new_order_data['id'];
         
-        if($Product = Product::where('id', $product_id)->first()) {
-            $Product->update($new_product_data);
+        if($Order = Order::where('id', $order_id)->first()) {
+            $Order->update($new_order_data);
         } else {
             $domain_store = $Webhook->headers('x-shopify-shop-domain', null);
-            $new_product_data['domain_store'] = $domain_store;
-            Product::create($new_product_data);
+            $new_order_data['domain_store'] = $domain_store;
+            Order::create($new_order_data);
         }
 
         self::postToSlack($Webhook);
     }
 
     private static function postToSlack(Webhook $Webhook) {
-        $store_name = explode('.', $Webhook->headers()['x-shopify-shop-domain'][0])[0];
-
         $base_url = WebhookDataShopify::get_baseUrl($Webhook);
-        $data = WebhookDataShopify::product_data($Webhook);
+        $data = WebhookDataShopify::order_data($Webhook);
         
-        $title = $base_url."products/".$Webhook->body()['id']."|:tada: Product Updated - ".$Webhook->body()['title'].">";
+        $title = $base_url."orders/".$Webhook->body()['id']."|:tada: Order Updated- ".$Webhook->body()['name'].">";
 
-        $channel = Channel::SlackUrl($store_name);
+        $channel = Channel::SlackUrl("");
         
         foreach ($channel as $value) {
             $webhook_url = $value['to']['webhook_url'];
