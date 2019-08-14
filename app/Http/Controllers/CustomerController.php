@@ -4,9 +4,34 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends BaseController
 {
+    
+	public function search_student(Request $request){
+
+		$rules = [
+                'school-name' => 'required|string',
+                'student-name' => 'required|string|min:3|max:100',
+                'class' => 'required|numeric',
+                'section' => 'required|string|max:1'
+            ];
+        
+	    Validator::make($request->all(), $rules)->validate();
+
+		$school_name = $request['school-name'];
+		$class = $request['class'];
+		$section = $request['section'];
+		$student_name = $request['student-name'];
+
+		$students = Customer::SearchName()->where(Customer::SCHOOL,$school_name)->where(Customer::STUDENT_CLASS,$class)->where(Customer::SECTION,$section)->get();
+
+		return view('customers-list')->with('students',$students);
+	}
+
+
     public function index() {
 	    $limit = 100;
 	    $data = Customer::paginate($limit);
