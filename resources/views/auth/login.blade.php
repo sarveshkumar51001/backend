@@ -12,6 +12,11 @@
     <!-- Main styles for this application -->
     <link href="{{ URL::asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ URL::asset('css/custom.css') }}" rel="stylesheet">
+    <style>
+        body {
+            background-image: url("https://picsum.photos/1920/1080"); 
+        }
+    </style
 </head>
 <body class="app flex-row align-items-center  pace-done"><div class="pace  pace-inactive"><div class="pace-progress" data-progress-text="100%" data-progress="99" style="transform: translate3d(100%, 0px, 0px);">
         <div class="pace-progress-inner"></div>
@@ -20,7 +25,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card-group">
+            <div class="card-group" style="opacity:0.85;">
                 <div class="card py-5">
                     <div class="card-body text-center">
                         <img class="center" src="img/logo.png">

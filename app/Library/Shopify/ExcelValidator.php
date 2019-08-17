@@ -47,6 +47,7 @@ class ExcelValidator
      */
     public function Validate()
     {
+        $sheet_has_column_validation_error = false;
         if (! $this->HasAllValidHeaders()) {
             $this->errors['incorrect_headers'] = 'Either few headers are incorrect or wrong sheet uploaded, to resolve download the latest sample format.';
             return $this->errors;
@@ -60,7 +61,11 @@ class ExcelValidator
         // Finding data validation errors
         foreach ($this->FileFormattedData as $index => $data) {
             $this->row_no ++;
-            if ($this->ValidateDuplicateRow($data) || $this->ValidateData($data)) {
+
+            if ($this->ValidateDuplicateRow($data) || $validation_error = $this->ValidateData($data)) {
+                if ($validation_error) {
+                    $sheet_has_column_validation_error = true;
+                }
                 unset($this->FileFormattedData[$index]);
                 continue;
             }
@@ -70,7 +75,11 @@ class ExcelValidator
             $this->ValidateActivityDetails($data);
         }
 
-        $this->ValidateAmount();
+        if ($sheet_has_column_validation_error) {
+            $this->errors['sheet']['priority_error'] = 'There are errors in sheets due to which collection cannot be calculated correctly. Please correct below errors and try again.';
+        } else {
+            $this->ValidateAmount();
+        }
 
         return $this->errors;
     }
