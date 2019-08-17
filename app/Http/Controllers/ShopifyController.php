@@ -76,12 +76,12 @@ class ShopifyController extends BaseController
 	        $file_id = 'shopify-'.crc32(uniqid()); # Unique identifier for the documents belonging to a single file
 	        
 	        // Loading the excel file
-	        try{
-	        $ExlReader = Excel::load($path->getRealPath(), function () {
-	        })->get()->first();
+	        try {
+	           $ExlReader = Excel::load($path->getRealPath())->get()->first();
 	    	} catch(\PHPExcel_Exception $e){
-	    		return back()->withErrors(['The uploaded file seems invalid. Please download the latest sample file']);
+	    		return back()->withErrors(['The uploaded file seems invalid. Please download the latest sample file.']);
 	    	}
+	    	
 	        // Create Excel Raw object
 	        if(empty($ExlReader->getHeading())) {
 	            return back()->withErrors(['No data was found in the uploaded file']);
