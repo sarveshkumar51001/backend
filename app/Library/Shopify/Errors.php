@@ -27,7 +27,7 @@ class Errors {
 
 	const OUT_OF_STOCK_ERROR = "Product is out of stock.";
 
-	const FINAL_FEE_ERROR = "Final Fee  is not equal to the activity fee.";
+	const FINAL_FEE_ERROR = "Final Fee is not equal to the activity fee.";
 
 	const DISCOUNT_APPLICATION_ERROR = "After applying discount and Final Fee amount does not match.";
 
@@ -41,23 +41,23 @@ class Errors {
 
 	const ONLINE_TOTAL_MISMATCH = "Online total mismatch, Entered total %s, Calculated total %s";
 
-	const EMPTY_AMOUNT_ERROR = "Amount is required for any payment";
+	const EMPTY_AMOUNT_ERROR = "Amount is required for payment - %s";
 
-	const CHEQUE_DD_DETAILS_ERROR = "Cheque/DD Details are mandatory for transactions having payment mode as Cheque/DD.";
+	const CHEQUE_DD_DETAILS_ERROR = "Cheque/DD Details are mandatory for payment - %s, which is having payment mode as Cheque/DD.";
 
-	const CHEQUE_DETAILS_USED_ERROR = "Cheque/DD Details already used before.";
+	const CHEQUE_DETAILS_USED_ERROR = "Cheque/DD Details already used before for payment - %s.";
 
-	const ONLINE_PAYMENT_ERROR = "Transaction Reference No. is mandatory in case of Online Payment.";
+	const ONLINE_PAYMENT_ERROR = "Transaction Reference No. is mandatory for payment - %s, which is an online payment.";
 
-	const CASH_PAYMENT_ERROR = "For Cash payments, Cheque/DD/Online payment details are not applicable.";
+	const CASH_PAYMENT_ERROR = "Cheque/DD/Online payment details are not applicable for payment - %s, as it is a cash payment.";
 
-	const INVALID_MODE_ERROR = "Payment %s - Invalid Payment Mode - %s";
+	const INVALID_MODE_ERROR = "Invalid mode of payment - %s for payment %s ";
 
-	const EXPECTED_DATE_AMOUNT_ERROR = "Expected Amount and Expected date of collection required for every installment of this order.";
+	const EXPECTED_DATE_AMOUNT_ERROR = "Expected Amount and Expected date of collection required for payment - %s.";
 
 	const FUTURE_PAYMENT_CHEQUE_DETAILS_ERROR = "Future Installments with no payment mode cannot have Cheque/DD/Online details";
 
-	const FUTURE_INSTALLMENT_DATE_ERROR = "Payment date should be in future for future installments";
+	const FUTURE_INSTALLMENT_DATE_ERROR = "Payment date should be in future for future payment - %s.";
 
 	const ORDER_AMOUNT_TOTAL_ERROR = "Total Installment Amount and Final Fee Amount does not match";
 

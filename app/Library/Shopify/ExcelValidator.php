@@ -317,11 +317,10 @@ class ExcelValidator
         $final_fee = $data['final_fee_incl_gst'];
 
         foreach ($data['payments'] as $payment_index => $payment) {
-            logger($payment);
             $payment = Arr::except($payment, ShopifyExcelUpload::PAYMENT_METAFIELDS);
 
             if (empty($payment['amount'])) {
-                $this->errors['rows'][$this->row_no][] = Errors::EMPTY_AMOUNT_ERROR;
+                $this->errors['rows'][$this->row_no][] = sprintf(Errors::EMPTY_AMOUNT_ERROR,$payment_index + 1);
                 continue;
             }
 
@@ -346,28 +345,28 @@ class ExcelValidator
                 // Checking for offline mode PAYMENTS
                 if (array_contains_empty_value($cheque_dd_fields)) {
                     // Checking for blank cheque/dd details
-                    $this->errors['rows'][$this->row_no][] = Errors::CHEQUE_DD_DETAILS_ERROR;
+                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::CHEQUE_DD_DETAILS_ERROR,$payment_index + 1);
                 } else {
                     if (DB::check_if_already_used($payment['chequedd_no'], $payment['micr_code'], $payment['drawee_account_number'], $payment_index, $data['shopify_activity_id'], $data['date_of_enrollment'], $data['school_enrollment_no'])) {
                         // Check if the combination of cheque no., micr_code and account_no. exists in database
-                        $this->errors['rows'][$this->row_no][] = Errors::CHEQUE_DETAILS_USED_ERROR;
+                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::CHEQUE_DETAILS_USED_ERROR,$payment_index + 1 );
                     }
                 }
             } else if (in_array($mode, array_map('strtolower', $online_modes))) {
                 // Checking for online mode payments
                 if (array_contains_empty_value($online_fields)) {
                     // Checking for blank online details
-                    $this->errors['rows'][$this->row_no][] = Errors::ONLINE_PAYMENT_ERROR;
+                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::ONLINE_PAYMENT_ERROR,$payment_index + 1);
                 }
             } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
                 // Checking for cash mode payments
                 if (! array_contains_empty_value($cheque_dd_fields) || ! array_contains_empty_value($online_fields)) {
                     // Cheque/DD/Online should be blank for cash payments
-                    $this->errors['rows'][$this->row_no][] = Errors::CASH_PAYMENT_ERROR;
+                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::CASH_PAYMENT_ERROR,$payment_index + 1);
                 }
             } else if (! empty($mode)) {
                 // Checking for invalid paymemt mode
-                $this->errors['rows'][$this->row_no][] = sprintf(Errors::INVALID_MODE_ERROR,$payment_index + 1 , $mode);
+                $this->errors['rows'][$this->row_no][] = sprintf(Errors::INVALID_MODE_ERROR, $mode, $payment_index + 1);
             }
 
             // Function for checking wthether the combination of amount and date present for each installment.
@@ -375,7 +374,7 @@ class ExcelValidator
             if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
                 if (empty($payment['mode_of_payment'])) {
                     if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
-                        $this->errors['rows'][$this->row_no][] = Errors::EXPECTED_DATE_AMOUNT_ERROR;
+                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::EXPECTED_DATE_AMOUNT_ERROR,$payment_index + 1);
                     } else {
                         if (Carbon::now()->diffInDays(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']), false) > 0) {
                             $except_amount_date = [
@@ -386,7 +385,7 @@ class ExcelValidator
                                 $this->errors['rows'][$this->row_no][] = Errors::FUTURE_PAYMENT_CHEQUE_DETAILS_ERROR;
                             }
                         } else {
-                            $this->errors['rows'][$this->row_no][] = Errors::FUTURE_INSTALLMENT_DATE_ERROR;
+                            $this->errors['rows'][$this->row_no][] = sprintf(Errors::FUTURE_INSTALLMENT_DATE_ERROR,$payment_index + 1);
                         }
                     }
                 }
