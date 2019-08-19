@@ -1,7 +1,7 @@
 @extends('admin.app')
 
 @section('content')
-@inject('Customer', 'App\Models\Customer')
+@inject('Customer','App\Models\Customer')
 
     <div class="card">
         <div class="card-header">
@@ -61,7 +61,7 @@
                     <div class="col-sm-4">
                         <label>&nbsp;</label>
                         <div class="input-group">
-                            <button id="file-upload-btn" type="submit" class="btn btn-group-sm btn-info"><i class="fa fa-upload"></i> &nbsp; Search</button>
+                            <button id="file-upload-btn" type="submit" class="btn btn-group-sm btn-info"><i class="fa fa-search"></i> &nbsp; Search</button>
                         </div>
                     </div>
                 </div>
@@ -94,16 +94,17 @@
             <tbody>
             @foreach($students as $student)
                 <tr>
-                    <td>{{$student->$customer::STUDENT_FIRST_NAME}}</td>
-                    <td>{{$student->$customer::STUDENT_LAST_NAME}}</td>
-                    <td>{{$student->$customer::STUDENT_CLASS}}</td>
-                    <td>{{$student->$customer::SECTION}}</td>
-                    <td>{{$student->$customer::SCHOOL}}</td>
-                    <td>{{$student->$customer::LOCATION}}</td>
-                    <td>{{$student->school_enrollment_no}}</td>
-                    <td>{{$student->parent_first_name}}</td>
-                    <td>{{$student->parent_last_name}}</td>
-                    <td>{{$student->}}
+                    <td>{{ $student->{$Customer::STUDENT_FIRST_NAME} }}</td>
+                    <td>{{ $student->{$Customer::STUDENT_LAST_NAME} }}</td>
+                    <td>{{ $student->{$Customer::STUDENT_CLASS} }}</td>
+                    <td>{{ $student->{$Customer::SECTION} }}</td>
+                    <td>{{ $student->{$Customer::SCHOOL} }}</td>
+                    <td>{{ $student->{$Customer::LOCATION} }}</td>
+                    <td>{{ $student->{$Customer::ENROLLMENT_NO} }}</td>
+                    <td>{{ $student->{$Customer::PARENT_FIRST_NAME} }}</td>
+                    <td>{{ $student->{$Customer::PARENT_LAST_NAME} }}</td>
+                    <td>{{ $student->{$Customer::EMAIL} }}</td>
+                    <td>{{ $student->{$Customer::PHONE} }}</td>
                 </tr>
             @endforeach
             </tbody>
