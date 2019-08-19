@@ -27,7 +27,7 @@ class OrderUpdate
         $base_url = WebhookDataShopify::get_baseUrl($Webhook);
         $data = WebhookDataShopify::order_data($Webhook);
         
-        $title = $base_url."orders/".$Webhook->body()['id']."|:tada: Order Updated- ".$Webhook->body()['name'].">";
+        $title = sprintf("<%sorders/%s|:tada: Order Updated- %s>", $base_url, $Webhook->body()['id'], $Webhook->body()['name']);
 
         $channel = Channel::SlackUrl("");
         

@@ -21,7 +21,7 @@ class OrderCreate
         $base_url = WebhookDataShopify::get_baseUrl($Webhook);
         $data = WebhookDataShopify::order_data($Webhook);
         
-        $title = $base_url."orders/".$Webhook->body()['id']."|:tada: You have a New Order - ".$Webhook->body()['name'].">";
+        $title = sprintf("<%sorders/%s|:tada: You have a New Order - %s>", $base_url, $Webhook->body()['id'], $Webhook->body()['name']);
 
         $channel = Channel::SlackUrl("");
         
