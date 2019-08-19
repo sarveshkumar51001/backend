@@ -15,10 +15,10 @@ Route::post("{path}", function () {
     return response()->json([
         'webhook_id' => request()->webhook_id
     ], 200);
-})->where('path', '.*');
+})->where('path', '.*')->middleware('webhook');
 
 Route::fallback(function () {
     return response()->json([
-        'error' => 'Not Found'
-    ], 404);
+        'error' => 'Not Allowed'
+    ], 405);
 });
