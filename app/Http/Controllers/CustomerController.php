@@ -17,31 +17,6 @@ class CustomerController extends BaseController
 	    return view('customers-list', ['users' => $data, 'breadcrumb' => $breadcrumb]);
     }
 
-    public function search_student(Request $request){
-
-		$rules = [
-                'school-name' => 'required|string',
-                'student-name' => 'required|string|min:3|max:100',
-                'class' => 'required|numeric',
-                'section' => 'required|string|max:1'
-            ];
-        
-	    Validator::make($request->all(), $rules)->validate();
-
-		$school_name = $request['school-name'];
-		$class = $request['class'];
-		$section = $request['section'];
-		$student_name = $request['student-name'];
-
-		$students = Customer::where(Customer::SCHOOL,$school_name)->where(function($query) use ($student_name)
-            {
-                $query->where(Customer::STUDENT_FIRST_NAME, 'like', "%{$student_name}%")
-                      ->orWhere(Customer::STUDENT_LAST_NAME, 'like', "%{$student_name}%");
-            })->where(Customer::STUDENT_CLASS,$class)->where(Customer::SECTION,$section)->get();
-
-		return view('customers-list')->with('students',$students);
-	}
-
 	public function view($id) {
 		$customer = Customer::find($id);
 		if (!$customer) {

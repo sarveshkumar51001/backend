@@ -20,6 +20,7 @@ Route::get('/orders/{id}', 'OrderController@view');
 Route::get('/orders/create', 'OrderController@create');
 Route::post('/orders/create', 'OrderController@create');
 Route::get('/orders/update', 'OrderController@update');
+Route::get('/customers', 'CustomerController@index');
 Route::get('/customers/{id}/regenerate_rec/{customer_id}', 'CustomerController@regenerate_rec');
 Route::get('/customers/profiler', 'CustomerController@profiler');
 Route::get('/customers/profiler/{id}', 'CustomerController@profiler_response');
@@ -27,8 +28,8 @@ Route::get('/customers/{id}', 'CustomerController@view');
 Route::get('/products', 'ProductController@index');
 Route::get('/products/{id}', 'ProductController@view');
 Route::get('/search', 'SearchController@index');
-Route::get('/customers', 'CustomerController@index');
-Route::post('/customers','CustomerController@search_student')->name('search.student');
+Route::get('/students', 'StudentController@index');
+Route::post('/students','StudentController@search_student')->name('search.student');
 Route::prefix('imagereco')->group(function() {
     Route::get('/', 'ImageRecognitionController@listAllPeople')->name('imagereco.list-all-people');
     Route::post('/', 'ImageRecognitionController@listAllPeople_result')->name('imagereco.list-all-people-result');
