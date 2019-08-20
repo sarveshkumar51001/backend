@@ -7,7 +7,7 @@
             <div class="row pull-right">
                 <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i> File Upload History</button></a>
                 <a href="{{ route('bulkupload.previous_orders') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Previous Orders</button></a>
-                <a href="{{ URL::asset('shopify/sample_shopify_file.xls') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-download"> &nbsp;</i>Download sample file</button></a>
+                <a href="{{ URL::asset('shopify/sample_shopify_file.xls') }}"><button type="button" class="btn btn-outline-primary btn-sm ml-2"><i class="fa fa-download"> &nbsp;</i>Download sample file</button></a>
             </div>
         </div>
         <div class="card-body">
@@ -16,7 +16,7 @@
                     {{ $value }}
                 </div>
             @endforeach
-            <form method="POST" action="{{ route('bulkupload.upload_preview') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('bulkupload.upload_preview') }}" enctype="multipart/form-data" onsubmit="form_submit()">
                 <div class="card">
             		<div class="card-header">
             			Amount Collected
@@ -45,12 +45,18 @@
                     </div>
                 </div>
                 <div class="row">
+                	<div class="col-sm-4">
+                        <div class="form-group">
+                            <label><i class="fa fa-calendar"></i> Select Date</label>
+                                <input autocomplete="off" name="date" maxlength="50" type="text" class="form-control datepicker" required value="{{ date('d/m/Y') }}"/>
+                        </div>
+                    </div>
                     <div class="col-sm-4">
                         <label><i class="fa fa-file-excel-o" aria-hidden="true"></i> Upload file (only .xls files allowed)</label>
                         <input type="file" name="file" required="required" accept=".xls" class="form-control">
                     </div>
                     {{ csrf_field() }}
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                         <label>&nbsp;</label>
                         <div class="input-group">
                             <button id="file-upload-btn" type="submit" class="btn btn-group-sm btn-success"><i class="fa fa-upload"></i> &nbsp; Upload</button>
@@ -63,13 +69,20 @@
 @endsection
 
 @section('footer-js')
+    <script src="{{ URL::asset('vendors/js/spin.min.js') }}"></script>
+    <script src="{{ URL::asset('vendors/js/ladda.min.js') }}"></script>
+    <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
     <script src="{{ URL::asset('vendors/js/jquery-ui.min.js') }}"></script>
     <script src="{{ URL::asset('js/views/datepicker.js') }}"></script>
     <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
     <script>
         // Load date picker
-        $('.datepicker').datepicker().on('changeDate', function(ev) {
+        $('.datepicker').datepicker({format: 'dd/mm/yyyy'}).on('changeDate', function(ev) {
             $(this).datepicker('hide');
         });
+        function form_submit() {
+        	var loader = Ladda.create(document.querySelector('#file-upload-btn')).start();
+        	loader.start();
+        }
     </script>
 @endsection

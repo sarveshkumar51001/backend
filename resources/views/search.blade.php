@@ -67,6 +67,8 @@
                                     <th>Category</th>
                                     <th>Tags</th>
                                     <th>Price</th>
+                                    <th>Stock</th>
+                    				<th>Status</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -82,6 +84,8 @@
                                                 <td>{{$product->product_type}}</td>
                                                 <td>{{$product->tags}}</td>
                                                 <td>{{$variant['price']}}</td>
+                                                <td class="font-weight-bold">@if($variant['inventory_quantity'] > 0 || empty($variant['inventory_management'])) <p class="text-success">In Stock</p> @else  <p class="text-danger">Out of Stock</p>@endif</td>
+                                                <td>@if($product['published_at'] != null) <p class="text-success">Enabled</p> @else <p class="text-danger">Disabled</p> @endif</td>
                                             @endforeach
                                         </tr>
                                 @else
@@ -94,6 +98,8 @@
                                         <td>{{$product->product_type}}</td>
                                         <td>{{$product->tags}}</td>
                                         <td>{{$variant['price']}}</td>
+                                       <td class="font-weight-bold">@if($variant['inventory_quantity'] > 0 || empty($variant['inventory_management'])) <p class="text-success">In Stock</p> @else  <p class="text-danger">Out of Stock</p> @endif</td>
+                						<td class="font-weight-bold">@if($product['published_at'] != null) <p class="text-success">Enabled</p> @else <p class="text-danger">Disabled</p> @endif</td>
                                         </tr>
                                     @endforeach
                                     @endif

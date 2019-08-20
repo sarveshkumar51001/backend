@@ -30,12 +30,16 @@ class API
 		];
 	}
 
+	private function delay_request() {
+	    sleep(1);
+	}
 	/**
 	 * @param $data
 	 *
 	 * @return array
 	 */
 	public function CreateCustomer($data) {
+	    $this->delay_request();
 		return $this->Shopify->Customer->post($data);
 	}
 
@@ -46,8 +50,14 @@ class API
 	 * @return array
 	 */
 	public function SearchCustomer($phone,$email) {
+	    $this->delay_request();
 		$query = sprintf("phone:%s OR email:%s",$phone,$email);
 		return $this->Shopify->Customer->search($query);
+	}
+
+	public function UpdateCustomer($customer_id, array $data) {
+		$this->delay_request();
+		return $this->Shopify->Customer($customer_id)->put($data);
 	}
 
 	/**
@@ -56,6 +66,7 @@ class API
 	 * @return array
 	 */
 	public function CreateOrder(array $data) {
+	    $this->delay_request();
 		return $this->Shopify->Order->post($data);
 	}
 
@@ -66,6 +77,7 @@ class API
 	 * @return array
 	 */
 	public function PostTransaction($orderID, array $data) {
+	    $this->delay_request();
 		return $this->Shopify->Order($orderID)->Transaction->post($data);
 	}
 
@@ -76,6 +88,7 @@ class API
 	 * @return array
 	 */
 	public function UpdateOrder($orderID, array $data) {
+	    $this->delay_request();
 		return $this->Shopify->Order($orderID)->put($data);
 	}
 
@@ -85,6 +98,7 @@ class API
 	 * @return array
 	 */
 	public function GetProducts($params){
+	    $this->delay_request();
 		return $this->Shopify->Product()->get($params);
 	}
 
@@ -93,6 +107,7 @@ class API
 	 * @throws \PHPShopify\Exception\SdkException
 	 */
 	public function CountProducts(){
+	    $this->delay_request();
 		return $this->Shopify->Product()->count();
 	}
 
@@ -102,6 +117,7 @@ class API
 	 * @return array
 	 */
 	public function GetCustomers($params){
+	    $this->delay_request();
 		return $this->Shopify->Customer()->get($params);
 	}
 }

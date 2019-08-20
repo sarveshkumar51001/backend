@@ -42,3 +42,33 @@ function isArrayAssoc(array $arr)
     if (array() === $arr) return false;
     return array_keys($arr) !== range(0, count($arr) - 1);
 }
+
+
+function array_contains_empty_value(array $arr) {
+    return boolval(count(array_filter($arr)) !== count($arr));
+}
+
+function log_error(\Exception $e) {
+    slack($e)->post();
+}
+
+/**
+ * Returns Webhook Event Class path
+ * 
+ * @param App\Models\Webhook $Webhook
+ * @return string|boolean
+ */
+function webhook_event_class(App\Models\Webhook $Webhook) {
+    
+    $namespace = '\App\Library\Webhook\Events';
+    $source = \Illuminate\Support\Str::title($Webhook->{App\Models\Webhook::SOURCE});
+    $class_name = \Illuminate\Support\Str::studly($Webhook->{App\Models\Webhook::NAME});
+    $class_path = sprintf("%s\%s\%s", $namespace, $source, $class_name);
+    
+    if (class_exists($class_path)) {
+        if (method_exists($class_path, 'handle')) {
+            return $class_path;
+        }
+    }
+    return false;
+}

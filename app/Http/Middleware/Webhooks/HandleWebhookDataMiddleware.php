@@ -1,16 +1,17 @@
 <?php
 namespace App\Http\Middleware\Webhooks;
 
-use Closure;
-use Illuminate\Support\Str;
 use App\Models\Webhook;
-use App\Library\Shopify;
-use App\Library\Slack\Slack;
+use Illuminate\Support\Str;
+use Closure;
+use function slack;
 use App\Models\WebhookNotification;
-use App\Library\Webhook\SlackTranslation;
+use App\Jobs\WebhookEventJob;
 
 class HandleWebhookDataMiddleware
 {
+
+    protected $Webhook;
 
     /**
      * Handle an incoming request.
@@ -21,33 +22,87 @@ class HandleWebhookDataMiddleware
      */
     public function handle($request, Closure $next)
     {
-        if ($request->isMethod('POST')) {
-            $url = Str::replaceFirst('webhook/', '', $request->path());
-            $data = explode('/', $url);
-            $source = $data[0];
-            $name = implode('-', array_slice($data, 1));
-            $event = str_replace('/', '-', $url);
-            $fields = $request->all();
+        try {
+            // Checking if blank data was posted
+            if (count($request->all()) == 0) {
+                return response('No Data Found', 406);
+            }
 
-            $Webhook = new Webhook();
-            $Webhook->{Webhook::EVENT} = $event;
-            $Webhook->{Webhook::NAME} = $name;
-            $Webhook->{Webhook::SOURCE} = $source;
-            $Webhook->{Webhook::DATA} = $fields;
-            $Webhook->{Webhook::ISAUTHENTICATED} = $this->authenticateWebhook($source, $request);
-            $Webhook->{Webhook::CreatedAt} = time();
-            $Webhook->save();
+            $this->Webhook = $this->saveWebhook();
 
-            $request->webhook_id = $Webhook->{Webhook::ID};
+            $request->webhook_id = $this->Webhook->{Webhook::ID};
 
-            $this->postToSlack($Webhook);
+            // Dispatch Webhook if event class exists
+            if ($class_path = webhook_event_class($this->Webhook)) {
+
+                WebhookEventJob::dispatch($class_path, $this->Webhook);
+            } else {
+                // Post Default message to Slack Channel
+                $this->postToSlack($this->Webhook);
+            }
+
+            return $next($request);
+        } catch (\Exception $e) {
+            log_error($e);
         }
 
-        return $next($request);
+        return response('error', 500);
     }
 
-    private function authenticateWebhook($source, $request)
+    private function saveWebhook()
     {
+        $request = request();
+        $url = Str::replaceFirst('webhook/', '', $request->path());
+        $data = explode('/', $url);
+        $source = strtolower($data[0]);
+        $name = strtolower(implode('_', array_slice($data, 1)));
+
+        $event = sprintf("webhook.%s.%s", $source, $name);
+
+        $data = [
+            'headers' => $request->headers->all(),
+            'body' => $request->all(),
+            'query' => $request->query->all(),
+            'cookies' => $request->cookies->all(),
+            'attributes' => $request->attributes->all(),
+            'files' => $request->files->all()
+        ];
+
+        $Webhook = new Webhook();
+        $Webhook->{Webhook::EVENT} = $event;
+        $Webhook->{Webhook::NAME} = $name;
+        $Webhook->{Webhook::SOURCE} = $source;
+        $Webhook->{Webhook::DATA} = $data;
+        // $Webhook->{Webhook::ISAUTHENTICATED} = $this->authenticateWebhook();
+        $Webhook->{Webhook::CreatedAt} = time();
+        $Webhook->save();
+
+        return $Webhook;
+    }
+
+    private function postToSlack(Webhook $Webhook)
+    {
+        $source = Str::ucfirst($Webhook->{Webhook::SOURCE});
+        $data = array(
+            'WEBHOOK_ID' => $Webhook->{Webhook::ID},
+            "EVENT" => $Webhook->{Webhook::EVENT},
+            "SOURCE" => $source,
+            "URL" => request()->fullUrl()
+        );
+
+        $title = sprintf("New Incoming Webhook from %s", $source);
+
+        if ($DefaultWebhookURL = WebhookNotification::where('identifier', 'all')->first()) {
+            slack($data, $title)->webhook($DefaultWebhookURL['to']['webhook_url'])
+                ->info()
+                ->post();
+        }
+    }
+
+    private function authenticateWebhook()
+    {
+        $source = $this->Webhook->{Webhook::SOURCE};
+        $request = request();
         if ($source == 'shopify') {
             $hmac_header = $request->header('x-shopify-hmac-sha256', null);
 
@@ -56,27 +111,13 @@ class HandleWebhookDataMiddleware
             return ($hmac_header == $calculated_hmac);
         } elseif ($source == 'instapage') {
             $token = $request->header('Authorization', null);
-            $calculated_token = md5($request->all()['page_id']);
 
-            return ($token == $calculated_token);
+            if (in_array('page_id', $request->all())) {
+                $calculated_token = md5($request->all()['page_id']);
+                return ($token == $calculated_token);
+            }
         }
 
         return false;
-    }
-
-    private function postToSlack(Webhook $Webhook)
-    {
-        $data = array(
-            'WEBHOOK_ID' => $Webhook->{Webhook::ID},
-            "EVENT" => $Webhook->{Webhook::EVENT},
-            "SOURCE" => $Webhook->{Webhook::SOURCE},
-            "URL" => request()->fullUrl()
-        );
-
-        $title = sprintf("New Incoming Webhook from %s", $Webhook->{Webhook::SOURCE});
-
-        slack($data, $title)->webhook(env('SLACK_WEBHOOK_NOTIFICATION'), null)
-            ->info()
-            ->post();
     }
 }

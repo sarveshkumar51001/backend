@@ -11,25 +11,14 @@
  * |
  */
 
-// Put Shopify Related Webhooks Here
-Route::prefix('shopify')->namespace('Shopify')->group(function () {
-    // Products Webhooks
-    Route::prefix('product')->group(function () {
-
-        Route::post('create', 'Product@create');
-        Route::post('update', 'Product@update');
-        Route::post('delete', 'Product@delete');
-    });
-});
-
 Route::post("{path}", function () {
     return response()->json([
         'webhook_id' => request()->webhook_id
     ], 200);
-})->where('path', '.*');
+})->where('path', '.*')->middleware('webhook');
 
 Route::fallback(function () {
     return response()->json([
-        'error' => 'Not Found'
-    ], 404);
+        'error' => 'Not Allowed'
+    ], 405);
 });

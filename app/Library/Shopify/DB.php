@@ -4,7 +4,6 @@ namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
 use App\Models\Product;
-use App\Library\Shopify\API;
 use App\User;
 
 class DB
@@ -15,28 +14,45 @@ class DB
 	 *
 	 * @return int
 	 */
-	public static function get_variant_id($activity_id, $activity_fee) {
-		$product =  Product::where('variants.sku', $activity_id)->first();
-		foreach($product['variants'] as $variant){
-			if($variant['price'] == $activity_fee){
-				return (string) $variant['id'];
-			}
-		}
-		return 0;
+	public static function get_variant_id($activity_id) {
+	    $product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants.id']);
+		return (string) $product['variants'][0]['id'];
 	}
 
-	public static function check_activity_fee_value($activity_fee,$activity_id) {
-		$product =  Product::where('variants.sku', $activity_id)->first();
-		if($product){
-		foreach($product['variants'] as $variant){
+	public static function is_activity_duplicate($activity_id) {
+	    $product =  Product::where('domain_store', env('SHOPIFY_STORE'))->where('variants.sku', $activity_id)->get();
+	    if(sizeof($product) > 1) {
+	        return true;
+	    }
+	    
+	    return false;
+	}
+	
+	public static function check_activity_fee_value($activity_fee, $activity_id) {
+		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->first();
+		
+		foreach($product['variants'] as $variant) {
 			if($variant['price'] == $activity_fee){
 				return true;
 			}
 		}
-	}
 
 		return false;
 	}
+
+
+    public static function check_inventory_status($variant_id){
+        $variant_id = $variant_id + 0; // Converting string to integer for 32-bit systems
+        
+        $product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity']);
+        
+    	if(!empty($product['variants'][0]['inventory_management'])){
+    		if($product['variants'][0]['inventory_quantity'] <= 0){
+    			return false;
+    		}
+    	}
+    	return true;
+    }
 	/**
 	 * @param $object_id
 	 * @param $shopify_order_id
@@ -103,6 +119,24 @@ class DB
 		return ShopifyExcelUpload::find($_id)->update(['job_status' => ShopifyExcelUpload::JOB_STATUS_FAILED, 'errors' => $error]);
 	}
 
+	public static function check_order_created($enrollment_date,$activity_id,$enrollment_no){
+
+		$ORM = ShopifyExcelUpload::where('date_of_enrollment',$enrollment_date)
+									->where('shopify_activity_id',$activity_id)
+									->where('school_enrollment_no',$enrollment_no)
+									->first(['order_id']);
+
+		if(!empty($ORM)){
+			$ORM = $ORM->toArray();
+			if(!empty($ORM['order_id'])){
+				return true;
+			}
+		}		
+		return false;
+	}
+
+
+
     /**
      * @param $object_id
      * @param $shopify_customer_id
@@ -117,26 +151,8 @@ class DB
     // 	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
     // }
 
-    public static function get_shopify_product_from_database($product_sku){
-    	
-    	$product = Product::where('variants.sku', $product_sku)->first();
-
-    	if($product) {
-    		return true ;
-    	}
-    	return false;
-        /*
-    	if(sizeof($product['variants']) == 1 && $product['title'] == $product_name){
-			return true ;
-		}else{
-			foreach($product['variants'] as $variant){
-				if($variant['sku'] == $product_sku && $variant['title'] == $product_name){
-					return true;
-				}
-			}
-		}
-		return false ;
-		*/
+    public static function shopify_product_database_exists($product_sku) {
+    	return Product::ActiveProduct()->where('variants.sku', $product_sku)->exists();
 	}
 
     public static function check_product_existence_in_database($product_id){
@@ -152,7 +168,7 @@ class DB
     	return User::findOrFail($id)['email'];
     }
 
-    public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0){
+    public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0,$payment_index, $activity_id, $enrollment_date, $enrollment_no) {
 		$ORM = ShopifyExcelUpload::where('payments.chequedd_no', $cheque_no);
 		
 		if (!empty($micr_code)) {
@@ -162,58 +178,72 @@ class DB
 		if (!empty($account_no)) {
 			$ORM->where('payments.drawee_account_number', $account_no);
 		}
-		
-    	return $ORM->exists();
-    }   
+
+		if($ORM->exists()) {
+			$document = $ORM->first(['payments','date_of_enrollment','shopify_activity_id','school_enrollment_no'])->toArray();
+
+			if($document['date_of_enrollment'] == $enrollment_date && $document['shopify_activity_id'] == $activity_id && $document['school_enrollment_no'] == $enrollment_no){
+
+				foreach($document['payments'] as $index => $payment){
+					if($payment['chequedd_no'] == $cheque_no && $payment['micr_code'] == $micr_code && $payment['drawee_account_number'] == $account_no && $index == $payment_index){
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+
+    	return false;
+    }
    
     /**
      * Not in Use
      * @ignore
      */
-    public static function sync_all_products_from_shopify() {
-    	$ShopifyAPI = new API();
-    	$page = 1;
-    	$hasProducts = true;
-    	while($hasProducts) {
-        	$params = ['limit' => 5,'page'=> $page];
-        	$products = $ShopifyAPI->GetProducts($params);
+//     public static function sync_all_products_from_shopify() {
+//     	$ShopifyAPI = new API();
+//     	$page = 1;
+//     	$hasProducts = true;
+//     	while($hasProducts) {
+//         	$params = ['limit' => 5,'page'=> $page];
+//         	$products = $ShopifyAPI->GetProducts($params);
         	
-        	if (!count($products)) {
-        		$hasProducts = false;
-        	} else {
-        		foreach($products as $product){
-        			if(!DB::check_product_existence_in_database($product["id"])){
-    					\DB::table('shopify_products')->insert($product);	    		
-        			}
-        		}
-    		}
-       		$page++;
-	   }
-	}
+//         	if (!count($products)) {
+//         		$hasProducts = false;
+//         	} else {
+//         		foreach($products as $product){
+//         			if(!DB::check_product_existence_in_database($product["id"])){
+//     					\DB::table('shopify_products')->insert($product);	    		
+//         			}
+//         		}
+//     		}
+//        		$page++;
+// 	   }
+// 	}
 
 	/**
 	 * Not in Use
 	 * @ignore
 	 */
-	public static function sync_all_customers_from_shopify() {
-		$ShopifyAPI = new API();
-    	$page = 1;
-    	$hasCustomers = true;
-    	while($hasCustomers) {
-	    	$params = ['page'=> $page];
-	    	$customers = $ShopifyAPI->GetCustomers($params);
+// 	public static function sync_all_customers_from_shopify() {
+// 		$ShopifyAPI = new API();
+//     	$page = 1;
+//     	$hasCustomers = true;
+//     	while($hasCustomers) {
+// 	    	$params = ['page'=> $page];
+// 	    	$customers = $ShopifyAPI->GetCustomers($params);
 
-	    	if (!count($customers)) {
-	    		$hasCustomers = false;
-	    	} else {
-	    		foreach($customers as $customer){
-	    			if(!DB::check_customer_existence_in_database($customer["id"])){
-						\DB::table('shopify_customers')->insert($customer);	    		
-	    			}
-	    		}
-			}
-		    $page++;
-   	   }
-   }
+// 	    	if (!count($customers)) {
+// 	    		$hasCustomers = false;
+// 	    	} else {
+// 	    		foreach($customers as $customer){
+// 	    			if(!DB::check_customer_existence_in_database($customer["id"])){
+// 						\DB::table('shopify_customers')->insert($customer);	    		
+// 	    			}
+// 	    		}
+// 			}
+// 		    $page++;
+//    	   }
+//    }
 
 }

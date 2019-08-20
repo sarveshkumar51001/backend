@@ -2,10 +2,10 @@
 namespace App\Library\Slack;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Auth;
+use function Sentry\configureScope;
 use Sentry\State\Scope;
 use GuzzleHttp;
-use App\Models\CourseCategory;
-use function Sentry\configureScope;
 
 class Slack
 {
@@ -15,7 +15,7 @@ class Slack
     private $payload;
 
     private $response;
-    
+
     private $webhook_url = null;
 
     private $data = [];
@@ -62,7 +62,7 @@ class Slack
             $module = str_replace("Controller", "", pathinfo($exception->getFile(), PATHINFO_FILENAME));
             configureScope(function (Scope $scope) use ($module): void {
                 $scope->setUser([
-                    'Name' => \Auth::user()->name ?? 'NA'
+                    'Name' => Auth::user()->name ?? 'NA'
                 ]);
                 $scope->setTag('Module', $module);
                 $scope->setExtra('Session Data', session()->all());
@@ -77,7 +77,7 @@ class Slack
 
         $data['EXCEPTION_CLASS'] = get_class($exception);
         $data['EXCEPTION_MESSAGE'] = $exception->getMessage();
-        $data['USER'] = \Auth::user()->name ?? 'NA';
+        $data['USER'] = Auth::user()->name ?? 'NA';
         $data['TIME'] = date("d-M-Y g:i:s a", time());
         $data['ENV'] = env('APP_URL');
         $data['URL'] = request()->fullUrl();
@@ -94,23 +94,33 @@ class Slack
         $this->data = $data;
         return $this;
     }
-    
-    public function webhook($webhook_url) {
+
+    public function webhook($webhook_url)
+    {
         $this->webhook_url = $webhook_url;
-        
+
         return $this;
     }
 
     public function post()
     {
-        $request = new Client();
-        $response = $request->post($this->getSlackWebhook(), [
-            GuzzleHttp\RequestOptions::BODY => $this->getPayload()
-        ]);
+        if (app()->isLocal()) {
+            logger($this->getPayload());
+        }
+        
+        if (! empty($this->getSlackWebhook())) {
 
-        $this->response = $response;
+            $request = new Client();
+            $response = $request->post($this->getSlackWebhook(), [
+                GuzzleHttp\RequestOptions::BODY => $this->getPayload()
+            ]);
 
-        return $this;
+            $this->response = $response;
+
+            return $this;
+        }
+
+        return false;
     }
 
     public function response()
@@ -177,7 +187,6 @@ class Slack
         }
 
         $payload = [];
-        
 
         $attachment['color'] = $this->color;
 
@@ -186,7 +195,7 @@ class Slack
             if ($key == 'SENTRY EVENT') {
                 $value = sprintf("<https://sentry.io/valedra/backend/?query=%s|%s>", $value, $value);
             }
-            
+
             $fields[] = [
                 'title' => $key,
                 'value' => $value,
@@ -206,10 +215,6 @@ class Slack
     private function getSlackWebhook()
     {
         $slack_webhook_url = $this->webhook_url ?? env('SLACK_WEBHOOK', null);
-
-        if (empty($slack_webhook_url)) {
-            throw new \Exception('Slack webhook url not set in env');
-        }
 
         return $slack_webhook_url;
     }
