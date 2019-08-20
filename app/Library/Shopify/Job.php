@@ -63,8 +63,9 @@ class Job {
 			$order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
 
 			$shopifyOrderId = $order['id'];
+			$shopifyOrderName = $order['name'];
 
-			DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId);
+			DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId,$shopifyOrderName);
 		}
 		
 		// Payment notes array
