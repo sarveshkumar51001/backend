@@ -88,6 +88,7 @@ class Job {
 				$delay = Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp - time();
 				// Dispatching new job with delay if PDC recorded
 				ShopifyOrderCreation::dispatch($object)->delay(now()->addSeconds($delay)->addHours(13));
+				continue;
 			}
 
 			$transaction_data = DataRaw::GetTransactionData($installment);
