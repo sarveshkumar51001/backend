@@ -153,7 +153,7 @@
                     </table>
                 @else
                     <div class="text-center">
-                        <h4>No data was found for the given details</h4>
+                        <h4 class="alert alert-danger">No data was found for the student given details</h4>
                         <a href="{{ route('search.students') }}" class="btn btn-danger"><i class="fa fa-search"></i> Search Again</a>
                     </div>
                 @endif
