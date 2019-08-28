@@ -25,7 +25,18 @@ class StudentController extends BaseController
                 'section' => 'string|max:1'
             ];
         
-	    Validator::make($request->all(), $rules)->validate();
+		$validator = Validator::make($request->all(), $rules);
+		$validator->setAttributeNames([
+		    'school-name' => 'School Name',
+		    'student-name' => 'Student Name',
+		    'class' => 'Class',
+		    'section' => 'Section'
+		]); 
+		
+		if ($validator->fails())
+		{
+		    return redirect()->route('search.students')->withErrors($validator, 'studentDetailErrors');
+		}
 
 		$school_name = $request['school-name'];
 		$class = $request['class'];
@@ -54,7 +65,12 @@ class StudentController extends BaseController
 
 		$rules = ['school-enrollment-no' => "required|string|min:4|regex:/[a-zA-Z]+-[0-9]+/"];
         
-	    Validator::make($request->all(), $rules)->validate();
+		$validator = Validator::make($request->all(), $rules, ['school-enrollment-no.regex' => 'The Student Enrollment Number format is invalid. Should be in format SKT-XXX']);
+		
+		if ($validator->fails())
+		{
+		    return redirect()->route('search.students')->withErrors($validator, 'studentEnrollmentErrors');
+		}
 
 		$school_enrollment_no = $request['school-enrollment-no'];
 

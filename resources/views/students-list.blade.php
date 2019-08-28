@@ -8,17 +8,19 @@
             <i class="icon-user"></i>Student Search
         </div>
         <div class="p-4">
-        <div class="card">
+        <div class="card mb-2">
             <div class="card-header">
             <i class="icon-user"></i>Search by Student Enrollment No
             </div>
             <form method="POST" action="{{ route('search.student-enrollment-no') }}" enctype="multipart/form-data" onsubmit="form_submit()">
                 <div class = "card-body">
-                    @foreach($errors->all() as $key => $value)
-                <div class="alert alert-danger">
-                    {{ $value }}
-                </div>
-                    @endforeach
+                	@if (!$errors->studentEnrollmentErrors->isEmpty())
+                		<div class="alert alert-danger" role="alert">
+                        @foreach($errors->studentEnrollmentErrors->all() as $error)
+                            <p class="m-0">{{ $error }}</p>
+                        @endforeach
+                        </div>
+                    @endif
                     <div class="row">
                         <div class="col-sm-4">
                             <label><i class="fa fa-child" aria-hidden="true"></i> School Enrollment No.*</label>
@@ -44,17 +46,19 @@
             </div>
             <form method="POST" action="{{ route('search.student-details') }}" enctype="multipart/form-data" onsubmit="form_submit()">
                 <div class = "card-body">
-                    @foreach($errors->all() as $key => $value)
-                <div class="alert alert-danger">
-                    {{ $value }}
-                </div>
-                    @endforeach
+                	@if (!$errors->studentDetailErrors->isEmpty())
+                		<div class="alert alert-danger" role="alert">
+                    	@foreach($errors->studentDetailErrors->all() as $error)
+               				<p class="m-0">{{ $error }}</p>
+                    	@endforeach
+                    	</div>
+                	@endif
             <div class="row">
             <div class="col-sm-4">
                 <label><i class="fa fa-university" aria-hidden="true"></i> School*</label>
             <div class="input-group">
                 <select name="school-name" class="form-control" required="required">
-                <option disabled="disabled" selected="selected">Select School </option>
+                <option disabled="disabled" selected="selected" value="">Select School </option>
                 @foreach ($Student::SCHOOL_LIST as $school)
                     <option value="{{ $school }}"> {{ $school }}</option>
                 @endforeach
@@ -71,7 +75,7 @@
                 <label><i class="fas fa-school" aria-hidden="true"></i> Class*</label>
                 <div class="input-group">
                     <select name="class" class="form-control" required="required">
-                        <option disabled="disabled" selected="selected">Select Class </option>
+                        <option disabled="disabled" selected="selected" value="">Select Class </option>
                     @for ($class =1; $class <= 12; $class++)
                         <option value="{{ $class }}"> {{ $class }}</option>
                     @endfor
@@ -79,7 +83,7 @@
                 </div>
             </div>
         </div>
-            <div class="row">
+            <div class="row mt-2">
                 <div class="col-sm-4">
             <label><i aria-hidden="true"></i> Section</label>
                     <div class="input-group">
@@ -104,7 +108,6 @@
     </div>
     </div>
     @else
-    
         <div class="card">
                 <div class="card-header">
                     <i class="icon-list"></i>Student Search Results
