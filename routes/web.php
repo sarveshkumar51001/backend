@@ -15,8 +15,6 @@ Route::get('/', 'HomeController@index')->name('home');
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/redirect', 'SocialAuthGoogleController@redirect');
 Route::get('/callback', 'SocialAuthGoogleController@callback');
-
-
 Route::get('/orders', 'OrderController@index');
 Route::get('/orders/{id}', 'OrderController@view');
 Route::get('/orders/create', 'OrderController@create');
@@ -30,6 +28,16 @@ Route::get('/customers/{id}', 'CustomerController@view');
 Route::get('/products', 'ProductController@index');
 Route::get('/products/{id}', 'ProductController@view');
 Route::get('/search', 'SearchController@index');
+
+Route::group(['prefix' => 'students'], function() {
+  Route::get('/', 'StudentController@index')->name('search.students');
+  Route::post('/search-by-details','StudentController@search_by_student_details')->name('search.student-details');
+  Route::post('/search-by-enrollment-no','StudentController@search_by_student_enrollment_no')->name('search.student-enrollment-no');
+  Route::fallback(function() {
+    return redirect()->route('search.students');
+  });
+});
+
 Route::prefix('imagereco')->group(function() {
     Route::get('/', 'ImageRecognitionController@listAllPeople')->name('imagereco.list-all-people');
     Route::post('/', 'ImageRecognitionController@listAllPeople_result')->name('imagereco.list-all-people-result');
