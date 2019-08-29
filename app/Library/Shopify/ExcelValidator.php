@@ -2,6 +2,7 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use App\Models\Student;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -173,7 +174,7 @@ class ExcelValidator
             "student_first_name" => "required",
             "activity" => "required",
             "school_enrollment_no" => "required|string|min:4|regex:/[A-Z]+-[0-9]+/",
-            "class" => "required|numeric",
+            "class" => ["required",Rule::in(Student::CLASS_LIST)],
             "section" => "required",
 
             // Parent Details
