@@ -38,7 +38,7 @@ class WebhookEventJob implements ShouldQueue
         $this->class_path::handle($this->Webhook);
         } catch(\Exception $e) {
             $this->fail($e);
-            slack($e)->post();
+            log_error($e);
         }
     }
 }
