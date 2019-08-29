@@ -1,8 +1,8 @@
 <?php
 namespace App\Library\Webhook\Events\Shopify;
 
-use App\Library\Webhook\Channel;
 use App\Library\Shopify\WebhookDataShopify;
+use App\Library\Webhook\Channel;
 use App\Models\Product;
 use App\Models\Webhook;
 
@@ -21,16 +21,19 @@ class ProductCreate
 
     private static function postToSlack(Webhook $Webhook)
     {
-        $data = WebhookDataShopify::getFormData($Webhook->body());
-        $store_name = $Webhook->body()['vendor'];
-        $title = ":tada: New Product Created - " . $Webhook->body()['title'];
+        $store_name = explode('.', $Webhook->headers('x-shopify-shop-domain', null))[0];
+
+        $base_url = WebhookDataShopify::get_baseUrl($Webhook);
+        $data = WebhookDataShopify::product_data($Webhook);
+
+        $title = sprintf("<%sorders/%s | :tada: New Product Created -  %s>", $base_url, $Webhook->body()['id'], $Webhook->body()['title']);
 
         $channel = Channel::SlackUrl($store_name);
-        
         foreach ($channel as $value) {
             $webhook_url = $value['to']['webhook_url'];
             slack($data, $title)->webhook($webhook_url)
                 ->success()
+                ->notShort()
                 ->post();
         }
     }
