@@ -1,7 +1,9 @@
 <nav class="sidebar-nav">
     <ul class="nav">
         <li class="nav-item">
-            <a class="nav-link" href="{{ URL::to('/') }}"><i class="icon-speedometer"></i> Dashboard </a>
+            <a class="nav-link" href="{{ URL::to('/') }}"><i class="icon-speedometer"></i> Dashboard </a></li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ URL::to('/students') }}"><i class="fa fa-university"></i> Students </a></li>
         <li class="nav-title">Shopify</li>
         <li class="nav-item nav-dropdown">
             <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-database"></i> Shopify</a>
@@ -40,8 +42,6 @@
                     </li>
                 </ul>
             </li>
-        </li>
-        </li>
-    </ul>
-</nav>
+        </ul>
+    </nav>
 <button class="sidebar-minimizer brand-minimizer" type="button"></button>

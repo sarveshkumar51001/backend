@@ -16,36 +16,39 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/redirect', 'SocialAuthGoogleController@redirect');
 Route::get('/callback', 'SocialAuthGoogleController@callback');
 
-
-Route::get('/orders', 'OrderController@index');
-Route::get('/orders/{id}', 'OrderController@view');
-Route::get('/orders/create', 'OrderController@create');
-Route::post('/orders/create', 'OrderController@create');
-Route::get('/orders/update', 'OrderController@update');
-Route::get('/customers', 'CustomerController@index');
-Route::get('/customers/{id}/regenerate_rec/{customer_id}', 'CustomerController@regenerate_rec');
-Route::get('/customers/profiler', 'CustomerController@profiler');
-Route::get('/customers/profiler/{id}', 'CustomerController@profiler_response');
-Route::get('/customers/{id}', 'CustomerController@view');
-Route::get('/products', 'ProductController@index');
-Route::get('/products/{id}', 'ProductController@view');
-Route::get('/search', 'SearchController@index');
-Route::prefix('imagereco')->group(function() {
-    Route::get('/', 'ImageRecognitionController@listAllPeople')->name('imagereco.list-all-people');
-    Route::post('/', 'ImageRecognitionController@listAllPeople_result')->name('imagereco.list-all-people-result');
-    Route::get('/search/name', 'ImageRecognitionController@searchByName')->name('imagereco.search-by-name');
-    Route::post('/search/name', 'ImageRecognitionController@searchByName_result')->name('imagereco.search-by-name-result');
-    Route::get('/search/image', 'ImageRecognitionController@searchByImage')->name('imagereco.search-by-image');
-    Route::post('/search/image', 'ImageRecognitionController@searchByImage_result')->name('imagereco.search-by-image-result');
+Route::prefix('shopify')->group(function() {
+    Route::get('/orders', 'OrderController@index');
+    Route::get('/orders/{id}', 'OrderController@view');
+    Route::get('/orders/create', 'OrderController@create');
+    Route::post('/orders/create', 'OrderController@create');
+    Route::get('/orders/update', 'OrderController@update');
+    Route::get('/customers', 'CustomerController@index');
+    Route::get('/customers/{id}/regenerate_rec/{customer_id}', 'CustomerController@regenerate_rec');
+    Route::get('/customers/profiler', 'CustomerController@profiler');
+    Route::get('/customers/profiler/{id}', 'CustomerController@profiler_response');
+    Route::get('/customers/{id}', 'CustomerController@view');
+    Route::get('/products', 'ProductController@index');
+    Route::get('/products/{id}', 'ProductController@view');
+    Route::get('/search', 'SearchController@index');
+    Route::prefix('bulkupload')->group(function () {
+        Route::get('/', 'ShopifyController@upload')->name('bulkupload.upload');
+        Route::post('/preview', 'ShopifyController@upload_preview')->name('bulkupload.upload_preview');
+        Route::get('/preview', function () {
+            return redirect()->route('bulkupload.upload');
+        });
+        Route::get('/previous/uploads', 'ShopifyController@previous_uploads')->name('bulkupload.previous_uploads');
+        Route::get('/previous/orders', 'ShopifyController@previous_orders')->name('bulkupload.previous_orders');
+        Route::get('/previous/file_download/{id}', 'ShopifyController@download_previous')->name('bulkupload.download_previous');
+    });
 });
-Route::prefix('bulkupload')->group(function() {
-	Route::get('/', 'ShopifyController@upload')->name('bulkupload.upload');
-	Route::post('/preview', 'ShopifyController@upload_preview')->name('bulkupload.upload_preview');
-	Route::get('/preview', function() { return redirect()->route('bulkupload.upload'); });
-	Route::get('/previous/uploads','ShopifyController@previous_uploads')->name('bulkupload.previous_uploads');
-	Route::get('/previous/orders','ShopifyController@previous_orders')->name('bulkupload.previous_orders');
-	Route::get('/previous/file_download/{id}','ShopifyController@download_previous')->name('bulkupload.download_previous');
-});
+    Route::prefix('imagereco')->group(function() {
+        Route::get('/', 'ImageRecognitionController@listAllPeople')->name('imagereco.list-all-people');
+        Route::post('/', 'ImageRecognitionController@listAllPeople_result')->name('imagereco.list-all-people-result');
+        Route::get('/search/name', 'ImageRecognitionController@searchByName')->name('imagereco.search-by-name');
+        Route::post('/search/name', 'ImageRecognitionController@searchByName_result')->name('imagereco.search-by-name-result');
+        Route::get('/search/image', 'ImageRecognitionController@searchByImage')->name('imagereco.search-by-image');
+        Route::post('/search/image', 'ImageRecognitionController@searchByImage_result')->name('imagereco.search-by-image-result');
+    });
 
 Route::group(['prefix' => 'api/v1/', /*'middleware' => ['auth']*/], function() {
 	Route::get('upload/{id}', function ($id) {
