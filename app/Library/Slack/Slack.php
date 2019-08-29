@@ -114,9 +114,9 @@ class Slack
 
     public function post()
     {
-//         if (app()->isLocal()) {
-//             logger($this->getPayload());
-//         }
+        if (app()->isLocal()) {
+            logger($this->getPayload());
+        }
 
         if (! empty($this->getSlackWebhook())) {
 
@@ -216,7 +216,7 @@ class Slack
             $fields[] = [
                 'title' => $key,
                 'value' => $value,
-                'short' => $this->short && strlen($value) <= 30 && $this->type != self::TYPE_EXCEPTION
+                'short' => ($this->type == self::TYPE_EXCEPTION) || ($this->short && strlen($value) <= 30) 
             ];
         }
 
