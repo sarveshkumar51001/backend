@@ -76,9 +76,9 @@
                 <div class="input-group">
                     <select name="class" class="form-control" required="required">
                         <option disabled="disabled" selected="selected" value="">Select Class </option>
-                    @for ($class =1; $class <= 12; $class++)
+                    @foreach ($Student::CLASS_LIST as $class)
                         <option value="{{ $class }}"> {{ $class }}</option>
-                    @endfor
+                    @endforeach
                 </select>
                 </div>
             </div>
@@ -159,6 +159,6 @@
                 @endif
         </div>
     </div>
-    
+
     @endif
 @endsection
