@@ -49,6 +49,7 @@ function array_contains_empty_value(array $arr) {
 }
 
 function log_error(\Exception $e) {
+    Illuminate\Support\Facades\Log::error($e);
     slack($e)->post();
 }
 

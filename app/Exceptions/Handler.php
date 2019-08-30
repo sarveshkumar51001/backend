@@ -47,7 +47,7 @@ class Handler extends ExceptionHandler
 			// Run your custom code here
 			
 			// Post Exception on Slack
-		    slack($exception)->post();
+		    log_error($exception);
 		}
 
     	parent::report($exception);
