@@ -26,12 +26,16 @@ class OrderUpdate
 
     private static function postToSlack(Webhook $Webhook)
     {
+        $domain_store = $Webhook->headers('x-shopify-shop-domain', null);
+        $store_name = explode('.', $domain_store)[0];
+        $channel_identifier = sprintf("%s-order-updated", $store_name);
+
         $base_url = WebhookDataShopify::get_baseUrl($Webhook);
         $data = WebhookDataShopify::order_data($Webhook);
 
-        $title = sprintf("<%sorders/%s|Order Updated- %s>", $base_url, $Webhook->body()['id'], $Webhook->body()['name']);
+        $title = sprintf("<%sorders/%s|Order Updated - %s>", $base_url, $Webhook->body()['id'], $Webhook->body()['name']);
 
-        $channel = Channel::SlackUrl("");
+        $channel = Channel::SlackUrl($channel_identifier);
 
         foreach ($channel as $value) {
             $webhook_url = $value['to']['webhook_url'];
