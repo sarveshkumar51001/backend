@@ -41,6 +41,17 @@ Route::prefix('shopify')->group(function() {
         Route::get('/previous/file_download/{id}', 'ShopifyController@download_previous')->name('bulkupload.download_previous');
     });
 });
+
+    Route::group(['prefix' => 'students'], function() {
+        Route::get('/search', 'StudentController@index')->name('search.students');
+        Route::post('/search-by-details', 'StudentController@search_by_student_details')->name('search.student-details');
+        Route::post('/search-by-enrollment-no', 'StudentController@search_by_student_enrollment_no')->name('search.student-enrollment-no');
+        Route::fallback(function () {
+            return redirect()->route('search.students');
+        });
+
+    });
+
     Route::prefix('imagereco')->group(function() {
         Route::get('/', 'ImageRecognitionController@listAllPeople')->name('imagereco.list-all-people');
         Route::post('/', 'ImageRecognitionController@listAllPeople_result')->name('imagereco.list-all-people-result');
@@ -56,10 +67,10 @@ Route::group(['prefix' => 'api/v1/', /*'middleware' => ['auth']*/], function() {
 	});
 });
 
+        Auth::routes();
 
-Auth::routes();
+        use Oseintow\Shopify\Facades\Shopify;
 
-use Oseintow\Shopify\Facades\Shopify;
 
 // @todo remove me when go live
 
