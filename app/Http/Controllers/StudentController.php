@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class StudentController extends BaseController
 {
@@ -21,8 +22,8 @@ class StudentController extends BaseController
 		$rules = [
                 'school-name' => 'required|string',
                 'student-name' => 'required|string|min:3|max:100',
-                'class' => 'required|numeric',
-                'section' => 'string|max:1'
+	            'class' => ["required",Rule::in(Student::CLASS_LIST)],
+                'section' => 'max:1'
             ];
         
 		$validator = Validator::make($request->all(), $rules);
@@ -35,7 +36,7 @@ class StudentController extends BaseController
 		
 		if ($validator->fails())
 		{
-		    return redirect()->route('search.students')->withErrors($validator, 'studentDetailErrors');
+		    return redirect()->route('search.students')->withErrors($validator, 'studentDetailErrors')->withInput();
 		}
 
 		$school_name = $request['school-name'];
@@ -69,7 +70,7 @@ class StudentController extends BaseController
 		
 		if ($validator->fails())
 		{
-		    return redirect()->route('search.students')->withErrors($validator, 'studentEnrollmentErrors');
+		    return redirect()->route('search.students')->withErrors($validator, 'studentEnrollmentErrors')->withInput();
 		}
 
 		$school_enrollment_no = $request['school-enrollment-no'];

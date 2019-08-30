@@ -25,7 +25,7 @@
                         <div class="col-sm-4">
                             <label><i class="fa fa-child" aria-hidden="true"></i> School Enrollment No.*</label>
                             <div class="input-group">
-                            <input autocomplete="off" type="text" name="school-enrollment-no" required="required" class="form-control">
+                            <input autocomplete="off" type="text" name="school-enrollment-no" required="required" class="form-control" value="{{ old('school-enrollment-no') }}">
                             </div>
                         </div>
                         {{ csrf_field() }}
@@ -58,9 +58,9 @@
                 <label><i class="fa fa-university" aria-hidden="true"></i> School*</label>
             <div class="input-group">
                 <select name="school-name" class="form-control" required="required">
-                <option disabled="disabled" selected="selected" value="">Select School </option>
+                <option selected="selected" value="">Select School </option>
                 @foreach ($Student::SCHOOL_LIST as $school)
-                    <option value="{{ $school }}"> {{ $school }}</option>
+                    <option value="{{ $school }}" @if($school == old('school-name')) selected @endif> {{ $school }}</option>
                 @endforeach
                 </select>
             </div>
@@ -68,16 +68,16 @@
                 <div class="col-sm-4">
                 <label><i class="fa fa-child" aria-hidden="true"></i> Student Name*</label>
                 <div class="input-group">
-                    <input autocomplete="off" type="text" name="student-name" required="required" class="form-control">
+                    <input autocomplete="off" type="text" name="student-name" required="required" class="form-control" value="{{ old('student-name') }}">
                 </div>
             </div>
             <div class="col-sm-4">
                 <label><i class="fas fa-school" aria-hidden="true"></i> Class*</label>
                 <div class="input-group">
                     <select name="class" class="form-control" required="required">
-                        <option disabled="disabled" selected="selected" value="">Select Class </option>
+                        <option selected="selected" value="">Select Class </option>
                     @foreach ($Student::CLASS_LIST as $class)
-                        <option value="{{ $class }}"> {{ $class }}</option>
+                        <option value="{{ $class }}" @if($class == old('class')) selected @endif> {{ $class }}</option>
                     @endforeach
                 </select>
                 </div>
@@ -88,9 +88,9 @@
             <label><i aria-hidden="true"></i> Section</label>
                     <div class="input-group">
                             <select name="section" class="form-control">
-                            <option disabled="disabled" selected="selected">Select Section </option>
+                            <option selected="selected" value="">Select Section </option>
                                 @for ($section = 'A'; $section <= 'J'; $section++)
-                                    <option value="{{ $section }}"> {{ $section }}</option>
+                                    <option value="{{ $section }}" @if($section == old('section')) selected @endif> {{ $section }}</option>
                                 @endfor
                             </select>
                         </div>
