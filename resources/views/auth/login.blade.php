@@ -12,6 +12,8 @@
     <!-- Main styles for this application -->
     <link href="{{ URL::asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ URL::asset('css/custom.css') }}" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ URL::asset('img/favicon.ico') }}" type="image/x-icon">
+	<link rel="icon" href="{{ URL::asset('img/favicon.ico') }}" type="image/x-icon">
     <style>
         body {
             background-image: url("https://picsum.photos/1920/1080"); 
