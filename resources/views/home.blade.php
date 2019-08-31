@@ -10,7 +10,7 @@
                 <div class="card col-md-2 m-1 p-0">
                     <div class="card-body text-center">
                         <a href="{{ route('bulkupload.upload') }}" class="stretched-link" style="text-decoration: none;">
-                        	<img src="{{asset('shopify/shopify-logo.png')}}" width="200px" alt="shopify">
+                        	<img src="{{asset('shopify/shopify-logo.png')}}" class="img-fluid" alt="shopify">
                     	</a>
                     	
                     </div>
@@ -19,7 +19,7 @@
             	<div class="card col-md-2 m-1 p-0">
                     <div class="card-body text-center">
                     	<a href="{{ route('search.students') }}" style="text-decoration: none;" class="stretched-link">
-                        	<i class="fa fa-search" aria-hidden="true" style="font-size:100px"></i>
+                        	<i class="fa fa-search" aria-hidden="true" style="font-size:150px"></i>
                     	</a>
                     </div>
                     <div class="card-footer text-center"><a href="{{ route('search.students') }}" style="text-decoration: none;" class="stretched-link">Student Search</a></div>
