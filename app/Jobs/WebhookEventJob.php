@@ -34,6 +34,11 @@ class WebhookEventJob implements ShouldQueue
      */
     public function handle()
     {
+        try {
         $this->class_path::handle($this->Webhook);
+        } catch(\Exception $e) {
+            $this->fail($e);
+            log_error($e);
+        }
     }
 }

@@ -40,12 +40,14 @@ function get_render_template(data) {
                     title = 'Order created at';
                 } else if (key == 'installment') {
                     title = 'Installment number';
+                } else if (key == 'errors') {
+                    title = 'Errors';
                 }
 
                 template += '<div>'+title + ': <strong>' +value+'</strong></div>';
             }
         });
-        
+        template += '</div>'
         index++;
     });
 

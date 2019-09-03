@@ -8,9 +8,9 @@ class WebhookNotification extends Base
 
     protected $guarded = [];
 
-    const EVENT = 'event';
-
     const CHANNEL = 'channel';
 
-    const DATA = 'data';
+    const TO = 'to';
+
+    const WEBHOOK_URL = 'webhook_url';
 }
