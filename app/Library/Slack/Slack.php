@@ -22,6 +22,10 @@ class Slack
 
     private $attachment = [];
 
+    private $type;
+
+    private $short = true;
+
     const COLOR_ERROR = '#FF0000';
 
     const COLOR_WARN = '#FFAE42';
@@ -30,13 +34,17 @@ class Slack
 
     const COLOR_INFO = '#007BFF';
 
+    const TYPE_EXCEPTION = 1;
+
+    const TYPE_DATA = 2;
+
     public function __construct($data = null, string $title = null)
     {
-        
+
         if (! empty($data)) {
             if ($data instanceof \Exception) {
                 $this->exception($data);
-            } 
+            }
             elseif (isArrayAssoc($data)) {
                 if (empty($title)) {
                     throw new \Exception('Title is required with custom message');
@@ -117,7 +125,7 @@ class Slack
         if (app()->isLocal()) {
             logger($this->getPayload());
         }
-        
+
         if (! empty($this->getSlackWebhook())) {
 
             $request = new Client();
@@ -190,8 +198,15 @@ class Slack
         return $this;
     }
 
+    public function notShort()
+    {
+        $this->short = false;
+
+        return $this;
+    }
+
     private function setPayload(array $data = [], array $attachment = [])
-    {   
+    {
         if (empty($data) && empty($attachment)) {
             throw new \Exception("No data to post on Slack");
         }
@@ -209,7 +224,7 @@ class Slack
             $fields[] = [
                 'title' => $key,
                 'value' => $value,
-                'short' => true
+                'short' => ($this->type == self::TYPE_EXCEPTION) || ($this->short && strlen($value) <= 30)
             ];
         }
 
