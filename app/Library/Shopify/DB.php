@@ -15,8 +15,9 @@ class DB
 	 * @return int
 	 */
 	public static function get_variant_id($activity_id) {
-	    $product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants.id']);
-	    foreach($product as $variant){
+	    $variants =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants']);
+
+	    foreach($variants['variants'] as $variant){
 	        if($variant['sku'] == $activity_id){
 	            return (string) $variant['id'];
             }
@@ -51,11 +52,13 @@ class DB
 
         $product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity']);
 
-    	if(!empty($product['variants'][0]['inventory_management'])){
-    		if($product['variants'][0]['inventory_quantity'] <= 0){
-    			return false;
-    		}
-    	}
+        foreach($product as $variant) {
+            if (!empty($variant['inventory_management'])) {
+                if ($variant['inventory_quantity'] <= 0) {
+                    return false;
+                }
+            }
+        }
     	return true;
     }
 	/**
