@@ -53,14 +53,14 @@ class StudentController extends BaseController
             })->where(Student::STUDENT_CLASS,$class);
 
 		if(!empty($section)){
-			$students = $students->where(Student::SECTION,$section)->get();
+			$students = $students->where(Student::SECTION,$section);
 		}
 		elseif(!empty($session)){
-		    $students = $students->where(Student::SESSION,$session)->get();
+		    $students = $students->where(Student::SESSION,$session);
         }
-		else{
-			$students = $students->get();
-		}
+
+		$students = $students->get();
+
 
 		return view('students-list')->with('students',$students)->with(['breadcrumb' => $breadcrumb]);
 	}
