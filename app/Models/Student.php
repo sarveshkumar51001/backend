@@ -38,6 +38,8 @@ class Student extends Base
 
     const SECTION = "section";
 
+    const SESSION = "session";
+
     const LOCATION = "school_location";
 
     const ENROLLMENT_NO = "school_enrollment_no";
