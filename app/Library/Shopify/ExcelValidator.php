@@ -179,7 +179,7 @@ class ExcelValidator
 
             // Parent Details
             "parent_first_name" => "required",
-            "mobile_number" => "regex:/[6-9][0-9]{9}/",
+            "mobile_number" => "regex:/^[6-9][0-9]{9}+$/",
             "email_id" => "email",
 
             // Fee Details
