@@ -3,7 +3,7 @@
  * CoreUI Pro - Bootstrap 4 Admin Template
  * @version v1.0.4
  * @link http://coreui.io/pro/
- * Copyright (c) 2017 creativeLabs Łukasz Holeczek
+ * Copyright (c) 2017 creativeLabs Å�ukasz Holeczek
  * @license http://coreui.io/pro/license/
  -->
 <!DOCTYPE html>
@@ -15,7 +15,8 @@
     <meta name="description" content="Valedra Backend">
     <meta name="robots" content="noarchive">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="shortcut icon" href="img/favicon.png">
+    <link rel="shortcut icon" href="{{ URL::asset('img/favicon.ico') }}" type="image/x-icon">
+	<link rel="icon" href="{{ URL::asset('img/favicon.ico') }}" type="image/x-icon">
     <title>Valedra Backend</title>
 
     <!-- Icons -->
