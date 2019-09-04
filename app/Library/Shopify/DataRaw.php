@@ -143,7 +143,8 @@ class DataRaw
                     "value_type" => "string",
                     "namespace" => "student-info"
                 ]
-            ]
+            ],
+            "tags" => "backend-app"
         ];
 
         return $customerData;
