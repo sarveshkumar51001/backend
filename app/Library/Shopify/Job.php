@@ -57,7 +57,7 @@ class Job {
 		// Is it a new order?
 		if (empty($Data->GetOrderID())) {
 
-			if(! DB::check_inventory_status($variantID)){
+			if(! DB::check_inventory_status($variantID,$Data->GetActivityID())){
 				throw new \Exception("Product [".$Data->GetActivityID()."] is either out of stock or is disabled.");
 			}
 			$order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
@@ -66,7 +66,7 @@ class Job {
 
 			DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId);
 		}
-		
+
 		// Payment notes array
 		$notes_array = DataRaw::GetPaymentDetails($Data->GetPaymentData());
 
@@ -97,20 +97,20 @@ class Job {
 					$order_amount += $installment['amount'];
 
 					// DB UPDATE: Mark the installment node as
-					DB::mark_installment_status_processed($Data->ID(), $index);					
+					DB::mark_installment_status_processed($Data->ID(), $index);
 				}
 			} catch (ApiException $e) {
             	DB::populate_error_in_payments_array($Data->ID(), $index , $e->getMessage());
 
             	throw new ApiException($e->getMessage(),$e->getCode(),$e);
-            }		
+            }
 		}
 
 		$collected_amount = $order_amount + $previous_collected_amount;
 
 		// Additional Order details
 		$order_details = $Data->GetNotes($notes_array,$collected_amount);
-			
+
 		// Shopify Update: Append transaction data in given order
 		$ShopifyAPI->UpdateOrder($shopifyOrderId, $order_details);
 

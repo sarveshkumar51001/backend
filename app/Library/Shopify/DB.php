@@ -47,14 +47,14 @@ class DB
 	}
 
 
-    public static function check_inventory_status($variant_id){
+    public static function check_inventory_status($variant_id,$activity_id){
         $variant_id = $variant_id + 0; // Converting string to integer for 32-bit systems
 
-        $product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity']);
+        $product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity','variant.sku']);
 
         foreach($product as $variant) {
-            if (!empty($variant['inventory_management'])) {
-                if ($variant['inventory_quantity'] <= 0) {
+            if($variant['sku'] == $activity_id){
+                if ((!empty($variant['inventory_management'])) && $variant['inventory_quantity'] <= 0) {
                     return false;
                 }
             }
