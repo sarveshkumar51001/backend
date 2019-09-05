@@ -52,7 +52,7 @@
                         </div>
                     </div>
                     <div class="col-sm-4">
-                        <label><i class="fa fa-file-excel-o" aria-hidden="true"></i> Upload file (only .xls files allowed)</label>
+                        <label><i class="fa fa-file-excel-o" aria-hidden="true"></i> Upload file (only .xls files allowed, max file size is 3MB)</label>
                         <input type="file" name="file" required="required" accept=".xls" class="form-control">
                     </div>
                     {{ csrf_field() }}
