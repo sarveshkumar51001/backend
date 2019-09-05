@@ -5,6 +5,8 @@ namespace App\Library\Shopify;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Product;
 use App\User;
+use Exception;
+use Illuminate\Support\Arr;
 
 class DB
 {
@@ -24,13 +26,13 @@ class DB
 	    if(sizeof($product) > 1) {
 	        return true;
 	    }
-	    
+
 	    return false;
 	}
-	
+
 	public static function check_activity_fee_value($activity_fee, $activity_id) {
 		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->first();
-		
+
 		foreach($product['variants'] as $variant) {
 			if($variant['price'] == $activity_fee){
 				return true;
@@ -43,9 +45,9 @@ class DB
 
     public static function check_inventory_status($variant_id){
         $variant_id = $variant_id + 0; // Converting string to integer for 32-bit systems
-        
+
         $product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity']);
-        
+
     	if(!empty($product['variants'][0]['inventory_management'])){
     		if($product['variants'][0]['inventory_quantity'] <= 0){
     			return false;
@@ -131,7 +133,7 @@ class DB
 			if(!empty($ORM['order_id'])){
 				return true;
 			}
-		}		
+		}
 		return false;
 	}
 
@@ -145,7 +147,20 @@ class DB
 	public static function update_customer_id_in_upload($object_id, $shopify_customer_id){
 	    return ShopifyExcelUpload::find($object_id)->update(['customer_id' => $shopify_customer_id]);
     }
-    
+
+    public static function get_customer($customers,$phone,$email){
+
+        $unique_customer = Arr::where($customers, function ($customer, $key) use ($phone,$email) {
+            return ((!empty($customer['phone'])) && (($customer['phone'] == '+91'.$phone)) || (!empty($customer['email']) && ($customer['email'] == $email)));
+        });
+
+        if(count($unique_customer) > 1) {
+            throw new \Exception("More than one customer found with the email or mobile number provided.");
+        }
+        return $unique_customer;
+    }
+
+
     # Not used
     // public static function check_shopify_activity_id_in_database($product_sku){
     // 	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
@@ -170,7 +185,7 @@ class DB
 
     public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0,$payment_index, $activity_id, $enrollment_date, $enrollment_no) {
 		$ORM = ShopifyExcelUpload::where('payments.chequedd_no', $cheque_no);
-		
+
 		if (!empty($micr_code)) {
 			$ORM->where('payments.micr_code', $micr_code);
 		}
@@ -195,7 +210,7 @@ class DB
 
     	return false;
     }
-   
+
     /**
      * Not in Use
      * @ignore
@@ -207,13 +222,13 @@ class DB
 //     	while($hasProducts) {
 //         	$params = ['limit' => 5,'page'=> $page];
 //         	$products = $ShopifyAPI->GetProducts($params);
-        	
+
 //         	if (!count($products)) {
 //         		$hasProducts = false;
 //         	} else {
 //         		foreach($products as $product){
 //         			if(!DB::check_product_existence_in_database($product["id"])){
-//     					\DB::table('shopify_products')->insert($product);	    		
+//     					\DB::table('shopify_products')->insert($product);
 //         			}
 //         		}
 //     		}
@@ -238,7 +253,7 @@ class DB
 // 	    	} else {
 // 	    		foreach($customers as $customer){
 // 	    			if(!DB::check_customer_existence_in_database($customer["id"])){
-// 						\DB::table('shopify_customers')->insert($customer);	    		
+// 						\DB::table('shopify_customers')->insert($customer);
 // 	    			}
 // 	    		}
 // 			}

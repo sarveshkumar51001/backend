@@ -51,7 +51,7 @@ class API
 	 */
 	public function SearchCustomer($phone,$email) {
 	    $this->delay_request();
-		$query = sprintf("(phone:%s OR email:%s) AND tag:backend-app",$phone,$email);
+		$query = sprintf("phone:%s OR email:%s",$phone,$email);
 		return $this->Shopify->Customer->search($query);
 	}
 
