@@ -86,14 +86,18 @@
                                                 badge badge-success
                                     @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_FAILED)
                                                 badge badge-danger
+                                    @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_PAYMENT_DUE)
+                                                badge badge-primary
                                     @endif
                                     ">
                                         @if($key == 'order_id')
                                         <div>
                                             <strong onclick="render_upload_details('{{$row['_id']}}');" class="text-muted aside-menu-toggler" style="cursor: pointer"><a title="Payment Details"><i class="fa fa-money fa-2x"></i></a>&nbsp; </strong>
                                         </div>
-                                            @if(!$row['order_id'] == 0)
+                                            @if(!$row['order_id'] == 0 && !isset($row['checkout_url']))
                                             <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}">View <i class="fa fa-external-link"></i></a>
+                                                @elseif(!$row['order_id'] == 0 && isset($row['checkout_url']))
+                                                    <a target="_blank" href="{{$row['checkout_url']}}">View<i class="fa fa-external-link"></i></a>
                                             @endif
                                         @else
                                             {{ $row[$key] }}

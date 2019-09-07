@@ -24,13 +24,13 @@ class DB
 	    if(sizeof($product) > 1) {
 	        return true;
 	    }
-	    
+
 	    return false;
 	}
-	
+
 	public static function check_activity_fee_value($activity_fee, $activity_id) {
 		$product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->first();
-		
+
 		foreach($product['variants'] as $variant) {
 			if($variant['price'] == $activity_fee){
 				return true;
@@ -43,9 +43,9 @@ class DB
 
     public static function check_inventory_status($variant_id){
         $variant_id = $variant_id + 0; // Converting string to integer for 32-bit systems
-        
+
         $product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity']);
-        
+
     	if(!empty($product['variants'][0]['inventory_management'])){
     		if($product['variants'][0]['inventory_quantity'] <= 0){
     			return false;
@@ -53,16 +53,21 @@ class DB
     	}
     	return true;
     }
-	/**
-	 * @param $object_id
-	 * @param $shopify_order_id
-	 *
-	 * @return mixed
-	 */
-	public static function update_order_id_in_upload($object_id, $shopify_order_id) {
+
+    /**
+     * @param $object_id
+     * @param $shopify_order_id
+     *
+     * @param $shopify_checkout_url
+     * @return mixed
+     */
+	public static function update_order_data_in_upload($object_id, $shopify_order_id) {
 		return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id]);
 	}
 
+    public static function update_draft_order_data_in_upload($object_id, $shopify_order_id, $shopify_checkout_url) {
+        return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id,'checkout_url' => $shopify_checkout_url]);
+    }
 	/**
 	 * @param $_id Object ID - Primary key
 	 * @param int $number of installment store in database
@@ -109,6 +114,10 @@ class DB
 		return $Document;
 	}
 
+	public static function mark_status_due($_id){
+	    return ShopifyExcelUpload::find($_id)->update(['job_status'=> ShopifyExcelUpload::JOB_STATUS_PAYMENT_DUE]);
+    }
+
 	/**
 	 * @param $_id Object ID - Primary key
 	 * @param array $error
@@ -131,7 +140,7 @@ class DB
 			if(!empty($ORM['order_id'])){
 				return true;
 			}
-		}		
+		}
 		return false;
 	}
 
@@ -145,7 +154,7 @@ class DB
 	public static function update_customer_id_in_upload($object_id, $shopify_customer_id){
 	    return ShopifyExcelUpload::find($object_id)->update(['customer_id' => $shopify_customer_id]);
     }
-    
+
     # Not used
     // public static function check_shopify_activity_id_in_database($product_sku){
     // 	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
@@ -170,7 +179,7 @@ class DB
 
     public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0,$payment_index, $activity_id, $enrollment_date, $enrollment_no) {
 		$ORM = ShopifyExcelUpload::where('payments.chequedd_no', $cheque_no);
-		
+
 		if (!empty($micr_code)) {
 			$ORM->where('payments.micr_code', $micr_code);
 		}
@@ -195,7 +204,7 @@ class DB
 
     	return false;
     }
-   
+
     /**
      * Not in Use
      * @ignore
@@ -207,13 +216,13 @@ class DB
 //     	while($hasProducts) {
 //         	$params = ['limit' => 5,'page'=> $page];
 //         	$products = $ShopifyAPI->GetProducts($params);
-        	
+
 //         	if (!count($products)) {
 //         		$hasProducts = false;
 //         	} else {
 //         		foreach($products as $product){
 //         			if(!DB::check_product_existence_in_database($product["id"])){
-//     					\DB::table('shopify_products')->insert($product);	    		
+//     					\DB::table('shopify_products')->insert($product);
 //         			}
 //         		}
 //     		}
@@ -238,7 +247,7 @@ class DB
 // 	    	} else {
 // 	    		foreach($customers as $customer){
 // 	    			if(!DB::check_customer_existence_in_database($customer["id"])){
-// 						\DB::table('shopify_customers')->insert($customer);	    		
+// 						\DB::table('shopify_customers')->insert($customer);
 // 	    			}
 // 	    		}
 // 			}

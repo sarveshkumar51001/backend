@@ -20,7 +20,7 @@ class Job {
 	 */
 	public static function run(DataRaw $Data) {
 		// Process only if the status of object is pending
-		if (strtolower($Data->GetJobStatus()) != ShopifyExcelUpload::JOB_STATUS_PENDING || $Data->IsOnlinePayment()) {
+		if (strtolower($Data->GetJobStatus()) != ShopifyExcelUpload::JOB_STATUS_PENDING) {
 			return;
 		}
 
@@ -60,13 +60,20 @@ class Job {
 			if(! DB::check_inventory_status($variantID)){
 				throw new \Exception("Product [".$Data->GetActivityID()."] is either out of stock or is disabled.");
 			}
-			$order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
 
-			$shopifyOrderId = $order['id'];
-
-			DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId);
+			if(!$Data->IsOnlinePayment()) {
+                $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
+                $shopifyOrderId = $order['id'];
+            }
+			else{
+			    $order = $ShopifyAPI->CreateDraftOrder($Data->GetOrderCreateData($variantID,$shopifyCustomerId));
+			    $shopifyOrderId = $order['id'];
+			    $shopifyCheckoutUrl = $order['invoice_url'];
+                DB::update_draft_order_data_in_upload($Data->ID(), $shopifyOrderId,$shopifyCheckoutUrl);
+            }
+			DB::update_order_data_in_upload($Data->ID(), $shopifyOrderId);
 		}
-		
+
 		// Payment notes array
 		$notes_array = DataRaw::GetPaymentDetails($Data->GetPaymentData());
 
@@ -82,6 +89,7 @@ class Job {
 			}
 
 			$transaction_data = DataRaw::GetTransactionData($installment);
+			logger($transaction_data);
 
 			if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp > time())) {
 				continue;
@@ -97,22 +105,26 @@ class Job {
 					$order_amount += $installment['amount'];
 
 					// DB UPDATE: Mark the installment node as
-					DB::mark_installment_status_processed($Data->ID(), $index);					
+					DB::mark_installment_status_processed($Data->ID(), $index);
 				}
 			} catch (ApiException $e) {
             	DB::populate_error_in_payments_array($Data->ID(), $index , $e->getMessage());
-
             	throw new ApiException($e->getMessage(),$e->getCode(),$e);
-            }		
+            }
 		}
 
 		$collected_amount = $order_amount + $previous_collected_amount;
 
 		// Additional Order details
 		$order_details = $Data->GetNotes($notes_array,$collected_amount);
-			
-		// Shopify Update: Append transaction data in given order
-		$ShopifyAPI->UpdateOrder($shopifyOrderId, $order_details);
+
+		// Shopify Update: Append transaction data in given order for both draft and normal orders.
+        if(!$Data->IsOnlinePayment()){
+            $ShopifyAPI->UpdateOrder($shopifyOrderId, $order_details);
+        } else{
+            $ShopifyAPI->UpdateDraftOrder($shopifyOrderId,$order_details);
+            DB::mark_status_due($Data->ID());
+        }
 
 		// Finally mark the object as process completed
 		DB::mark_status_completed($Data->ID());

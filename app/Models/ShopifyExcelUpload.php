@@ -30,6 +30,8 @@ class ShopifyExcelUpload extends Base
 
     const JOB_STATUS_FAILED = 'failed';
 
+    const JOB_STATUS_PAYMENT_DUE = 'payment_due';
+
     const MODE_CASH = 1;
 
     const MODE_CHEQUE = 2;
@@ -56,6 +58,11 @@ class ShopifyExcelUpload extends Base
 
     const ONLINE_FIELDS = [
         'txn_reference_number_only_in_case_of_paytm_or_online'
+    ];
+
+    const REF_NUM_MODES = [
+        'Paytm QR Code',
+        'NEFT'
     ];
 
     const PAYMENT_METAFIELDS = [

@@ -165,13 +165,22 @@ class DataRaw
 
         $order_data = [];
 
-        if (! empty($this->data['scholarship_discount'])) {
-            $order_data['total_discounts'] = $this->data['scholarship_discount'];
+        if (! empty($this->data['scholarship_discount'])){
+            if (!$this->IsOnlinePayment()) {
+                $order_data['total_discounts'] = $this->data['scholarship_discount'];
+            } else {
+                $order_data['applied_discount'] = [
+                    "value_type" => "fixed_amount",
+                    "amount" => $this->data['scholarship_discount'],
+                    "value" => $this->data['scholarship_discount']
+                ];
+            }
         }
 
         $order_data['line_items'] = [
             [
-                "variant_id" => $productVariantID
+                "variant_id" => $productVariantID,
+                "quantity" => 1
             ]
         ];
 
@@ -284,7 +293,7 @@ class DataRaw
     {
 
         // Check if installment is empty or mode of payment is empty or installment is processed.
-        if (empty($installment) || empty($installment['mode_of_payment']) || strtolower($installment['processed']) == 'yes') {
+        if (empty($installment) || empty($installment['mode_of_payment']) || strtolower($installment['processed']) == 'yes' || strtolower($installment['mode_of_payment']) == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])) {
             return [];
         }
 
