@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends BaseController
 {
+
     public function index() {
 	    $limit = 100;
 	    $data = Customer::paginate($limit);

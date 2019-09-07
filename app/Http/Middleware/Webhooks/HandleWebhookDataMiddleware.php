@@ -23,6 +23,10 @@ class HandleWebhookDataMiddleware
     public function handle($request, Closure $next)
     {
         try {
+            // Checking if blank data was posted
+            if (count($request->all()) == 0) {
+                return response('No Data Found', 406);
+            }
 
             $this->Webhook = $this->saveWebhook();
 

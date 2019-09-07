@@ -1,19 +1,28 @@
 <nav class="sidebar-nav">
     <ul class="nav">
         <li class="nav-item">
-            <a class="nav-link" href="{{ URL::to('/') }}"><i class="icon-speedometer"></i> Dashboard </a>
+            <a class="nav-link" href="{{ URL::to('/') }}"><i class="icon-speedometer"></i> Dashboard </a></li>
+        <li class="nav-title">Students</li>
+        <li class="nav-item nav-dropdown">
+        <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-university"></i> Students </a>
+            <ul class="nav-dropdown-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ URL::to('/students/search') }}"><i class="fa fa-search"></i>Student Search</a>
+                </li>
+            </ul>
+        </li>
         <li class="nav-title">Shopify</li>
         <li class="nav-item nav-dropdown">
             <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-database"></i> Shopify</a>
             <ul class="nav-dropdown-items">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ URL::to('/products') }}"><i class="fa fa-shopping-cart"></i>Products</a>
+                    <a class="nav-link" href="{{ URL::to('/shopify/products') }}"><i class="fa fa-shopping-cart"></i>Products</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ URL::to('/customers') }}"><i class="icon-user"></i>Customers</a>
+                    <a class="nav-link" href="{{ URL::to('/shopify/customers') }}"><i class="icon-user"></i>Customers</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ URL::to('/orders') }}"><i class="fa fa-sitemap"></i>Orders</a>
+                    <a class="nav-link" href="{{ URL::to('/shopify/orders') }}"><i class="fa fa-sitemap"></i>Orders</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('bulkupload.previous_orders') }}"><i class="fa fa-upload"></i>Bulk Upload</a>
@@ -40,8 +49,6 @@
                     </li>
                 </ul>
             </li>
-        </li>
-        </li>
-    </ul>
-</nav>
+        </ul>
+    </nav>
 <button class="sidebar-minimizer brand-minimizer" type="button"></button>

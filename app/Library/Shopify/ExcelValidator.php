@@ -2,6 +2,7 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use App\Models\Student;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -47,6 +48,7 @@ class ExcelValidator
      */
     public function Validate()
     {
+        $sheet_has_column_validation_error = false;
         if (! $this->HasAllValidHeaders()) {
             $this->errors['incorrect_headers'] = Errors::INCORRECT_HEADER_ERROR;
             return $this->errors;
@@ -60,7 +62,11 @@ class ExcelValidator
         // Finding data validation errors
         foreach ($this->FileFormattedData as $index => $data) {
             $this->row_no ++;
-            if ($this->ValidateDuplicateRow($data) || $this->ValidateData($data)) {
+
+            if ($this->ValidateDuplicateRow($data) || $validation_error = $this->ValidateData($data)) {
+                if ($validation_error) {
+                    $sheet_has_column_validation_error = true;
+                }
                 unset($this->FileFormattedData[$index]);
                 continue;
             }
@@ -70,7 +76,11 @@ class ExcelValidator
             $this->ValidateActivityDetails($data);
         }
 
-        $this->ValidateAmount();
+        if ($sheet_has_column_validation_error) {
+            $this->errors['sheet']['priority_error'] = 'There are errors in sheets due to which collection cannot be calculated correctly. Please correct below errors and try again.';
+        } else {
+            $this->ValidateAmount();
+        }
 
         return $this->errors;
     }
@@ -164,12 +174,12 @@ class ExcelValidator
             "student_first_name" => "required",
             "activity" => "required",
             "school_enrollment_no" => "required|string|min:4|regex:/[A-Z]+-[0-9]+/",
-            "class" => "required|numeric",
+            "class" => ["required",Rule::in(Student::CLASS_LIST)],
             "section" => "required",
 
             // Parent Details
             "parent_first_name" => "required",
-            "mobile_number" => "regex:/[6-9][0-9]{9}/",
+            "mobile_number" => "regex:/^[6-9][0-9]{9}+$/",
             "email_id" => "email",
 
             // Fee Details
