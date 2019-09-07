@@ -11,6 +11,7 @@ use App\Library\Shopify\ExcelValidator;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Exception\PHPExcel_Exception; 
+use App\Imports\ShopifyOrdersImport;
 
 class ShopifyController extends BaseController
 {
@@ -77,7 +78,9 @@ class ShopifyController extends BaseController
 	        
 	        // Loading the excel file
 	        try {
-	           $ExlReader = Excel::load($path->getRealPath())->get()->first();
+	            $rows = Excel::toArray(new ShopifyOrdersImport(), $path->getRealPath());
+	            dd($rows);
+	           //$ExlReader = Excel::load($path->getRealPath())->get()->first();
 	    	} catch(\PHPExcel_Exception $e){
 	    		return back()->withErrors(['The uploaded file seems invalid. Please download the latest sample file.']);
 	    	}
