@@ -151,7 +151,7 @@ class DB
     public static function get_customer($customers,$phone,$email){
 
         $unique_customer = Arr::where($customers, function ($customer, $key) use ($phone,$email) {
-            return ((!empty($customer['phone'])) && (($customer['phone'] == '+91'.$phone))) || ((!empty($customer['email']) && ($customer['email'] == $email)));
+            return ((!empty($customer['phone'])) && (($customer['phone'] == '+91'.$phone)) || (!empty($customer['email']) && ($customer['email'] == $email)));
         });
 
         if(count($unique_customer) > 1) {
