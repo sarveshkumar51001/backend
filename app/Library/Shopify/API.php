@@ -56,6 +56,9 @@ class API
 	}
 
 	public function UpdateCustomer($customer_id, array $data) {
+	    if(empty($data))
+	        return false;
+	    
 		$this->delay_request();
 		return $this->Shopify->Customer($customer_id)->put($data);
 	}
