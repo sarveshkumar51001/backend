@@ -235,14 +235,28 @@ class DataRaw
         return $order_data;
     }
 
-    public function GetCustomerUpdateData()
+    /**
+     * Returns Shopify customer fields which need to be updated.
+     * 
+     * @param array $shopifyCustomer
+     * @return array
+     */
+    public function GetCustomerUpdateData($shopifyCustomer)
     {
-        $customer_data = [
-            "first_name" => $this->data['parent_first_name'],
-            "last_name" => $this->data['parent_last_name'],
-            "email" => $this->data["email_id"],
-            "phone" => (string) $this->data["mobile_number"]
-        ];
+        $customer_data = [];
+        
+        $update_customer_mappings = array(
+            "first_name" => "parent_first_name",
+            "last_name" => "parent_last_name",
+            "email" =>"email_id",
+            "phone" => "mobile_number");
+        
+        foreach ($update_customer_mappings as $shopify_key => $excel_key) {
+            if($shopifyCustomer[$shopify_key] != $this->data[$excel_key]) {
+                $customer_data += [$shopify_key => (string) $this->data[$excel_key]];
+            }
+        }
+        
         return $customer_data;
     }
 
