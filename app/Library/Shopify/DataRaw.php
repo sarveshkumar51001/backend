@@ -247,9 +247,7 @@ class DataRaw
 
         $update_customer_mappings = array(
             "first_name" => "parent_first_name",
-            "last_name" => "parent_last_name",
-            "email" => "email_id",
-            "phone" => "mobile_number"
+            "last_name" => "parent_last_name"
         );
 
         foreach ($update_customer_mappings as $shopify_key => $excel_key) {
@@ -258,6 +256,12 @@ class DataRaw
                     $shopify_key => (string) $this->data[$excel_key]
                 ];
             }
+        }
+        
+        if($shopifyCustomer['phone'] != "+91". $this->data['mobile_number']) {
+            $customer_data += [
+                'phone' => (string) $this->data['mobile_number']
+            ];
         }
 
         $tags_array = [];
