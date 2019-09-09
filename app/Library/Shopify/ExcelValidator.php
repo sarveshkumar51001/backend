@@ -365,7 +365,7 @@ class ExcelValidator
                         $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Cheque/DD Details already used before.";
                     }
                 }
-            } else if (in_array($mode, array_map('strtolower', $online_modes))) {
+            } else if (in_array($mode, array_map('strtolower', Arr::except(ShopifyExcelUpload::REF_NUM_MODES,$online_modes)))) {
                 // Checking for online mode payments
                 if (array_contains_empty_value($online_fields)) {
                     // Checking for blank online details
@@ -377,7 +377,10 @@ class ExcelValidator
                     // Cheque/DD/Online should be blank for cash payments
                     $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - For Cash payments, Cheque/DD/Online payment details are not applicable.";
                 }
-            } else if (! empty($mode)) {
+            } else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])){
+                continue;
+            }
+            else if (! empty($mode)) {
                 // Checking for invalid paymemt mode
                 $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Invalid Payment Mode - $mode";
             }

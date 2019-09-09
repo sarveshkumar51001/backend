@@ -55,16 +55,21 @@ class DB
     	}
     	return true;
     }
-	/**
-	 * @param $object_id
-	 * @param $shopify_order_id
-	 *
-	 * @return mixed
-	 */
-	public static function update_order_id_in_upload($object_id, $shopify_order_id) {
+
+    /**
+     * @param $object_id
+     * @param $shopify_order_id
+     *
+     * @param $shopify_checkout_url
+     * @return mixed
+     */
+	public static function update_order_data_in_upload($object_id, $shopify_order_id) {
 		return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id]);
 	}
 
+    public static function update_draft_order_data_in_upload($object_id, $shopify_order_id, $shopify_checkout_url) {
+        return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id,'checkout_url' => $shopify_checkout_url]);
+    }
 	/**
 	 * @param $_id Object ID - Primary key
 	 * @param int $number of installment store in database
@@ -110,6 +115,10 @@ class DB
 
 		return $Document;
 	}
+
+	public static function mark_status_due($_id){
+	    return ShopifyExcelUpload::find($_id)->update(['job_status'=> ShopifyExcelUpload::JOB_STATUS_PAYMENT_DUE]);
+    }
 
 	/**
 	 * @param $_id Object ID - Primary key
@@ -159,8 +168,6 @@ class DB
         }
         return $unique_customer;
     }
-
-
     # Not used
     // public static function check_shopify_activity_id_in_database($product_sku){
     // 	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();

@@ -73,6 +73,11 @@ class API
 		return $this->Shopify->Order->post($data);
 	}
 
+	public function CreateDraftOrder(array $data){
+	    $this->delay_request();
+	    return $this->Shopify->DraftOrder->post($data);
+    }
+
 	/**
 	 * @param int $orderID
 	 * @param array $data
@@ -94,6 +99,11 @@ class API
 	    $this->delay_request();
 		return $this->Shopify->Order($orderID)->put($data);
 	}
+
+	public function UpdateDraftOrder($orderID, array $data) {
+	    $this->delay_request();
+	    return $this->Shopify->DraftOrder($orderID)->put($data);
+    }
 
 	/**
 	 * @param $params
