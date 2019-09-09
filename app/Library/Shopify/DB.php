@@ -105,7 +105,7 @@ class DB
 		}
 
 		if ($allProcessed) {
-			$Document->update(['job_status' => ShopifyExcelUpload::JOB_STATUS_COMPLETED]);
+			$Document->update(['job_status' => ShopifyExcelUpload::JOB_STATUS_COMPLETED, 'errors' => '']);
 		}
 
 		return $Document;

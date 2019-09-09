@@ -49,9 +49,10 @@ class Job
                 $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
                 $shopifyCustomerId = $new_customer['id'];
             } else {
-                $shopifyCustomerId = $unique_customer['id'];
+                $shopifyCustomer = head($unique_customer);
+                $shopifyCustomerId = $shopifyCustomer['id'];
 
-                $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $Data->GetCustomerUpdateData($unique_customer));
+                $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $Data->GetCustomerUpdateData($shopifyCustomer));
             }
         }
 
