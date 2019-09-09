@@ -34,7 +34,7 @@ class ShopifyController extends BaseController
     public function upload_preview(Request $request)
     {
         $rules = [
-                'file' => 'mimes:xls',
+                'file' => 'mimes:xls|max:3072',
                 'date' => [
                     "required",
                     "regex:" . ShopifyExcelUpload::DATE_REGEX
