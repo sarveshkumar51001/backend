@@ -6,6 +6,9 @@
             <i class="icon-list"></i>Post Dated Payments
         </div>
         <div class="card-body">
+            @if(count($collection_data) == 0)
+                <h4 align="center"><b>No post dated payments found</b></h4>
+            @else
             <table class="table table-responsive-sm table-hover table-outline table-bordered table-striped table-sm datatable no-footer mb-0">
                 <thead>
                 <tr>
@@ -36,6 +39,7 @@
                     </tr>
                 </tbody>
             </table>
+            @endif
         </div>
     </div>
 @endsection
