@@ -24,7 +24,7 @@ class StudentController extends BaseController
                 'student-name' => 'required|string|min:3|max:100',
 	            'class' => ["required",Rule::in(Student::CLASS_LIST)],
                 'section' => 'max:1',
-                'session' => 'string'
+            'session' => 'nullable|string'
             ];
 
 		$validator = Validator::make($request->all(), $rules);
@@ -32,7 +32,8 @@ class StudentController extends BaseController
 		    'school-name' => 'School Name',
 		    'student-name' => 'Student Name',
 		    'class' => 'Class',
-		    'section' => 'Section'
+		    'section' => 'Section',
+
 		]);
 
 		if ($validator->fails())
@@ -55,7 +56,7 @@ class StudentController extends BaseController
 		if(!empty($section)){
 			$students = $students->where(Student::SECTION,$section);
 		}
-		elseif(!empty($session)){
+		if(!empty($session)){
 		    $students = $students->where(Student::SESSION,$session);
         }
 
