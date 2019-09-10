@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Jobs\ShopifyOrderCreation;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Library\Shopify\Errors;
 use App\Library\Shopify\ExcelValidator;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -84,7 +85,7 @@ class ShopifyController extends BaseController
 	    	
 	        // Create Excel Raw object
 	        if(empty($ExlReader->getHeading())) {
-	            return back()->withErrors(['No data was found in the uploaded file']);
+	            return back()->withErrors([Errors::EMPTY_FILE_ERROR]);
 	        }
 	        
 	        $header = $ExlReader->first()->keys()->toArray();
