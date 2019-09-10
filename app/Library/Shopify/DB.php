@@ -17,8 +17,14 @@ class DB
 	 * @return int
 	 */
 	public static function get_variant_id($activity_id) {
-	    $product =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants.id']);
-		return (string) $product['variants'][0]['id'];
+	    $variants =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants']);
+
+	    foreach($variants['variants'] as $variant){
+	        if($variant['sku'] == $activity_id){
+	            return (string) $variant['id'];
+            }
+        }
+	    return;
 	}
 
 	public static function is_activity_duplicate($activity_id) {
@@ -43,16 +49,18 @@ class DB
 	}
 
 
-    public static function check_inventory_status($variant_id){
+    public static function check_inventory_status($variant_id,$activity_id){
         $variant_id = $variant_id + 0; // Converting string to integer for 32-bit systems
 
-        $product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity']);
+        $product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity','variant.sku']);
 
-    	if(!empty($product['variants'][0]['inventory_management'])){
-    		if($product['variants'][0]['inventory_quantity'] <= 0){
-    			return false;
-    		}
-    	}
+        foreach($product as $variant) {
+            if($variant['sku'] == $activity_id){
+                if ((!empty($variant['inventory_management'])) && $variant['inventory_quantity'] <= 0) {
+                    return false;
+                }
+            }
+        }
     	return true;
     }
 	/**
@@ -153,7 +161,7 @@ class DB
         $unique_customer = Arr::where($customers, function ($customer, $key) use ($phone,$email) {
             return (!empty($customer['phone']) && $customer['phone'] == '+91'.$phone);
         });
-        
+
         if(empty($unique_customer)) {
             $unique_customer = Arr::where($customers, function ($customer, $key) use ($phone,$email) {
                 return (!empty($customer['email']) && strtolower($customer['email']) == strtolower($email));
@@ -163,10 +171,9 @@ class DB
         if(count($unique_customer) > 1) {
             throw new \Exception("More than one customer found with the email or mobile number provided.");
         }
-        
+
         return $unique_customer;
     }
-
 
     # Not used
     // public static function check_shopify_activity_id_in_database($product_sku){
