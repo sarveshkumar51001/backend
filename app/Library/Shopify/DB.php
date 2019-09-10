@@ -156,7 +156,7 @@ class DB
         
         if(empty($unique_customer)) {
             $unique_customer = Arr::where($customers, function ($customer, $key) use ($phone,$email) {
-                return (!empty($customer['email']) && $customer['email'] == $email);
+                return (!empty($customer['email']) && strtolower($customer['email']) == strtolower($email));
             });
         }
 
