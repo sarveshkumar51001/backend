@@ -23,17 +23,18 @@ class StudentController extends BaseController
                 'school-name' => 'required|string',
                 'student-name' => 'required|string|min:3|max:100',
 	            'class' => ["required",Rule::in(Student::CLASS_LIST)],
-                'section' => 'max:1'
+                'section' => 'max:1',
+                'session' => 'string'
             ];
-        
+
 		$validator = Validator::make($request->all(), $rules);
 		$validator->setAttributeNames([
 		    'school-name' => 'School Name',
 		    'student-name' => 'Student Name',
 		    'class' => 'Class',
 		    'section' => 'Section'
-		]); 
-		
+		]);
+
 		if ($validator->fails())
 		{
 		    return redirect()->route('search.students')->withErrors($validator, 'studentDetailErrors')->withInput();
@@ -43,6 +44,7 @@ class StudentController extends BaseController
 		$class = $request['class'];
 		$section = $request['section'];
 		$student_name = $request['student-name'];
+		$session = $request['session'];
 
 		$students = Student::where(Student::SCHOOL,$school_name)->where(function($query) use ($student_name)
             {
@@ -51,11 +53,14 @@ class StudentController extends BaseController
             })->where(Student::STUDENT_CLASS,$class);
 
 		if(!empty($section)){
-			$students = $students->where(Student::SECTION,$section)->get();
+			$students = $students->where(Student::SECTION,$section);
 		}
-		else{
-			$students = $students->get();
-		}
+		elseif(!empty($session)){
+		    $students = $students->where(Student::SESSION,$session);
+        }
+
+		$students = $students->get();
+
 
 		return view('students-list')->with('students',$students)->with(['breadcrumb' => $breadcrumb]);
 	}
@@ -65,9 +70,9 @@ class StudentController extends BaseController
 		$breadcrumb = ['Students' => route('search.students'),'Search By Student Details' => ''];
 
 		$rules = ['school-enrollment-no' => "required|string|min:4|regex:/[a-zA-Z]+-[0-9]+/"];
-        
+
 		$validator = Validator::make($request->all(), $rules, ['school-enrollment-no.regex' => 'The Student Enrollment Number format is invalid. Should be in format SKT-XXX']);
-		
+
 		if ($validator->fails())
 		{
 		    return redirect()->route('search.students')->withErrors($validator, 'studentEnrollmentErrors')->withInput();

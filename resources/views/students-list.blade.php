@@ -2,6 +2,7 @@
 
 @section('content')
 @inject('Student','App\Models\Student')
+@inject('Settings','App\Models\Settings')
     @if(!(request()->has('school-enrollment-no') || request()->has('school-name')))
     <div class="card">
         <div class="card-header">
@@ -95,6 +96,15 @@
                             </select>
                         </div>
                     </div>
+                <div class="col-sm-4">
+                    <label><i aria-hidden="true"></i>Session</label>
+                    <div class="input-group">
+                        <select name="session" class="form-control">
+                            <option selected="selected" value="">Select Session </option>
+                            @foreach($Settings::get_session_values() as $session)
+                                <option value="{{$session}}" @if($session == old('session')) selected @endif> {{ $session }}</option>
+                                @endforeach
+                        </select>
                     {{ csrf_field() }}
                     <div class="col-sm-4">
                         <label>&nbsp;</label>
