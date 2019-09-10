@@ -121,7 +121,7 @@ class ExcelValidator
                 if (array_diff_assoc(Arr::only($existingpayments[$payment_index], ShopifyExcelUpload::CHEQUE_DD_FIELDS), Arr::only($payment, ShopifyExcelUpload::CHEQUE_DD_FIELDS))) {
                     $is_duplicate = false;
                     if ($existingpayments[$payment_index]['processed'] == 'Yes') {
-                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::PROCESSED_INSTALLMENT_ERROR,$payment_index + 1);
+                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::PROCESSED_INSTALLMENT_ERROR, $payment_index + 1);
                     }
                 }
             }
@@ -174,7 +174,10 @@ class ExcelValidator
             "student_first_name" => "required",
             "activity" => "required",
             "school_enrollment_no" => "required|string|min:4|regex:/[A-Z]+-[0-9]+/",
-            "class" => ["required",Rule::in(Student::CLASS_LIST)],
+            "class" => [
+                "required",
+                Rule::in(Student::CLASS_LIST)
+            ],
             "section" => "required",
 
             // Parent Details
@@ -235,13 +238,13 @@ class ExcelValidator
         $modeWiseTotal = $this->get_amount_total();
 
         if ($amount_collected_cash != $modeWiseTotal['cash_total']) {
-            $this->errors['sheet'][] = sprintf(Errors::CASH_TOTAL_MISMATCH,$amount_collected_cash, $modeWiseTotal['cash_total']);
+            $this->errors['sheet'][] = sprintf(Errors::CASH_TOTAL_MISMATCH, $amount_collected_cash, $modeWiseTotal['cash_total']);
         }
         if ($amount_collected_cheque != $modeWiseTotal['cheque_total']) {
-            $this->errors['sheet'][] = sprintf(Errors::CHEQUE_TOTAL_MISMATCH,$amount_collected_cheque, $modeWiseTotal['cheque_total']);
+            $this->errors['sheet'][] = sprintf(Errors::CHEQUE_TOTAL_MISMATCH, $amount_collected_cheque, $modeWiseTotal['cheque_total']);
         }
         if ($amount_collected_online != $modeWiseTotal['online_total']) {
-            $this->errors['sheet'][] = sprintf(Errors::ONLINE_TOTAL_MISMATCH,$amount_collected_online, $modeWiseTotal['online_total']);
+            $this->errors['sheet'][] = sprintf(Errors::ONLINE_TOTAL_MISMATCH, $amount_collected_online, $modeWiseTotal['online_total']);
         }
     }
 
@@ -330,7 +333,7 @@ class ExcelValidator
             $payment = Arr::except($payment, ShopifyExcelUpload::PAYMENT_METAFIELDS);
 
             if (empty($payment['amount'])) {
-                $this->errors['rows'][$this->row_no][] = sprintf(Errors::EMPTY_AMOUNT_ERROR,$payment_index + 1);
+                $this->errors['rows'][$this->row_no][] = sprintf(Errors::EMPTY_AMOUNT_ERROR, $payment_index + 1);
                 continue;
             }
 
@@ -355,24 +358,24 @@ class ExcelValidator
                 // Checking for offline mode PAYMENTS
                 if (array_contains_empty_value($cheque_dd_fields)) {
                     // Checking for blank cheque/dd details
-                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::CHEQUE_DD_DETAILS_ERROR,$payment_index + 1);
+                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::CHEQUE_DD_DETAILS_ERROR, $payment_index + 1);
                 } else {
                     if (DB::check_if_already_used($payment['chequedd_no'], $payment['micr_code'], $payment['drawee_account_number'], $payment_index, $data['shopify_activity_id'], $data['date_of_enrollment'], $data['school_enrollment_no'])) {
                         // Check if the combination of cheque no., micr_code and account_no. exists in database
-                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::CHEQUE_DETAILS_USED_ERROR,$payment_index + 1 );
+                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::CHEQUE_DETAILS_USED_ERROR, $payment_index + 1);
                     }
                 }
             } else if (in_array($mode, array_map('strtolower', $online_modes))) {
                 // Checking for online mode payments
                 if (array_contains_empty_value($online_fields)) {
                     // Checking for blank online details
-                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::ONLINE_PAYMENT_ERROR,$payment_index + 1);
+                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::ONLINE_PAYMENT_ERROR, $payment_index + 1);
                 }
             } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
                 // Checking for cash mode payments
                 if (! array_contains_empty_value($cheque_dd_fields) || ! array_contains_empty_value($online_fields)) {
                     // Cheque/DD/Online should be blank for cash payments
-                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::CASH_PAYMENT_ERROR,$payment_index + 1);
+                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::CASH_PAYMENT_ERROR, $payment_index + 1);
                 }
             } else if (! empty($mode)) {
                 // Checking for invalid paymemt mode
@@ -384,7 +387,7 @@ class ExcelValidator
             if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
                 if (empty($payment['mode_of_payment'])) {
                     if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
-                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::EXPECTED_DATE_AMOUNT_ERROR,$payment_index + 1);
+                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::EXPECTED_DATE_AMOUNT_ERROR, $payment_index + 1);
                     } else {
                         if (Carbon::now()->diffInDays(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']), false) > 0) {
                             $except_amount_date = [
@@ -395,7 +398,7 @@ class ExcelValidator
                                 $this->errors['rows'][$this->row_no][] = Errors::FUTURE_PAYMENT_CHEQUE_DETAILS_ERROR;
                             }
                         } else {
-                            $this->errors['rows'][$this->row_no][] = sprintf(Errors::FUTURE_INSTALLMENT_DATE_ERROR,$payment_index + 1);
+                            $this->errors['rows'][$this->row_no][] = sprintf(Errors::FUTURE_INSTALLMENT_DATE_ERROR, $payment_index + 1);
                         }
                     }
                 }
@@ -440,7 +443,7 @@ class ExcelValidator
         if (! DB::shopify_product_database_exists($activity_id)) {
             $this->errors['rows'][$this->row_no][] = Errors::ACTIVITY_ID_ERROR;
         } else if (DB::is_activity_duplicate($activity_id)) {
-            $this->errors['rows'][$this->row_no][] = sprinf(Errors::DUPLICATE_ACTIVITY_ERROR,$activity_id);
+            $this->errors['rows'][$this->row_no][] = sprinf(Errors::DUPLICATE_ACTIVITY_ERROR, $activity_id);
         } else if (! DB::check_activity_fee_value($activity_fee, $activity_id)) {
             $this->errors['rows'][$this->row_no][] = Errors::ACTIVITY_FEE_ERROR;
         } else if (! DB::check_order_created($enrollment_date, $activity_id, $enrollment_no)) {
