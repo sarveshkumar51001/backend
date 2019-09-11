@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Library\Shopify\ExcelValidator;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
-use Exception\PHPExcel_Exception; 
+use Exception\PHPExcel_Exception;
 
 class ShopifyController extends BaseController
 {
@@ -43,7 +43,7 @@ class ShopifyController extends BaseController
                 'cheque-total' => 'numeric',
                 'online-total' => 'numeric'
             ];
-        
+
 	    Validator::make($request->all(), $rules)->validate();
 
 	    $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Upload Preview' => ''];
@@ -74,19 +74,19 @@ class ShopifyController extends BaseController
 	        $filePath = storage_path('uploads/' . $user_name);
 	        $path = $excel_file->move($filePath, $fileName);
 	        $file_id = 'shopify-'.crc32(uniqid()); # Unique identifier for the documents belonging to a single file
-	        
+
 	        // Loading the excel file
 	        try {
 	           $ExlReader = Excel::load($path->getRealPath())->get()->first();
 	    	} catch(\PHPExcel_Exception $e){
 	    		return back()->withErrors(['The uploaded file seems invalid. Please download the latest sample file.']);
 	    	}
-	    	
+
 	        // Create Excel Raw object
 	        if(empty($ExlReader->getHeading())) {
 	            return back()->withErrors(['No data was found in the uploaded file']);
 	        }
-	        
+
 	        $header = $ExlReader->first()->keys()->toArray();
 		    $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
 		        'upload_date' => $request['date'],
@@ -124,14 +124,14 @@ class ShopifyController extends BaseController
     	            $date_enroll = $valid_row['date_of_enrollment'];
     	            $activity_id = $valid_row['shopify_activity_id'];
     	            $std_enroll_no = $valid_row['school_enrollment_no'];
-    
+
     	            // Attempt to lookup in database with the key combination
     		        // Ex: 06/05/2019, VAL-12345-002, SS-1112
     	            $OrderRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)
     	                           ->where('shopify_activity_id', $activity_id)
     	                           ->where('school_enrollment_no', $std_enroll_no)
     	                           ->first();
-    
+
     	            if (empty($OrderRow)) {
     		            $upsertList[] = $valid_row;
     	            } else {
@@ -146,13 +146,13 @@ class ShopifyController extends BaseController
     	                    	$existingPaymentData[$index] = $payment;
     	                	}
                         }
-                        
+
                         // Reducing the payments array if there is any reduction in number of payments
                         $diff_element = array_diff_key($existingPaymentData,$valid_row["payments"]);
                         foreach($diff_element as $key => $value){
                         	unset($existingPaymentData[$key]);
     					}
-    
+
     	                // Updating Order Data
     	                $upsertList[] = [
     	                    'payments' => $existingPaymentData,
@@ -160,14 +160,14 @@ class ShopifyController extends BaseController
     	                    'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
     	                    '_id' => $OrderRow->_id
                         ];
-                        
+
     	            }
     	        }
-    
+
     	        $metadata['new_order'] = $metadata['update_order'] = 0;
-    
+
     		    $objectIDList = [];
-    	        
+
 	            foreach ($upsertList as $document) {
 		            /**
 		             * KEEP SEARCHABLE PAYMENTS BY SETTING THE KEYS IN ORDER
@@ -187,7 +187,7 @@ class ShopifyController extends BaseController
 	                    // Update installment in database
 						ShopifyExcelUpload::where('_id', $_id)
 						                  ->update($document);
-						                  
+
 	                    // Store the object id to be used to send document in job queue
 	                    $objectIDList[] = $_id;
 					}
@@ -204,8 +204,8 @@ class ShopifyController extends BaseController
 			        'type' => Upload::TYPE_SHOPIFY_ORDERS,
 			        'created_at' => time()
 		        ]);
-    	        
-    
+
+
     	        if (!empty($objectIDList)) {
     		        // Finally dispatch the data into queue for processing
     		        foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
@@ -230,15 +230,8 @@ class ShopifyController extends BaseController
     }
 
     public function previous_orders() {
-	    $start = start_of_the_day(date('m/d/Y'));
-	    $end = end_of_day(date('m/d/Y'));
-	    if (request('daterange')) {
-		    $range = explode(' - ', request('daterange'), 2);
-		    if (count($range) == 2) {
-			    $start = start_of_the_day($range[0]);
-			    $end = end_of_day($range[1]);
-		    }
-	    }
+        $date_params = ShopifyExcelUpload::getStartEndDate(request('daterange'));
+        [$start,$end] = $date_params;
 
 	    if ($start && $end) {
 		    if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
@@ -257,7 +250,8 @@ class ShopifyController extends BaseController
 	        $modeWiseData[$mode]['count'] = $modeWiseData[$mode]['total'] = 0;
         }
 
-        $successful_records = $mongodb_records->where('job_status','!=','failed');
+        $successful_records = $mongodb_records->where('job_status','!=','
+        ');
 
 	    foreach ($successful_records as $document) {
 		    foreach ($document['payments'] as $payment) {

@@ -192,4 +192,18 @@ class ShopifyExcelUpload extends Base
 
         return false;
     }
+
+    public static function getStartEndDate($date_range){
+
+        $start_date = start_of_the_day(date('m/d/Y'));
+        $end_date = end_of_day(date('m/d/Y'));
+        if ($date_range) {
+            $range = explode(' - ', $date_range, 2);
+            if (count($range) == 2) {
+                $start_date = start_of_the_day($range[0]);
+                $end_date = end_of_day($range[1]);
+            }
+        }
+        return [$start_date,$end_date];
+    }
 }

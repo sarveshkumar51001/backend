@@ -49,6 +49,8 @@
                     </li>
                 </ul>
             </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('bulkupload.reports') }}"><i class="fa fa-file"></i> Reports</a></li>
         </ul>
     </nav>
 <button class="sidebar-minimizer brand-minimizer" type="button"></button>
