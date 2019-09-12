@@ -28,7 +28,7 @@ class ProductCreate
         $base_url = WebhookDataShopify::get_baseUrl($Webhook);
         $data = WebhookDataShopify::product_data($Webhook);
 
-        $title = sprintf("<%sorders/%s | :tada: New Product Created -  %s>", $base_url, $Webhook->body()['id'], $Webhook->body()['title']);
+        $title = sprintf("<%sproducts/%s | :tada: New Product Created -  %s>", $base_url, $Webhook->body()['id'], $Webhook->body()['title']);
 
         $channel = Channel::SlackUrl($channel_identifier);
         foreach ($channel as $value) {
