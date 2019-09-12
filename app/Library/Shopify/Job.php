@@ -36,11 +36,6 @@ class Job
         if (empty($customers)) {
             $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
             $shopifyCustomerId = $new_customer['id'];
-        } elseif (count($customers) == 1) {
-            $customer = Arr::first($customers);
-            $shopifyCustomerId = $customer['id'];
-
-            $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $Data->GetCustomerUpdateData($customer));
         } else {
             // Getting unique customer by checking phone or email id in customer
             $unique_customer = DB::get_customer($customers, $Data->GetPhone(), $Data->GetEmail());
