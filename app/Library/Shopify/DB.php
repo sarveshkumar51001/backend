@@ -44,24 +44,21 @@ class DB
 				return true;
 			}
 		}
-
 		return false;
 	}
 
 
-    public static function check_inventory_status($variant_id,$activity_id){
+    public static function check_inventory_status($variant_id){
         $variant_id = $variant_id + 0; // Converting string to integer for 32-bit systems
 
-        $product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity','variant.sku']);
+        $Product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity','variants.id']);
 
-        foreach($product as $variant) {
-            if($variant['sku'] == $activity_id){
-                if ((!empty($variant['inventory_management'])) && $variant['inventory_quantity'] <= 0) {
-                    return false;
-                }
+        foreach($Product['variants'] as $Variant){
+            if(($Variant['id'] == $variant_id) && ($Variant['inventory_quantity'] > 0 || empty($Variant['inventory_management']))){
+                return true;
             }
         }
-    	return true;
+        return false;
     }
 	/**
 	 * @param $object_id

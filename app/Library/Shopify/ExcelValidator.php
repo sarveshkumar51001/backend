@@ -448,7 +448,7 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = "Activity Fee entered is incorrect.";
         } else if (! DB::check_order_created($enrollment_date, $activity_id, $enrollment_no)) {
             $variant_id = DB::get_variant_id($activity_id);
-            if (! DB::check_inventory_status($variant_id,$activity_id)) {
+            if (! DB::check_inventory_status($variant_id)) {
                 $this->errors['rows'][$this->row_no][] = "Product is out of stock.";
             }
         }

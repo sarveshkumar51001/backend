@@ -70,7 +70,7 @@ class Job
         // Is it a new order?
         if (empty($Data->GetOrderID())) {
 
-            if (!DB::check_inventory_status($variantID, $Data->GetActivityID())) {
+            if (!DB::check_inventory_status($variantID)) {
                 throw new \Exception("Product [" . $Data->GetActivityID() . "] is either out of stock or is disabled.");
             }
             $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
