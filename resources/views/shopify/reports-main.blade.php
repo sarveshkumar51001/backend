@@ -29,13 +29,16 @@
                         <button id="file-upload-btn" type="submit" class="btn btn-group-sm btn-primary"><i class="fa fc-agenda-view"></i>View</button>
                     </div>
                 </div>
+                <div class="col-sm-4">
+                <a href="{{ URL::asset('shopify/sample_shopify_file.xls') }}"><button type="button" class="btn-info"><i class="fa fa-file-excel-o"></i>
+                    </button></a>
+                </div>
             </div>
         </div>
     </form>
     </div>
-    @if(empty($report_data))
-        <h5 align="center"><b>No enrollments recorded for the selected period.</b></h5>
-        @else
+    {{ $report_pdf }}
+    @if(!empty($report_data))
     <div class="card">
         <table class="table table-bordered table-striped table-sm datatable table-responsive">
             <thead>
@@ -57,12 +60,11 @@
 
                                     @if($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_PENDING)
                                         badge badge-warning
-@elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_COMPLETED)
+                                    @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_COMPLETED)
                                         badge badge-success
-@elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_FAILED)
+                                    @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_FAILED)
                                         badge badge-danger
-@endif
-                                        ">
+                                    @endif ">
                                         @if($key == 'order_id')
                                             <div>
                                             <strong onclick="render_upload_details('{{$row['_id']}}');" class="text-muted aside-menu-toggler" style="cursor: pointer"><a title="Payment Details"><i class="fa fa-money fa-2x"></i></a>&nbsp; </strong>
