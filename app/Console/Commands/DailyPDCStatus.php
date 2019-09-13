@@ -42,13 +42,13 @@ class DailyPDCStatus extends Command
     public function handle()
     {
         // Fetching all post dated payments from the database
-        $post_dated_payments = DB::get_all_post_dated_payments();
+        $post_dated_payments = DB::get_all_post_dated_payments()->get()->toArray();
 
         $today_data = [];
         $yesterday_data = [];
         $today_count = [];
         $yesterday_count = [];
-        
+
         // Looping through all payments
         foreach( $post_dated_payments as $payments){
 

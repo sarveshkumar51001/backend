@@ -7,7 +7,7 @@ use App\Models\Product;
 class ProductController extends BaseController
 {
     public function index() {
-	    $limit = 100;
+	    $limit = 50;
 	    $data = Product::ActiveProduct()->orderby('updated_at','desc')->paginate($limit);
 	    $breadcrumb = ['Products' => ''];
 

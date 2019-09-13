@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use App\Library\Shopify\DB;
 use Exception\PHPExcel_Exception;
+use Illuminate\Pagination\Paginator;
 
 
 class ShopifyController extends BaseController
@@ -142,7 +143,7 @@ class ShopifyController extends BaseController
     	            			$valid_row['payments'][$index]['is_pdc_payment'] = true;
     	            		}
     	            	}
-   	
+
     		            $upsertList[] = $valid_row;
     	            } else {
     	                 $existingPaymentData = $OrderRow->payments;
@@ -154,7 +155,7 @@ class ShopifyController extends BaseController
     	                     * Any update in already posted installments will be ignored
     	                     */
                         	if ($existingPaymentData[$index]['processed'] == 'No') {
-    	                    	$existingPaymentData[$index] = $payment;   	                    	
+    	                    	$existingPaymentData[$index] = $payment;
     	                	}
     	                	// Set PDC Payment Status to false if payment is recieved and vice versa.
     	                	if (!empty($existingPaymentData[$index]['mode_of_payment'])){
@@ -240,9 +241,10 @@ class ShopifyController extends BaseController
     		}
 
     public function previous_uploads() {
+        $limit = 40;
         $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Previous uploads' => ''];
 
-	    $Uploads = Upload::where('user_id', Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->get();
+	    $Uploads = Upload::where('user_id', Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->paginate($limit);
 
         return view( 'shopify.past-files-upload')->with('files', $Uploads)->with('breadcrumb', $breadcrumb);
     }
@@ -258,16 +260,18 @@ class ShopifyController extends BaseController
 		    }
 	    }
 
+	    $limit = 30;
+
 	    if ($start && $end) {
 		    if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
-			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->get();
+			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->paginate($limit);
 		    } else {
 			    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
 			                                         ->whereBetween('payments.upload_date', [$start, $end])
-			                                         ->get();
+			                                         ->paginate($limit);
 		    }
 	    } else {
-		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
+		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->paginate($limit);
 	    }
 
 	    $modeWiseData = [];
@@ -336,7 +340,7 @@ class ShopifyController extends BaseController
 
     	$Post_Payment_Data = [];
     	$post_payment = [];
-    	$Post_Dated_Payments = DB::get_all_post_dated_payments();
+    	$Post_Dated_Payments = DB::get_all_post_dated_payments()->where('uploaded_by',Auth::id())->get()->toArray();
 
     	foreach($Post_Dated_Payments as $Payments){
 

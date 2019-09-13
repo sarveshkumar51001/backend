@@ -42,6 +42,9 @@
                     @endforeach
                     </tbody>
                 </table>
+                <div class="row pull-right mr-4">
+                    {!! $files->render() !!}
+                </div>
             </div>
         </div>
 

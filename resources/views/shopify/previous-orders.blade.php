@@ -109,6 +109,10 @@
                 @endforeach
                 </tbody>
             </table>
+            <div class="row pull-right mr-4">
+                {!! $records_array->render() !!}
+            </div>
+            {{ $records_array->links() }}
         </div>
     </div>
 @endsection
