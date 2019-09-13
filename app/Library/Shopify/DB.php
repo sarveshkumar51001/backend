@@ -54,7 +54,8 @@ class DB
         $Product = Product::where('variants.id',$variant_id)->first(['variants.inventory_management','variants.inventory_quantity','variants.id']);
 
         foreach($Product['variants'] as $Variant){
-            if(($Variant['id'] == $variant_id) && ($Variant['inventory_quantity'] > 0 || empty($Variant['inventory_management']))){
+            $product_variant_id = (string) $Variant['id'];
+            if(($product_variant_id == $variant_id) && ($Variant['inventory_quantity'] > 0 || empty($Variant['inventory_management']))){
                 return true;
             }
         }
