@@ -135,9 +135,18 @@ class ShopifyController extends BaseController
     	                           ->first();
 
     	            if (empty($OrderRow)) {
+
+    	            	// Set PDC Payment Status to true if mode of payment is empty
+    	            	foreach($valid_row['payments'] as $index => $payment){
+    	            		if(empty($payment['mode_of_payment'])){
+    	            			$valid_row['payments'][$index]['is_pdc_payment'] = true;
+    	            		}
+    	            	}
+   	
     		            $upsertList[] = $valid_row;
     	            } else {
     	                 $existingPaymentData = $OrderRow->payments;
+
     		            // If there is any change in installments details provided in excel
                         foreach ($valid_row["payments"] as $index => $payment) {
     	                    /**
@@ -145,7 +154,14 @@ class ShopifyController extends BaseController
     	                     * Any update in already posted installments will be ignored
     	                     */
                         	if ($existingPaymentData[$index]['processed'] == 'No') {
-    	                    	$existingPaymentData[$index] = $payment;
+    	                    	$existingPaymentData[$index] = $payment;   	                    	
+    	                	}
+    	                	// Set PDC Payment Status to false if payment is recieved and vice versa.
+    	                	if (!empty($existingPaymentData[$index]['mode_of_payment'])){
+    	                		$existingPaymentData[$index]['is_pdc_payment'] = false;
+    	                	}
+    	                	else{
+    	                		$existingPaymentData[$index]['is_pdc_payment'] = true;
     	                	}
                         }
 
