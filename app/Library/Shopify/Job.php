@@ -12,6 +12,7 @@ use Illuminate\Support\Arr;
  *
  * @package App\Library\Shopify
  */
+
 class Job
 {
 
@@ -64,7 +65,7 @@ class Job
         // Is it a new order?
         if (empty($Data->GetOrderID())) {
 
-            if (! DB::check_inventory_status($variantID)) {
+            if (!DB::check_inventory_status($variantID)) {
                 throw new \Exception("Product [" . $Data->GetActivityID() . "] is either out of stock or is disabled.");
             }
             $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
@@ -90,7 +91,7 @@ class Job
 
             $transaction_data = DataRaw::GetTransactionData($installment);
 
-            if (empty($transaction_data) || (! empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $installment['chequedd_date'])->timestamp > time())) {
+            if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $installment['chequedd_date'])->timestamp > time())) {
                 continue;
             }
 
@@ -98,7 +99,7 @@ class Job
                 // Shopify Update: Posting new transaction part of installments
                 $transaction_response = $ShopifyAPI->PostTransaction($shopifyOrderId, $transaction_data);
 
-                if (! empty($transaction_response)) {
+                if (!empty($transaction_response)) {
 
                     // Adding current collected amount to previously collected amount
                     $order_amount += $installment['amount'];
@@ -112,7 +113,6 @@ class Job
                 throw new ApiException($e->getMessage(), $e->getCode(), $e);
             }
         }
-
         $collected_amount = $order_amount + $previous_collected_amount;
 
         // Additional Order details
