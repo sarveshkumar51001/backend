@@ -173,7 +173,7 @@ class ExcelValidator
             "student_school_location" => "required|string",
             "student_first_name" => "required",
             "activity" => "required",
-            "school_enrollment_no" => "required|string|min:4|regex:/[A-Z]+-[0-9]+/",
+            "school_enrollment_no" => "required|string|min:4",
             "class" => [
                 "required",
                 Rule::in(Student::CLASS_LIST)
