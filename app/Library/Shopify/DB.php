@@ -181,6 +181,12 @@ class DB
     	return Product::where('id', $product_id)->exists();
     }
 
+    public static function get_all_post_dated_payments(){
+    	$post_dated_payments = ShopifyExcelUpload::where('payments.is_pdc_payment',true)->get()->toArray();
+
+    	return $post_dated_payments;
+    }
+
     # Not used
     // public static function check_customer_existence_in_database($customer_id){
     // 	return \DB::table('shopify_customers')->where('id',$customer_id)->exists();
