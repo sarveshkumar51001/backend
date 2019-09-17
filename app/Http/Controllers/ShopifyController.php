@@ -11,8 +11,9 @@ use App\Library\Shopify\ExcelValidator;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use App\Library\Shopify\DB;
-use Exception\PHPExcel_Exception;
-use Illuminate\Pagination\Paginator;
+use PHPExcel;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Input;
 
 
 class ShopifyController extends BaseController
@@ -244,7 +245,7 @@ class ShopifyController extends BaseController
         $limit = 40;
         $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Previous uploads' => ''];
 
-	    $Uploads = Upload::where('user_id', Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->paginate($limit);
+	    $Uploads = Upload::where('user_id', Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->paginate(ShopifyExcelUpload::PAGINATE_LIMIT);
 
         return view( 'shopify.past-files-upload')->with('files', $Uploads)->with('breadcrumb', $breadcrumb);
     }
@@ -260,18 +261,16 @@ class ShopifyController extends BaseController
 		    }
 	    }
 
-	    $limit = 30;
-
 	    if ($start && $end) {
 		    if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
-			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->paginate($limit);
+			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
 		    } else {
 			    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
 			                                         ->whereBetween('payments.upload_date', [$start, $end])
-			                                         ->paginate($limit);
+			                                         ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(\request()->query());
 		    }
 	    } else {
-		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->paginate($limit);
+		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(\request()->query());
 	    }
 
 	    $modeWiseData = [];
@@ -336,7 +335,7 @@ class ShopifyController extends BaseController
 	    return view('admin.404')->with('breadcrumb', $breadcrumb);
     }
 
-    public function post_dated_payments(){
+    public function post_dated_payments( Request $request){
 
     	$Post_Payment_Data = [];
     	$post_payment = [];
@@ -364,7 +363,23 @@ class ShopifyController extends BaseController
     			$Post_Payment_Data[] = $post_payment;
 			}
     	}
-    	return view('shopify.post-dated-payments')->with('collection_data',$Post_Payment_Data);
+
+    	$Post_Payments = self::paginate_array($request, $Post_Payment_Data);
+    	return view('shopify.post-dated-payments')->with('collection_data',$Post_Payments);
+
+    }
+
+    public function paginate_array( Request $request,$data){
+
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $collection = collect($data);
+        $perPage = 10;
+
+        $currentPageItems = $collection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
+        $paginatedItems= new LengthAwarePaginator($currentPageItems , count($collection), $perPage);
+        $paginatedItems->setPath($request->url());
+
+        return $paginatedItems;
 
     }
 }

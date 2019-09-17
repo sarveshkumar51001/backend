@@ -39,6 +39,7 @@
                     </tr>
                 </tbody>
             </table>
+                {{ $collection_data->appends(Illuminate\Support\Facades\Input::except('page'))->links() }}
             @endif
         </div>
     </div>
