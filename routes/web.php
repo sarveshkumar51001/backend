@@ -41,6 +41,7 @@ Route::prefix('shopify')->group(function() {
         Route::get('/previous/file_download/{id}', 'ShopifyController@download_previous')->name('bulkupload.download_previous');
         Route::get('/reports','ReportController@main')->name('bulkupload.reports');
         Route::post('/reports/rm_enrollments','ReportController@render_reports')->name('bulkupload.render_reports');
+        Route::get('/reports/download','ReportController@render_reports')->name('bulkupload.download_report');
     });
 });
 

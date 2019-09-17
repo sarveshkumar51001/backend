@@ -24,20 +24,16 @@
                         <input type="hidden" name="filter" value="{{ request('filter') }}">
                         </div>
                 {{ csrf_field() }}
-                <div class="col-sm-4">
+                <div class="col-sm">
                     <div class="input-group">
-                        <button id="file-upload-btn" type="submit" class="btn btn-group-sm btn-primary"><i class="fa fc-agenda-view"></i>View</button>
+                        <button id="file-upload-btn" type="submit" class="btn btn-group-sm btn-secondary" style="position: absolute; bottom: -65px; right: 260px;">View</button>
                     </div>
-                </div>
-                <div class="col-sm-4">
-                <a href="{{ URL::asset('shopify/sample_shopify_file.xls') }}"><button type="button" class="btn-info"><i class="fa fa-file-excel-o"></i>
-                    </button></a>
                 </div>
             </div>
         </div>
     </form>
+        <a href="{{ route('bulkupload.download_reports',['download'=>'pdf']) }}">Download PDF</a>
     </div>
-    {{ $report_pdf }}
     @if(!empty($report_data))
     <div class="card">
         <table class="table table-bordered table-striped table-sm datatable table-responsive">
