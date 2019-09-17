@@ -373,10 +373,10 @@ class ShopifyController extends BaseController
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $collection = collect($data);
-        $perPage = 10;
+        $limit = ShopifyExcelUpload::PAGINATE_LIMIT;
 
-        $currentPageItems = $collection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
-        $paginatedItems= new LengthAwarePaginator($currentPageItems , count($collection), $perPage);
+        $currentPageItems = $collection->slice(($currentPage * $limit) - $limit, $limit)->all();
+        $paginatedItems= new LengthAwarePaginator($currentPageItems , count($collection), $limit);
         $paginatedItems->setPath($request->url());
 
         return $paginatedItems;
