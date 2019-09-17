@@ -4,6 +4,7 @@ namespace App\Library\Shopify;
 use App\Models\ShopifyExcelUpload;
 use Exception;
 use Carbon\Carbon;
+use App\Jobs\ShopifyOrderCreation;
 use PHPShopify\Exception\ApiException;
 use Illuminate\Support\Arr;
 
@@ -12,6 +13,7 @@ use Illuminate\Support\Arr;
  *
  * @package App\Library\Shopify
  */
+
 
 class Job
 {
@@ -89,9 +91,18 @@ class Job
                 $previous_collected_amount += $installment['amount'];
             }
 
+            if ((!empty($installment['chequedd_date'])) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp > time() && (!empty($installment['mode_of_payment']))) {
+
+                $object = ShopifyExcelUpload::find($Data->ID());
+                $delay = Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp - time();
+                // Dispatching new job with delay if PDC recorded
+                ShopifyOrderCreation::dispatch($object)->delay(now()->addSeconds($delay)->addHours(13));
+                continue;
+            }
+
             $transaction_data = DataRaw::GetTransactionData($installment);
 
-            if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $installment['chequedd_date'])->timestamp > time())) {
+            if(empty($transaction_data)){
                 continue;
             }
 
