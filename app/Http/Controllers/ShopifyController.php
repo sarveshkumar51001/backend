@@ -264,8 +264,7 @@ class ShopifyController extends BaseController
 	        $modeWiseData[$mode]['count'] = $modeWiseData[$mode]['total'] = 0;
         }
 
-        $successful_records = $mongodb_records->where('job_status','!=','
-        ');
+        $successful_records = $mongodb_records->where('job_status','!=','failed');
 
 	    foreach ($successful_records as $document) {
 		    foreach ($document['payments'] as $payment) {
