@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ShopifyExcelUpload;
 
 class ProductController extends BaseController
 {
     public function index() {
-	    $limit = 50;
-	    $data = Product::ActiveProduct()->orderby('updated_at','desc')->paginate($limit);
+	    $data = Product::ActiveProduct()->orderby('updated_at','desc')->paginate(ShopifyExcelUpload::PAGINATE_LIMIT);
 	    $breadcrumb = ['Products' => ''];
 
 	    return view('products-list', ['products' => $data, 'breadcrumb' => $breadcrumb]);

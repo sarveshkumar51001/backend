@@ -242,7 +242,6 @@ class ShopifyController extends BaseController
     		}
 
     public function previous_uploads() {
-        $limit = 40;
         $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Previous uploads' => ''];
 
 	    $Uploads = Upload::where('user_id', Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->paginate(ShopifyExcelUpload::PAGINATE_LIMIT);
