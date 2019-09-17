@@ -27,14 +27,14 @@
                 				<div id="row-{{ $row_no }}" class="collapse">
                     				<ul>
                     				@foreach($errors as $error)
-                                        @php $error_slug = str_replace('+','-',urlencode('bkmrk-' . substr(strtolower(preg_replace('/s+/', '-', trim($error))), 0, 20))) @endphp
+                                        @php $error_slug = generate_error_slug($error) @endphp
                     					<li>{{ $error }} <a target="_blank" href="https://wiki.valedra.com/link/33#{{$error_slug}}"> Help <i class="fa fa-external-link"></i></a></li>
                     				@endforeach
                     				</ul>
 								</div>
                 			</li>
                 		@else
-                                @php $error_slug = str_replace('+','-',urlencode('bkmrk-' . substr(strtolower(preg_replace('/s+/', '-', trim($errors[0]))), 0, 20))) @endphp
+                                @php $error_slug = generate_error_slug($errors[0]) @endphp
                                 <li><b>Row {{ $row_no }}</b> - {{ $errors[0] }}<a target="_blank" href="https://wiki.valedra.com/link/33#{{$error_slug}}"> Help <i class="fa fa-external-link"></i></a></li>
             			@endif
                 	@endforeach
