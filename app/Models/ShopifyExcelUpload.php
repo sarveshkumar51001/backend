@@ -30,6 +30,8 @@ class ShopifyExcelUpload extends Base
 
     const JOB_STATUS_FAILED = 'failed';
 
+    const DIFF_IN_MONTHS = 3;
+
     const MODE_CASH = 1;
 
     const MODE_CHEQUE = 2;

@@ -367,7 +367,10 @@ class ExcelValidator
                         $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Cheque/DD Details already used before.";
                     }
                 }
-            } else if (in_array($mode, array_map('strtolower', $online_modes))) {
+                if(check_date_diff_in_months($payment['chequedd_date'])){
+                    $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Cheque/DD date is invalid. It should not exceed today's date by more than 3 months.";
+                }
+                } else if (in_array($mode, array_map('strtolower', $online_modes))) {
                 // Checking for online mode payments
                 if (array_contains_empty_value($online_fields)) {
                     // Checking for blank online details
@@ -375,7 +378,7 @@ class ExcelValidator
                 }
             } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
                 // Checking for cash mode payments
-                if (! array_contains_empty_value($cheque_dd_fields) || ! array_contains_empty_value($online_fields)) {
+                if (! array_contains_empty_value($cheque_dd_fields) || ! array_contains_empty_value($online_fields) || !empty($payment['chequedd_date'])) {
                     // Cheque/DD/Online should be blank for cash payments
                     $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - For Cash payments, Cheque/DD/Online payment details are not applicable.";
                 }
@@ -384,14 +387,15 @@ class ExcelValidator
                 $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Invalid Payment Mode - $mode";
             }
 
-            // Function for checking wthether the combination of amount and date present for each installment.
+            // Function for checking whether the combination of amount and date present for each installment.
             // The cheque date is being treated as the expected date of collection for the payment.
             if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
                 if (empty($payment['mode_of_payment'])) {
                     if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
                         $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Expected Amount and Expected date of collection required for every installment of this order.";
                     } else {
-                        if (Carbon::now()->diffInDays(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']), false) > 0) {
+                        $diff_in_days = Carbon::now()->diffInDays(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']), false);
+                        if ($diff_in_days > 0) {
                             $except_amount_date = [
                                 'amount',
                                 'chequedd_date'

@@ -1,4 +1,8 @@
 <?php
+
+use App\Models\ShopifyExcelUpload;
+use Carbon\Carbon;
+
 function get_product_price($productID) {
 	$Product = \App\Models\Product::where('product_id', $productID)->first();
 
@@ -55,21 +59,31 @@ function log_error(\Exception $e) {
 
 /**
  * Returns Webhook Event Class path
- * 
+ *
  * @param App\Models\Webhook $Webhook
  * @return string|boolean
  */
 function webhook_event_class(App\Models\Webhook $Webhook) {
-    
+
     $namespace = '\App\Library\Webhook\Events';
     $source = \Illuminate\Support\Str::title($Webhook->{App\Models\Webhook::SOURCE});
     $class_name = \Illuminate\Support\Str::studly($Webhook->{App\Models\Webhook::NAME});
     $class_path = sprintf("%s\%s\%s", $namespace, $source, $class_name);
-    
+
     if (class_exists($class_path)) {
         if (method_exists($class_path, 'handle')) {
             return $class_path;
         }
+    }
+    return false;
+}
+
+function check_date_diff_in_months($date){
+
+    $diff_in_months = Carbon::now()->diffInMonths(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $date), false);
+
+    if($diff_in_months > ShopifyExcelUpload::DIFF_IN_MONTHS ){
+        return true;
     }
     return false;
 }
