@@ -89,7 +89,7 @@ class Job
                 $previous_collected_amount += $installment['amount'];
             }
 
-            $transaction_data = DataRaw::GetTransactionData($installment);
+            $transaction_data = DataRaw::GetTransactionData($installment,$Data->GetEnrollmentDate());
 
             if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $installment['chequedd_date'])->timestamp > time())) {
                 continue;

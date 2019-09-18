@@ -70,6 +70,11 @@ class DataRaw
         return $this->data['shopify_activity_id'] ?? '';
     }
 
+    public function GetEnrollmentDate()
+    {
+        return $this->data['date_of_enrollment'] ?? '';
+    }
+
     public function GetOrderID()
     {
         return $this->data['order_id'] ?? 0;
@@ -180,6 +185,8 @@ class DataRaw
             "id" => $customer_id
         ];
 
+        $order_data['processed_at'] = processed_date_format($this->data['date_of_enrollment']);
+
         $location = ShopifyExcelUpload::getSchoolLocation($this->data['delivery_institution'], $this->data['branch']);
 
         $order_data['billing_address'] = [
@@ -257,7 +264,7 @@ class DataRaw
                 ];
             }
         }
-        
+
         if($shopifyCustomer['phone'] != "+91". $this->data['mobile_number']) {
             $customer_data += [
                 'phone' => (string) $this->data['mobile_number']
@@ -311,7 +318,7 @@ class DataRaw
      *
      * @return array
      */
-    public static function GetTransactionData(array $installment)
+    public static function GetTransactionData(array $installment,$enrollment_date)
     {
 
         // Check if installment is empty or mode of payment is empty or installment is processed.
@@ -321,7 +328,8 @@ class DataRaw
 
         $transaction_data = [
             "kind" => "capture",
-            "amount" => $installment['amount']
+            "amount" => $installment['amount'],
+            "processed_at" => processed_date_format($enrollment_date)
         ];
 
         return $transaction_data;
