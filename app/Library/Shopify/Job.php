@@ -90,7 +90,6 @@ class Job
             }
 
             $processed_date = (new Job)->Payment_Process_Date($Data->HasInstallment(),$installment,$Data->GetEnrollmentDate());
-            logger($processed_date);
             $transaction_data = DataRaw::GetTransactionData($installment,$processed_date);
 
             if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $installment['chequedd_date'])->timestamp > time())) {
@@ -135,7 +134,7 @@ class Job
             return $process_date;
         }
         else{
-            //Returning today's date in case it is later than the cheque date and vice versa
+            //Returning today's date in case it is later than the cheque date and vice versa.
             if(!empty($installment['chequedd_date'])){
 
                 if(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp < time()){
@@ -147,7 +146,7 @@ class Job
                 }
             }
             else{
-                //Returning today's date in case of installment order if no cheque date found
+                //Returning today's date in case of installment order if no cheque date found.
                 $process_date = Carbon::now()->toIso8601String();
                 return $process_date;
             }
