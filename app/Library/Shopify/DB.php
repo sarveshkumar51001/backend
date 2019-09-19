@@ -186,7 +186,7 @@ class DB
     	return Product::where('id', $product_id)->exists();
     }
 
-    public static function get_all_post_dated_payments(){
+    public static function post_dated_payments(){
     	$post_dated_payments = ShopifyExcelUpload::where('payments.is_pdc_payment',true);
 
     	return $post_dated_payments;

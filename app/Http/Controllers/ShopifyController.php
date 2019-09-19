@@ -260,16 +260,12 @@ class ShopifyController extends BaseController
 		    }
 	    }
 
-	    if ($start && $end) {
-		    if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
-			    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
-		    } else {
-			    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
-			                                         ->whereBetween('payments.upload_date', [$start, $end])
-			                                         ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(\request()->query());
-		    }
+	    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end]);
+
+	    if (!(request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam))) {
+                $mongodb_records = $mongodb_records->where('uploaded_by', Auth::id())->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(\request()->query());
 	    } else {
-		    $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(\request()->query());
+	        $mongodb_records = $mongodb_records->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(\request()->query());
 	    }
 
 	    $modeWiseData = [];
@@ -338,7 +334,7 @@ class ShopifyController extends BaseController
 
     	$Post_Payment_Data = [];
     	$post_payment = [];
-    	$Post_Dated_Payments = DB::get_all_post_dated_payments()->where('uploaded_by',Auth::id())->get()->toArray();
+    	$Post_Dated_Payments = DB::post_dated_payments()->where('uploaded_by',Auth::id())->get()->toArray();
 
     	foreach($Post_Dated_Payments as $Payments){
 

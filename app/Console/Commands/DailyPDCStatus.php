@@ -42,7 +42,7 @@ class DailyPDCStatus extends Command
     public function handle()
     {
         // Fetching all post dated payments from the database
-        $post_dated_payments = DB::get_all_post_dated_payments()->get()->toArray();
+        $post_dated_payments = DB::post_dated_payments()->get()->toArray();
 
         $today_data = [];
         $yesterday_data = [];

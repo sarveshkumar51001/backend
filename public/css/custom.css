@@ -230,3 +230,26 @@
     width: 16px;
     height: 16px;
 }
+
+.table-fixed
+{
+    /*background-color: #aaa;*/
+    width: 800px;
+}
+.table-fixed tbody
+{
+    /*background-color: #ddd;*/
+    height: 200px;
+    width: 800px;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+.table-fixed td
+{
+    width: 800px;
+}
+
+.table-fixed thead > tr, tbody
+{    width: 800px;
+    display: block;
+}

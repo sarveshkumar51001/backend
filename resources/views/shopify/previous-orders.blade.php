@@ -46,7 +46,7 @@
                                 <br>
                                 <strong class="h5"><i class="fa fa-rupee">&nbsp;</i>{{ amount_inr_format($total) }}</strong>
                             </div>
-                        </div>
+                        </div>t
                     </div>
                 </div>
             </div>
@@ -62,8 +62,8 @@
             @endif
         </div>
         <div class="clearfix mt-2"></div>
-        <div class="card-body">
-            <table class="table table-bordered table-striped table-sm datatable table-responsive">
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-striped table-sm datatable table-fixed">
                 <thead>
                     @foreach(\App\Library\Shopify\Excel::$headerViewMap as $header)
                         <td><strong>{{ $header }}</strong></td>
@@ -136,6 +136,7 @@
     <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
     <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
     <script src="{{ URL::asset('js/admin/upload.js') }}"></script>
+    <script src="{{ URL::asset('public/css/custom.css') }}"></script>
     <script>
         _Payload.headers = {!! json_encode(\App\Library\Shopify\Excel::$headerMap)  !!};
     </script>
