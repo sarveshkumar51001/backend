@@ -318,7 +318,7 @@ class DataRaw
      *
      * @return array
      */
-    public static function GetTransactionData(array $installment,$enrollment_date)
+    public static function GetTransactionData(array $installment,$process_date)
     {
 
         // Check if installment is empty or mode of payment is empty or installment is processed.
@@ -329,7 +329,7 @@ class DataRaw
         $transaction_data = [
             "kind" => "capture",
             "amount" => $installment['amount'],
-            "processed_at" => processed_date_format($enrollment_date)
+            "processed_at" => $process_date
         ];
 
         return $transaction_data;
