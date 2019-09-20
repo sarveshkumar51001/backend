@@ -46,7 +46,7 @@
                                 <br>
                                 <strong class="h5"><i class="fa fa-rupee">&nbsp;</i>{{ amount_inr_format($total) }}</strong>
                             </div>
-                        </div>t
+                        </div>
                     </div>
                 </div>
             </div>
