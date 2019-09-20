@@ -9,9 +9,9 @@
                     <a href="{{ route('bulkupload.previous_orders') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Previous Orders</button></a>
                 </div>
             </div>
-            <div class="card-body table table-responsive">
+            <div class="card-body">
 
-                <table class="table table-bordered table-striped table-sm datatable table-fixed">
+                <table class="table table-bordered table-striped table-sm datatable">
                     <thead>
                     <tr>
                         <th>Upload Date</th>

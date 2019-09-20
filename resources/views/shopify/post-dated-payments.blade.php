@@ -5,11 +5,11 @@
         <div class="card-header">
             <i class="icon-list"></i>Post Dated Payments
         </div>
-        <div class="card-body table-responsive">
+        <div class="card-body ">
             @if(count($collection_data) == 0)
                 <h4 align="center"><b>No post dated payments found</b></h4>
             @else
-            <table class="table table-bordered table-striped table-sm datatable table-fixed">
+            <table class="table table-bordered table-striped table-sm datatable table-responsive">
                 <thead>
                 <tr>
                     <th>Order/File ID</th>

@@ -230,18 +230,3 @@
     width: 16px;
     height: 16px;
 }
-
-.table-fixed thead tr{
-
-    display:block;
-}
-
-.table-fixed th,td{
-    width:200px;//fixed width
-}
-
-.table-fixed tbody{
-    display:block;
-    height:200px;
-    overflow:auto;
-}
