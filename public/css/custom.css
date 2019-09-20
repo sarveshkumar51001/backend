@@ -231,25 +231,17 @@
     height: 16px;
 }
 
-.table-fixed
-{
-    /*background-color: #aaa;*/
-    width: 800px;
-}
-.table-fixed tbody
-{
-    /*background-color: #ddd;*/
-    height: 200px;
-    width: 800px;
-    overflow-x: auto;
-    overflow-y: auto;
-}
-.table-fixed td
-{
-    width: 800px;
+.table-fixed thead tr{
+
+    display:block;
 }
 
-.table-fixed thead > tr, tbody
-{    width: 800px;
-    display: block;
+.table-fixed th,td{
+    width:200px;//fixed width
+}
+
+.table-fixed tbody{
+    display:block;
+    height:200px;
+    overflow:auto;
 }

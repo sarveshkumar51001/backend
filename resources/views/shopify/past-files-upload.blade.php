@@ -9,9 +9,9 @@
                     <a href="{{ route('bulkupload.previous_orders') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Previous Orders</button></a>
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body table table-responsive">
 
-                <table class="table table-bordered table-striped table-sm datatable">
+                <table class="table table-bordered table-striped table-sm datatable table-fixed">
                     <thead>
                     <tr>
                         <th>Upload Date</th>
@@ -49,4 +49,8 @@
         </div>
 
     </div>
+@endsection
+
+@section('footer-js')
+<script src="{{ URL::asset('public/css/custom.css') }}"></script>
 @endsection

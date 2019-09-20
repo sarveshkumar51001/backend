@@ -5,11 +5,11 @@
         <div class="card-header">
             <i class="icon-list"></i>Post Dated Payments
         </div>
-        <div class="card-body">
+        <div class="card-body table-responsive">
             @if(count($collection_data) == 0)
                 <h4 align="center"><b>No post dated payments found</b></h4>
             @else
-            <table class="table table-responsive-sm table-hover table-outline table-bordered table-striped table-sm datatable no-footer mb-0">
+            <table class="table table-bordered table-striped table-sm datatable table-fixed">
                 <thead>
                 <tr>
                     <th>Order/File ID</th>
@@ -44,3 +44,8 @@
         </div>
     </div>
 @endsection
+
+@section('footer-js')
+    <script src="{{ URL::asset('public/css/custom.css') }}"></script>
+@endsection
+
