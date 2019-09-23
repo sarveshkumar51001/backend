@@ -73,3 +73,36 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
     }
     return false;
 }
+
+function get_job_attempts($job_id) {
+    
+    if(Illuminate\Support\Facades\Cache::has($job_id)) {
+        $attempts = Illuminate\Support\Facades\Cache::get($job_id);
+    } else {
+        $attempts = job_attempted($job_id);
+    }
+    
+    return (string) $attempts;
+}
+
+function job_attempted($job_id) {
+    $attempts = 1;
+
+    if(! Illuminate\Support\Facades\Cache::has($job_id)) {
+        Illuminate\Support\Facades\Cache::rememberForever($job_id, function() use ($attempts) {
+            return $attempts;
+        });
+    } else {
+        $attempts = Illuminate\Support\Facades\Cache::pull($job_id);
+        $attempts++;
+        Illuminate\Support\Facades\Cache::rememberForever($job_id, function() use ($attempts) {
+            return $attempts;
+        });
+    }
+    
+    return (string) $attempts;
+}
+
+function job_completed($job_id) {
+    return (string) Illuminate\Support\Facades\Cache::pull($job_id);
+}
