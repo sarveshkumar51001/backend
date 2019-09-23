@@ -35,7 +35,7 @@ class HandleWebhookDataMiddleware
             // Dispatch Webhook if event class exists
             if ($class_path = webhook_event_class($this->Webhook)) {
 
-                WebhookEventJob::dispatch($class_path, $this->Webhook)->allOnQueue('high');
+                WebhookEventJob::dispatch($class_path, $this->Webhook)->onQueue('high');
             } else {
                 // Post Default message to Slack Channel
                 $this->postToSlack($this->Webhook);
