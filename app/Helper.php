@@ -86,19 +86,14 @@ function get_job_attempts($job_id) {
 }
 
 function job_attempted($job_id) {
-    $attempts = 1;
+    $attempts = 0;
 
-    if(! Illuminate\Support\Facades\Cache::has($job_id)) {
-        Illuminate\Support\Facades\Cache::rememberForever($job_id, function() use ($attempts) {
-            return $attempts;
-        });
-    } else {
+    if(Illuminate\Support\Facades\Cache::has($job_id)) {
         $attempts = Illuminate\Support\Facades\Cache::pull($job_id);
-        $attempts++;
-        Illuminate\Support\Facades\Cache::rememberForever($job_id, function() use ($attempts) {
-            return $attempts;
-        });
-    }
+    } 
+    
+    $attempts++;
+    Illuminate\Support\Facades\Cache::put($job_id, $attempts);
     
     return (string) $attempts;
 }
