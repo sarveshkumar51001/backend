@@ -93,11 +93,12 @@ function job_attempted($job_id) {
     } 
     
     $attempts++;
-    Illuminate\Support\Facades\Cache::put($job_id, $attempts);
+    Illuminate\Support\Facades\Cache::forever($job_id, $attempts);
     
     return (string) $attempts;
 }
 
 function job_completed($job_id) {
-    return (string) Illuminate\Support\Facades\Cache::pull($job_id);
+    $attempts = (string) Illuminate\Support\Facades\Cache::pull($job_id);
+    return $attempts;
 }

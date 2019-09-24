@@ -22,7 +22,7 @@ class Job
      *
      * @throws Exception
      */
-    public static function run(DataRaw $Data, $job_id)
+    public static function run(DataRaw $Data)
     {
         // Process only if the status of object is pending
         if (strtolower($Data->GetJobStatus()) == ShopifyExcelUpload::JOB_STATUS_COMPLETED || $Data->IsOnlinePayment()) {
@@ -35,7 +35,7 @@ class Job
         $customers = $ShopifyAPI->SearchCustomer($Data->GetPhone(), $Data->GetEmail());
 
         if (empty($customers)) {
-            if(get_job_attempts($job_id) <= 2)
+            if(get_job_attempts($Data->ID()) <= 2)
                 return -1;
             
             $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
@@ -46,7 +46,7 @@ class Job
 
             if (empty($unique_customer)) {
                 
-                if(get_job_attempts($job_id) <= 2)
+                if(get_job_attempts($Data->ID()) <= 2)
                     return -1;
                 
                 $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
