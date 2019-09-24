@@ -42,6 +42,8 @@ function get_render_template(data) {
                     title = 'Installment number';
                 } else if (key == 'errors') {
                     title = 'Errors';
+                } else if (key == 'refund_amount') {
+                    title = 'Refunded Amount';
                 }
 
                 template += '<div>'+title + ': <strong>' +value+'</strong></div>';

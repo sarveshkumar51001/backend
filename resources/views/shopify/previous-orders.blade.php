@@ -86,7 +86,11 @@
                                                 badge badge-success
                                     @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_FAILED)
                                                 badge badge-danger
-                                    @endif
+                                    @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_PARTIALLY_REFUNDED)
+                                            badge badge-info
+                                    @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_CANCELED)
+                                            badge badge-dark
+@endif
                                     ">
                                         @if($key == 'order_id')
                                         <div>

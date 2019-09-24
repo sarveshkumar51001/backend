@@ -30,6 +30,10 @@ class ShopifyExcelUpload extends Base
 
     const JOB_STATUS_FAILED = 'failed';
 
+    const JOB_STATUS_PARTIALLY_REFUNDED = 'partially refunded';
+
+    const JOB_STATUS_CANCELED = 'canceled';
+
     const MODE_CASH = 1;
 
     const MODE_CHEQUE = 2;
