@@ -67,13 +67,6 @@ class Job
             if (!DB::check_inventory_status($variantID)) {
                 throw new \Exception("Product [" . $Data->GetActivityID() . "] is either out of stock or is disabled.");
             }
-            $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
-
-            $shopifyOrderId = $order['id'];
-
-			if(! DB::check_inventory_status($variantID)){
-				throw new \Exception("Product [".$Data->GetActivityID()."] is either out of stock or is disabled.");
-			}
 
 			if(!$Data->IsOnlinePayment()) {
                 $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
