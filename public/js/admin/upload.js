@@ -20,9 +20,10 @@ function get_render_template(data) {
     var template ='';
     var index = 1;
     $.each(data.payments, function (key, payment) {
+        const amount = payment.amount - payment.refund_amount;
         template +=
             '<div class="callout m-0 text-muted bg-light text-uppercase">' +
-            '<small>Payment '+index + '</small><small class="pull-right"><strong><i class="fa fa-rupee"></i>&nbsp;'+payment.amount+'</strong></small></div>';
+            '<small>Payment '+index + '</small><small class="pull-right"><strong><i class="fa fa-rupee"></i>&nbsp;'+amount+'</strong></small></div>';
 
         var statusClass = (payment.processed == 'Yes') ? 'success' : 'warning';
         template += '<div class="callout callout-'+statusClass+' m-0 py-3">';
