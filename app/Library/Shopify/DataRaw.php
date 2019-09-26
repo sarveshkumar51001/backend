@@ -102,8 +102,8 @@ class DataRaw
     public function GetCustomerCreateData()
     {
         $customerData = [
-            "first_name" => $this->data["student_first_name"] . " " . $this->data["student_last_name"],
-            "last_name" => '(' . $this->data['school_enrollment_no'] . ')',
+            "first_name" => $this->data["parent_first_name"],
+            "last_name" => $this->data["parent_last_name"],
             "email" => $this->data["email_id"],
             "phone" => (string) $this->data["mobile_number"],
             "metafields" => [
@@ -256,9 +256,7 @@ class DataRaw
 
         $update_customer_mappings = array(
             "first_name" => "parent_first_name",
-            "last_name" => "parent_last_name",
-            "email" => "email_id",
-            "phone" => "mobile_number"
+            "last_name" => "parent_last_name"
         );
 
         foreach ($update_customer_mappings as $shopify_key => $excel_key) {
@@ -267,6 +265,12 @@ class DataRaw
                     $shopify_key => (string) $this->data[$excel_key]
                 ];
             }
+        }
+
+        if($shopifyCustomer['phone'] != "+91". $this->data['mobile_number']) {
+            $customer_data += [
+                'phone' => (string) $this->data['mobile_number']
+            ];
         }
 
         $tags_array = [];

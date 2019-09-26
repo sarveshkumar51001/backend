@@ -37,11 +37,6 @@ class Job
         if (empty($customers)) {
             $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
             $shopifyCustomerId = $new_customer['id'];
-        } elseif (count($customers) == 1) {
-            $customer = Arr::first($customers);
-            $shopifyCustomerId = $customer['id'];
-
-            $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $Data->GetCustomerUpdateData($customer));
         } else {
             // Getting unique customer by checking phone or email id in customer
             $unique_customer = DB::get_customer($customers, $Data->GetPhone(), $Data->GetEmail());
@@ -69,6 +64,12 @@ class Job
 
 		// Is it a new order?
 		if (empty($Data->GetOrderID())) {
+            if (!DB::check_inventory_status($variantID)) {
+                throw new \Exception("Product [" . $Data->GetActivityID() . "] is either out of stock or is disabled.");
+            }
+            $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
+
+            $shopifyOrderId = $order['id'];
 
 			if(! DB::check_inventory_status($variantID)){
 				throw new \Exception("Product [".$Data->GetActivityID()."] is either out of stock or is disabled.");
@@ -102,12 +103,10 @@ class Job
 			}
 
 			$transaction_data = DataRaw::GetTransactionData($installment);
-			logger($transaction_data);
 
-			if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp > time())) {
-				continue;
-			}
-
+            if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $installment['chequedd_date'])->timestamp > time())) {
+                continue;
+            }
 			try{
 				// Shopify Update: Posting new transaction part of installments
 				$transaction_response = $ShopifyAPI->PostTransaction($shopifyOrderId, $transaction_data);
@@ -124,9 +123,9 @@ class Job
             	DB::populate_error_in_payments_array($Data->ID(), $index , $e->getMessage());
             	throw new ApiException($e->getMessage(),$e->getCode(),$e);
             }
-		}
 
-		$collected_amount = $order_amount + $previous_collected_amount;
+		}
+        $collected_amount = $order_amount + $previous_collected_amount;
 
 		// Additional Order details
 		$order_details = $Data->GetNotes($notes_array,$collected_amount);

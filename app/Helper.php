@@ -32,7 +32,7 @@ function end_of_day(string $date) {
  * @param string $title
  * @return \App\Library\Slack\Slack
  */
-function slack($data, string $title = null)
+function slack($data = array(), string $title = null)
 {
     return new \App\Library\Slack\Slack($data, $title);
 }
