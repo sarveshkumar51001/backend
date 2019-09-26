@@ -25,7 +25,7 @@ class Job
     public static function run(DataRaw $Data)
     {
         // Process only if the status of object is pending
-        if (strtolower($Data->GetJobStatus()) == ShopifyExcelUpload::JOB_STATUS_COMPLETED || $Data->IsOnlinePayment()) {
+        if (strtolower($Data->GetJobStatus()) == ShopifyExcelUpload::JOB_STATUS_COMPLETED) {
             return;
         }
 
