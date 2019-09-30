@@ -79,7 +79,8 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
 
 function processed_date_format($date){
 
-    $date = Carbon::createFromFormat('d/m/Y',$date)->setTime(0, 0, 0)->toIso8601String();
-
+    $date = Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT,$date)
+                                                        ->setTime(0, 0, 0)
+                                                        ->toIso8601String();
     return $date;
 }
