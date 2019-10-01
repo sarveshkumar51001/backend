@@ -36,7 +36,7 @@ function get_render_template(data) {
                     return;
                 }
                 if (key == 'transaction_id') {
-                    title = 'Shopify Transaction ID'
+                    title = 'Shopify Transaction ID';
                 }
 
                 if (key == 'order_update_at') {
