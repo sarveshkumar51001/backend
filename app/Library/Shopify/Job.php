@@ -101,11 +101,14 @@ class Job
 
                 if (!empty($transaction_response)) {
 
+                    // ID of the transaction
+                    $transaction_id = $transaction_response['id'];
+
                     // Adding current collected amount to previously collected amount
                     $order_amount += $installment['amount'];
 
                     // DB UPDATE: Mark the installment node as
-                    DB::mark_installment_status_processed($Data->ID(), $index);
+                    DB::mark_installment_status_processed($Data->ID(),$transaction_id, $index);
                 }
             } catch (ApiException $e) {
                 DB::populate_error_in_payments_array($Data->ID(), $index, $e->getMessage());
