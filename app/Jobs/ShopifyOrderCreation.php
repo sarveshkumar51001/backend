@@ -32,24 +32,16 @@ class ShopifyOrderCreation implements ShouldQueue
         $Data = new DataRaw($this->data->toArray(), $this);
 
         try {
-            $job_id = $this->job->getJobId();
+            $Job_ID = $this->job->getJobId();
 
-            job_attempted($Data->ID());
-
-            $result = Job::run($Data);
-
-            if ($result == - 1) {
-                $this->release(60);
-            } elseif ($result == 1) {
-                job_completed($Data->ID());
-            }
+            Job::run($Data);
         } catch (\PHPShopify\Exception\ResourceRateLimitException $e) {
             $this->release(2);
         } catch (\Exception $e) {
             DB::mark_status_failed($Data->ID(), [
                 'message' => $e->getMessage(),
                 'time' => time(),
-                'job_id' => $job_id
+                'job_id' => $Job_ID
             ]);
 
             log_error($e);
