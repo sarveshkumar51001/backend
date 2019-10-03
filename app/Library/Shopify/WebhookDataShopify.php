@@ -48,7 +48,7 @@ class WebhookDataShopify
 
                 if (! is_null($value['variant_id'])) {
 
-                    $temp_url = sprintf("<%sproducts/%s|%s x %s>\n", $base_url, $value['product_id'], $value['title'], $value['quantity']);
+                    $temp_url = sprintf("<%sproducts/%s|%s x %s [%s]>\n", $base_url, $value['product_id'], $value['title'], $value['quantity'], $value['sku']);
                     $items .= $temp_url;
                 } else {
                     $items .= $value['title'] . ' x ' . $value['quantity'] . "\n";

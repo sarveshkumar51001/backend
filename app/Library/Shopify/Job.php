@@ -26,7 +26,7 @@ class Job
     {
         // Process only if the status of object is pending
         if (strtolower($Data->GetJobStatus()) == ShopifyExcelUpload::JOB_STATUS_COMPLETED || $Data->IsOnlinePayment()) {
-            return;
+            return 0;
         }
 
         $variantID = DB::get_variant_id($Data->GetActivityID());
@@ -35,6 +35,9 @@ class Job
         $customers = $ShopifyAPI->SearchCustomer($Data->GetPhone(), $Data->GetEmail());
 
         if (empty($customers)) {
+            if(get_job_attempts($Data->ID()) <= 2)
+                return -1;
+            
             $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
             $shopifyCustomerId = $new_customer['id'];
         } else {
@@ -42,6 +45,10 @@ class Job
             $unique_customer = DB::get_customer($customers, $Data->GetPhone(), $Data->GetEmail());
 
             if (empty($unique_customer)) {
+                
+                if(get_job_attempts($Data->ID()) <= 2)
+                    return -1;
+                
                 $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
                 $shopifyCustomerId = $new_customer['id'];
             } else {
@@ -123,5 +130,7 @@ class Job
 
         // Finally mark the object as process completed
         DB::mark_status_completed($Data->ID());
+        
+        return 1;
     }
 }
