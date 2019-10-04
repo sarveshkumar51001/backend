@@ -285,27 +285,27 @@ class ShopifyController extends BaseController
 				    if(!empty($mode)){
 				    	if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])){
 				    	   if(!empty($payment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$payment['chequedd_date'])->timestamp > time()) {
-    					    	$modeWiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'] - $payment['refund_amount'];
+    					    	$modeWiseData[ShopifyExcelUpload::MODE_PDC]['total'] += $payment['amount'] - $refunded_amount;
     					    	$modeWiseData[ShopifyExcelUpload::MODE_PDC]['count'] += 1;
 				    		}
 						}
 						if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
-					    	$modeWiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'] - $payment['refund_amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_CASH]['total'] += $payment['amount'] - $refunded_amount;
 					    	$modeWiseData[ShopifyExcelUpload::MODE_CASH]['count'] += 1;
 				    	}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
-					    	$modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'] - $payment['refund_amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['total'] += $payment['amount'] - $refunded_amount;
 					    	$modeWiseData[ShopifyExcelUpload::MODE_CHEQUE]['count'] += 1;
 				    	}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
-					    	$modeWiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'] - $payment['refund_amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'] - $refunded_amount;
 					    	$modeWiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
 				    	}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])) {
-					    	$modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'] - $payment['refund_amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'] - $refunded_amount;
 					    	$modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
 				    	}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM])) {
-					    	$modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['total'] += $payment['amount'] - $payment['refund_amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['total'] += $payment['amount'] - $refunded_amount;
 					    	$modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['count'] += 1;
 						}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT])) {
-					    	$modeWiseData[ShopifyExcelUpload::MODE_NEFT]['total'] += $payment['amount'] - $payment['refund_amount'];
+					    	$modeWiseData[ShopifyExcelUpload::MODE_NEFT]['total'] += $payment['amount'] - $refunded_amount;
 					    	$modeWiseData[ShopifyExcelUpload::MODE_NEFT]['count'] += 1;
 						}
 					}
