@@ -62,7 +62,7 @@
         </div>
         <div class="clearfix mt-2"></div>
         <div class="card-body">
-            <table class="table table-bordered table-striped table-sm datatable table-responsive">
+            <table class="table table-bordered table-striped table-sm datatable table-responsive table-fixed">
                 <thead>
                     @foreach(\App\Library\Shopify\Excel::$headerViewMap as $header)
                         <td><strong>{{ $header }}</strong></td>
