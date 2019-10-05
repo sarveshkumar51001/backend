@@ -184,36 +184,36 @@ class ExcelValidator
 
             // Parent Details
             "parent_first_name" => "required",
-            "mobile_number" => "regex:/^[6-9][0-9]{9}+$/",
+            "mobile_number" => ["regex:/^[6-9][0-9]{9}+$/","not regex:" . ShopifyExcelUpload::NUM_EXPONENTIAL_REGEX],
             "email_id" => "email",
 
             // Fee Details
             "activity_fee" => "required",
-            "scholarship_discount" => "numeric",
-            "after_discount_fee" => "numeric",
-            "final_fee_incl_gst" => "required|numeric",
-            "amount" => "numeric",
+            "scholarship_discount" => ["numeric","not regex:" . ShopifyExcelUpload::NUM_EXPONENTIAL_REGEX],
+            "after_discount_fee" => ["numeric","not regex:" . ShopifyExcelUpload::NUM_EXPONENTIAL_REGEX],
+            "final_fee_incl_gst" => ["required","numeric","not regex:" . ShopifyExcelUpload::NUM_EXPONENTIAL_REGEX],
+            "amount" => ["numeric","not regex:" . ShopifyExcelUpload::NUM_EXPONENTIAL_REGEX],
 
             // Registration/Booking Fee
             "payments.0.mode_of_payment" => [
                 "required",
                 Rule::in(ShopifyExcelUpload::payment_modes())
             ],
-            "payments.0.amount" => "required|numeric",
+            "payments.0.amount" => ["required","numeric","not regex:" . ShopifyExcelUpload::NUM_EXPONENTIAL_REGEX],
 
             // All Payments
             "payments" => "required",
-            "payments.*.amount" => "numeric",
+            "payments.*.amount" => ["numeric","not regex:" . ShopifyExcelUpload::NUM_EXPONENTIAL_REGEX],
             "payments.*.mode_of_payment" => [
                 Rule::in(ShopifyExcelUpload::payment_modes())
             ],
-            "payments.*.chequedd_no" => "numeric",
-            "payments.*.micr_code" => "numeric",
+            "payments.*.chequedd_no" => ["numeric","not regex:" . ShopifyExcelUpload::NUM_EXPONENTIAL_REGEX],
+            "payments.*.micr_code" => ["numeric","not regex:" . ShopifyExcelUpload::NUM_EXPONENTIAL_REGEX],
             "payments.*.chequedd_date" => [
                 "regex:" . ShopifyExcelUpload::DATE_REGEX
             ],
             "payments.*.drawee_name" => "string",
-            "payments.*.drawee_account_number" => "numeric"
+            "payments.*.drawee_account_number" => ["numeric","not regex:" . ShopifyExcelUpload::NUM_EXPONENTIAL_REGEX]
         ];
 
         $validator = Validator::make($data, $rules);

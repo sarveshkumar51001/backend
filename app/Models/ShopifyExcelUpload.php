@@ -20,6 +20,8 @@ class ShopifyExcelUpload extends Base
 
     const DATE_REGEX = '/^([0-2][0-9]|(3)[0-1])(\/)(((0)[0-9])|((1)[0-2]))(\/)\d{4}$/';
 
+    const NUM_EXPONENTIAL_REGEX = '/^[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)$/';
+
     const TYPE_INSTALLMENT = 'installment';
 
     const TYPE_ONETIME = 'one_time';
