@@ -1,6 +1,7 @@
 <?php
 namespace App\Library\Shopify;
 
+use App\Models\Customer;
 use App\Models\ShopifyExcelUpload;
 use Exception;
 use Carbon\Carbon;
@@ -29,29 +30,44 @@ class Job
             return;
         }
 
-        $variantID = DB::get_variant_id($Data->GetActivityID());
-
         $ShopifyAPI = new API();
-        $customers = $ShopifyAPI->SearchCustomer($Data->GetPhone(), $Data->GetEmail());
+        $variantID = DB::get_variant_id($Data->GetActivityID());
+        $customers = [];
 
-        if (empty($customers)) {
-            $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
-            $shopifyCustomerId = $new_customer['id'];
+        # Search customer in database and if not found search in shopify
+        $DBcustomer = DB::search_customer_in_database($Data->GetEmail(),$Data->GetPhone());
+        if(empty($DBcustomer)) {
+            $customers = $ShopifyAPI->SearchCustomer($Data->GetPhone(), $Data->GetEmail());
         } else {
-            // Getting unique customer by checking phone or email id in customer
-            $unique_customer = DB::get_customer($customers, $Data->GetPhone(), $Data->GetEmail());
-
-            if (empty($unique_customer)) {
-                $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
-                $shopifyCustomerId = $new_customer['id'];
-            } else {
-                $shopifyCustomer = head($unique_customer);
-                $shopifyCustomerId = $shopifyCustomer['id'];
-
-                $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $Data->GetCustomerUpdateData($shopifyCustomer));
-            }
+            $shopify_customer = head($DBcustomer);
+            $shopifyCustomerId = $shopify_customer['id'];
         }
 
+        # If no customer found in search from shopify then create the customer and add in database
+        if(empty($shopifyCustomerId)) {
+            if (empty($customers)) {
+                $shopify_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
+                $shopifyCustomerId = $shopify_customer['id'];
+            } else {
+                # Getting unique customer by checking phone or email id in customer data fetched from API
+                $unique_customer = DB::get_customer($customers, $Data->GetPhone(), $Data->GetEmail());
+
+                # If no unique customer found then create the customer else fetch the unique customer for order creation
+                if (empty($unique_customer)) {
+                    $shopify_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
+                    $shopifyCustomerId = $shopify_customer['id'];
+                } else {
+                    $shopify_customer = head($unique_customer);
+                    $shopifyCustomerId = $shopify_customer['id'];
+
+                    $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $Data->GetCustomerUpdateData($shopify_customer));
+                }
+            }
+        }
+        # Create document for the customer in database
+        if(isset($shopify_customer)){
+            Customer::create($shopify_customer);
+        }
         // Check 3: Make sure by now we have customer id
         if (empty($shopifyCustomerId)) {
             throw new \Exception('Failed to get customer id from shopify data set');

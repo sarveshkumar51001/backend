@@ -2,6 +2,7 @@
 
 namespace App\Library\Shopify;
 
+use App\Models\Customer;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Product;
 use App\User;
@@ -177,6 +178,11 @@ class DB
     // public static function check_shopify_activity_id_in_database($product_sku){
     // 	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
     // }
+
+    public static function search_customer_in_database($email, $phone){
+	    $phone = '+91'.$phone;
+	    return Customer::where('email',$email)->orWhere('phone',$phone)->get()->toArray();
+    }
 
     public static function shopify_product_database_exists($product_sku) {
     	return Product::ActiveProduct()->where('variants.sku', $product_sku)->exists();
