@@ -113,6 +113,8 @@ return [
     'uploaded' => 'The :attribute failed to upload.',
     'url' => 'The :attribute format is invalid.',
     'uuid' => 'The :attribute must be a valid UUID.',
+    'not_exponential' => 'The :attribute must not be an exponential or float.',
+    'amount' => 'The :attribute doesnt follow the standard amount format.',
 
     /*
     |--------------------------------------------------------------------------

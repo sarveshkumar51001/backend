@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,6 +16,21 @@ class AppServiceProvider extends ServiceProvider
     {
         //Preventing error reporting for deprecated functions
         error_reporting(E_ALL ^ E_DEPRECATED);
+
+        Validator::extend('not_exponential', function($attribute, $value, $parameters) {
+            if(preg_match('/^\d+$/',$value)){
+                return true;
+            } else{
+                return false;
+            }
+        });
+        Validator::extend('amount', function($attribute, $value, $parameters) {
+            if(preg_match('/^\d+.?\d{2}$/',$value)){
+                return true;
+            } else{
+                return false;
+            }
+        });
     }
 
     /**
