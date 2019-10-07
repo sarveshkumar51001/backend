@@ -1,8 +1,5 @@
 <?php
 
-use App\Models\ShopifyExcelUpload;
-use Carbon\Carbon;
-
 function get_product_price($productID) {
 	$Product = \App\Models\Product::where('product_id', $productID)->first();
 
@@ -78,11 +75,11 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
     return false;
 }
 
-function check_date_diff_in_months($date){
+function is_date_later_than_months($date, $months){
 
-    $diff_in_months = Carbon::now()->diffInMonths(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $date), false);
+    $diff_in_months = \Carbon\Carbon::now()->diffInMonths(\Carbon\Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT, $date), false);
 
-    if($diff_in_months > ShopifyExcelUpload::DIFF_IN_MONTHS ){
+    if($diff_in_months > $months ){
         return true;
     }
     return false;

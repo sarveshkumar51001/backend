@@ -367,7 +367,7 @@ class ExcelValidator
                         $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Cheque/DD Details already used before.";
                     }
                 }
-                if(check_date_diff_in_months($payment['chequedd_date'])){
+                if(is_date_later_than_months($payment['chequedd_date'],ShopifyExcelUpload::DIFF_IN_MONTHS)){
                     $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Cheque/DD date is invalid. It should not exceed today's date by more than 3 months.";
                 }
                 } else if (in_array($mode, array_map('strtolower', $online_modes))) {
