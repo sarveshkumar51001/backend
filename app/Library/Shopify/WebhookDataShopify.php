@@ -24,6 +24,25 @@ class WebhookDataShopify
         return $product_data;
     }
 
+    public static function customer_data(Webhook $Webhook,$base_url)
+    {
+        $customer_data = array();
+        $data = $Webhook->body();
+
+        $customer_data['Customer Name'] = sprintf("<%sCustomers/%s | %s %s>", $base_url, $Webhook->body()['id'],$data['first_name'],$data['last_name']);
+        $customer_data['Email'] = "NA";
+        $customer_data['Phone'] = "NA";
+
+        if(!empty($data['email'])){
+            $customer_data['Email'] = $data['email'];
+        }
+        if(!empty($data['phone'])){
+            $customer_data['Phone'] = $data['phone'];
+        }
+
+        return $customer_data;
+    }
+
     public static function order_data(Webhook $Webhook)
     {
         $items = "";
