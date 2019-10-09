@@ -102,7 +102,11 @@
                                         @else
                                             {{ $row[$key] }}
                                         @endif
-                                        </span></td>
+                                        </span>
+                                        @if($key == 'job_status' && ($row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_PARTIALLY_REFUNDED || $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_CANCELED))
+                                            <div><a title="Refunded Amount: ₹ {{$row['refunded_amount']}}"><i class="fa fa-money fa-2x"></i></a></div>
+                                        @endif
+                                    </td>
                                 @endif
                             @else
                                 <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "></td>
