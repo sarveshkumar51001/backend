@@ -194,7 +194,7 @@ class DB
 	        throw new \Exception("More than one customer found with the email or mobile number provided.");
         }
 
-	    return (! empty($DBShopifyCustomer)) ? $DBShopifyCustomer->toArray() : [];
+	    return (! empty($DBShopifyCustomer)) ? head($DBShopifyCustomer->toArray()) : [];
     }
 
     public static function shopify_product_database_exists($product_sku) {
