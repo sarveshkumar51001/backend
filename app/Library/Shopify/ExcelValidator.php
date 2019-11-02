@@ -181,7 +181,7 @@ class ExcelValidator
                 "required",
                 Rule::in(Student::CLASS_LIST)
             ],
-            "section" => "required",
+            "section" => ["required",Rule::in(Student::SECTION_LIST)],
 
             // Parent Details
             "parent_first_name" => "required",

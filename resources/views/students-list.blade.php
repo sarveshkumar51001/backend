@@ -89,9 +89,9 @@
                     <div class="input-group">
                             <select name="section" class="form-control">
                             <option selected="selected" value="">Select Section </option>
-                                @for ($section = 'A'; $section <= 'J'; $section++)
+                                @foreach($Student::SECTION_LIST as $section)
                                     <option value="{{ $section }}" @if($section == old('section')) selected @endif> {{ $section }}</option>
-                                @endfor
+                                @endforeach
                             </select>
                         </div>
                     </div>
