@@ -1,7 +1,4 @@
 <?php
-
-use Carbon\Carbon;
-
 function get_product_price($productID) {
 	$Product = \App\Models\Product::where('product_id', $productID)->first();
 
@@ -85,10 +82,14 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
  */
 function get_iso_date_format($date){
 
-    $date = Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT,$date)
+    if(empty($date)) {
+       throw new \Exception("Date to be converted cannot be blank");
+    }
+
+    $iso_date = Carbon\Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT,$date)
                                                         ->setTime(0, 0, 0)
                                                         ->toIso8601String();
-    return $date;
+    return $iso_date;
 }
 
 function get_job_attempts($job_id) {

@@ -168,7 +168,7 @@ class Job
             }
 
             $processed_date = (new Job)->Payment_Process_Date($Data->HasInstallment(),$installment,$Data->GetEnrollmentDate());
-            $transaction_data = DataRaw::GetTransactionData($installment,$processed_date);
+            $transaction_data = DataRaw::GetTransactionData($installment, $processed_date);
 
             if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $installment['chequedd_date'])->timestamp > time())) {
                 continue;
@@ -204,30 +204,29 @@ class Job
         DB::mark_status_completed($Data->ID());
     }
 
-    private function Payment_Process_Date($type_installment,$installment,$enrollment_date){
+    private function Payment_Process_Date($type_installment,$installment,$enrollment_date) {
 
         // Returning enrollment date as processed at date in case of one time with oe without cheque date
-        if(!$type_installment){
+        if(!$type_installment) {
             $process_date = get_iso_date_format($enrollment_date);
-            return $process_date;
         }
-        else{
-            //Returning today's date in case it is later than the cheque date and vice versa.
-            if(!empty($installment['chequedd_date'])){
-
-                if(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp < time()){
+        else {
+            // If order is of type installment
+            if(!empty($installment['chequedd_date'])) {
+                // Returning today's date in case of PDC payment.
+                if(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT,$installment['chequedd_date'])->timestamp < time()) {
                     $process_date = Carbon::now()->toIso8601String();
-                    return $process_date;
-                }else{
+                } else {
+                    // Returning cheque date as process date
                     $process_date = get_iso_date_format($installment['chequedd_date']);
-                    return $process_date;
                 }
             }
-            else{
-                //Returning today's date in case of installment order if no cheque date found.
+            else {
+                // Returning today's date in case of installment order if no cheque date found.
                 $process_date = Carbon::now()->toIso8601String();
-                return $process_date;
             }
         }
+
+        return $process_date;
     }
 }

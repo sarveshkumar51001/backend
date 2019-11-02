@@ -185,7 +185,7 @@ class DataRaw
             "id" => $customer_id
         ];
 
-        $order_data['processed_at'] = get_iso_date_format($this->data['date_of_enrollment']);
+        $order_data['processed_at'] = get_iso_date_format($this->GetEnrollmentDate());
 
         $location = ShopifyExcelUpload::getSchoolLocation($this->data['delivery_institution'], $this->data['branch']);
 
@@ -318,7 +318,7 @@ class DataRaw
      *
      * @return array
      */
-    public static function GetTransactionData(array $installment,$process_date)
+    public static function GetTransactionData(array $installment, $process_date)
     {
 
         // Check if installment is empty or mode of payment is empty or installment is processed.
