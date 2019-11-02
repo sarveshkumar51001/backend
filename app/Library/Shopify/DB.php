@@ -177,7 +177,7 @@ class DB
             throw new \Exception("More than one customer found with the email or mobile number provided.");
         }
 
-        return head($unique_customer);
+        return (! empty($unique_customer)) ? head($unique_customer) : [];
     }
 
     # Not used
@@ -187,7 +187,14 @@ class DB
 
     public static function search_customer_in_database($email, $phone){
 	    $phone = '+91'.$phone;
-	    return ShopifyCustomer::where('email',$email)->orWhere('phone',$phone)->get()->toArray();
+
+	    $DBShopifyCustomer = ShopifyCustomer::where('email',$email)->orWhere('phone',$phone)->get();
+
+	    if(count($DBShopifyCustomer) > 1) {
+	        throw new \Exception("More than one customer found with the email or mobile number provided.");
+        }
+
+	    return (! empty($DBShopifyCustomer)) ? $DBShopifyCustomer->toArray() : [];
     }
 
     public static function shopify_product_database_exists($product_sku) {

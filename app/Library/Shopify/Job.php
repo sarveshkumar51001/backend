@@ -44,7 +44,7 @@ class Job
         $ShopifyCustomers = $ShopifyAPI->SearchCustomer($Data->GetPhone(), $Data->GetEmail());
 
         // If customer found using Shopify API
-        if(!empty($ShopifyCustomers)) {
+        if(! empty($ShopifyCustomers)) {
 
             // Getting unique customer by checking phone or email id in customer data fetched from API
             $ShopifyCustomer = DB::get_customer($ShopifyCustomers, $Data->GetPhone(), $Data->GetEmail());
@@ -69,6 +69,15 @@ class Job
                 if(!empty($ShopifyCustomerUpdateData)) {
                     $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $ShopifyCustomerUpdateData);
                 }
+            }
+        }
+
+        // If unique customer not found using Shopify API then search in local DB
+        if(empty($ShopifyCustomer)) {
+            $ShopifyCustomer = DB::search_customer_in_database($Data->GetEmail(),$Data->GetPhone());
+
+            if(! empty($ShopifyCustomer)) {
+                $shopifyCustomerId = $ShopifyCustomer['id'];
             }
         }
 
