@@ -45,6 +45,12 @@ return [
             'table' => 'cache',
             'connection' => null,
         ],
+        
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'table' => 'cache',
+            'connection' => null,
+        ],
 
         'file' => [
             'driver' => 'file',

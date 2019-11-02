@@ -77,10 +77,45 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
     return false;
 }
 
-function processed_date_format($date){
+/**
+ * Returns ISO date format from default date format
+ *
+ * @param $date
+ * @return string
+ */
+function get_iso_date_format($date){
 
     $date = Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT,$date)
                                                         ->setTime(0, 0, 0)
                                                         ->toIso8601String();
     return $date;
+}
+
+function get_job_attempts($job_id) {
+
+    if(Illuminate\Support\Facades\Cache::has($job_id)) {
+        $attempts = Illuminate\Support\Facades\Cache::get($job_id);
+    } else {
+        $attempts = job_attempted($job_id);
+    }
+
+    return (string) $attempts;
+}
+
+function job_attempted($job_id) {
+    $attempts = 0;
+
+    if(Illuminate\Support\Facades\Cache::has($job_id)) {
+        $attempts = Illuminate\Support\Facades\Cache::pull($job_id);
+    }
+
+    $attempts++;
+    Illuminate\Support\Facades\Cache::forever($job_id, $attempts);
+
+    return (string) $attempts;
+}
+
+function job_completed($job_id) {
+    $attempts = (string) Illuminate\Support\Facades\Cache::pull($job_id);
+    return $attempts;
 }

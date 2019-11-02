@@ -107,8 +107,8 @@ class DataRaw
     public function GetCustomerCreateData()
     {
         $customerData = [
-            "first_name" => $this->data["student_first_name"] . " " . $this->data["student_last_name"],
-            "last_name" => '(' . $this->data['school_enrollment_no'] . ')',
+            "first_name" => $this->data["parent_first_name"],
+            "last_name" => $this->data["parent_last_name"],
             "email" => $this->data["email_id"],
             "phone" => (string) $this->data["mobile_number"],
             "metafields" => [
@@ -185,7 +185,7 @@ class DataRaw
             "id" => $customer_id
         ];
 
-        $order_data['processed_at'] = processed_date_format($this->data['date_of_enrollment']);
+        $order_data['processed_at'] = get_iso_date_format($this->data['date_of_enrollment']);
 
         $location = ShopifyExcelUpload::getSchoolLocation($this->data['delivery_institution'], $this->data['branch']);
 

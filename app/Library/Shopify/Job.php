@@ -1,11 +1,11 @@
 <?php
 namespace App\Library\Shopify;
 
+use App\Models\ShopifyCustomer;
 use App\Models\ShopifyExcelUpload;
 use Exception;
 use Carbon\Carbon;
 use PHPShopify\Exception\ApiException;
-use Illuminate\Support\Arr;
 
 /**
  * Helper Job class
@@ -29,28 +29,106 @@ class Job
             return;
         }
 
+        $ShopifyAPI = new API();
         $variantID = DB::get_variant_id($Data->GetActivityID());
 
-        $ShopifyAPI = new API();
-        $customers = $ShopifyAPI->SearchCustomer($Data->GetPhone(), $Data->GetEmail());
+        if(empty($variantID)) {
+            throw new \Exception("Product [" . $Data->GetActivityID() . "] is either disabled or does not exists.");
+        }
 
-        if (empty($customers)) {
-            $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
-            $shopifyCustomerId = $new_customer['id'];
-        } else {
-            // Getting unique customer by checking phone or email id in customer
-            $unique_customer = DB::get_customer($customers, $Data->GetPhone(), $Data->GetEmail());
+        $ShopifyCustomer = [];
+        $shopifyCustomerId = 0;
+        $customers = [];
 
-            if (empty($unique_customer)) {
-                $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
-                $shopifyCustomerId = $new_customer['id'];
-            } else {
-                $shopifyCustomer = head($unique_customer);
-                $shopifyCustomerId = $shopifyCustomer['id'];
+        // Searching customer on Shopify using API
+        $ShopifyCustomers = $ShopifyAPI->SearchCustomer($Data->GetPhone(), $Data->GetEmail());
 
-                $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $Data->GetCustomerUpdateData($shopifyCustomer));
+        // If customer found using Shopify API
+        if(! empty($ShopifyCustomers)) {
+
+            // Getting unique customer by checking phone or email id in customer data fetched from API
+            $ShopifyCustomer = DB::get_customer($ShopifyCustomers, $Data->GetPhone(), $Data->GetEmail());
+
+            // If unique customer found
+            if (! empty($ShopifyCustomer)) {
+                // Use the fetched unique customer for order creation
+                $shopifyCustomerId = $ShopifyCustomer['id'];
+
+                $CustomerUpdateData = $Data->GetCustomerUpdateData($ShopifyCustomer);
+
+                $ShopifyCustomerUpdateData = [];
+
+                // Checking if any field needs to be updated in Shopify
+                foreach ($CustomerUpdateData as $key => $value) {
+                    if($ShopifyCustomer[$key] != $value) {
+                        $ShopifyCustomerUpdateData[$key] = $value;
+                    }
+                }
+
+                // Update data in Shopify if not already updated
+                if(!empty($ShopifyCustomerUpdateData)) {
+                    $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $ShopifyCustomerUpdateData);
+                }
             }
         }
+
+        // If unique customer not found using Shopify API then search in local DB
+        if(empty($ShopifyCustomer)) {
+            $ShopifyCustomer = DB::search_customer_in_database($Data->GetEmail(),$Data->GetPhone());
+
+            if(! empty($ShopifyCustomer)) {
+                $shopifyCustomerId = $ShopifyCustomer['id'];
+            }
+        }
+
+        // Checking if shopify customer not found from Shopify and local DB
+        // then create new customer in Shopify
+        if(empty($ShopifyCustomer)) {
+            $newShopifyCustomer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
+            $shopifyCustomerId = $newShopifyCustomer['id'];
+
+            // Create Customer in local DB if new customer is created in Shopify
+            ShopifyCustomer::create($newShopifyCustomer);
+
+        }
+
+
+
+//        if(empty($DBcustomer)) {
+//            $customers = $ShopifyAPI->SearchCustomer($Data->GetPhone(), $Data->GetEmail());
+//        } else {
+//            $shopify_customer = head($DBcustomer);
+//            $shopifyCustomerId = $shopify_customer['id'];
+//        }
+//
+//        # If no customer found in search from shopify then create the customer and add in database
+//        if(empty($shopifyCustomerId)) {
+//            if (empty($customers)) {
+//                $shopify_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
+//                $shopifyCustomerId = $shopify_customer['id'];
+//            } else {
+//                # Getting unique customer by checking phone or email id in customer data fetched from API
+//                $unique_customer = DB::get_customer($customers, $Data->GetPhone(), $Data->GetEmail());
+//
+//                # If no unique customer found then create the customer else fetch the unique customer for order creation
+//                if (empty($unique_customer)) {
+//                    $shopify_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
+//                    $shopifyCustomerId = $shopify_customer['id'];
+//                } else {
+//                    $shopify_customer = head($unique_customer);
+//                    $shopifyCustomerId = $shopify_customer['id'];
+//
+//                    $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $Data->GetCustomerUpdateData($shopify_customer));
+//                }
+//            }
+//        }
+//        # Create document for the customer in database
+//        if(isset($shopify_customer)){
+//            ShopifyCustomer::create($shopify_customer);
+//        }
+
+
+
 
         // Check 3: Make sure by now we have customer id
         if (empty($shopifyCustomerId)) {
@@ -66,7 +144,7 @@ class Job
         if (empty($Data->GetOrderID())) {
 
             if (!DB::check_inventory_status($variantID)) {
-                throw new \Exception("Product [" . $Data->GetActivityID() . "] is either out of stock or is disabled.");
+                throw new \Exception("Product [" . $Data->GetActivityID() . "] is out of stock.");
             }
             $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
 
@@ -130,7 +208,7 @@ class Job
 
         // Returning enrollment date as processed at date in case of one time with oe without cheque date
         if(!$type_installment){
-            $process_date = processed_date_format($enrollment_date);
+            $process_date = get_iso_date_format($enrollment_date);
             return $process_date;
         }
         else{
@@ -141,7 +219,7 @@ class Job
                     $process_date = Carbon::now()->toIso8601String();
                     return $process_date;
                 }else{
-                    $process_date = processed_date_format($installment['chequedd_date']);
+                    $process_date = get_iso_date_format($installment['chequedd_date']);
                     return $process_date;
                 }
             }

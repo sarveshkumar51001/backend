@@ -63,7 +63,9 @@ class ExcelValidator
         foreach ($this->FileFormattedData as $index => $data) {
             $this->row_no ++;
 
-            if ($this->ValidateDuplicateRow($data) || $validation_error = $this->ValidateData($data)) {
+            $validation_error = $this->ValidateData($data);
+
+            if ($this->ValidateDuplicateRow($data) || $validation_error) {
                 if ($validation_error) {
                     $sheet_has_column_validation_error = true;
                 }
@@ -151,7 +153,8 @@ class ExcelValidator
             'Rama Mandi',
             'Saket',
             'Sheikh Sarai',
-            'Tanda Road'
+            'Tanda Road',
+            'Model Town'
         ];
 
         $rules = [
