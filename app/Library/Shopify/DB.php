@@ -7,6 +7,7 @@ use App\Models\ShopifyExcelUpload;
 use App\Models\Product;
 use App\User;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 
 class DB
@@ -18,13 +19,18 @@ class DB
 	 * @return int
 	 */
 	public static function get_variant_id($activity_id) {
-	    $variants =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants']);
+	    try {
+            $variants =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants']);
+        } catch (ModelNotFoundException $e) {
+            return ;
+        }
 
 	    foreach($variants['variants'] as $variant){
 	        if($variant['sku'] == $activity_id){
 	            return (string) $variant['id'];
             }
         }
+
 	    return;
 	}
 
