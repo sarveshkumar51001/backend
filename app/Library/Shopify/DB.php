@@ -2,7 +2,7 @@
 
 namespace App\Library\Shopify;
 
-use App\Models\Customer;
+use App\Models\ShopifyCustomer;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Product;
 use App\User;
@@ -171,7 +171,7 @@ class DB
             throw new \Exception("More than one customer found with the email or mobile number provided.");
         }
 
-        return $unique_customer;
+        return head($unique_customer);
     }
 
     # Not used
@@ -181,7 +181,7 @@ class DB
 
     public static function search_customer_in_database($email, $phone){
 	    $phone = '+91'.$phone;
-	    return Customer::where('email',$email)->orWhere('phone',$phone)->get()->toArray();
+	    return ShopifyCustomer::where('email',$email)->orWhere('phone',$phone)->get()->toArray();
     }
 
     public static function shopify_product_database_exists($product_sku) {
