@@ -70,6 +70,7 @@ class Student extends Base
         "MA",
         "BOD",
         "BCOM",
+        "BTECH",
         "MCOM",
         "BBA",
         "MBA",
