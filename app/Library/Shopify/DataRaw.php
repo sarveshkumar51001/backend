@@ -180,7 +180,7 @@ class DataRaw
             "id" => $customer_id
         ];
 
-        $location = ShopifyExcelUpload::getSchoolLocation($this->data['delivery_institution'], $this->data['branch']);
+        $location = ShopifyExcelUpload::getLocation($this->data['delivery_institution'], $this->data['branch']);
 
         $order_data['billing_address'] = [
             "first_name" => $this->data['parent_first_name'],

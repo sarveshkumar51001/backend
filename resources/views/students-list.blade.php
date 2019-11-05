@@ -76,7 +76,8 @@
                 <div class="input-group">
                     <select name="class" class="form-control" required="required">
                         <option selected="selected" value="">Select Class </option>
-                    @foreach ($Student::CLASS_LIST as $class)
+                        @php $class_list = array_merge(App\Models\Student::CLASS_LIST,App\Models\Student::HIGHER_CLASS_LIST)@endphp
+                    @foreach ($class_list as $class)
                         <option value="{{ $class }}" @if($class == old('class')) selected @endif> {{ $class }}</option>
                     @endforeach
                 </select>
@@ -89,7 +90,8 @@
                     <div class="input-group">
                             <select name="section" class="form-control">
                             <option selected="selected" value="">Select Section </option>
-                                @foreach($Student::SECTION_LIST as $section)
+                                @php $section_list = array_merge(App\Models\Student::SECTION_LIST,App\Models\Student::HIGHER_SECTION_LIST)@endphp
+                                @foreach($section_list as $section)
                                     <option value="{{ $section }}" @if($section == old('section')) selected @endif> {{ $section }}</option>
                                 @endforeach
                             </select>

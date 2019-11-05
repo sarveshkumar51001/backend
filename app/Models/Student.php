@@ -51,33 +51,12 @@ class Student extends Base
 
     const PHONE = "phone";
 
-    const CLASS_LIST = [
-        "Nursery",
-        "KG",
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        "BA",
-        "MA",
-        "BOD",
-        "BCOM",
-        "BTECH",
-        "MCOM",
-        "BBA",
-        "MBA",
-        "BSC",
-        "BVOC",
-    ];
+    const CLASS_LIST = ["Nursery", "KG", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-    const SECTION_LIST = [
-        "A","B","C","D","E","F","G","H","I","J","Sem 1","Sem 2","Sem 3","Sem 4","Sem 5","Sem 6","Sem 7","Sem 8"];
+    const HIGHER_CLASS_LIST = ["BA","MA","BOD","BCOM","BTECH","MCOM","BBA","MBA","BSC","BVOC"];
+
+    const SECTION_LIST = ["A","B","C","D","E","F","G","H","I","J"];
+
+    const HIGHER_SECTION_LIST = ["Sem 1","Sem 2","Sem 3","Sem 4","Sem 5","Sem 6","Sem 7","Sem 8"];
+
 }
