@@ -3,10 +3,10 @@
     <title>Backend App Documentation</title>
     <parser>
         <default-package-name>Backend App</default-package-name>
-        <target>./storage/docs/phpDocumentor/files</target>
+        <target>./public/docs/files</target>
     </parser>
     <transformer>
-        <target>./storage/docs/phpDocumentor/files</target>
+        <target>./public/docs/files</target>
     </transformer>
     <files>
         <directory>app</directory>
