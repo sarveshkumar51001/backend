@@ -54,7 +54,9 @@
 		"post-create-project-cmd" : "@php artisan key:generate --ansi",
 		"post-autoload-dump" : [
 			"Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-			"@php artisan package:discover --ansi"
+			"@php artisan package:discover --ansi",
+            "@php \"./storage/docs/phpDocumentor/phpDocumentor.phar\"",
+            "@php \"./storage/docs/sami/sami.phar\" update \"./storage/docs/sami/sami.php\""
 		]
 	},
 	"config" : {
