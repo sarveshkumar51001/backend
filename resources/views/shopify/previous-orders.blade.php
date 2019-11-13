@@ -27,7 +27,8 @@
                     <hr class="m-0">
                     <div class="row">
                         @php $total = $total_txn = 0 @endphp
-                        @foreach(\App\Models\ShopifyExcelUpload::$modesTitle as $id => $title)
+                        @php $mode_array = \Illuminate\Support\Arr::except(\App\Models\ShopifyExcelUpload::$modesTitle,\App\Models\ShopifyExcelUpload::MODE_ONLINE); @endphp
+                        @foreach($mode_array as $id => $title)
                             @php
                                 $total += ($metadata[$id]['total'] ?? 0);
                                 $total_txn += ($metadata[$id]['count'] ?? 0);
