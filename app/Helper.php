@@ -83,7 +83,7 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
 function get_iso_date_format($date){
 
     if(empty($date)) {
-       throw new \Exception("Date to be converted cannot be blank");
+       throw new \Exception("Blank Date cannot be converted to ISO format");
     }
 
     $iso_date = Carbon\Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT,$date)

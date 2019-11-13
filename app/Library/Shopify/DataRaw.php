@@ -2,6 +2,7 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use Carbon\Carbon;
 
 class DataRaw
 {
@@ -373,5 +374,27 @@ class DataRaw
         ];
 
         return $order_details;
+    }
+
+    /**
+     * @param $installment
+     * @return string
+     * @throws \Exception
+     */
+    public function GetPaymentProcessDate($installment) {
+
+        // Initializing payment process date to enrollment date
+        $payment_process_date = get_iso_date_format($this->GetEnrollmentDate());
+
+        // If payment type is cheque/DD.
+        if(! empty($installment['chequedd_date'])) {
+            $payment_process_date = get_iso_date_format($installment['chequedd_date']);
+        } elseif($this->HasInstallment()) {
+            // If payment type is installment and payment method if not cheque/DD.
+            // then make today's date as payment process date
+            $payment_process_date = Carbon::now()->toIso8601String();
+        }
+
+        return $payment_process_date;
     }
 }
