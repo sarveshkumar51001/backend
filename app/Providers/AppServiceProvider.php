@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
             }
         });
         Validator::extend('amount', function($attribute, $value, $parameters) {
-            if(preg_match('/^\d+.?\d{2}$/',$value)){
+            if(preg_match('/^\d+(.\d{1,2})?$/',$value)){
                 return true;
             } else{
                 return false;
