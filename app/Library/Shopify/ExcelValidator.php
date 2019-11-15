@@ -138,7 +138,6 @@ class ExcelValidator
 
     private function ValidateData(array $data)
     {
-        $valid_branch_names = array_keys(ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING["Apeejay"]);
 
         $rules = [
             // Activity Details
@@ -150,7 +149,7 @@ class ExcelValidator
             "delivery_institution" => "required",
             "branch" => [
                 "required",
-                Rule::in($valid_branch_names)
+                Rule::in(ShopifyExcelUpload::getBranchNames())
             ],
             "external_internal" => "required",
 
