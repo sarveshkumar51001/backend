@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Exception\PHPExcel_Exception;
 use App\Imports\ShopifyOrdersImport;
+use Maatwebsite\Excel\HeadingRowImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 class ShopifyController extends BaseController
@@ -83,20 +84,18 @@ class ShopifyController extends BaseController
 
         // Loading the excel file
         try {
-            $rows = Excel::toArray(new ShopifyOrdersImport(), $path->getRealPath());
-            dd($rows);
-            //$ExlReader = Excel::load($path->getRealPath())->get()->first();
-        } catch (\PHPExcel_Exception $e) {
+            $rows = array_first(Excel::toArray(new ShopifyOrdersImport(), $path->getRealPath()));
+            $headers = array_keys(array_first($rows));
+        } catch (\Exception $e) {
             return back()->withErrors(['The uploaded file seems invalid. Please download the latest sample file.']);
         }
 
         // Create Excel Raw object
-        if (empty($ExlReader->getHeading())) {
+        if (empty($headers)) {
             return back()->withErrors(['No data was found in the uploaded file']);
         }
-
-        $header = $ExlReader->first()->keys()->toArray();
-        $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
+        
+        $ExcelRaw = (new \App\Library\Shopify\Excel($headers, $rows, [
             'upload_date' => $request['date'],
             'uploaded_by' => Auth::user()->id,
             'file_id' => $file_id,
@@ -229,8 +228,7 @@ class ShopifyController extends BaseController
             ->with('headers', $ExcelRaw->GetFormattedHeader());
     }
 
-    public function previous_uploads()
-    {
+    public function previous_uploads() {
         $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Previous uploads' => ''];
 
         $Uploads = Upload::where('user_id', Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->get();

@@ -23,6 +23,7 @@ class Excel
 		'branch' => 'Branch',
 		'external_internal' => 'External/ Internal',
 		'school_name' => 'School Name',
+        'student_school_location' => 'School Location',
 		'student_first_name' => 'Student first name',
 		'student_last_name' => 'Student last name',
 		'activity' => 'Activity',
@@ -66,6 +67,7 @@ class Excel
 		'branch' => 'Branch',
 		'external_internal' => 'External/Internal',
 		'school_name' => 'School',
+        'student_school_location' => 'School Location',
 		'student_first_name' => 'Student first name',
 		'student_last_name' => 'Student last name',
 		'activity' => 'Activity',
@@ -135,8 +137,10 @@ class Excel
 					$new_slice['processed'] = 'No';
 					$new_slice['errors'] = "";
 					$new_slice['upload_date'] = time();
-					if ($offset_value == 21) {
-						$new_slice['type'] = ShopifyExcelUpload::TYPE_ONETIME;
+                    $new_slice['is_pdc_payment'] = false;
+
+					if ($offset_value == 22) {
+					    $new_slice['type'] = ShopifyExcelUpload::TYPE_ONETIME;
 					} else {
 						$new_slice['type'] = ShopifyExcelUpload::TYPE_INSTALLMENT;
 					}
@@ -183,6 +187,7 @@ class Excel
 				} else {
 					unset($data['payments'][$index]);
 				}
+
 			}
 
 			$data['order_type']  = $hasInstallment ? ShopifyExcelUpload::TYPE_INSTALLMENT : ShopifyExcelUpload::TYPE_ONETIME;
@@ -204,7 +209,7 @@ class Excel
 	public function GetRawHeaders() {
 		return $this->rawHeader;
 	}
-	
+
 	public function GetExcelHeaders() {
 	    $excel_headers = [
 	        'sno',
@@ -298,7 +303,7 @@ class Excel
 	        'paid',
 	        'pdc_collected',
 	        'pdc_to_be_collected'];
-	    
+
 	    return $excel_headers;
 	}
 }
