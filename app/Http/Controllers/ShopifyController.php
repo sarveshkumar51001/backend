@@ -94,7 +94,7 @@ class ShopifyController extends BaseController
         if (empty($headers)) {
             return back()->withErrors(['No data was found in the uploaded file']);
         }
-        
+
         $ExcelRaw = (new \App\Library\Shopify\Excel($headers, $rows, [
             'upload_date' => $request['date'],
             'uploaded_by' => Auth::user()->id,
@@ -140,6 +140,14 @@ class ShopifyController extends BaseController
                     ->first();
 
                 if (empty($OrderRow)) {
+
+                    // Set PDC Payment Status to true if mode of payment is empty
+                    foreach ($valid_row['payments'] as $index => $payment) {
+                        if (empty($payment['mode_of_payment'])) {
+                            $valid_row['payments'][$index]['is_pdc_payment'] = true;
+                        }
+                    }
+
                     $upsertList[] = $valid_row;
                 } else {
                     $existingPaymentData = $OrderRow->payments;
@@ -151,6 +159,13 @@ class ShopifyController extends BaseController
                          */
                         if ($existingPaymentData[$index]['processed'] == 'No') {
                             $existingPaymentData[$index] = $payment;
+                        }
+
+                        // Set PDC Payment Status to false if payment is received and vice versa.
+                        if (!empty($existingPaymentData[$index]['mode_of_payment'])) {
+                            $existingPaymentData[$index]['is_pdc_payment'] = false;
+                        } else {
+                            $existingPaymentData[$index]['is_pdc_payment'] = true;
                         }
                     }
 
@@ -216,7 +231,7 @@ class ShopifyController extends BaseController
             if (!empty($objectIDList)) {
                 // Finally dispatch the data into queue for processing
                 foreach (ShopifyExcelUpload::findMany($objectIDList) as $Object) {
-                    ShopifyOrderCreation::dispatch($Object);
+                    ShopifyOrderCreation::dispatch($Object)->onQueue('low');
                 }
             }
         }
@@ -228,7 +243,8 @@ class ShopifyController extends BaseController
             ->with('headers', $ExcelRaw->GetFormattedHeader());
     }
 
-    public function previous_uploads() {
+    public function previous_uploads()
+    {
         $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Previous uploads' => ''];
 
         $Uploads = Upload::where('user_id', Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->get();
