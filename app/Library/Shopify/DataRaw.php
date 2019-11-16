@@ -102,8 +102,8 @@ class DataRaw
     public function GetCustomerCreateData()
     {
         $customerData = [
-            "first_name" => $this->data["student_first_name"] . " " . $this->data["student_last_name"],
-            "last_name" => '(' . $this->data['school_enrollment_no'] . ')',
+            "first_name" => $this->data["parent_first_name"],
+            "last_name" => $this->data["parent_last_name"],
             "email" => $this->data["email_id"],
             "phone" => (string) $this->data["mobile_number"],
             "metafields" => [
@@ -257,7 +257,7 @@ class DataRaw
                 ];
             }
         }
-        
+
         if($shopifyCustomer['phone'] != "+91". $this->data['mobile_number']) {
             $customer_data += [
                 'phone' => (string) $this->data['mobile_number']
