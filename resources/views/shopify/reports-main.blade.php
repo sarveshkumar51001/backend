@@ -26,57 +26,46 @@
                 {{ csrf_field() }}
                 <div class="col-sm">
                     <div class="input-group">
-                        <button id="file-upload-btn" type="submit" class="btn btn-group-sm btn-secondary" style="position: absolute; bottom: -65px; right: 260px;">View</button>
+                        <button id="file-upload-btn" type="submit" class="btn btn-group-sm btn-outline-success" style="position: absolute; bottom: -65px; right: 260px;">View</button>
                     </div>
                 </div>
             </div>
         </div>
     </form>
-        <a href="{{ route('bulkupload.download_reports',['download'=>'pdf']) }}">Download PDF</a>
+        <a href="{{ route('bulkupload.download_report',['download'=>'pdf']) }}">Download PDF</a>
     </div>
     @if(!empty($report_data))
     <div class="card">
         <table class="table table-bordered table-striped table-sm datatable table-responsive">
             <thead>
-            @foreach(\App\Library\Shopify\Excel::$headerViewMap as $header)
-                <td><strong>{{ $header }}</strong></td>
-            @endforeach
+            <tr>
+                <th>Upload Date</th>
+                <th>Enrollment Date</th>
+                <th>Student Enrollment No.</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>School</th>
+                <th>Activity</th>
+                <th>Activity Fee</th>
+                <th>Scholarship/Discount</th>
+                <th>Amount Paid</th>
+                <th>Payment Type</th>
+            </tr>
             </thead>
             <tbody>
             @foreach($report_data as $row)
                 <tr>
-                    @foreach(\App\Library\Shopify\Excel::$headerViewMap as $key => $header)
-                        @if(isset($row[$key]))
-                            @if(is_array($row[$key]))
-                                <td>
-                                    {{ $key == 'errors' ? json_encode($row[$key]) : count($row[$key]) }}
-                                </td>
-                            @else
-                                <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "><span class="
-
-                                    @if($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_PENDING)
-                                        badge badge-warning
-                                    @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_COMPLETED)
-                                        badge badge-success
-                                    @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_FAILED)
-                                        badge badge-danger
-                                    @endif ">
-                                        @if($key == 'order_id')
-                                            <div>
-                                            <strong onclick="render_upload_details('{{$row['_id']}}');" class="text-muted aside-menu-toggler" style="cursor: pointer"><a title="Payment Details"><i class="fa fa-money fa-2x"></i></a>&nbsp; </strong>
-                                        </div>
-                                            @if(!$row['order_id'] == 0)
-                                                <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}">View <i class="fa fa-external-link"></i></a>
-                                            @endif
-                                        @else
-                                            {{ $row[$key] }}
-                                        @endif
-                                        </span></td>
-                            @endif
-                        @else
-                            <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "></td>
-                        @endif
-                    @endforeach
+                    <td>{{$row['upload_date']}}</td>
+                    <td>{{$row['date_of_enrollment']}}</td>
+                    <td>{{$row['school_enrollment_no']}}</td>
+                    <td>{{$row['mobile_number']}}</td>
+                    <td>{{$row['email_id']}}</td>
+                    <td>{{$row['school_name']}}</td>
+                    <td>{{$row['activity']}} ({{$row['shopify_activity_id']}})</td>
+                    <td>{{$row['activity_fee']}}</td>
+                    <td>{{$row['scholarship_discount']}}</td>
+                    <td>{{array_sum(array_column($row['payments'],'amount'))}}</td>
+                    <td>{{$row['order_type']}}</td>
                 </tr>
             @endforeach
             </tbody>

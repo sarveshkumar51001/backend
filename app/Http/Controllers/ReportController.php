@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\ShopifyExcelUpload;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Knp\Snappy\Pdf;
+use PDF;
+
+
 
 Class ReportController extends BaseController
 {
@@ -24,12 +26,11 @@ Class ReportController extends BaseController
 
         if ($request->has('download')) {
 
-            $pdf = Pdf::loadView('shopify.reports-main', $report_data);
+            $pdf = PDF::loadview('reports.rm-enrollment-report', $report_data);
 
             return $pdf->download('sample.pdf');
         }
 
         return view('shopify.reports-main')->with('report_data', $report_data);
-
     }
 }
