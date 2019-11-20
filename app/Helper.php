@@ -32,7 +32,7 @@ function end_of_day(string $date) {
  * @param string $title
  * @return \App\Library\Slack\Slack
  */
-function slack($data, string $title = null)
+function slack($data = array(), string $title = null)
 {
     return new \App\Library\Slack\Slack($data, $title);
 }
@@ -72,4 +72,33 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
         }
     }
     return false;
+}
+
+function get_job_attempts($job_id) {
+    
+    if(Illuminate\Support\Facades\Cache::has($job_id)) {
+        $attempts = Illuminate\Support\Facades\Cache::get($job_id);
+    } else {
+        $attempts = job_attempted($job_id);
+    }
+    
+    return (string) $attempts;
+}
+
+function job_attempted($job_id) {
+    $attempts = 0;
+
+    if(Illuminate\Support\Facades\Cache::has($job_id)) {
+        $attempts = Illuminate\Support\Facades\Cache::pull($job_id);
+    } 
+    
+    $attempts++;
+    Illuminate\Support\Facades\Cache::forever($job_id, $attempts);
+    
+    return (string) $attempts;
+}
+
+function job_completed($job_id) {
+    $attempts = (string) Illuminate\Support\Facades\Cache::pull($job_id);
+    return $attempts;
 }

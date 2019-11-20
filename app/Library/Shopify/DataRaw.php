@@ -102,8 +102,8 @@ class DataRaw
     public function GetCustomerCreateData()
     {
         $customerData = [
-            "first_name" => $this->data["student_first_name"] . " " . $this->data["student_last_name"],
-            "last_name" => '(' . $this->data['school_enrollment_no'] . ')',
+            "first_name" => $this->data["parent_first_name"],
+            "last_name" => $this->data["parent_last_name"],
             "email" => $this->data["email_id"],
             "phone" => (string) $this->data["mobile_number"],
             "metafields" => [
@@ -143,7 +143,8 @@ class DataRaw
                     "value_type" => "string",
                     "namespace" => "student-info"
                 ]
-            ]
+            ],
+            "tags" => "backend-app"
         ];
 
         return $customerData;
@@ -152,7 +153,7 @@ class DataRaw
     /**
      *
      * @param int $productVariantID
-     * @param array $customer_id
+     * @param int $customer_id
      *
      * @return array
      * @throws \Exception
@@ -215,12 +216,12 @@ class DataRaw
         $tags_array[] = 'backend-app';
         $tags_array[] = $this->data['external_internal'];
 
+        if (strtolower($this->data['order_type']) == 'installment') {
+            $tags_array[] = 'installments';
+        }
+
         $tags = implode(',', $tags_array);
         $order_data['tags'] = $tags;
-
-        if (strtolower($this->data['order_type']) == 'installment') {
-            $order_data['tags'] .= ",installments";
-        }
 
         $order_data['transactions'] = [
             [
@@ -234,14 +235,44 @@ class DataRaw
         return $order_data;
     }
 
-    public function GetCustomerUpdateData()
+    /**
+     * Returns Shopify customer fields which need to be updated.
+     *
+     * @param array $shopifyCustomer
+     * @return array
+     */
+    public function GetCustomerUpdateData($shopifyCustomer)
     {
-        $customer_data = [
-            "first_name" => $this->data['parent_first_name'],
-            "last_name" => $this->data['parent_last_name'],
-            "email" => $this->data["email_id"],
-            "phone" => (string) $this->data["mobile_number"]
-        ];
+        $customer_data = [];
+
+        $update_customer_mappings = array(
+            "first_name" => "parent_first_name",
+            "last_name" => "parent_last_name"
+        );
+
+        foreach ($update_customer_mappings as $shopify_key => $excel_key) {
+            if ($shopifyCustomer[$shopify_key] != $this->data[$excel_key]) {
+                $customer_data += [
+                    $shopify_key => (string) $this->data[$excel_key]
+                ];
+            }
+        }
+
+        if($shopifyCustomer['phone'] != "+91". $this->data['mobile_number']) {
+            $customer_data += [
+                'phone' => (string) $this->data['mobile_number']
+            ];
+        }
+
+        $tags_array = [];
+        $tags_array = explode(',', $shopifyCustomer['tags']);
+        if (! in_array('backend-app', $tags_array)) {
+            $tags_array[] = 'backend-app';
+            $customer_data += [
+                'tags' => $tags_array
+            ];
+        }
+
         return $customer_data;
     }
 
