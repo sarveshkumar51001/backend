@@ -25,8 +25,7 @@ Class ReportController extends BaseController
         $report_data = ShopifyExcelUpload::where('uploaded_by', Auth::id())->whereBetween('payments.upload_date', [$start_date, $end_date])->get()->toArray();
 
         if ($request->has('download')) {
-
-            $pdf = PDF::loadview('reports.rm-enrollment-report', $report_data);
+            $pdf = PDF::loadview('reports.rm-enrollment-report', ['report_data' => $report_data]);
 
             return $pdf->download('sample.pdf');
         }

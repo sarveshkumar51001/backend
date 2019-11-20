@@ -1,12 +1,4 @@
-@extends('admin.app')
-
-@section('content')
-
-    <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <style>
+<style>
             @page {
                 margin: 0.25cm;
                 margin-bottom: 1cm;
@@ -35,11 +27,6 @@
             tfoot { display: table-row-group }
             tr { page-break-inside: avoid }
         </style>
-    </head>
-
-    <body style="background-color: white; font-size:14pt;">
-    <div>
-
 <div class="card">
         <table class="table table-bordered table-striped table-sm datatable table-responsive">
             <thead>
@@ -76,5 +63,3 @@
     </tbody>
     </table>
     </div>
-
-    @endsection
