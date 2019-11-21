@@ -266,4 +266,13 @@ class ShopifyExcelUpload extends Base
         }
         return false;
     }
+
+    /**
+     * Returns array of school branches from school address mapping
+     *
+     * @return array
+     */
+    public static function getBranchNames() {
+        return array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]);
+    }
 }

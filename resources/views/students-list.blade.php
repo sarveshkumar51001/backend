@@ -59,8 +59,8 @@
             <div class="input-group">
                 <select name="school-name" class="form-control" required="required">
                 <option selected="selected" value="">Select School </option>
-                @foreach ($Student::SCHOOL_LIST as $school)
-                    <option value="{{ $school }}" @if($school == old('school-name')) selected @endif> {{ $school }}</option>
+                @foreach (App\Models\ShopifyExcelUpload::getBranchNames() as $school)
+                    <option value="{{ $school }}" @if($school == old('school-name')) selected @endif> Apeejay {{ $school }}</option>
                 @endforeach
                 </select>
             </div>

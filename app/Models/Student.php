@@ -10,25 +10,6 @@ class Student extends Base
 
     protected $guarded = [];
 
-    const SCHOOL_LIST = [
-        "Apeejay Sheikh Sarai",
-        "Apeejay Sheikh Sarai International",
-        "Apeejay Pitampura",
-        "Apeejay Saket",
-        "Apeejay Noida",
-        "Apeejay Nerul",
-        "Apeejay Kharghar",
-        "Apeejay Faridabad 15",
-        "Apeejay Faridabad 21D",
-        "Apeejay Charkhi Dadri",
-        "Apeejay Mahavir Marg",
-        "Apeejay Rama Mandi",
-        "Apeejay Tanda Road",
-        "Apeejay Greater Noida",
-        "Apeejay Greater Kailash",
-        "Apeejay Model Town"
-    ];
-
     const SCHOOL = "school_name";
 
     const STUDENT_CLASS = "class";

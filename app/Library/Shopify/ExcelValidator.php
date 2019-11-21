@@ -138,33 +138,6 @@ class ExcelValidator
 
     private function ValidateData(array $data)
     {
-        $valid_branch_names = [
-            'Faridabad 15',
-            'Charkhi Dadri',
-            'Faridabad 21D',
-            'Sheikh Sarai International',
-            'Greater Kailash',
-            'Greater Noida',
-            'Mahavir Marg',
-            'Kharghar',
-            'Nerul',
-            'Noida',
-            'Pitampura',
-            'Rama Mandi',
-            'Saket',
-            'Sheikh Sarai',
-            'Tanda Road',
-            'Model Town',
-            'ACFA Mahavir Marg',
-            'AIMTC Rama Mandi',
-            'AID New Delhi',
-            'AIMC Dwarka',
-            'ASM Dwarka',
-            'AITCS Greater Noida',
-            'AITSM Greater Noida',
-            'AITSAP Greater Noida"',
-            'SPGC Charkhi Dadri'
-        ];
 
         $rules = [
             // Activity Details
@@ -176,7 +149,7 @@ class ExcelValidator
             "delivery_institution" => "required",
             "branch" => [
                 "required",
-                Rule::in($valid_branch_names)
+                Rule::in(ShopifyExcelUpload::getBranchNames())
             ],
             "external_internal" => "required",
 
