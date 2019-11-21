@@ -2,10 +2,12 @@
 
 namespace App\Library\Shopify;
 
+use App\Models\ShopifyCustomer;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Product;
 use App\User;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 
 class DB
@@ -17,13 +19,18 @@ class DB
 	 * @return int
 	 */
 	public static function get_variant_id($activity_id) {
-	    $variants =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants']);
+	    try {
+            $variants =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants']);
+        } catch (ModelNotFoundException $e) {
+            return ;
+        }
 
 	    foreach($variants['variants'] as $variant){
 	        if($variant['sku'] == $activity_id){
 	            return (string) $variant['id'];
             }
         }
+
 	    return;
 	}
 
@@ -77,11 +84,12 @@ class DB
 	 *
 	 * @return mixed
 	 */
-	public static function mark_installment_status_processed($_id, $number) {
+	public static function mark_installment_status_processed($_id, $transaction_id , $number) {
 		$installment_index = sprintf("payments.%s.processed", $number);
 		$order_update_node = sprintf("payments.%s.order_update_at", $number);
+		$transaction_id_node = sprintf("payments.%s.transaction_id",$number);
 
-		return ShopifyExcelUpload::find($_id)->update([$installment_index => 'Yes', $order_update_node => time()]);
+		return ShopifyExcelUpload::find($_id)->update([$installment_index => 'Yes', $order_update_node => time(),$transaction_id_node => $transaction_id]);
 	}
 
 	public static function populate_error_in_payments_array($_id,$number,$error){
@@ -170,13 +178,25 @@ class DB
             throw new \Exception("More than one customer found with the email or mobile number provided.");
         }
 
-        return $unique_customer;
+        return (! empty($unique_customer)) ? head($unique_customer) : [];
     }
 
     # Not used
     // public static function check_shopify_activity_id_in_database($product_sku){
     // 	return \DB::table('shopify_products')->where('variants.sku', $product_sku)->exists();
     // }
+
+    public static function search_customer_in_database($email, $phone){
+	    $phone = '+91'.$phone;
+
+	    $DBShopifyCustomer = ShopifyCustomer::where('email',$email)->orWhere('phone',$phone)->get();
+
+	    if(count($DBShopifyCustomer) > 1) {
+	        throw new \Exception("More than one customer found with the email or mobile number provided.");
+        }
+
+	    return (! empty($DBShopifyCustomer)) ? head($DBShopifyCustomer->toArray()) : [];
+    }
 
     public static function shopify_product_database_exists($product_sku) {
     	return Product::ActiveProduct()->where('variants.sku', $product_sku)->exists();

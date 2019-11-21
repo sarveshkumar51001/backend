@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdocumentor>
+    <title>Backend App Documentation</title>
+    <parser>
+        <default-package-name>Backend App</default-package-name>
+        <target>./public/docs/phpDocumentor</target>
+    </parser>
+    <transformer>
+        <target>./public/docs/phpDocumentor</target>
+    </transformer>
+    <files>
+        <directory>app</directory>
+    </files>
+    <plugins>
+        <plugin path="Core" />
+    </plugins>
+    <transformations>
+        <template name="clean" />
+    </transformations>
+</phpdocumentor>
