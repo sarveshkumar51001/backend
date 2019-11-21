@@ -89,7 +89,6 @@ class Job
 
             // Create Customer in local DB if new customer is created in Shopify
             ShopifyCustomer::create($newShopifyCustomer);
-
         }
 
 //        if(empty($DBcustomer)) {
@@ -163,7 +162,8 @@ class Job
                 $previous_collected_amount += $installment['amount'];
             }
 
-            $transaction_data = DataRaw::GetTransactionData($installment);
+            $payment_processed_date = $Data->GetPaymentProcessDate($installment);
+            $transaction_data = DataRaw::GetTransactionData($installment, $payment_processed_date);
 
             if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $installment['chequedd_date'])->timestamp > time())) {
                 continue;
@@ -175,11 +175,14 @@ class Job
 
                 if (!empty($transaction_response)) {
 
+                    // ID of the transaction
+                    $transaction_id = $transaction_response['id'];
+
                     // Adding current collected amount to previously collected amount
                     $order_amount += $installment['amount'];
 
                     // DB UPDATE: Mark the installment node as
-                    DB::mark_installment_status_processed($Data->ID(), $index);
+                    DB::mark_installment_status_processed($Data->ID(),$transaction_id, $index);
                 }
             } catch (ApiException $e) {
                 DB::populate_error_in_payments_array($Data->ID(), $index, $e->getMessage());
@@ -198,4 +201,5 @@ class Job
         // Finally mark the object as process completed
         DB::mark_status_completed($Data->ID());
     }
+
 }
