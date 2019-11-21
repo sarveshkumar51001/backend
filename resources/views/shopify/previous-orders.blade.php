@@ -76,7 +76,7 @@
                                 @if(is_array($row[$key]))
                                     <td>
                                         @if($key=='errors' && !empty($row[$key]))
-                                            <b>Message</b>:<mark style="color:red">{{ $row['errors']['message'] }}</mark>
+                                            <text style="color:red">{{ $row['errors']['message'] }}</text>
                                         @endif
                                     </td>
                                 @else
