@@ -30,7 +30,7 @@ class ExcelValidator
 
     protected $customDataToValidate = [];
 
-    protected $FileFormattedData = [];
+    public $FileFormattedData = [];
 
     protected $row_no = 0;
 
@@ -87,7 +87,7 @@ class ExcelValidator
         return $this->errors;
     }
 
-    private function ValidateDuplicateRow(array $row)
+    public function ValidateDuplicateRow(array $row)
     {
         $is_duplicate = false;
         $date_enroll = $row['date_of_enrollment'];
@@ -97,6 +97,7 @@ class ExcelValidator
         $DatabaseRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)->where('shopify_activity_id', $activity_id)
             ->where('school_enrollment_no', $std_enroll_no)
             ->first();
+
 
         if (! empty($DatabaseRow)) {
             $is_duplicate = true;
@@ -111,12 +112,15 @@ class ExcelValidator
                 }
             }
 
+
             if (! empty($fields_updated)) {
                 $this->errors['rows'][$this->row_no][] = "Only Payment data can be updated for an Order. Field(s) " . implode($fields_updated, ",") . " has been changed";
             }
 
             // Existing payments array
             $existingpayments = $DatabaseRow["payments"];
+
+
 
             foreach ($row["payments"] as $payment_index => $payment) {
 
@@ -136,7 +140,7 @@ class ExcelValidator
         return $is_duplicate;
     }
 
-    private function ValidateData(array $data)
+    public function ValidateData(array $data)
     {
         $valid_branch_names = [
             'Faridabad 15',
