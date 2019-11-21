@@ -295,6 +295,9 @@ class ShopifyController extends BaseController
 				    	}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
 					    	$modeWiseData[ShopifyExcelUpload::MODE_DD]['total'] += $payment['amount'];
 					    	$modeWiseData[ShopifyExcelUpload::MODE_DD]['count'] += 1;
+                        }else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])) {
+                            $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['total'] += $payment['amount'];
+                            $modeWiseData[ShopifyExcelUpload::MODE_ONLINE]['count'] += 1;
 				    	}else if($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM])) {
 					    	$modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['total'] += $payment['amount'];
 					    	$modeWiseData[ShopifyExcelUpload::MODE_PAYTM]['count'] += 1;
