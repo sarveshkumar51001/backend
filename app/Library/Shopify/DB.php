@@ -72,6 +72,11 @@ class DB
 	}
 
 	/**
+     * This function marks the installment/payment as processed in MongoDB database.
+     *
+     * Takes document id , transaction id and the index value of the payment as input, fetch the document by id from
+     * database and update the processed status as 'Yes', order update time and shopify transaction id for the payment.
+     *
 	 * @param $_id Object ID - Primary key
 	 * @param int $number of installment store in database
 	 *
