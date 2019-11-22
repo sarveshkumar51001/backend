@@ -71,6 +71,11 @@ class DataRaw
         return $this->data['shopify_activity_id'] ?? '';
     }
 
+    /**
+     * This function returns the enrollment date for the job being processed.
+     *
+     * @return mixed|string
+     */
     public function GetEnrollmentDate()
     {
         return $this->data['date_of_enrollment'] ?? '';
@@ -313,23 +318,26 @@ class DataRaw
     }
 
     /**
+     * This function returns the transaction data to be posted on shopify.
      *
-     * @param array $installment
-     * @param int $number
+     * Takes a payment array as input and return empty if payment is empty or mode of payment is empty or payment is
+     * already processed, if not then create an array transaction data having details like transaction type , amount
+     * and the date at which the transaction is being processed and thus finally return it.
      *
+     * @param array $payment
+     * @param $process_date
      * @return array
      */
-    public static function GetTransactionData(array $installment, $process_date)
+    public static function GetTransactionData(array $payment, $process_date)
     {
 
-        // Check if installment is empty or mode of payment is empty or installment is processed.
-        if (empty($installment) || empty($installment['mode_of_payment']) || strtolower($installment['processed']) == 'yes') {
+        if (empty($payment) || empty($payment['mode_of_payment']) || strtolower($payment['processed']) == 'yes') {
             return [];
         }
 
         $transaction_data = [
             "kind" => "capture",
-            "amount" => $installment['amount'],
+            "amount" => $payment['amount'],
             "processed_at" => $process_date
         ];
 
@@ -377,6 +385,14 @@ class DataRaw
     }
 
     /**
+     * This function returns the payment process date for one time and installment orders.
+     *
+     * Takes the payment as input, Initialize the payment process date as the enrollment date for the order and format
+     * it as ISO date format using the 'get_iso_date_format' helper function.
+     *
+     * If the payment mode is cheque/dd then the payment process date is changed to the cheque/dd date else if the order
+     * is of type installment and the mode is not cheque/dd then today's date is returned as the payment processed date.
+     *
      * @param $installment
      * @return string
      * @throws \Exception
