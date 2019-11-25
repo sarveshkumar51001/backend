@@ -2,6 +2,7 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use Carbon\Carbon;
 
 class DataRaw
 {
@@ -70,6 +71,11 @@ class DataRaw
     public function GetActivityID()
     {
         return $this->data['shopify_activity_id'] ?? '';
+    }
+
+    public function GetEnrollmentDate()
+    {
+        return $this->data['date_of_enrollment'] ?? '';
     }
 
     public function GetOrderID()
@@ -181,6 +187,8 @@ class DataRaw
         $order_data['customer'] = [
             "id" => $customer_id
         ];
+
+        $order_data['processed_at'] = get_iso_date_format($this->GetEnrollmentDate());
 
         $location = ShopifyExcelUpload::getSchoolLocation($this->data['delivery_institution'], $this->data['branch']);
 
@@ -313,7 +321,7 @@ class DataRaw
      *
      * @return array
      */
-    public static function GetTransactionData(array $installment)
+    public static function GetTransactionData(array $installment, $process_date)
     {
 
         // Check if installment is empty or mode of payment is empty or installment is processed.
@@ -323,7 +331,8 @@ class DataRaw
 
         $transaction_data = [
             "kind" => "capture",
-            "amount" => $installment['amount']
+            "amount" => $installment['amount'],
+            "processed_at" => $process_date
         ];
 
         return $transaction_data;
@@ -369,6 +378,12 @@ class DataRaw
         return $order_details;
     }
 
+    /**
+     * Create slugged headers with count for excel headers
+     *
+     * @param $header
+     * @return string
+     */
     public static function getHeaderName($header) {
         $slugged_header = str_slug($header, "_");
         $updated_header = $slugged_header;
@@ -382,5 +397,27 @@ class DataRaw
                 return $updated_header;
             }
         }
+    }
+
+    /**
+     * @param $installment
+     * @return string
+     * @throws \Exception
+     */
+    public function GetPaymentProcessDate($installment) {
+
+        // Initializing payment process date to enrollment date
+        $payment_process_date = get_iso_date_format($this->GetEnrollmentDate());
+
+        // If payment type is cheque/DD.
+        if(! empty($installment['chequedd_date'])) {
+            $payment_process_date = get_iso_date_format($installment['chequedd_date']);
+        } elseif($this->HasInstallment()) {
+            // If payment type is installment and payment method if not cheque/DD.
+            // then make today's date as payment process date
+            $payment_process_date = Carbon::now()->toIso8601String();
+        }
+
+        return $payment_process_date;
     }
 }
