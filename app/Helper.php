@@ -55,17 +55,17 @@ function log_error(\Exception $e) {
 
 /**
  * Returns Webhook Event Class path
- * 
+ *
  * @param App\Models\Webhook $Webhook
  * @return string|boolean
  */
 function webhook_event_class(App\Models\Webhook $Webhook) {
-    
+
     $namespace = '\App\Library\Webhook\Events';
     $source = \Illuminate\Support\Str::title($Webhook->{App\Models\Webhook::SOURCE});
     $class_name = \Illuminate\Support\Str::studly($Webhook->{App\Models\Webhook::NAME});
     $class_path = sprintf("%s\%s\%s", $namespace, $source, $class_name);
-    
+
     if (class_exists($class_path)) {
         if (method_exists($class_path, 'handle')) {
             return $class_path;
@@ -74,14 +74,32 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
     return false;
 }
 
+/**
+ * Returns ISO date format from default date format
+ *
+ * @param $date
+ * @return string
+ */
+function get_iso_date_format($date){
+
+    if(empty($date)) {
+       throw new \Exception("Blank Date cannot be converted to ISO format");
+    }
+
+    $iso_date = Carbon\Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT,$date)
+                                                        ->setTime(0, 0, 0)
+                                                        ->toIso8601String();
+    return $iso_date;
+}
+
 function get_job_attempts($job_id) {
-    
+
     if(Illuminate\Support\Facades\Cache::has($job_id)) {
         $attempts = Illuminate\Support\Facades\Cache::get($job_id);
     } else {
         $attempts = job_attempted($job_id);
     }
-    
+
     return (string) $attempts;
 }
 
@@ -90,11 +108,11 @@ function job_attempted($job_id) {
 
     if(Illuminate\Support\Facades\Cache::has($job_id)) {
         $attempts = Illuminate\Support\Facades\Cache::pull($job_id);
-    } 
-    
+    }
+
     $attempts++;
     Illuminate\Support\Facades\Cache::forever($job_id, $attempts);
-    
+
     return (string) $attempts;
 }
 
