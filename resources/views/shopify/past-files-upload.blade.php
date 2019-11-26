@@ -30,7 +30,7 @@
 
                         <tr>
                             <td>{{ date('l jS F Y h:i:s A', $data->created_at) }}</td>
-                            <td><a target="_blank" href="/bulkupload/previous/file_download/{{$data->id}}">{{ $data->file_name }}</a></td>
+                            <td><a target="_blank" href="{{ route('bulkupload.download_previous', ['id' => $data->id]) }}">{{ $data->file_name }}</a></td>
                             <td>{{ $data->file_id }}</td>
                             <td>{{ $data->metadata['new_order'] }}</td>
                             <td>{{ $data->metadata['update_order'] }}</td>
