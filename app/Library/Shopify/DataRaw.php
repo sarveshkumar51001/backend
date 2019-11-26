@@ -22,6 +22,8 @@ class DataRaw
         'txn_reference_number_only_in_case_of_paytm_or_online'
     ];
 
+    private static $headers = [];
+
     /**
      * DataRaw constructor.
      *
@@ -374,6 +376,27 @@ class DataRaw
         ];
 
         return $order_details;
+    }
+
+    /**
+     * Create slugged headers with count for excel headers
+     *
+     * @param $header
+     * @return string
+     */
+    public static function getHeaderName($header) {
+        $slugged_header = str_slug($header, "_");
+        $updated_header = $slugged_header;
+        $index = 1;
+        while(true) {
+            if(in_array($updated_header, self::$headers)) {
+                $updated_header = $slugged_header . "_$index";
+                $index++;
+            } else {
+                self::$headers[] = $updated_header;
+                return $updated_header;
+            }
+        }
     }
 
     /**
