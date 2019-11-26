@@ -18,7 +18,7 @@
 		"laravel/framework": "5.7.*",
 		"laravel/socialite": "^3.2",
 		"laravel/tinker": "^1.0",
-		"maatwebsite/excel": "^2.1",
+		"maatwebsite/excel": "^3.1",
 		"mongodb/mongodb": "^1.4",
 		"oseintow/laravel-shopify": "^1.0",
 		"phpclassic/php-shopify": "^1.0",
@@ -49,6 +49,7 @@
 			"Tests\\" : "tests/"
 		}
 	},
+	"extra" : {},
 	"scripts" : {
 		"post-root-package-install" : "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
 		"post-create-project-cmd" : "@php artisan key:generate --ansi",
