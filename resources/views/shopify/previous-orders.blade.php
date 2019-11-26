@@ -94,9 +94,9 @@
                                         </div>
                                                 @if(!$row['order_id'] == 0)
                                                     @if(!empty($row['shopify_order_name']))
-                                                        <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">{{$row['shopify_order_name']}}</a>
+                                                        <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View {{$row['shopify_order_name']}} <i class="fa fa-external-link"></i></a>
                                                     @else
-                                                        <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View<i class="fa fa-external-link"></i></a>
+                                                        <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View <i class="fa fa-external-link"></i></a>
                                                     @endif
                                                 @endif
                                         @else
