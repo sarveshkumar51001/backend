@@ -25,7 +25,8 @@ class Student extends Base
         "Apeejay Rama Mandi",
         "Apeejay Tanda Road",
         "Apeejay Greater Noida",
-        "Apeejay Greater Kailash"
+        "Apeejay Greater Kailash",
+        "Apeejay Model Town"
     ];
 
     const SCHOOL = "school_name";

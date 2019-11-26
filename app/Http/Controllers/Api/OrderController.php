@@ -12,6 +12,6 @@ use App\Http\Controllers\Controller;
 class OrderController extends Controller
 {
 	public function get_upload_details($uploadID) {
-		return ShopifyExcelUpload::find($uploadID);
+		return ShopifyExcelUpload::find($uploadID)->only('payments');
 	}
 }
