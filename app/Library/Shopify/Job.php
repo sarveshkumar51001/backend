@@ -1,11 +1,11 @@
 <?php
 namespace App\Library\Shopify;
 
+use App\Models\ShopifyCustomer;
 use App\Models\ShopifyExcelUpload;
 use Exception;
 use Carbon\Carbon;
 use PHPShopify\Exception\ApiException;
-use Illuminate\Support\Arr;
 
 /**
  * Helper Job class
@@ -29,33 +29,75 @@ class Job
             return;
         }
 
+        $ShopifyAPI = new API();
         $variantID = DB::get_variant_id($Data->GetActivityID());
 
-        $ShopifyAPI = new API();
-        $customers = $ShopifyAPI->SearchCustomer($Data->GetPhone(), $Data->GetEmail());
+        if(empty($variantID)) {
+            throw new \Exception("Product [" . $Data->GetActivityID() . "] is either disabled or does not exists.");
+        }
 
-        if (empty($customers)) {
-            $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
-            $shopifyCustomerId = $new_customer['id'];
-        } else {
-            // Getting unique customer by checking phone or email id in customer
-            $unique_customer = DB::get_customer($customers, $Data->GetPhone(), $Data->GetEmail());
+        $ShopifyCustomer = [];
+        $shopifyCustomerId = 0;
+        $customers = [];
 
-            if (empty($unique_customer)) {
-                $new_customer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
-                $shopifyCustomerId = $new_customer['id'];
-            } else {
-                $shopifyCustomer = head($unique_customer);
-                $shopifyCustomerId = $shopifyCustomer['id'];
+        // Searching customer on Shopify using API
+        $ShopifyCustomers = $ShopifyAPI->SearchCustomer($Data->GetPhone(), $Data->GetEmail());
 
-                $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $Data->GetCustomerUpdateData($shopifyCustomer));
+        // If customer found using Shopify API
+        if(! empty($ShopifyCustomers)) {
+
+            // Getting unique customer by checking phone or email id in customer data fetched from API
+            $ShopifyCustomer = DB::get_customer($ShopifyCustomers, $Data->GetPhone(), $Data->GetEmail());
+
+            // If unique customer found
+            if (! empty($ShopifyCustomer)) {
+                // Use the fetched unique customer for order creation
+                $shopifyCustomerId = $ShopifyCustomer['id'];
+
+                $CustomerUpdateData = $Data->GetCustomerUpdateData($ShopifyCustomer);
+
+                $ShopifyCustomerUpdateData = [];
+
+                // Checking if any field needs to be updated in Shopify
+                foreach ($CustomerUpdateData as $key => $value) {
+                    if($ShopifyCustomer[$key] != $value) {
+                        $ShopifyCustomerUpdateData[$key] = $value;
+                    }
+                }
+
+                // Update data in Shopify if not already updated
+                if(!empty($ShopifyCustomerUpdateData)) {
+                    $ShopifyAPI->UpdateCustomer($shopifyCustomerId, $ShopifyCustomerUpdateData);
+                }
             }
         }
 
-		// Check 3: Make sure by now we have customer id
-		if (empty($shopifyCustomerId)) {
-			throw new \Exception('Failed to get customer id from shopify data set');
-		}
+        // If unique customer not found using Shopify API then search in local DB
+        if(empty($ShopifyCustomer)) {
+            $ShopifyCustomer = DB::search_customer_in_database($Data->GetEmail(),$Data->GetPhone());
+
+            if(! empty($ShopifyCustomer)) {
+                $shopifyCustomerId = $ShopifyCustomer['id'];
+            }
+        }
+
+        // Checking if shopify customer not found from Shopify and local DB
+        // then create new customer in Shopify
+        if(empty($ShopifyCustomer)) {
+            $newShopifyCustomer = $ShopifyAPI->CreateCustomer($Data->GetCustomerCreateData());
+            $shopifyCustomerId = $newShopifyCustomer['id'];
+
+            // Create Customer in local DB if new customer is created in Shopify
+            ShopifyCustomer::create($newShopifyCustomer);
+
+        }
+        // Check 3: Make sure by now we have customer id
+        if (empty($shopifyCustomerId)) {
+            throw new \Exception('Failed to get customer id from shopify data set');
+        }
+
+        // Update customer id in excel upload
+        DB::update_customer_id_in_upload($Data->ID(), $shopifyCustomerId);
 
 		// Update customer id in excel upload
 		DB::update_customer_id_in_upload($Data->ID(), $shopifyCustomerId);
@@ -65,7 +107,7 @@ class Job
 		// Is it a new order?
 		if (empty($Data->GetOrderID())) {
             if (!DB::check_inventory_status($variantID)) {
-                throw new \Exception("Product [" . $Data->GetActivityID() . "] is either out of stock or is disabled.");
+                throw new \Exception("Product [" . $Data->GetActivityID() . "] is out of stock.");
             }
 
 			if(!$Data->IsOnlinePayment()) {
@@ -94,24 +136,27 @@ class Job
 			if(strtolower($installment['processed']) == 'yes'){
 				$previous_collected_amount += $installment['amount'];
 			}
-
-			$transaction_data = DataRaw::GetTransactionData($installment);
+            $payment_processed_date = $Data->GetPaymentProcessDate($installment);
+            $transaction_data = DataRaw::GetTransactionData($installment, $payment_processed_date);
 
             if (empty($transaction_data) || (!empty($installment['chequedd_date']) && Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $installment['chequedd_date'])->timestamp > time())) {
                 continue;
             }
-			try{
-				// Shopify Update: Posting new transaction part of installments
-				$transaction_response = $ShopifyAPI->PostTransaction($shopifyOrderId, $transaction_data);
+            try {
+                // Shopify Update: Posting new transaction part of installments
+                $transaction_response = $ShopifyAPI->PostTransaction($shopifyOrderId, $transaction_data);
 
-				if(!empty($transaction_response)){
+                if (!empty($transaction_response)) {
 
-					// Adding current collected amount to previously collected amount
-					$order_amount += $installment['amount'];
+                    // ID of the transaction
+                    $transaction_id = $transaction_response['id'];
 
-					// DB UPDATE: Mark the installment node as
-					DB::mark_installment_status_processed($Data->ID(), $index);
-				}
+                    // Adding current collected amount to previously collected amount
+                    $order_amount += $installment['amount'];
+
+                    // DB UPDATE: Mark the installment node as
+                    DB::mark_installment_status_processed($Data->ID(),$transaction_id, $index);
+                }
 			} catch (ApiException $e) {
             	DB::populate_error_in_payments_array($Data->ID(), $index , $e->getMessage());
             	throw new ApiException($e->getMessage(),$e->getCode(),$e);
@@ -130,8 +175,7 @@ class Job
             $ShopifyAPI->UpdateDraftOrder($shopifyOrderId,$order_details);
             DB::mark_status_due($Data->ID());
         }
-
-		// Finally mark the object as process completed
-		DB::mark_status_completed($Data->ID());
-	}
+        // Finally mark the object as process completed
+        DB::mark_status_completed($Data->ID());
+    }
 }

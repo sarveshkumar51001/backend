@@ -165,6 +165,11 @@ class ShopifyExcelUpload extends Base
                 "state" => "Punjab",
                 "pincode" => "144001"
             ],
+            "Model Town" => [
+                "city" => "Jalandhar",
+                "state" => "Punjab",
+                "pincode" => "144003"
+            ],
             "Greater Noida" => [
                 "city" => "Noida",
                 "state" => "UP",
