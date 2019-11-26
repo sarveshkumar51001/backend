@@ -3,6 +3,7 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class Excel
 {
@@ -83,9 +84,19 @@ class Excel
 		'after_discount_fee' => 'After Discount Fee',
 		'final_fee_incl_gst' => 'Final fee (incl GST)',
 		'payments' => 'Payments',
-		'errors' => 'Errors',
+		'errors' => 'Errors/Messages',
 		'file_id' => "File ID"
 	];
+
+	const DATE_FIELDS = [
+	    'date_of_enrollment',
+        'chequedd_date',
+        'chequedd_date_1',
+        'chequedd_date_2',
+        'chequedd_date_3',
+        'chequedd_date_4',
+        'chequedd_date_5'
+    ];
 
 	public function __construct(array $header, array $data, array $append = []) {
 		$this->rawHeader = $header;
@@ -102,7 +113,11 @@ class Excel
 		$this->rawData = array_map(function($row) {
 			$data = [];
 			foreach ($row as $key => $value) {
-				$data[$key] = trim($value);
+			    // Checking if column is of type date
+			    if(in_array($key, self::DATE_FIELDS) && is_numeric($value)) {
+                        $value = Date::excelToDateTimeObject($value)->format(ShopifyExcelUpload::DATE_FORMAT);
+                }
+                $data[$key] = trim($value);
 			}
 
 			return $data;

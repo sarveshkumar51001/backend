@@ -89,8 +89,8 @@ class Job
 
             // Create Customer in local DB if new customer is created in Shopify
             ShopifyCustomer::create($newShopifyCustomer);
-
         }
+
         // Check 3: Make sure by now we have customer id
         if (empty($shopifyCustomerId)) {
             throw new \Exception('Failed to get customer id from shopify data set');
@@ -110,8 +110,9 @@ class Job
             $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
 
             $shopifyOrderId = $order['id'];
+            $shopifyOrderName = $order['name'];
 
-            DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId);
+            DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId,$shopifyOrderName);
         }
 
         // Payment notes array
@@ -167,6 +168,5 @@ class Job
         // Finally mark the object as process completed
         DB::mark_status_completed($Data->ID());
     }
-
 
 }
