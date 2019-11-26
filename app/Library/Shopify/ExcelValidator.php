@@ -349,7 +349,6 @@ class ExcelValidator
             ];
 
             $online_modes = [
-                ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE],
                 ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM],
                 ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]
             ];
@@ -380,12 +379,15 @@ class ExcelValidator
                     // Cheque/DD/Online should be blank for cash payments
                     $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - For Cash payments, Cheque/DD/Online payment details are not applicable.";
                 }
-            } else if (! empty($mode)) {
+            } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])){
+                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Online Payment mode is currently not supported.";
+            }
+            else if (! empty($mode)) {
                 // Checking for invalid paymemt mode
                 $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Invalid Payment Mode - $mode";
             }
 
-            // Function for checking wthether the combination of amount and date present for each installment.
+            // Function for checking whether the combination of amount and date present for each installment.
             // The cheque date is being treated as the expected date of collection for the payment.
             if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
                 if (empty($payment['mode_of_payment'])) {
