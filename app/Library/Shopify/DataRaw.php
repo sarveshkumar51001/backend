@@ -161,7 +161,7 @@ class DataRaw
     /**
      *
      * @param int $productVariantID
-     * @param array $customer_id
+     * @param int $customer_id
      *
      * @return array
      * @throws \Exception

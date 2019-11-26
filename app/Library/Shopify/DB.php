@@ -74,8 +74,8 @@ class DB
 	 *
 	 * @return mixed
 	 */
-	public static function update_order_id_in_upload($object_id, $shopify_order_id) {
-		return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id]);
+	public static function update_order_id_in_upload($object_id, $shopify_order_id,$order_name) {
+		return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id,'shopify_order_name' => $order_name]);
 	}
 
 	/**
