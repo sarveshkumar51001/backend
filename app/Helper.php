@@ -75,12 +75,62 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
     return false;
 }
 
-function is_date_later_than_months($date, $months){
+function is_date_later_than_months($date, $months)
+{
 
     $diff_in_months = \Carbon\Carbon::now()->diffInMonths(\Carbon\Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT, $date), false);
 
-    if($diff_in_months > $months ){
+    if ($diff_in_months > $months) {
         return true;
     }
     return false;
+}
+
+/**
+ * Returns ISO date format from default date format
+ *
+ * @param $date
+ * @return string
+ * @throws Exception
+ */
+function get_iso_date_format($date){
+
+    if(empty($date)) {
+       throw new \Exception("Blank Date cannot be converted to ISO format");
+    }
+
+    $iso_date = Carbon\Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT,$date)
+                                                        ->setTime(0, 0, 0)
+                                                        ->toIso8601String();
+    return $iso_date;
+}
+
+function get_job_attempts($job_id) {
+
+    if(Illuminate\Support\Facades\Cache::has($job_id)) {
+        $attempts = Illuminate\Support\Facades\Cache::get($job_id);
+    } else {
+        $attempts = job_attempted($job_id);
+    }
+
+    return (string) $attempts;
+}
+
+function job_attempted($job_id) {
+    $attempts = 0;
+
+    if(Illuminate\Support\Facades\Cache::has($job_id)) {
+        $attempts = Illuminate\Support\Facades\Cache::pull($job_id);
+    }
+
+    $attempts++;
+    Illuminate\Support\Facades\Cache::forever($job_id, $attempts);
+
+    return (string) $attempts;
+}
+
+function job_completed($job_id) {
+    $attempts = (string) Illuminate\Support\Facades\Cache::pull($job_id);
+    return $attempts;
+
 }

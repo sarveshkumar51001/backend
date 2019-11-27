@@ -153,7 +153,8 @@ class ExcelValidator
             'Rama Mandi',
             'Saket',
             'Sheikh Sarai',
-            'Tanda Road'
+            'Tanda Road',
+            'Model Town'
         ];
 
         $rules = [
@@ -184,36 +185,36 @@ class ExcelValidator
 
             // Parent Details
             "parent_first_name" => "required",
-            "mobile_number" => "regex:/^[6-9][0-9]{9}+$/",
+            "mobile_number" => "regex:/^[6-9][0-9]{9}+$/|not_exponential",
             "email_id" => "email",
 
             // Fee Details
             "activity_fee" => "required",
             "scholarship_discount" => "numeric",
-            "after_discount_fee" => "numeric",
-            "final_fee_incl_gst" => "required|numeric",
-            "amount" => "numeric",
+            "after_discount_fee" => "numeric|amount",
+            "final_fee_incl_gst" => "required|numeric|amount",
+            "amount" => "numeric|amount",
 
             // Registration/Booking Fee
             "payments.0.mode_of_payment" => [
                 "required",
                 Rule::in(ShopifyExcelUpload::payment_modes())
             ],
-            "payments.0.amount" => "required|numeric",
+            "payments.0.amount" => "required|numeric|amount",
 
             // All Payments
             "payments" => "required",
-            "payments.*.amount" => "numeric",
+            "payments.*.amount" => "numeric|amount",
             "payments.*.mode_of_payment" => [
                 Rule::in(ShopifyExcelUpload::payment_modes())
             ],
-            "payments.*.chequedd_no" => "numeric",
-            "payments.*.micr_code" => "numeric",
+            "payments.*.chequedd_no" => "numeric|not_exponential",
+            "payments.*.micr_code" => "numeric|not_exponential",
             "payments.*.chequedd_date" => [
                 "regex:" . ShopifyExcelUpload::DATE_REGEX
             ],
             "payments.*.drawee_name" => "string",
-            "payments.*.drawee_account_number" => "numeric"
+            "payments.*.drawee_account_number" => "numeric|not_exponential"
         ];
 
         $validator = Validator::make($data, $rules);
@@ -348,7 +349,6 @@ class ExcelValidator
             ];
 
             $online_modes = [
-                ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE],
                 ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM],
                 ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]
             ];
@@ -382,7 +382,10 @@ class ExcelValidator
                     // Cheque/DD/Online should be blank for cash payments
                     $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - For Cash payments, Cheque/DD/Online payment details are not applicable.";
                 }
-            } else if (! empty($mode)) {
+            } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])){
+                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Online Payment mode is currently not supported.";
+            }
+            else if (! empty($mode)) {
                 // Checking for invalid paymemt mode
                 $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Invalid Payment Mode - $mode";
             }
