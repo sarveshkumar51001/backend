@@ -30,7 +30,7 @@ class ExcelValidator
 
     protected $customDataToValidate = [];
 
-    protected $FileFormattedData = [];
+    public $FileFormattedData = [];
 
     protected $row_no = 0;
 
@@ -463,7 +463,7 @@ class ExcelValidator
             }
         }
     }
-    private function ValidateHigherEducationData(array $data){
+    public function ValidateHigherEducationData(array $data){
 
         $location_data = ShopifyExcelUpload::getLocation($data['delivery_institution'],$data['branch']);
 
@@ -488,4 +488,15 @@ class ExcelValidator
             }
         }
     }
+
+    /**
+     * @return array
+     */
+    public function get_errors()
+    {
+        $validation_errors = $this->errors;
+        logger($validation_errors);
+        return $validation_errors;
+    }
+
 }

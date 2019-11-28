@@ -22,8 +22,9 @@
 		"mongodb/mongodb": "^1.4",
 		"oseintow/laravel-shopify": "^1.0",
 		"phpclassic/php-shopify": "^1.0",
-		"sentry/sentry-laravel": "~1"
-	},
+		"sentry/sentry-laravel": "~1",
+        "ext-json": "*"
+    },
 	"require-dev" : {
 		"beyondcode/laravel-dump-server" : "^1.0",
 		"filp/whoops" : "^2.0",
