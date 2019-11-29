@@ -2,6 +2,8 @@
 namespace App\Console\Commands\DataFix;
 
 use App\Jobs\ShopifyOrderCreation;
+use App\Library\Shopify\DataRaw;
+use App\Library\Shopify\Job;
 use Illuminate\Console\Command;
 use App\Library\Shopify\DB;
 use App\Models\ShopifyExcelUpload;
@@ -36,6 +38,7 @@ class DataFixForPartialOrders extends Command
      * Execute the console command.
      *
      * @return mixed
+     * @throws \Exception
      */
     public function handle()
     {
@@ -52,9 +55,10 @@ class DataFixForPartialOrders extends Command
             ShopifyExcelUpload::where('order_id',$order_id)->update([ 'payments.0.processed'=> 'No', 'job_status' => 'pending']);
             ShopifyExcelUpload::where('order_id',$order_id)->unset('order_id');
         }
-        // Dispatching jobs on queue
+        // Calling Job class run function and passing instance of raw data.
         foreach (ShopifyExcelUpload::findMany($ObjectIDList) as $Object) {
-            ShopifyOrderCreation::dispatch($Object)->onQueue('low');
+            $Data = new DataRaw($Object->toArray());
+            Job::run($Data);
         }
         return ;
     }
