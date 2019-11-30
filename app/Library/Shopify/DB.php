@@ -74,8 +74,8 @@ class DB
 	 *
 	 * @return mixed
 	 */
-	public static function update_order_id_in_upload($object_id, $shopify_order_id) {
-		return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id]);
+	public static function update_order_id_in_upload($object_id, $shopify_order_id,$order_name) {
+		return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id,'shopify_order_name' => $order_name]);
 	}
 
 	/**
@@ -84,11 +84,12 @@ class DB
 	 *
 	 * @return mixed
 	 */
-	public static function mark_installment_status_processed($_id, $number) {
+	public static function mark_installment_status_processed($_id, $transaction_id , $number) {
 		$installment_index = sprintf("payments.%s.processed", $number);
 		$order_update_node = sprintf("payments.%s.order_update_at", $number);
+		$transaction_id_node = sprintf("payments.%s.transaction_id",$number);
 
-		return ShopifyExcelUpload::find($_id)->update([$installment_index => 'Yes', $order_update_node => time()]);
+		return ShopifyExcelUpload::find($_id)->update([$installment_index => 'Yes', $order_update_node => time(),$transaction_id_node => $transaction_id]);
 	}
 
 	public static function populate_error_in_payments_array($_id,$number,$error){
