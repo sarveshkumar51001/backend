@@ -100,6 +100,7 @@ class Job
         DB::update_customer_id_in_upload($Data->ID(), $shopifyCustomerId);
 
         $shopifyOrderId = $Data->GetOrderID();
+        $order = [];
 
         // Is it a new order?
         if (empty($Data->GetOrderID())) {
@@ -167,6 +168,8 @@ class Job
 
         // Finally mark the object as process completed
         DB::mark_status_completed($Data->ID());
+
+        return $order;
     }
 
 }

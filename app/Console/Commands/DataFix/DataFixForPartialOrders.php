@@ -2,6 +2,7 @@
 namespace App\Console\Commands\DataFix;
 
 use App\Jobs\ShopifyOrderCreation;
+use App\Library\Shopify\API;
 use App\Library\Shopify\DataRaw;
 use App\Library\Shopify\Job;
 use Illuminate\Console\Command;
@@ -42,25 +43,32 @@ class DataFixForPartialOrders extends Command
      */
     public function handle()
     {
-        $order_list = ShopifyExcelUpload::ORDERS_LIST;
-        $ObjectIDList = [];
+        $order_list = [1695874613294];
+//        $order_list = ShopifyExcelUpload::ORDERS_LIST;
+        $order_name = "";
 
         foreach($order_list as $order_id){
 
             // Find document id by order id and store it in seperate list for job dispatching
             $ObjectID = ShopifyExcelUpload::where('order_id',$order_id)->get(['_id'])->first()->toArray()['_id'];
-            $ObjectIDList[] = $ObjectID;
 
             // Update and unset fields for reprocessing of false created orders
             ShopifyExcelUpload::where('order_id',$order_id)->update([ 'payments.0.processed'=> 'No', 'job_status' => 'pending']);
             ShopifyExcelUpload::where('order_id',$order_id)->unset('order_id');
+
+            // Calling Job class run function and passing instance of raw data.
+            $Data = new DataRaw(ShopifyExcelUpload::find($ObjectID)->toArray());
+            $Order = Job::run($Data);
+            $order_name = $Order['name'];
+
+            // Cancelling orders after replacement orders created on shopify.
+            $cancel_reason = sprintf("Cancel Reason: Incorrect order, new replacement order with name %s created on shopify.",$order_name);
+            $ShopifyAPI = new API();
+            $ShopifyAPI->CancelOrder($order_id, []);
+            $ShopifyAPI->UpdateOrder($order_id,["note"=>$cancel_reason]);
+
         }
-        // Calling Job class run function and passing instance of raw data.
-        foreach (ShopifyExcelUpload::findMany($ObjectIDList) as $Object) {
-            $Data = new DataRaw($Object->toArray());
-            Job::run($Data);
-        }
-        return ;
+        return "All false orders cancelled and replacement orders created successfully";
     }
 
 }
