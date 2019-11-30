@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 class ShopifyOrdersImport implements ToCollection, WithHeadingRow, WithCalculatedFormulas
 {
-    
+
     /**
     * @param Collection $collection
     */
@@ -18,7 +18,11 @@ class ShopifyOrdersImport implements ToCollection, WithHeadingRow, WithCalculate
     {
         return $rows;
     }
-    
+
+    /**
+     * Function returns the position of the heading row in excel file
+     * @return int
+     */
     public function headingRow(): int
     {
         return 2;

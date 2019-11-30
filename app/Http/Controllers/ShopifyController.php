@@ -22,6 +22,10 @@ class ShopifyController extends BaseController
         'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com', 'ankur@valedra.com'
     ];
 
+    /**
+     * Renders upload view
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function upload()
     {
         $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'New Upload' => ''];
@@ -32,6 +36,11 @@ class ShopifyController extends BaseController
 
     /**
      * @param Request $request
+     *
+     * Function renders preview if any errors are found else dispatch the excel rows for processing.
+     *
+     * Takes request as input and run all the pre-processing required, if errors found in the file then render the view
+     * with errors else dispatches the rows for order creation and displays a successful upload message.
      *
      * @return $this
      * @throws \Exception
@@ -49,6 +58,7 @@ class ShopifyController extends BaseController
             'online-total' => 'numeric'
         ];
 
+        // Creating a validator for validating request parameters
         Validator::make($request->all(), $rules)->validate();
 
         $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Upload Preview' => ''];
@@ -95,6 +105,7 @@ class ShopifyController extends BaseController
             return back()->withErrors(['No data was found in the uploaded file']);
         }
 
+        // Passing the headers and rows in Excel class for processing with other non-file parameters
         $ExcelRaw = (new \App\Library\Shopify\Excel($headers, $rows, [
             'upload_date' => $request['date'],
             'uploaded_by' => Auth::user()->id,
@@ -104,7 +115,7 @@ class ShopifyController extends BaseController
             'customer_id' => 0
         ]));
 
-        // Format data
+        // Getting Formatted data from Excel class
         $formattedData = $ExcelRaw->GetFormattedData();
 
         $metadata = [
@@ -115,7 +126,7 @@ class ShopifyController extends BaseController
 
         $metadata['total'] = array_sum($metadata);
 
-        // Run the validation
+        // Run the validation with the processed data from Excel Class
         $errors = (new ExcelValidator($ExcelRaw, [
             'cash-total' => $metadata["cash-total"],
             'cheque-total' => $metadata["cheque-total"],
@@ -243,6 +254,9 @@ class ShopifyController extends BaseController
             ->with('headers', $ExcelRaw->GetFormattedHeader());
     }
 
+    /*
+     * Function renders all the previous successful file uploads by the logged in user.
+     */
     public function previous_uploads()
     {
         $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Previous uploads' => ''];
@@ -252,6 +266,13 @@ class ShopifyController extends BaseController
         return view('shopify.past-files-upload')->with('files', $Uploads)->with('breadcrumb', $breadcrumb);
     }
 
+    /*
+     * Function renders all the previous orders created by the logged in user. If no date range is specified by the user
+     * today's date orders are showed else the orders created in between the date range. Also the mode wise payment
+     * count and total amount for that count is shown on the dashboard.
+     *
+     * If the user is part of the admin team he/she can view all the orders created regardless of the user.
+     */
     public function previous_orders()
     {
         $start = start_of_the_day(date('m/d/Y'));
@@ -263,8 +284,9 @@ class ShopifyController extends BaseController
                 $end = end_of_day($range[1]);
             }
         }
-
+        // If the date range is specified..
         if ($start && $end) {
+            // If the user is part of the admin team
             if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
                 $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->get();
             } else {
@@ -281,6 +303,7 @@ class ShopifyController extends BaseController
             $modeWiseData[$mode]['count'] = $modeWiseData[$mode]['total'] = 0;
         }
 
+        //Fetches only the successful records from database for showing mode wise count and amount
         $successful_records = $mongodb_records->where('job_status', '!=', 'failed');
 
         foreach ($successful_records as $document) {
@@ -327,6 +350,10 @@ class ShopifyController extends BaseController
             ->with('metadata', $modeWiseData);
     }
 
+    /*
+     * Function used for downloading the uploaded files by the user. If the file exists then it is downloaded upon click
+     * else 404 error is returned by the function.
+     */
     public function download_previous($id)
     {
         $Uploads = Upload::find($id);
