@@ -43,8 +43,8 @@ class DataFixForPartialOrders extends Command
      */
     public function handle()
     {
-        $order_list = [1695874613294];
-//        $order_list = ShopifyExcelUpload::ORDERS_LIST;
+
+        $order_list = ShopifyExcelUpload::ORDERS_LIST;
         $order_name = "";
 
         foreach($order_list as $order_id){
