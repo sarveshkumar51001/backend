@@ -57,8 +57,9 @@ jobs:
             - node_modules
 
       # prepare the database
-      - run: touch storage/testing.sqlite
+      #- run: touch storage/testing.sqlite
       #- run: php artisan migrate --env=testing --database=sqlite_testing --force
 
+      - run: php artisan key:generate
       # run tests with phpunit or codecept
       - run: ./vendor/bin/phpunit
