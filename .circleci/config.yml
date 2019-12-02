@@ -27,8 +27,8 @@ jobs:
       #- run: sudo apt update && sudo apt-get install -y zlib1g-dev 
       - run: sudo docker-php-ext-install zip
       - run: sudo docker-php-ext-install gd
-      - run: sudo pecl install mongodb
-      - run: echo "extension=mongodb.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
+      - run: sudo docker-php-ext-install mongodb
+      #- run: echo "extension=mongodb.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
       - run: sudo docker-php-ext-enable mongodb
       - run: sudo docker-php-ext-enable gd
 
@@ -64,4 +64,4 @@ jobs:
       - run: php artisan key:generate
       # run tests with phpunit or codecept
       - run: ./vendor/bin/phpunit --coverage-clover build/coverage/xml tests
-      - run: php bin/codacycoverage clover build/coverage/xml
+      - run: ./vendor/bin/codacycoverage clover build/coverage/xml
