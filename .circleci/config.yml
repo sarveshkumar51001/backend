@@ -63,9 +63,9 @@ jobs:
       - run: cp .env.example .env
       - run: php artisan key:generate
       # run tests with phpunit or codecept
-      - run: ./vendor/bin/phpunit --coverage-html build/coverage-report --coverage-clover build/coverage/xml tests
+      - run: ./vendor/bin/phpunit --coverage-html build/coverage-report --coverage-clover build/coverage/xml --log-junit build/phpunit/junit.xml tests
       - run: ./vendor/bin/codacycoverage clover build/coverage/xml
       - store_test_results:
-          path: test-results
+          path: build/phpunit
       - store_artifacts:
-          path:  build/coverage-report
+          path: build/phpunit
