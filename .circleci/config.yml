@@ -28,7 +28,6 @@ jobs:
       - run: sudo pecl install mongodb
       - run: echo "extension=mongodb.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
       - run: sudo docker-php-ext-enable mongodb
-      - run: sudo docker-php-ext-enable gd
 
       # Download and cache dependencies
       - restore_cache:
