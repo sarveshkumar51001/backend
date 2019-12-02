@@ -24,9 +24,11 @@ jobs:
 
       - run: sudo apt update # PHP CircleCI 2.0 Configuration File# PHP CircleCI 2.0 Configuration File sudo apt install zlib1g-dev libsqlite3-dev
       - run: sudo docker-php-ext-install zip
+      - run: sudo docker-php-ext-install gd
       - run: sudo pecl install mongodb
       - run: echo "extension=mongodb.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
       - run: sudo docker-php-ext-enable mongodb
+      - run: sudo docker-php-ext-enable gd
 
       # Download and cache dependencies
       - restore_cache:
