@@ -35,7 +35,7 @@ function end_of_day(string $date) {
  * @param string $title
  * @return \App\Library\Slack\Slack
  */
-function slack($data, string $title = null)
+function slack($data = array(), string $title = null)
 {
     return new \App\Library\Slack\Slack($data, $title);
 }
@@ -77,9 +77,57 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
     return false;
 }
 
-function generate_error_slug(string $str){
+function generate_error_slug(string $str)
+{
 
-    $error_slug = str_replace('+','-',urlencode('bkmrk-' . substr(strtolower(preg_replace('/ /', '-', trim($str))), 0, 20)));
+    $error_slug = str_replace('+', '-', urlencode('bkmrk-' . substr(strtolower(preg_replace('/ /', '-', trim($str))), 0, 20)));
 
     return $error_slug;
+}
+
+/**
+ * Returns ISO date format from default date format
+ *
+ * @param $date
+ * @return string
+ */
+function get_iso_date_format($date){
+
+    if(empty($date)) {
+       throw new \Exception("Blank Date cannot be converted to ISO format");
+    }
+
+    $iso_date = Carbon\Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT,$date)
+                                                        ->setTime(0, 0, 0)
+                                                        ->toIso8601String();
+    return $iso_date;
+}
+
+function get_job_attempts($job_id) {
+
+    if(Illuminate\Support\Facades\Cache::has($job_id)) {
+        $attempts = Illuminate\Support\Facades\Cache::get($job_id);
+    } else {
+        $attempts = job_attempted($job_id);
+    }
+
+    return (string) $attempts;
+}
+
+function job_attempted($job_id) {
+    $attempts = 0;
+
+    if(Illuminate\Support\Facades\Cache::has($job_id)) {
+        $attempts = Illuminate\Support\Facades\Cache::pull($job_id);
+    }
+
+    $attempts++;
+    Illuminate\Support\Facades\Cache::forever($job_id, $attempts);
+
+    return (string) $attempts;
+}
+
+function job_completed($job_id) {
+    $attempts = (string) Illuminate\Support\Facades\Cache::pull($job_id);
+    return $attempts;
 }

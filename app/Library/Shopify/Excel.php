@@ -3,6 +3,7 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class Excel
 {
@@ -23,6 +24,7 @@ class Excel
 		'branch' => 'Branch',
 		'external_internal' => 'External/ Internal',
 		'school_name' => 'School Name',
+        'student_school_location' => 'School Location',
 		'student_first_name' => 'Student first name',
 		'student_last_name' => 'Student last name',
 		'activity' => 'Activity',
@@ -66,6 +68,7 @@ class Excel
 		'branch' => 'Branch',
 		'external_internal' => 'External/Internal',
 		'school_name' => 'School',
+        'student_school_location' => 'School Location',
 		'student_first_name' => 'Student first name',
 		'student_last_name' => 'Student last name',
 		'activity' => 'Activity',
@@ -81,9 +84,19 @@ class Excel
 		'after_discount_fee' => 'After Discount Fee',
 		'final_fee_incl_gst' => 'Final fee (incl GST)',
 		'payments' => 'Payments',
-		'errors' => 'Errors',
+		'errors' => 'Errors/Messages',
 		'file_id' => "File ID"
 	];
+
+	const DATE_FIELDS = [
+	    'date_of_enrollment',
+        'chequedd_date',
+        'chequedd_date_1',
+        'chequedd_date_2',
+        'chequedd_date_3',
+        'chequedd_date_4',
+        'chequedd_date_5'
+    ];
 
 	public function __construct(array $header, array $data, array $append = []) {
 		$this->rawHeader = $header;
@@ -100,7 +113,11 @@ class Excel
 		$this->rawData = array_map(function($row) {
 			$data = [];
 			foreach ($row as $key => $value) {
-				$data[$key] = trim($value);
+			    // Checking if column is of type date
+			    if(in_array($key, self::DATE_FIELDS) && is_numeric($value)) {
+                        $value = Date::excelToDateTimeObject($value)->format(ShopifyExcelUpload::DATE_FORMAT);
+                }
+                $data[$key] = trim($value);
 			}
 
 			return $data;
@@ -135,8 +152,10 @@ class Excel
 					$new_slice['processed'] = 'No';
 					$new_slice['errors'] = "";
 					$new_slice['upload_date'] = time();
+                    $new_slice['is_pdc_payment'] = false;
+
 					if ($offset_value == 22) {
-						$new_slice['type'] = ShopifyExcelUpload::TYPE_ONETIME;
+					    $new_slice['type'] = ShopifyExcelUpload::TYPE_ONETIME;
 					} else {
 						$new_slice['type'] = ShopifyExcelUpload::TYPE_INSTALLMENT;
 					}
@@ -183,6 +202,7 @@ class Excel
 				} else {
 					unset($data['payments'][$index]);
 				}
+
 			}
 
 			$data['order_type']  = $hasInstallment ? ShopifyExcelUpload::TYPE_INSTALLMENT : ShopifyExcelUpload::TYPE_ONETIME;

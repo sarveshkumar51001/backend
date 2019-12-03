@@ -63,7 +63,9 @@ class ExcelValidator
         foreach ($this->FileFormattedData as $index => $data) {
             $this->row_no ++;
 
-            if ($this->ValidateDuplicateRow($data) || $validation_error = $this->ValidateData($data)) {
+            $validation_error = $this->ValidateData($data);
+
+            if ($this->ValidateDuplicateRow($data) || $validation_error) {
                 if ($validation_error) {
                     $sheet_has_column_validation_error = true;
                 }
@@ -151,7 +153,8 @@ class ExcelValidator
             'Rama Mandi',
             'Saket',
             'Sheikh Sarai',
-            'Tanda Road'
+            'Tanda Road',
+            'Model Town'
         ];
 
         $rules = [
@@ -173,7 +176,7 @@ class ExcelValidator
             "student_school_location" => "required|string",
             "student_first_name" => "required",
             "activity" => "required",
-            "school_enrollment_no" => "required|string|min:4|regex:/[A-Z]+-[0-9]+/",
+            "school_enrollment_no" => "required|string|min:4",
             "class" => [
                 "required",
                 Rule::in(Student::CLASS_LIST)
@@ -182,36 +185,36 @@ class ExcelValidator
 
             // Parent Details
             "parent_first_name" => "required",
-            "mobile_number" => "regex:/^[6-9][0-9]{9}+$/",
+            "mobile_number" => "regex:/^[6-9][0-9]{9}+$/|not_exponential",
             "email_id" => "email",
 
             // Fee Details
             "activity_fee" => "required",
             "scholarship_discount" => "numeric",
-            "after_discount_fee" => "numeric",
-            "final_fee_incl_gst" => "required|numeric",
-            "amount" => "numeric",
+            "after_discount_fee" => "numeric|amount",
+            "final_fee_incl_gst" => "required|numeric|amount",
+            "amount" => "numeric|amount",
 
             // Registration/Booking Fee
             "payments.0.mode_of_payment" => [
                 "required",
                 Rule::in(ShopifyExcelUpload::payment_modes())
             ],
-            "payments.0.amount" => "required|numeric",
+            "payments.0.amount" => "required|numeric|amount",
 
             // All Payments
             "payments" => "required",
-            "payments.*.amount" => "numeric",
+            "payments.*.amount" => "numeric|amount",
             "payments.*.mode_of_payment" => [
                 Rule::in(ShopifyExcelUpload::payment_modes())
             ],
-            "payments.*.chequedd_no" => "numeric",
-            "payments.*.micr_code" => "numeric",
+            "payments.*.chequedd_no" => "numeric|not_exponential",
+            "payments.*.micr_code" => "numeric|not_exponential",
             "payments.*.chequedd_date" => [
                 "regex:" . ShopifyExcelUpload::DATE_REGEX
             ],
             "payments.*.drawee_name" => "string",
-            "payments.*.drawee_account_number" => "numeric"
+            "payments.*.drawee_account_number" => "numeric|not_exponential"
         ];
 
         $validator = Validator::make($data, $rules);
@@ -346,7 +349,6 @@ class ExcelValidator
             ];
 
             $online_modes = [
-                ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE],
                 ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM],
                 ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]
             ];
@@ -377,12 +379,15 @@ class ExcelValidator
                     // Cheque/DD/Online should be blank for cash payments
                     $this->errors['rows'][$this->row_no][] = sprintf(Errors::CASH_PAYMENT_ERROR, $payment_index + 1);
                 }
-            } else if (! empty($mode)) {
+            } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])){
+                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Online Payment mode is currently not supported.";
+            }
+            else if (! empty($mode)) {
                 // Checking for invalid paymemt mode
                 $this->errors['rows'][$this->row_no][] = sprintf(Errors::INVALID_MODE_ERROR, $mode, $payment_index + 1);
             }
 
-            // Function for checking wthether the combination of amount and date present for each installment.
+            // Function for checking whether the combination of amount and date present for each installment.
             // The cheque date is being treated as the expected date of collection for the payment.
             if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
                 if (empty($payment['mode_of_payment'])) {
