@@ -64,7 +64,7 @@ jobs:
       - run: php artisan key:generate
       # run tests with phpunit or codecept
       - run: ./vendor/bin/phpunit --log-junit build/phpunit/junit.xml --coverage-clover build/coverage/xml tests
-      - run: php vendor/bin/codacycoverage clover build/coverage/xml
+      - run: ./vendor/bin/codacycoverage clover build/coverage/xml -v
       - store_test_results:
           path: build/phpunit
       - store_artifacts:
