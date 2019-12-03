@@ -21,37 +21,6 @@ class ExampleTest extends TestCase
         $this->assertTrue(true);
     }
 
-    // Checking whether the reader is instance of Maatwebsite RowCollection
-    public function testExcelLoading()
-    {
-        $ExlReader = Excel::load('/var/www/html/backend/storage/uploads/test_file1.xlsx')->get()->first();
-        $this->assertInstanceOf('Maatwebsite\Excel\Collections\RowCollection',$ExlReader);
-    }
-
-    // Getting Excel file for running Excel Validator test cases
-    private function getExcel($path)
-    {
-        config([
-            'excel.import.startRow' => 2,
-            'excel.import.heading' => 'slugged_with_count',
-            'excel.import.dates.enabled' => false,
-            'excel.import.force_sheets_collection' => true
-        ]);
-
-        $ExlReader = Excel::load($path)->get()->first();
-        $header = $ExlReader->first()->keys()->toArray();
-
-        $ExcelRaw = (new \App\Library\Shopify\Excel($header, $ExlReader->toArray(), [
-            'upload_date' => '20/11/2019',
-            'uploaded_by' => 'Test',
-            'file_id' => 'file-09099',
-            'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
-            'order_id' => 0,
-            'customer_id' => 0
-        ]));
-
-        return $ExcelRaw;
-    }
 
     // Test case should assert True if file headers are valid
     public function testHasAllValidHeadersShouldPass() {

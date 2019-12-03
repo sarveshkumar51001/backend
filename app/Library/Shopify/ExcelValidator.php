@@ -98,7 +98,6 @@ class ExcelValidator
             ->where('school_enrollment_no', $std_enroll_no)
             ->first();
 
-
         if (! empty($DatabaseRow)) {
             $is_duplicate = true;
             $fields_updated = [];
@@ -223,7 +222,6 @@ class ExcelValidator
 
         $validator = Validator::make($data, $rules);
         $errors = $validator->getMessageBag()->toArray();
-
         if (! empty($errors)) {
             $this->errors['rows'][$this->row_no] = Arr::flatten(array_values($errors));
             return true;
@@ -231,7 +229,7 @@ class ExcelValidator
         return false;
     }
 
-    private function ValidateAmount()
+    public function ValidateAmount()
     {
         if (count($this->FileFormattedData) < 1)
             return;
@@ -259,7 +257,6 @@ class ExcelValidator
     {
         $has_valid_header = false;
         if ($raw_headers = array_slice($this->File->GetRawHeaders(), 0, 91)) {
-
             foreach ($this->File->GetExcelHeaders() as $header) {
                 if (! in_array($header, $raw_headers)) {
                     $has_valid_header = false;
