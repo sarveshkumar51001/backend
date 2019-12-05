@@ -37,7 +37,7 @@ class ShopifyOrdersImport extends DefaultValueBinder implements WithCustomValueB
             return true;
         }
 
-        // else return default behavior
+        // else return default behavior for the value
         return parent::bindValue($cell, $value);
     }
 
