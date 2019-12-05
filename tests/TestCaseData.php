@@ -2,7 +2,8 @@
 
 namespace Tests;
 
-class TestCaseData{
+class TestCaseData
+{
 
     const DATA = [
         'sno' => 1,
@@ -96,5 +97,20 @@ class TestCaseData{
         'paid' => 63720,
         'pdc_collected' => 0,
         'pdc_to_be_collected' => 0,
-        ];
+    ];
+
+    const REQUIRED_FIELDS = ['date_of_enrollment', 'shopify_activity_id', 'delivery_institution', 'branch',
+        'external_internal', 'school_name', 'student_school_location', 'student_first_name', 'activity',
+        'school_enrollment_no', 'class', 'section', 'final_fee_incl_gst', 'mode_of_payment',
+        'amount','parent_first_name'];
+
+    const STRING_FIELDS = ['shopify_activity_id', 'school_name', 'student_school_location', 'school_enrollment_no',
+        'drawee_name'];
+
+    const NUMERIC_FIELDS = ['scholarship_discount', 'after_discount_fee', 'final_fee_incl_gst', 'amount', 'chequedd_no', 'micr_code', 'drawee_account_number'];
+
+    const REGEX_FIELDS = ['date_of_enrollment', 'mobile_number', 'email_id', 'after_discount_fee', 'final_fee_incl_gst',
+        'amount', 'chequedd_no', 'micr_code', 'chequedd_date', 'drawee_account_number'];
+
+    const RULE_IN_FIELDS = ['branch','class','mode_of_payment'];
 }
