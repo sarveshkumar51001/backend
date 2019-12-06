@@ -87,7 +87,6 @@ class ShopifyController extends BaseController
         try {
             $myValueBinder = new CustomValueBinder;
             $rows = array_first(Excel::setValueBinder($myValueBinder)->toArray(new ShopifyOrdersImport(), $path->getRealPath()));
-            dd($rows);
             $headers = array_keys(array_first($rows));
         } catch (\Exception $e) {
             return back()->withErrors(['The uploaded file seems invalid. Please download the latest sample file.']);
