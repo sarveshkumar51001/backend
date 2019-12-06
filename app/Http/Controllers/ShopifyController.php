@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\Binder\CustomValueBinder;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Auth;
@@ -84,7 +85,9 @@ class ShopifyController extends BaseController
 
         // Loading the excel file
         try {
-            $rows = array_first(Excel::toArray(new ShopifyOrdersImport(), $path->getRealPath()));
+            $myValueBinder = new CustomValueBinder;
+            $rows = array_first(Excel::setValueBinder($myValueBinder)->toArray(new ShopifyOrdersImport(), $path->getRealPath()));
+            dd($rows);
             $headers = array_keys(array_first($rows));
         } catch (\Exception $e) {
             return back()->withErrors(['The uploaded file seems invalid. Please download the latest sample file.']);
