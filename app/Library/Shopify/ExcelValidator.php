@@ -494,9 +494,7 @@ class ExcelValidator
      */
     public function get_errors()
     {
-        $validation_errors = $this->errors;
-        logger($validation_errors);
-        return $validation_errors;
+        return $this->errors;
     }
 
 }
