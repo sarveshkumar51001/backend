@@ -190,8 +190,8 @@ class DataRaw
 
         $order_data['processed_at'] = get_iso_date_format($this->GetEnrollmentDate());
 
-        $location = ShopifyExcelUpload::getSchoolLocation($this->data['delivery_institution'], $this->data['branch']);
-        
+        $location = ShopifyExcelUpload::getLocation($this->data['delivery_institution'], $this->data['branch']);
+
         $order_data['billing_address'] = [
             "first_name" => $this->data['parent_first_name'],
             "last_name" => $this->data['parent_last_name'],
