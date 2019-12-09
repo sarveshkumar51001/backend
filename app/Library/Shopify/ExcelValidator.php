@@ -30,7 +30,7 @@ class ExcelValidator
 
     protected $customDataToValidate = [];
 
-    protected $FileFormattedData = [];
+    public $FileFormattedData = [];
 
     protected $row_no = 0;
 
@@ -136,7 +136,7 @@ class ExcelValidator
         return $is_duplicate;
     }
 
-    private function ValidateData(array $data)
+    public function ValidateData(array $data)
     {
         $valid_branch_names = [
             'Faridabad 15',
@@ -222,9 +222,9 @@ class ExcelValidator
 
         if (! empty($errors)) {
             $this->errors['rows'][$this->row_no] = Arr::flatten(array_values($errors));
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     private function ValidateAmount()
@@ -467,5 +467,12 @@ class ExcelValidator
                 $this->errors['rows'][$this->row_no][] = "After applying discount and Final Fee amount does not match.";
             }
         }
+    }
+    /**
+       * @return array
+       */
+    public function get_errors()
+    {
+       return $this->errors;
     }
 }
