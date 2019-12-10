@@ -10,18 +10,18 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 class ShopifyOrdersImport implements ToCollection, WithHeadingRow, WithCalculatedFormulas
 {
-    
+
     /**
-    * @param Collection $collection
-    */
+     * @param Collection $collection
+     */
     public function collection(Collection $rows)
     {
         return $rows;
     }
-    
+
     public function headingRow(): int
     {
         return 2;
     }
-    
+
 }
