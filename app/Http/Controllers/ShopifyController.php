@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Imports\Binder\CustomValueBinder;
+ini_set('precision', 20); // Fix for long integer converting to exponential number Ref:https://github.com/Maatwebsite/Laravel-Excel/issues/1384#issuecomment-362059935
+
 use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Auth;
@@ -85,8 +86,7 @@ class ShopifyController extends BaseController
 
         // Loading the excel file
         try {
-            $myValueBinder = new CustomValueBinder;
-            $rows = array_first(Excel::setValueBinder($myValueBinder)->toArray(new ShopifyOrdersImport(), $path->getRealPath()));
+            $rows = array_first(Excel::toArray(new ShopifyOrdersImport(), $path->getRealPath()));
             $headers = array_keys(array_first($rows));
         } catch (\Exception $e) {
             return back()->withErrors(['The uploaded file seems invalid. Please download the latest sample file.']);
