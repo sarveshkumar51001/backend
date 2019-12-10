@@ -7,7 +7,6 @@ use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
 use App\User;
 use Illuminate\Console\Command;
-use Psy\Util\Str;
 
 class TransferOrders extends Command
 {
@@ -101,7 +100,7 @@ class TransferOrders extends Command
             $tag_array = explode(',',$tags);
 
             foreach($tag_array as $key => $value){
-                if(\Illuminate\Support\Str::contains($value,'@valedra.com')){
+                if(\Illuminate\Support\Str::contains($value,ShopifyExcelUpload::ORG_DOMAIN)){
                     $tag_array[$key] = $ToUser->email;
                 }
             }
