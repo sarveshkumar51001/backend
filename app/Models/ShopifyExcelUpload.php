@@ -55,6 +55,7 @@ class ShopifyExcelUpload extends Base
         'bank_name',
         'bank_branch'
     ];
+    const ORG_DOMAIN = "@valedra.com";
 
     const ONLINE_FIELDS = [
         'txn_reference_number_only_in_case_of_paytm_or_online'

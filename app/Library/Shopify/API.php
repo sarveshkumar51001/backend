@@ -128,4 +128,9 @@ class API
 	    $this->delay_request();
 		return $this->Shopify->Customer()->get($params);
 	}
+
+	public function GetOrder($order_id,$params) {
+	    $this->delay_request();
+	    return $this->Shopify->Order($order_id)->get($params);
+    }
 }
