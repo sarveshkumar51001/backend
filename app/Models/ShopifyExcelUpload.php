@@ -249,7 +249,9 @@ class ShopifyExcelUpload extends Base
     ];
 
     /**
-     * Returns Delivery Location
+     * Function returns school/institute location based on the delivery institution and branch provided. If the
+     * delivery institution exists in the school address mapping then fetch the location corresponding to the branch
+     * if exists, else return false.
      *
      * @param string $delivery_institution
      * @param string $branch

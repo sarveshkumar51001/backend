@@ -398,8 +398,12 @@ class ExcelValidator
         }
     }
 
+    /**
+     * Function for validating excel fields like mobile number, email id and external/internal.
+     * @param array $data
+     */
     private function ValidateFieldValues(array $data)
-    {
+    {   // Check if either mobile number or email id is empty or not, if empty throw error.
         if (empty($data['mobile_number']) && empty($data['email_id'])) {
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
         }
@@ -412,18 +416,22 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
         }
         else {
-            // If the location found doesn't corresponds to higher education institute
+            // If the location captured doesn't corresponds to higher education institute
             if (!$location['is_higher_education']) {
+                // If school title is Apeejay then...
                 if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)) {
+                    // If the order type is not internal or deliver institution is not Apeejay then throw internal error
                     if (strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
                         $this->errors['rows'][$this->row_no][] = "The order type should be internal for schools under Apeejay Education Society and delivery institution should be Apeejay.";
-                    }
+                    }// If the order type is not external for non Apeejay schools then throw external error.
                 } else {
                     if (strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER || strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
                         $this->errors['rows'][$this->row_no][] = "The order type should be external for schools outside Apeejay and delivery institution should be other than Apeejay.";
                     }
                 }
             } else{
+                // For the location corresponding to higher institutes, if the order type is not internal
+                // or delivery institution is not Apeejay then throw internal error for higher institutes
                 if(strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)){
                     $this->errors['rows'][$this->row_no][] = "The order type should be internal for institutes under Apeejay Education Society and delivery institution should be Apeejay.";
                 }
@@ -463,6 +471,21 @@ class ExcelValidator
             }
         }
     }
+
+    /**
+     * Function for validating the data specific to the higher education institutes
+     *
+     * All the validations are only performed if any location is found for the data provided. If the location belongs
+     * to higher institutes then check whether the class and section are correct i.e. only the class and section
+     * corresponding to higher institutes are entered. Similarly if the location doesn't belongs to higher institutes
+     * then the class and section entered should be corresponding to the schools only.
+     *
+     * For eg: If the school is Apeejay Saket then class should be from 1 to 12 and section should be A to H not
+     * anything else. If the Institute is ASM Dwarka then class should be like BTech, BA, BBA etc and section should
+     * be Sem1, Sem2....Sem8.
+     *
+     * @param array $data
+     */
     public function ValidateHigherEducationData(array $data){
 
         $location_data = ShopifyExcelUpload::getLocation($data['delivery_institution'],$data['branch']);
