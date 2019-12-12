@@ -68,7 +68,26 @@ class DB
         }
         return false;
     }
+    /**
+     * @param $object_id
+     * @param $shopify_order_id
+     *
+     * @return mixed
+     */
+	public static function update_order_data_in_upload($object_id, $shopify_order_id)
+    {
+        return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id' => $shopify_order_id]);
+    }
 
+    /**
+     * @param $object_id
+     * @param $shopify_order_id
+     * @param $order_name
+     * @return mixed
+     */
+	public static function update_order_id_in_upload($object_id, $shopify_order_id,$order_name) {
+		return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id,'shopify_order_name' => $order_name]);
+	}
     /**
      * @param $object_id
      * @param $shopify_order_id
@@ -76,10 +95,6 @@ class DB
      * @param $shopify_checkout_url
      * @return mixed
      */
-	public static function update_order_data_in_upload($object_id, $shopify_order_id) {
-		return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id]);
-	}
-
     public static function update_draft_order_data_in_upload($object_id, $shopify_order_id, $shopify_checkout_url) {
         return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id,'checkout_url' => $shopify_checkout_url]);
     }

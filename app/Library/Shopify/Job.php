@@ -89,19 +89,17 @@ class Job
 
             // Create Customer in local DB if new customer is created in Shopify
             ShopifyCustomer::create($newShopifyCustomer);
-
         }
+
         // Check 3: Make sure by now we have customer id
         if (empty($shopifyCustomerId)) {
             throw new \Exception('Failed to get customer id from shopify data set');
         }
 
-        // Update customer id in excel upload
-        DB::update_customer_id_in_upload($Data->ID(), $shopifyCustomerId);
-
 		// Update customer id in excel upload
 		DB::update_customer_id_in_upload($Data->ID(), $shopifyCustomerId);
 
+        $order = [];
 		$shopifyOrderId = $Data->GetOrderID();
 
 		// Is it a new order?
@@ -112,7 +110,25 @@ class Job
 
 			if(!$Data->IsOnlinePayment()) {
                 $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
-                $shopifyOrderId = $order['id'];
+
+            $shopifyOrderId = $order['id'];
+            $shopifyOrderName = $order['name'];
+
+            DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId,$shopifyOrderName);
+        }
+
+        // Payment notes array
+        $notes_array = DataRaw::GetPaymentDetails($Data->GetPaymentData());
+
+        $previous_collected_amount = 0;
+        $order_amount = 0;
+        $collected_amount = 0;
+        // Loop through all the installments in system for the order
+        foreach ($Data->GetPaymentData() as $index => $installment) {
+
+            // Getting previously collected amount for the order
+            if (strtolower($installment['processed']) == 'yes') {
+                $previous_collected_amount += $installment['amount'];
             }
 			else{
 			    $order = $ShopifyAPI->CreateDraftOrder($Data->GetOrderCreateData($variantID,$shopifyCustomerId));
@@ -177,5 +193,7 @@ class Job
         }
         // Finally mark the object as process completed
         DB::mark_status_completed($Data->ID());
+    }
+        return $order;
     }
 }

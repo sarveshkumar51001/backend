@@ -75,7 +75,9 @@
                             @if(isset($row[$key]))
                                 @if(is_array($row[$key]))
                                     <td>
-                                        {{ $key == 'errors' ? json_encode($row[$key]) : count($row[$key]) }}
+                                        @if($key=='errors' && !empty($row[$key]))
+                                            <text style="color:red">{{ $row['errors']['message'] }}</text>
+                                        @endif
                                     </td>
                                 @else
                                     <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "><span class="
