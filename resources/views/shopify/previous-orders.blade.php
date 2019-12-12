@@ -75,7 +75,9 @@
                             @if(isset($row[$key]))
                                 @if(is_array($row[$key]))
                                     <td>
-                                        {{ $key == 'errors' ? json_encode($row[$key]) : count($row[$key]) }}
+                                        @if($key=='errors' && !empty($row[$key]))
+                                            <text style="color:red">{{ $row['errors']['message'] }}</text>
+                                        @endif
                                     </td>
                                 @else
                                     <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "><span class="
@@ -96,9 +98,13 @@
                                         <div>
                                             <strong onclick="render_upload_details('{{$row['_id']}}');" class="text-muted aside-menu-toggler" style="cursor: pointer"><a title="Payment Details"><i class="fa fa-money fa-2x"></i></a>&nbsp; </strong>
                                         </div>
-                                            @if(!$row['order_id'] == 0)
-                                            <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}">View <i class="fa fa-external-link"></i></a>
-                                            @endif
+                                                @if(!$row['order_id'] == 0)
+                                                    @if(!empty($row['shopify_order_name']))
+                                                        <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View {{$row['shopify_order_name']}} <i class="fa fa-external-link"></i></a>
+                                                    @else
+                                                        <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View <i class="fa fa-external-link"></i></a>
+                                                    @endif
+                                                @endif
                                         @else
                                             {{ $row[$key] }}
                                         @endif

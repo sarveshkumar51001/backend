@@ -99,6 +99,11 @@ class API
 		return $this->Shopify->Order($orderID)->put($data);
 	}
 
+	public function CancelOrder($orderID,$data) {
+	    $this->delay_request();
+	    return $this->Shopify->Order($orderID)->cancel($data);
+    }
+
 	/**
 	 * @param $params
 	 *

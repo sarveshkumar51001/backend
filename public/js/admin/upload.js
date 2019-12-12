@@ -36,6 +36,9 @@ function get_render_template(data) {
                 if(key == 'upload_date') {
                     return;
                 }
+                if (key == 'transaction_id') {
+                    title = 'Shopify Transaction ID';
+                }
 
                 if (key == 'order_update_at') {
                     title = 'Order created at';
