@@ -98,7 +98,7 @@ function get_iso_date_format($date){
     }
 
     $iso_date = Carbon\Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT,$date)
-                                                        ->setTime(0, 0, 0)
+                                                        ->setTime(date('H'), date('i'), 0)
                                                         ->toIso8601String();
     return $iso_date;
 }
