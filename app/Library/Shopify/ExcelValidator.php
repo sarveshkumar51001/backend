@@ -363,7 +363,7 @@ class ExcelValidator
                     $this->errors['rows'][$this->row_no][] = sprintf(Errors::CASH_PAYMENT_ERROR, $payment_index + 1);
                 }
             } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])){
-                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Online Payment mode is currently not supported.";
+                $this->errors['rows'][$this->row_no][] = sprintf(Errors::ONLINE_NOT_SUPPORTED_ERROR,$payment_index + 1);
             }
             else if (! empty($mode)) {
                 // Checking for invalid paymemt mode
@@ -408,24 +408,24 @@ class ExcelValidator
 
         // If location not found and order type is not external...
         if (!$location && strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER ) {
-            $this->errors['rows'][$this->row_no][] = "The order type should be external for institutes outside Apeejay.";
-            $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
+            $this->errors['rows'][$this->row_no][] = Errors::OUTSIDE_APEEJAY_ERROR;
+            $this->errors['rows'][$this->row_no][] = Errors::LOCATION_ERROR;
         }
         else {
             // If the location found doesn't corresponds to higher education institute
             if (!$location['is_higher_education']) {
                 if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)) {
                     if (strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
-                        $this->errors['rows'][$this->row_no][] = "The order type should be internal for schools under Apeejay Education Society and delivery institution should be Apeejay.";
+                        $this->errors['rows'][$this->row_no][] = Errors::INTERNAL_TYPE_ERROR;
                     }
                 } else {
                     if (strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER || strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
-                        $this->errors['rows'][$this->row_no][] = "The order type should be external for schools outside Apeejay and delivery institution should be other than Apeejay.";
+                        $this->errors['rows'][$this->row_no][] = Errors::EXTERNAL_TYPE_ERROR;
                     }
                 }
             } else{
                 if(strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)){
-                    $this->errors['rows'][$this->row_no][] = "The order type should be internal for institutes under Apeejay Education Society and delivery institution should be Apeejay.";
+                    $this->errors['rows'][$this->row_no][] = Errors::INSTITUTE_ERROR;
                 }
             }
         }
@@ -473,17 +473,17 @@ class ExcelValidator
             if($location_data['is_higher_education']){
                 // Checking whether the section value is for higher institutes
                 if(!in_array($data['class'],Student::HIGHER_CLASS_LIST)){
-                    $this->errors['rows'][$this->row_no][] = "Incorrect class given for higher education institutes";
+                    $this->errors['rows'][$this->row_no][] = Errors::INSTITUTE_CLASS_ERROR;
                 }
                 if(!in_array($data['section'],Student::HIGHER_SECTION_LIST)){
-                    $this->errors['rows'][$this->row_no][] = "Incorrect section given for higher education institutes";
+                    $this->errors['rows'][$this->row_no][] = Errors::INSTITUTE_SECTION_ERROR;
                 }
             } else{
                 if(in_array($data['class'],Student::HIGHER_CLASS_LIST)){
-                    $this->errors['rows'][$this->row_no][] = "Higher Education classes are not valid for school entries.";
+                    $this->errors['rows'][$this->row_no][] = Errors::SCHOOL_CLASS_ERROR;
                 }
                 if(in_array($data['section'],Student::HIGHER_SECTION_LIST)){
-                    $this->errors['rows'][$this->row_no][] = "Higher Education sections are not valid for school entries.";
+                    $this->errors['rows'][$this->row_no][] = Errors::SCHOOL_SECTION_ERROR;
                 }
             }
         }

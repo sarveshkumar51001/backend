@@ -59,4 +59,22 @@ class Errors
     const FUTURE_INSTALLMENT_DATE_ERROR = "Payment date should be in future for future payment - %s.";
 
     const ORDER_AMOUNT_TOTAL_ERROR = "Total Installment Amount and Final Fee Amount does not match";
+
+    const OUTSIDE_APEEJAY_ERROR = "The order type should be external for institutes outside Apeejay.";
+
+    const ONLINE_NOT_SUPPORTED_ERROR = "Payment %s - Online Payment mode is currently not supported.";
+
+    const INSTITUTE_ERROR = "The order type should be internal for institutes under Apeejay Education Society and delivery institution should be Apeejay.";
+
+    const INSTITUTE_CLASS_ERROR = "Incorrect class given for higher education institutes.";
+
+    const INSTITUTE_SECTION_ERROR = "Incorrect section given for higher education institutes.";
+
+    const SCHOOL_CLASS_ERROR = "Higher Education classes are not valid for school entries.";
+
+    CONST SCHOOL_SECTION_ERROR = "Higher Education sections are not valid for school entries.";
+
+
+
+
 }
