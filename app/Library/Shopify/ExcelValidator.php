@@ -401,7 +401,7 @@ class ExcelValidator
         }
     }
 
-    private function ValidateFieldValues(array $data)
+    public function ValidateFieldValues(array $data)
     {
         if (empty($data['mobile_number']) && empty($data['email_id'])) {
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";

@@ -37,11 +37,12 @@ class ReynottAcademyTest extends TestCase
         $data = TestCaseData::DATA;
         $data['class'] = "6";
         $data['section'] = "C";
+        $data['delivery_institution'] = "Reynott";
+        $data['branch'] = "Reynott Academy";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
-        $ExcelValidator->ValidateReynottData($ExcelValidator->FileFormattedData[0]);
-
+        $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
         $this->assertNotEmpty($ExcelValidator->get_errors());
 
     }
@@ -55,7 +56,7 @@ class ReynottAcademyTest extends TestCase
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
-        $ExcelValidator->ValidateReynottData($ExcelValidator->FileFormattedData[0]);
+        $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
 
         $this->assertNotEmpty($ExcelValidator->get_errors());
     }
@@ -69,7 +70,7 @@ class ReynottAcademyTest extends TestCase
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
-        $ExcelValidator->ValidateReynottData($ExcelValidator->FileFormattedData[0]);
+        $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
 
         $this->assertNotEmpty($ExcelValidator->get_errors());
     }
@@ -104,6 +105,16 @@ class ReynottAcademyTest extends TestCase
         $ExcelValidator->ValidateInternalExternalOrderType($ExcelValidator->FileFormattedData[0]);
 
         $this->assertNotEmpty($ExcelValidator->get_errors());
+    }
+
+    public function testReynottDeliveryInstitution() {
+        $data = TestCaseData::DATA;
+        $data['delivery_institution'] = "Reynott";
+        $excel_data = array($data);
+
+        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
+        $this->assertEmpty($ExcelValidator->get_errors());
     }
 
 }
