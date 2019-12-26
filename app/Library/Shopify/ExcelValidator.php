@@ -73,6 +73,8 @@ class ExcelValidator
                 unset($this->FileFormattedData[$index]);
                 continue;
             }
+
+            $this->ValidateInternalExternalOrderType($data);
             $this->ValidateHigherEducationData($data);
             $this->ValidatePaymentDetails($data);
             $this->ValidateFieldValues($data);
@@ -404,41 +406,40 @@ class ExcelValidator
         if (empty($data['mobile_number']) && empty($data['email_id'])) {
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
         }
+
         // Fetching location for the delivery institution and branch
         $location = ShopifyExcelUpload::getLocation($data['delivery_institution'], $data['branch']);
-        if (!$location) {
+        if (! $location) {
             $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
+            return;
         }
-        // Executing Reynott data function iff the delivery institution is Reynott else execute Apeejay Data function
+
+        // Checking for delivery institution and validation data
         if ($data['delivery_institution'] == ShopifyExcelUpload::REYNOTT) {
             self::ValidateReynottData($data);
-        } else {
-           self::ValidateApeejayData($data,$location);
         }
     }
 
-    private function ValidateApeejayData(array $data,$location){
+    public function ValidateInternalExternalOrderType(array $data) {
+        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER) {
+            $this->errors['rows'][$this->row_no][] = "The order type should be internal for Apeejay schools.";
+        } elseif (strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER) {
+            $this->errors['rows'][$this->row_no][] = "The order type should be external for schools outside Apeejay";
+        }
+    }
 
-        // If location not found and order type is not external...
-        if (strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER) {
-            $this->errors['rows'][$this->row_no][] = "The order type should be external for institutes outside Apeejay.";
-        } else {
-            // If the location found doesn't corresponds to higher education institute
-            if (!$location['is_higher_education']) {
-                if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)) {
-                    if (strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
-                        $this->errors['rows'][$this->row_no][] = "The order type should be internal for schools under Apeejay Education Society and delivery institution should be Apeejay.";
-                    }
-                } else {
-                    if (strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER || strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
-                        $this->errors['rows'][$this->row_no][] = "The order type should be external for schools outside Apeejay and delivery institution should be other than Apeejay.";
-                    }
-                }
-            } else {
-                if (strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
-                    $this->errors['rows'][$this->row_no][] = "The order type should be internal for institutes under Apeejay Education Society and delivery institution should be Apeejay.";
-                }
-            }
+    /**
+     * @deprecated Not to be used
+     * @todo Remove in next release
+     * @param array $data
+     * @param $location
+     */
+    private function ValidateApeejayData(array $data, $location){
+
+        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+            $this->errors['rows'][$this->row_no][] = "Delivery institution should be Apeejay for Apeejay Schools.";
+        } elseif (strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+            $this->errors['rows'][$this->row_no][] = "Delivery institution should not be Apeejay for external schools.";
         }
     }
 
@@ -507,24 +508,17 @@ class ExcelValidator
      *
      * @param array $data
      */
-    public function ValidateReynottData(array $data){
-
-            if(!in_array($data['class'],array_merge(Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST))){
-                $this->errors['rows'][$this->row_no][] = "Class entered for Reynott academy is incorrect.";
-            }
-            if(!in_array($data['section'],array_merge(Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST))){
-                $this->errors['rows'][$this->row_no][] = "Section entered for Reynott academy is incorrect.";
-            }
-            if(in_array($data['class'],Student::REYNOTT_DROPPER_CLASS_LIST) && !in_array($data['section'],Student::REYNOTT_DROPPER_SECTION_LIST)){
-                $this->errors['rows'][$this->row_no][] = "For classes Dropper and Crash, section can only be Reynott.";
-            }
-            if(strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER){
-                $this->errors['rows'][$this->row_no][] = "Order type should be internal for Apeejay students.";
-            }
-            if(!strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER){
-                $this->errors['rows'][$this->row_no][] = "Order type should be external for Non-Apeejay students.";
-            }
+    public function ValidateReynottData(array $data) {
+        if(!in_array($data['class'],array_merge(Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST))){
+            $this->errors['rows'][$this->row_no][] = "Class entered for Reynott academy is incorrect.";
         }
+        if(!in_array($data['section'],array_merge(Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST))){
+            $this->errors['rows'][$this->row_no][] = "Section entered for Reynott academy is incorrect.";
+        }
+        if(in_array($data['class'],Student::REYNOTT_DROPPER_CLASS_LIST) && !in_array($data['section'],Student::REYNOTT_DROPPER_SECTION_LIST)){
+            $this->errors['rows'][$this->row_no][] = "For classes Dropper and Crash, section can only be Reynott.";
+        }
+    }
 
     /**
      * @return array

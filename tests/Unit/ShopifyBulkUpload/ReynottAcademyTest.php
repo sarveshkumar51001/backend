@@ -85,7 +85,7 @@ class ReynottAcademyTest extends TestCase
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
-        $ExcelValidator->ValidateReynottData($ExcelValidator->FileFormattedData[0]);
+        $ExcelValidator->ValidateInternalExternalOrderType($ExcelValidator->FileFormattedData[0]);
 
         $this->assertNotEmpty($ExcelValidator->get_errors());
     }
@@ -101,7 +101,7 @@ class ReynottAcademyTest extends TestCase
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
-        $ExcelValidator->ValidateReynottData($ExcelValidator->FileFormattedData[0]);
+        $ExcelValidator->ValidateInternalExternalOrderType($ExcelValidator->FileFormattedData[0]);
 
         $this->assertNotEmpty($ExcelValidator->get_errors());
     }
