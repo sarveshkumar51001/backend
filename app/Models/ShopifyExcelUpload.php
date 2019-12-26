@@ -252,7 +252,8 @@ class ShopifyExcelUpload extends Base
             "Reynott Academy" => [
                 "city" => "Jalandhar",
                 "state" => "Punjab",
-                "pincode" => "144003"
+                "pincode" => "144003",
+                "is_higher_education" => false
             ]
         ]
     ];

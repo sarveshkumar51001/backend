@@ -416,7 +416,8 @@ class ExcelValidator
 
         // Checking for delivery institution and validation data
         if ($data['delivery_institution'] == ShopifyExcelUpload::REYNOTT) {
-            self::ValidateReynottData($data);
+            $reynott_errors = self::ValidateReynottData($data);
+            $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no], $reynott_errors);
         }
     }
 
@@ -475,6 +476,7 @@ class ExcelValidator
             }
         }
     }
+
     public function ValidateHigherEducationData(array $data){
 
         $location_data = ShopifyExcelUpload::getLocation($data['delivery_institution'],$data['branch']);
@@ -507,17 +509,20 @@ class ExcelValidator
      * Takes excel row data as input and returns errors if validation fails.
      *
      * @param array $data
+     * @return array
      */
     public function ValidateReynottData(array $data) {
+        $errors = [];
         if(!in_array($data['class'],array_merge(Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST))){
-            $this->errors['rows'][$this->row_no][] = "Class entered for Reynott academy is incorrect.";
+            $errors[] = "Class entered for Reynott academy is incorrect.";
         }
         if(!in_array($data['section'],array_merge(Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST))){
-            $this->errors['rows'][$this->row_no][] = "Section entered for Reynott academy is incorrect.";
+            $errors[] = "Section entered for Reynott academy is incorrect.";
         }
         if(in_array($data['class'],Student::REYNOTT_DROPPER_CLASS_LIST) && !in_array($data['section'],Student::REYNOTT_DROPPER_SECTION_LIST)){
-            $this->errors['rows'][$this->row_no][] = "For classes Dropper and Crash, section can only be Reynott.";
+            $errors[] = "For classes Dropper and Crash, section can only be Reynott.";
         }
+        return $errors;
     }
 
     /**
