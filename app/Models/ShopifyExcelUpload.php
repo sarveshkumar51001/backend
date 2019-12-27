@@ -249,7 +249,7 @@ class ShopifyExcelUpload extends Base
             ]
         ],
         "Reynott" => [
-            "Reynott Academy" => [
+            "Reynott Academy Jalandhar" => [
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144003",

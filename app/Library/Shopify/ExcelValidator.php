@@ -62,7 +62,10 @@ class ExcelValidator
 
         // Finding data validation errors
         foreach ($this->FileFormattedData as $index => $data) {
+
             $this->row_no ++;
+
+            $this->errors['rows'][$this->row_no] = [];
 
             $validation_error = $this->ValidateData($data);
 
@@ -403,6 +406,7 @@ class ExcelValidator
 
     public function ValidateFieldValues(array $data)
     {
+
         if (empty($data['mobile_number']) && empty($data['email_id'])) {
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
         }
@@ -413,7 +417,10 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
             return;
         }
-
+        // If no error recorded till this stage, initialize the row errors....
+        if(empty($this->errors)){
+            $this->errors['rows'][$this->row_no] = [];
+        }
         // Checking for delivery institution and validation data
         if ($data['delivery_institution'] == ShopifyExcelUpload::REYNOTT) {
             $reynott_errors = self::ValidateReynottData($data);

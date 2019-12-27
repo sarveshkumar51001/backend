@@ -14,6 +14,7 @@ class ReynottAcademyTest extends TestCase
     /**
      * Test cases for Reynott Academy data
      *
+     * This function takes rows (array) as input and return instance of the Class Excel.
      * @param $rows
      * @return Excel
      */
@@ -31,14 +32,21 @@ class ReynottAcademyTest extends TestCase
         ]));
     }
 
-    // Test case should assert not empty if the class is incorrect according to the Reynott Academy.
+    /**
+     * Purpose: To check whether the function returns error on passing incorrect class or not.
+     *
+     * I/P - Incorrect class for reynott academy along with other institution details
+     *
+     * Expected O/P - Test case should assert not empty if the class is incorrect according to the Reynott Academy.
+     *
+     */
     public function testIncorrectClassShouldFail()
     {
         $data = TestCaseData::DATA;
         $data['class'] = "6";
         $data['section'] = "C";
         $data['delivery_institution'] = "Reynott";
-        $data['branch'] = "Reynott Academy";
+        $data['branch'] = "Reynott Academy Jalandhar";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
@@ -47,12 +55,21 @@ class ReynottAcademyTest extends TestCase
 
     }
 
-    // Test case should assert not empty if the section is incorrect according to the Reynott Academy.
+    /**
+     * Purpose: To check whether the function returns error on passing incorrect section or not.
+     *
+     * I/P - Incorrect section for reynott academy along with other institution details
+     *
+     * Expected O/P - Test case should assert not empty if the section is incorrect according to the Reynott Academy.
+     *
+     */
     public function testIncorrectSectionShouldFail()
     {
         $data = TestCaseData::DATA;
         $data['class'] = "10";
         $data['section'] = "reynott";
+        $data['delivery_institution'] = "Reynott";
+        $data['branch'] = "Reynott Academy Jalandhar";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
@@ -61,12 +78,21 @@ class ReynottAcademyTest extends TestCase
         $this->assertNotEmpty($ExcelValidator->get_errors());
     }
 
-    // Test case should assert not empty if the section is other than Reynott for Dropper and Crash classes.
+    /**
+     * Purpose: To check whether the function returns error on passing incorrect section for specific class.
+     *
+     * I/P - Incorrect section for reynott academy when the class is either Dropper or Crash.
+     *
+     * Expected O/P - Test case should assert not empty if the section is other than Reynott for Dropper and Crash classes.
+     *
+     */
     public function testClassSectionInterdependence()
     {
         $data = TestCaseData::DATA;
         $data['class'] = "Dropper";
         $data['section'] = "H";
+        $data['delivery_institution'] = "Reynott";
+        $data['branch'] = "Reynott Academy Jalandhar";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
@@ -75,7 +101,13 @@ class ReynottAcademyTest extends TestCase
         $this->assertNotEmpty($ExcelValidator->get_errors());
     }
 
-    // Test case should assert not empty if the order type is external for schools under Apeejay.
+    /**
+     * Purpose: To check whether the function returns error on passing incorrect order type for Apeejay school.
+     *
+     * I/P - Incorrect order type for Apeejay school student.
+     *
+     * Expected O/P - Test case should assert not empty if the order type is external for schools under Apeejay.
+     */
     public function testIncorrectApeejayOrderShouldFail()
     {
         $data = TestCaseData::DATA;
@@ -91,7 +123,13 @@ class ReynottAcademyTest extends TestCase
         $this->assertNotEmpty($ExcelValidator->get_errors());
     }
 
-    // Test case should assert not empty if the order type is internal for schools outside Apeejay.
+    /**
+     * Purpose: To check whether the function returns error on passing incorrect order type for Non-Apeejay school.
+     *
+     * I/P - Incorrect order type for Non-Apeejay school student.
+     *
+     * Expected O/P - Test case should assert not empty if the order type is internal for schools outside Apeejay.
+     */
     public function testIncorrectNonApeejayOrderShouldFail()
     {
         $data = TestCaseData::DATA;
@@ -107,14 +145,24 @@ class ReynottAcademyTest extends TestCase
         $this->assertNotEmpty($ExcelValidator->get_errors());
     }
 
+    /**
+     * Purpose: To check whether the function returns empty on passing Reynott as a delivery institution.
+     *
+     * I/P - Reynott as delivery institution
+     *
+     * Expected O/P - Test case should assert empty if Reynott is a valid Delivery Institution as per application.
+     */
     public function testReynottDeliveryInstitution() {
         $data = TestCaseData::DATA;
         $data['delivery_institution'] = "Reynott";
+        $data['branch'] = "Reynott Academy Jalandhar";
+        $data['class'] = "8";
+        $data['section'] = "C";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $this->assertEmpty($ExcelValidator->get_errors());
+        $this->assertEmpty($ExcelValidator->get_errors()['rows'][0]);
     }
 
 }
