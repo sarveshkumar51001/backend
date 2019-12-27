@@ -65,8 +65,6 @@ class ExcelValidator
 
             $this->row_no ++;
 
-            $this->errors['rows'][$this->row_no] = [];
-
             $validation_error = $this->ValidateData($data);
 
             if ($this->ValidateDuplicateRow($data) || $validation_error) {
@@ -489,7 +487,7 @@ class ExcelValidator
         $location_data = ShopifyExcelUpload::getLocation($data['delivery_institution'],$data['branch']);
 
         // Proceed only if $location data is returned;
-        if($location_data && isset($location_data['is_higher_education'])){
+        if($location_data){
             // Proceeding only if location corresponds to higher institute
             if($location_data['is_higher_education']){
                 // Checking whether the section value is for higher institutes
