@@ -1,13 +1,12 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
+## Codacy Code Quality Report
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e8520ce059614a8a9fb1755edf9294ae)](https://www.codacy.com?utm_source=bitbucket.org&amp;utm_medium=referral&amp;utm_content=valedra/backend&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/e8520ce059614a8a9fb1755edf9294ae)](https://www.codacy.com?utm_source=bitbucket.org&amp;utm_medium=referral&amp;utm_content=valedra/backend&amp;utm_campaign=Badge_Coverage)
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+## Code Climate Code Quality Report
+[![Maintainability](https://api.codeclimate.com/v1/badges/7e28100125e505cfa388/maintainability)](https://codeclimate.com/repos/5d7267d4a052950177010201/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/7e28100125e505cfa388/test_coverage)](https://codeclimate.com/repos/5d7267d4a052950177010201/test_coverage)
 
-## About Laravel
+## About Backend App
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as:
 
