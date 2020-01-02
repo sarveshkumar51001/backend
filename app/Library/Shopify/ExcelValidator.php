@@ -310,14 +310,14 @@ class ExcelValidator
         ];
     }
 
-    private function ValidatePaymentDetails(array $data)
+    public function ValidatePaymentDetails(array $data)
     {
         $amount = 0;
         $final_fee = $data['final_fee_incl_gst'];
 
         foreach ($data['payments'] as $payment_index => $payment) {
-            $payment = Arr::except($payment, ShopifyExcelUpload::PAYMENT_METAFIELDS);
 
+            $payment = Arr::except($payment, ShopifyExcelUpload::PAYMENT_METAFIELDS);
             if (empty($payment['amount'])) {
                 $this->errors['rows'][$this->row_no][] = sprintf(Errors::EMPTY_AMOUNT_ERROR, $payment_index + 1);
                 continue;
