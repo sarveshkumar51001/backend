@@ -415,22 +415,28 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
             return;
         }
-        // If no error recorded till this stage, initialize the row errors....
-        if(empty($this->errors)){
-            $this->errors['rows'][$this->row_no] = [];
-        }
+
         // Checking for delivery institution and validation data
         if ($data['delivery_institution'] == ShopifyExcelUpload::REYNOTT) {
+
             $reynott_errors = self::ValidateReynottData($data);
-            $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no], $reynott_errors);
+
+            // If no error recorded till this stage, initialize the row errors....
+            if (!empty($reynott_errors) && empty($this->errors['rows'][$this->row_no])) {
+                $this->errors['rows'][$this->row_no] = [];
+            }
+            if (!empty($this->errors['rows'])) {
+                $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no], $reynott_errors);
+            }
         }
     }
 
     public function ValidateInternalExternalOrderType(array $data) {
         if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER) {
-            $this->errors['rows'][$this->row_no][] = "The order type should be internal for Apeejay schools.";
-        } elseif (strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER) {
-            $this->errors['rows'][$this->row_no][] = "The order type should be external for schools outside Apeejay";
+            $this->errors['rows'][$this->row_no][] = Errors::INCORRECT_APEEJAY_ORDER;
+        }
+        if (!strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER) {
+            $this->errors['rows'][$this->row_no][] = Errors::INCORRECT_NON_APEEJAY_ORDER;
         }
     }
 
@@ -519,13 +525,13 @@ class ExcelValidator
     public function ValidateReynottData(array $data) {
         $errors = [];
         if(!in_array($data['class'],array_merge(Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST))){
-            $errors[] = "Class entered for Reynott academy is incorrect.";
+            $errors[] = Errors::REYNOTT_CLASS_ERROR;
         }
         if(!in_array($data['section'],array_merge(Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST))){
-            $errors[] = "Section entered for Reynott academy is incorrect.";
+            $errors[] = Errors::REYNOTT_SECTION_ERROR;
         }
         if(in_array($data['class'],Student::REYNOTT_DROPPER_CLASS_LIST) && !in_array($data['section'],Student::REYNOTT_DROPPER_SECTION_LIST)){
-            $errors[] = "For classes Dropper and Crash, section can only be Reynott.";
+            $errors[] = Errors::REYNOTT_INTERDEPENDENCE_ERROR;
         }
         return $errors;
     }

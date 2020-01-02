@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\ShopifyBulkUpload;
 
+use App\Library\Shopify\Errors;
 use App\Library\Shopify\Excel;
 use App\Library\Shopify\ExcelValidator;
 use App\Models\ShopifyExcelUpload;
@@ -37,21 +38,28 @@ class ReynottAcademyTest extends TestCase
      *
      * I/P - Incorrect class for reynott academy along with other institution details
      *
-     * Expected O/P - Test case should assert not empty if the class is incorrect according to the Reynott Academy.
+     * Expected O/P - Test case should assert True if the class is incorrect according to the Reynott Academy and the
+     * error is matched.
      *
      */
     public function testIncorrectClassShouldFail()
     {
         $data = TestCaseData::DATA;
         $data['class'] = "6";
-        $data['section'] = "C";
+        $data['section'] = "A";
         $data['delivery_institution'] = "Reynott";
         $data['branch'] = "Reynott Academy Jalandhar";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $this->assertNotEmpty($ExcelValidator->get_errors());
+        $error = implode(head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if($error == Errors::REYNOTT_CLASS_ERROR){
+            $this->assertTrue(True);
+        } else {
+            $this->assertTrue(False);
+        }
 
     }
 
@@ -60,7 +68,8 @@ class ReynottAcademyTest extends TestCase
      *
      * I/P - Incorrect section for reynott academy along with other institution details
      *
-     * Expected O/P - Test case should assert not empty if the section is incorrect according to the Reynott Academy.
+     * Expected O/P - Test case should assert True if the section is incorrect according to the Reynott Academy and the
+     * error is matched.
      *
      */
     public function testIncorrectSectionShouldFail()
@@ -74,8 +83,12 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-
-        $this->assertNotEmpty($ExcelValidator->get_errors());
+        $error = implode(head(array_values($ExcelValidator->get_errors()['rows'])));
+        if($error == Errors::REYNOTT_SECTION_ERROR){
+            $this->assertTrue(True);
+        } else {
+            $this->assertTrue(False);
+        }
     }
 
     /**
@@ -83,22 +96,28 @@ class ReynottAcademyTest extends TestCase
      *
      * I/P - Incorrect section for reynott academy when the class is either Dropper or Crash.
      *
-     * Expected O/P - Test case should assert not empty if the section is other than Reynott for Dropper and Crash classes.
+     * Expected O/P - Test case should assert True if the section is other than Reynott for Dropper and Crash classes
+     * and error is matched.
      *
      */
     public function testClassSectionInterdependence()
     {
         $data = TestCaseData::DATA;
         $data['class'] = "Dropper";
-        $data['section'] = "H";
+        $data['section'] = "F";
         $data['delivery_institution'] = "Reynott";
         $data['branch'] = "Reynott Academy Jalandhar";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-
-        $this->assertNotEmpty($ExcelValidator->get_errors());
+        $error = implode(head(array_values($ExcelValidator->get_errors()['rows'])));
+        logger($error);
+        if($error == Errors::REYNOTT_INTERDEPENDENCE_ERROR){
+            $this->assertTrue(True);
+        } else {
+            $this->assertTrue(False);
+        }
     }
 
     /**
@@ -106,7 +125,8 @@ class ReynottAcademyTest extends TestCase
      *
      * I/P - Incorrect order type for Apeejay school student.
      *
-     * Expected O/P - Test case should assert not empty if the order type is external for schools under Apeejay.
+     * Expected O/P - Test case should assert True if the order type is external for schools under Apeejay and the error
+     * is matched.
      */
     public function testIncorrectApeejayOrderShouldFail()
     {
@@ -119,8 +139,12 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateInternalExternalOrderType($ExcelValidator->FileFormattedData[0]);
-
-        $this->assertNotEmpty($ExcelValidator->get_errors());
+        $error = implode(head(array_values($ExcelValidator->get_errors()['rows'])));
+        if($error == Errors::INCORRECT_APEEJAY_ORDER){
+            $this->assertTrue(True);
+        } else {
+            $this->assertTrue(False);
+        }
     }
 
     /**
@@ -128,7 +152,8 @@ class ReynottAcademyTest extends TestCase
      *
      * I/P - Incorrect order type for Non-Apeejay school student.
      *
-     * Expected O/P - Test case should assert not empty if the order type is internal for schools outside Apeejay.
+     * Expected O/P - Test case should assert True if the order type is internal for schools outside Apeejay and
+     * the error is matched.
      */
     public function testIncorrectNonApeejayOrderShouldFail()
     {
@@ -141,8 +166,13 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateInternalExternalOrderType($ExcelValidator->FileFormattedData[0]);
-
-        $this->assertNotEmpty($ExcelValidator->get_errors());
+        $error = implode(head(array_values($ExcelValidator->get_errors()['rows'])));
+        logger($error);
+        if ($error == Errors::INCORRECT_NON_APEEJAY_ORDER) {
+            $this->assertTrue(True);
+        } else {
+            $this->assertTrue(False);
+        }
     }
 
     /**
@@ -162,7 +192,7 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $this->assertEmpty($ExcelValidator->get_errors()['rows'][0]);
+        $this->assertEmpty($ExcelValidator->get_errors());
     }
 
 }
