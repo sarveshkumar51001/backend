@@ -53,13 +53,9 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $error = implode(head(array_values($ExcelValidator->get_errors()['rows'])));
+        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
 
-        if($error == Errors::REYNOTT_CLASS_ERROR){
-            $this->assertTrue(True);
-        } else {
-            $this->assertTrue(False);
-        }
+        $this->assertTrue($error == Errors::REYNOTT_CLASS_ERROR);
 
     }
 
@@ -83,12 +79,9 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $error = implode(head(array_values($ExcelValidator->get_errors()['rows'])));
-        if($error == Errors::REYNOTT_SECTION_ERROR){
-            $this->assertTrue(True);
-        } else {
-            $this->assertTrue(False);
-        }
+        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        $this->assertTrue($error == Errors::REYNOTT_SECTION_ERROR);
     }
 
     /**
@@ -111,13 +104,9 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $error = implode(head(array_values($ExcelValidator->get_errors()['rows'])));
-        logger($error);
-        if($error == Errors::REYNOTT_INTERDEPENDENCE_ERROR){
-            $this->assertTrue(True);
-        } else {
-            $this->assertTrue(False);
-        }
+        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        $this->assertTrue($error == Errors::REYNOTT_INTERDEPENDENCE_ERROR);
     }
 
     /**
@@ -139,12 +128,9 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateInternalExternalOrderType($ExcelValidator->FileFormattedData[0]);
-        $error = implode(head(array_values($ExcelValidator->get_errors()['rows'])));
-        if($error == Errors::INCORRECT_APEEJAY_ORDER){
-            $this->assertTrue(True);
-        } else {
-            $this->assertTrue(False);
-        }
+        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        $this->assertTrue($error == Errors::INCORRECT_APEEJAY_ORDER);
     }
 
     /**
@@ -166,13 +152,9 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateInternalExternalOrderType($ExcelValidator->FileFormattedData[0]);
-        $error = implode(head(array_values($ExcelValidator->get_errors()['rows'])));
-        logger($error);
-        if ($error == Errors::INCORRECT_NON_APEEJAY_ORDER) {
-            $this->assertTrue(True);
-        } else {
-            $this->assertTrue(False);
-        }
+        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        $this->assertTrue($error == Errors::INCORRECT_NON_APEEJAY_ORDER);
     }
 
     /**
