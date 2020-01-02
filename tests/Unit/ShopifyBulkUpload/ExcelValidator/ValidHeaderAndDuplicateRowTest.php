@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\TestCaseData;
 
-class ExcelValidatorTest extends TestCase
+class ValidHeaderAndDuplicateRowTest extends TestCase
 {
 
     private function generate_raw_excel($rows)

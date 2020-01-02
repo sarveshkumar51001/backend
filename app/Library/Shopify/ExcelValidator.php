@@ -111,7 +111,6 @@ class ExcelValidator
                 }
             }
 
-
             if (! empty($fields_updated)) {
                 $this->errors['rows'][$this->row_no][] = "Only Payment data can be updated for an Order. Field(s) " . implode($fields_updated, ",") . " has been changed";
             }
@@ -432,7 +431,7 @@ class ExcelValidator
         }
     }
 
-    private function ValidateActivityDetails(array $data)
+    public function ValidateActivityDetails(array $data)
     {
         $enrollment_date = $data['date_of_enrollment'];
         $enrollment_no = $data['school_enrollment_no'];

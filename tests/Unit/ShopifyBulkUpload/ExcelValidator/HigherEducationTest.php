@@ -51,6 +51,7 @@ class HigherEducationTest extends TestCase
 
         $data = TestCaseData::DATA;
         $data['class'] = "10";
+        $data['branch'] = "ASM Dwarka";
         $data['section'] = "Sem1";
         $excel_data = array($data);
 
@@ -105,7 +106,6 @@ class HigherEducationTest extends TestCase
         $this->assertNotEmpty($ExcelValidator->get_errors());
 
     }
-
 }
 
 
