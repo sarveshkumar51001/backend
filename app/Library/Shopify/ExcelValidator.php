@@ -97,7 +97,7 @@ class ExcelValidator
         $DatabaseRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)->where('shopify_activity_id', $activity_id)
             ->where('school_enrollment_no', $std_enroll_no)
             ->first();
-
+        
         if (! empty($DatabaseRow)) {
             $is_duplicate = true;
             $fields_updated = [];
@@ -117,8 +117,6 @@ class ExcelValidator
 
             // Existing payments array
             $existingpayments = $DatabaseRow["payments"];
-
-
 
             foreach ($row["payments"] as $payment_index => $payment) {
 
