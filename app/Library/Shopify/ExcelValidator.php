@@ -65,8 +65,8 @@ class ExcelValidator
 
             $validation_error = $this->ValidateData($data);
 
-            if ($this->ValidateDuplicateRow($data) || $validation_error) {
-                if ($validation_error) {
+            if ($this->ValidateDuplicateRow($data) || !$validation_error) {
+                if (!$validation_error) {
                     $sheet_has_column_validation_error = true;
                 }
                 unset($this->FileFormattedData[$index]);
@@ -97,7 +97,7 @@ class ExcelValidator
         $DatabaseRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)->where('shopify_activity_id', $activity_id)
             ->where('school_enrollment_no', $std_enroll_no)
             ->first();
-        
+
         if (! empty($DatabaseRow)) {
             $is_duplicate = true;
             $fields_updated = [];
@@ -204,9 +204,9 @@ class ExcelValidator
         $errors = $validator->getMessageBag()->toArray();
         if (! empty($errors)) {
             $this->errors['rows'][$this->row_no] = Arr::flatten(array_values($errors));
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     public function ValidateAmount()
