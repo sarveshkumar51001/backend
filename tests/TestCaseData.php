@@ -6,7 +6,7 @@ class TestCaseData{
 
     const DATA = [
     'sno' => 1,
-    'date_of_enrollment' => '02/01/2020',
+    'date_of_enrollment' => '03/01/2020',
     'shopify_activity_id' => 'PR1YR- LW18',
     'delivery_institution' => 'Apeejay',
     'branch' => 'Saket',
@@ -42,11 +42,11 @@ class TestCaseData{
     'txn_reference_number_only_in_case_of_paytm_or_online_1' => NULL,
     'pdc_collectedpdc_to_be_collectedstatus_1' => NULL,
     'mode_of_payment_1' => 'Cheque',
-    'chequedd_no_1' => 12345,
+    'chequedd_no_1' => 123456789,
     'micr_code_1' => 45678987657,
     'chequedd_date_1' => "17/07/2019",
     'drawee_name_1' => "test",
-    'drawee_account_number_1' => 1232424,
+    'drawee_account_number_1' => 1232424 ,
     'bank_name_1' => "test",
     'bank_branch_1' => "test",
     'amount_2' => NULL,

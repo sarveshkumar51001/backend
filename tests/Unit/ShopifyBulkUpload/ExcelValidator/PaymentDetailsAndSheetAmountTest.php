@@ -34,7 +34,11 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         return $ExcelFormatted;
     }
 
-    //D
+    /** Test case for checking the missing cheque details results in an error.
+     *
+     * I/P - Missing cheque details for payment having mode as Cheque.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testMissingChequeDetailsShouldFail(){
 
         $data = TestCaseData::DATA;
@@ -50,10 +54,15 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
 
     }
 
-    //D
+    /** Test case for checking the already used cheque details results in an error.
+     *
+     * I/P - Already used cheque details for payment having mode as Cheque.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testAlreadyUsedChequeDetailsShouldFail(){
 
         $data = TestCaseData::DATA;
+        $data['date_of_enrollment'] = "02/01/2020";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
@@ -61,10 +70,15 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $index = array_search($data['mode_of_payment_1'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
         $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
 
+
         $this->assertTrue($error == sprintf(Errors::CHEQUE_DETAILS_USED_ERROR,$index + 1));
     }
 
-    //D
+    /** Test case for checking that cheque details for cash payment results in an error.
+     *
+     * I/P - Cheque details for payment having mode as Cash.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testIncorrectDetailsForCashPaymentShouldFail(){
 
         $data = TestCaseData::DATA;
@@ -82,7 +96,11 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $this->assertTrue($error == sprintf(Errors::CASH_PAYMENT_ERROR, $index + 1));
     }
 
-    //D
+    /** Test case for checking the missing reference number for NEFT mode results in an error.
+     *
+     * I/P - Missing reference number for payment having mode as NEFT.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testEmptyRefNoForOnlineShouldFail(){
 
         $data = TestCaseData::DATA;
@@ -99,7 +117,11 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $this->assertTrue($error == sprintf(Errors::ONLINE_PAYMENT_ERROR,$index + 1));
     }
 
-    //D
+    /** Test case for checking that any payment having mode as Online results in an error.
+     *
+     * I/P - Payment having mode as Online.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testOnlineNotSupported(){
 
         $data = TestCaseData::DATA;
@@ -115,7 +137,11 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $this->assertTrue($error == sprintf(Errors::ONLINE_NOT_SUPPORTED_ERROR,$index + 1));
     }
 
-    //D
+    /** Test case for checking that invalid payment mode results in an error.
+     *
+     * I/P - Invalid mode for a payment.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testInvalidModeShouldFail(){
 
         $data = TestCaseData::DATA;
@@ -131,7 +157,11 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $this->assertTrue($error == sprintf(Errors::INVALID_MODE_ERROR,$mode,$index + 1));
     }
 
-    //D
+    /** Test case for checking that empty expected amount or expected date for unrecorded payments results in an error.
+     *
+     * I/P - Empty amount or expected date for unrecorded payments.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testExpectedDateAmountEmptyShouldFail(){
 
         $data = TestCaseData::DATA;
@@ -149,7 +179,11 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
 
     }
 
-    //D
+    /** Test case for checking that cheque/dd/online details entered without payment mode results in an error.
+     *
+     * I/P - cheque/dd/online details entered without payment mode.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testEmptyModePaymentDetailsShouldFail(){
         $data = TestCaseData::DATA;
         $data['mode_of_payment_1'] = "";
@@ -163,7 +197,11 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $this->assertTrue($error == Errors::FUTURE_PAYMENT_CHEQUE_DETAILS_ERROR);
     }
 
-    //D
+    /** Test case for checking that back date for unrecorded payments results in an error.
+     *
+     * I/P - Back date for unrecorded payments.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testFutureDateForFutureInstallmentsShouldFail(){
         $data = TestCaseData::DATA;
         $data['mode_of_payment_1'] = "";
@@ -178,7 +216,11 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $this->assertTrue($error == sprintf(Errors::FUTURE_INSTALLMENT_DATE_ERROR, $index + 1));
     }
 
-    //D
+    /** Test case for checking that incorrect total installment amount results in an error.
+     *
+     * I/P - Incorrect total installment amount.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testTotalInstallmentAndFinalFeeMismatchShouldFail(){
 
         $data = TestCaseData::DATA;
@@ -192,11 +234,15 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $this->assertTrue($error == Errors::ORDER_AMOUNT_TOTAL_ERROR);
     }
 
-    //D
+    /** Test case for checking that mismatch in expected and recorded cash amount results in an error.
+     *
+     * I/P - mismatch in expected and recorded cash amount.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testCashAmountMismatch(){
 
         $data = TestCaseData::DATA;
-        $data['date_of_enrollment'] = "03/01/2020";
+        $data['date_of_enrollment'] = "04/01/2020";
         $excel_data = array($data);
 
         $CustomData = ['cash-total' => 0,
@@ -211,11 +257,15 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
 
     }
 
-    //D
+    /** Test case for checking that mismatch in expected and recorded cheque amount results in an error..
+     *
+     * I/P - Mismatch in expected and recorded cheque amount.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testChequeAmountMismatch(){
 
         $data = TestCaseData::DATA;
-        $data['date_of_enrollment'] = "03/01/2020";
+        $data['date_of_enrollment'] = "04/01/2020";
         $excel_data = array($data);
 
         $CustomData = ['cash-total' => 60000,
@@ -230,11 +280,15 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
 
     }
 
-    //D
+    /** Test case for checking that mismatch in expected and recorded online amount results in an error..
+     *
+     * I/P - Mismatch in expected and recorded online amount.
+     * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
+     */
     public function testOnlineAmountMismatch(){
 
         $data = TestCaseData::DATA;
-        $data['date_of_enrollment'] = "03/01/2020";
+        $data['date_of_enrollment'] = "04/01/2020";
         $data['mode_of_payment'] = "Online";
         $excel_data = array($data);
 
@@ -247,8 +301,6 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $error = head($ExcelValidator->get_errors()['sheet']);
 
         $this->assertTrue($error == sprintf(Errors::ONLINE_TOTAL_MISMATCH, $CustomData['online-total'], $data['amount']));
-
-
 
     }
 

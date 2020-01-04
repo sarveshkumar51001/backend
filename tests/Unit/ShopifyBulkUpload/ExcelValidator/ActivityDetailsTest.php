@@ -32,7 +32,11 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
+     * For testing that invalid product id results in an error.
      *
+     * I/P - Invalid shopify product id
+     * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
+     * else false.
      */
     public function testIncorrectProductIDShouldFail(){
 
@@ -49,7 +53,11 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
+     * For testing that duplicate product id results in an error.
      *
+     * I/P - Duplicate Activity ID
+     * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
+     * else false.
      */
     public function testDuplicateActivityIDShouldFail(){
 
@@ -66,7 +74,11 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
+     * For testing that incorrect product fee results in an error.
      *
+     * I/P - Incorrect Activity Fee
+     * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
+     * else false
      */
     public function testIncorrectActivityFeeShouldFail(){
 
@@ -84,7 +96,11 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
+     * For testing that out of stock product results in an error.
      *
+     * I/P - Out of stock product
+     * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
+     * else false
      */
     public function testProductOutOfStockShouldFail(){
 
@@ -103,7 +119,11 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
+     * For testing that incorrect final fee after including GST results in an error.
      *
+     * I/P - Incorrect Final Fee
+     * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
+     * else false
      */
     public function testIncorrectFeeMismatchShouldFail(){
 
@@ -120,7 +140,11 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
+     * For testing that incorrect after discount fee results in an error.
      *
+     * I/P - incorrect after discount fee
+     * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
+     * else false
      */
     public function testAfterDiscountFeeMismatchShouldFail(){
 
@@ -138,7 +162,10 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
+     * For testing that valid product id passes.
      *
+     * I/P - Valid shopify product id
+     * O/P - Test case will assert Empty if the product id passed is valid.
      */
     public function testCorrectActivityShouldPass(){
 
