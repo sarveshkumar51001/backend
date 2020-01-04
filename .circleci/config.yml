@@ -28,6 +28,7 @@ jobs:
       - run: sudo docker-php-ext-install zip
       - run: sudo docker-php-ext-install gd
       - run: sudo pecl install mongodb
+      - run: sudo pecl install libmongoc
       - run: echo "extension=mongodb.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
       - run: sudo docker-php-ext-enable mongodb
       - run: sudo docker-php-ext-enable gd
