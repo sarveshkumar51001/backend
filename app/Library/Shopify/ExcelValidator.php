@@ -409,14 +409,50 @@ class ExcelValidator
 
         // Fetching location for the delivery institution and branch
         $location = ShopifyExcelUpload::getLocation($data['delivery_institution'], $data['branch']);
-
+        if (! $location) {
+            $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
+            return;
         }
 
+        // Checking for delivery institution and validation data
+        if ($data['delivery_institution'] == ShopifyExcelUpload::REYNOTT) {
+
+            $reynott_errors = self::ValidateReynottData($data);
+
+            // If no error recorded till this stage, initialize the row errors....
+            if (!empty($reynott_errors) && empty($this->errors['rows'][$this->row_no])) {
+                $this->errors['rows'][$this->row_no] = [];
+            }
+            if (!empty($this->errors['rows'])) {
+                $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no], $reynott_errors);
             }
         }
     }
+    public function ValidateInternalExternalOrderType(array $data) {
+        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER) {
+            $this->errors['rows'][$this->row_no][] = Errors::INCORRECT_APEEJAY_ORDER;
+        }
+        if (!strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER) {
+            $this->errors['rows'][$this->row_no][] = Errors::INCORRECT_NON_APEEJAY_ORDER;
+        }
+    }
 
+    /**
+     * @deprecated Not to be used
+     * @todo Remove in next release
+     * @param array $data
+     * @param $location
+     */
+    private function ValidateApeejayData(array $data, $location){
 
+        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+            $this->errors['rows'][$this->row_no][] = "Delivery institution should be Apeejay for Apeejay Schools.";
+        } elseif (strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+            $this->errors['rows'][$this->row_no][] = "Delivery institution should not be Apeejay for external schools.";
+        }
+    }
+
+    public function ValidateActivityDetails(array $data)
     {
         $enrollment_date = $data['date_of_enrollment'];
         $enrollment_no = $data['school_enrollment_no'];
