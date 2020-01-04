@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use Psy\Util\Str;
 
 /**
  * Class ExcelValidator
@@ -61,6 +62,7 @@ class ExcelValidator
 
         // Finding data validation errors
         foreach ($this->FileFormattedData as $index => $data) {
+
             $this->row_no ++;
 
             $validation_error = $this->ValidateData($data);
@@ -72,6 +74,8 @@ class ExcelValidator
                 unset($this->FileFormattedData[$index]);
                 continue;
             }
+
+            $this->ValidateInternalExternalOrderType($data);
             $this->ValidateHigherEducationData($data);
             $this->ValidatePaymentDetails($data);
             $this->ValidateFieldValues($data);
@@ -161,10 +165,10 @@ class ExcelValidator
             "school_enrollment_no" => "required|string|min:4",
             "class" => [
                 "required",
-                Rule::in(array_merge(Student::CLASS_LIST,Student::HIGHER_CLASS_LIST))],
+                Rule::in(array_merge(Student::CLASS_LIST,Student::HIGHER_CLASS_LIST,Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST))],
 
             "section" => ["required",
-                Rule::in(array_merge(Student::SECTION_LIST,Student::HIGHER_SECTION_LIST))],
+                Rule::in(array_merge(Student::SECTION_LIST,Student::HIGHER_SECTION_LIST,Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST))],
 
             // Parent Details
             "parent_first_name" => "required",
@@ -398,36 +402,56 @@ class ExcelValidator
         }
     }
 
-    private function ValidateFieldValues(array $data)
+    public function ValidateFieldValues(array $data)
     {
+
         if (empty($data['mobile_number']) && empty($data['email_id'])) {
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
         }
+
         // Fetching location for the delivery institution and branch
         $location = ShopifyExcelUpload::getLocation($data['delivery_institution'], $data['branch']);
-
-        // If location not found and order type is not external...
-        if (!$location && strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER ) {
-            $this->errors['rows'][$this->row_no][] = "The order type should be external for institutes outside Apeejay.";
+        if (! $location) {
             $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
+            return;
         }
-        else {
-            // If the location found doesn't corresponds to higher education institute
-            if (!$location['is_higher_education']) {
-                if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE)) {
-                    if (strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
-                        $this->errors['rows'][$this->row_no][] = "The order type should be internal for schools under Apeejay Education Society and delivery institution should be Apeejay.";
-                    }
-                } else {
-                    if (strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER || strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
-                        $this->errors['rows'][$this->row_no][] = "The order type should be external for schools outside Apeejay and delivery institution should be other than Apeejay.";
-                    }
-                }
-            } else{
-                if(strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)){
-                    $this->errors['rows'][$this->row_no][] = "The order type should be internal for institutes under Apeejay Education Society and delivery institution should be Apeejay.";
-                }
+
+        // Checking for delivery institution and validation data
+        if ($data['delivery_institution'] == ShopifyExcelUpload::REYNOTT) {
+
+            $reynott_errors = self::ValidateReynottData($data);
+
+            // If no error recorded till this stage, initialize the row errors....
+            if (!empty($reynott_errors) && empty($this->errors['rows'][$this->row_no])) {
+                $this->errors['rows'][$this->row_no] = [];
             }
+            if (!empty($this->errors['rows'])) {
+                $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no], $reynott_errors);
+            }
+        }
+    }
+
+    public function ValidateInternalExternalOrderType(array $data) {
+        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER) {
+            $this->errors['rows'][$this->row_no][] = Errors::INCORRECT_APEEJAY_ORDER;
+        }
+        if (!strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER) {
+            $this->errors['rows'][$this->row_no][] = Errors::INCORRECT_NON_APEEJAY_ORDER;
+        }
+    }
+
+    /**
+     * @deprecated Not to be used
+     * @todo Remove in next release
+     * @param array $data
+     * @param $location
+     */
+    private function ValidateApeejayData(array $data, $location){
+
+        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+            $this->errors['rows'][$this->row_no][] = "Delivery institution should be Apeejay for Apeejay Schools.";
+        } elseif (strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+            $this->errors['rows'][$this->row_no][] = "Delivery institution should not be Apeejay for external schools.";
         }
     }
 
@@ -463,6 +487,7 @@ class ExcelValidator
             }
         }
     }
+
     public function ValidateHigherEducationData(array $data){
 
         $location_data = ShopifyExcelUpload::getLocation($data['delivery_institution'],$data['branch']);
@@ -487,6 +512,28 @@ class ExcelValidator
                 }
             }
         }
+    }
+
+    /**
+     * Function for validating class, section and other fields related to the Reynott Academy Data
+     *
+     * Takes excel row data as input and returns errors if validation fails.
+     *
+     * @param array $data
+     * @return array
+     */
+    public function ValidateReynottData(array $data) {
+        $errors = [];
+        if(!in_array($data['class'],array_merge(Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST))){
+            $errors[] = Errors::REYNOTT_CLASS_ERROR;
+        }
+        if(!in_array($data['section'],array_merge(Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST))){
+            $errors[] = Errors::REYNOTT_SECTION_ERROR;
+        }
+        if(in_array($data['class'],Student::REYNOTT_DROPPER_CLASS_LIST) && !in_array($data['section'],Student::REYNOTT_DROPPER_SECTION_LIST)){
+            $errors[] = Errors::REYNOTT_INTERDEPENDENCE_ERROR;
+        }
+        return $errors;
     }
 
     /**

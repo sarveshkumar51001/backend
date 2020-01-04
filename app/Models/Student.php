@@ -40,4 +40,12 @@ class Student extends Base
 
     const HIGHER_SECTION_LIST = ["Sem 1","Sem 2","Sem 3","Sem 4","Sem 5","Sem 6","Sem 7","Sem 8"];
 
+    const REYNOTT_CLASS_LIST = [7,8,9,10,11,12];
+
+    const REYNOTT_DROPPER_CLASS_LIST = ["Dropper","Crash"];
+
+    const REYNOTT_SECTION_LIST = ["A","B","C","D","E","F"];
+
+    const REYNOTT_DROPPER_SECTION_LIST = ["Reynott"];
+
 }
