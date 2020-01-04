@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Library\Shopify;
 
 class Errors
@@ -74,7 +75,14 @@ class Errors
 
     CONST SCHOOL_SECTION_ERROR = "Higher Education sections are not valid for school entries.";
 
+    const REYNOTT_CLASS_ERROR = "Class entered for Reynott academy is incorrect.";
 
+    const REYNOTT_SECTION_ERROR = "Section entered for Reynott academy is incorrect.";
 
+    const REYNOTT_INTERDEPENDENCE_ERROR = "For classes Dropper and Crash, section can only be Reynott.";
+
+    const INCORRECT_APEEJAY_ORDER = "The order type should be internal for Apeejay schools.";
+
+    const INCORRECT_NON_APEEJAY_ORDER = "The order type should be external for schools outside Apeejay.";
 
 }

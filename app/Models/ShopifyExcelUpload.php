@@ -32,6 +32,8 @@ class ShopifyExcelUpload extends Base
 
     const JOB_STATUS_FAILED = 'failed';
 
+    const REYNOTT = 'Reynott';
+
     const MODE_CASH = 1;
 
     const MODE_CHEQUE = 2;
@@ -245,6 +247,14 @@ class ShopifyExcelUpload extends Base
                 "pincode" => "127306",
                 "is_higher_education" => true
             ]
+        ],
+        "Reynott" => [
+            "Reynott Academy Jalandhar" => [
+                "city" => "Jalandhar",
+                "state" => "Punjab",
+                "pincode" => "144003",
+                "is_higher_education" => false
+            ]
         ]
     ];
 
@@ -275,7 +285,7 @@ class ShopifyExcelUpload extends Base
      * @return array
      */
     public static function getBranchNames() {
-        return array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]);
+        return array_merge(array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]),array_keys(self::SCHOOL_ADDRESS_MAPPING['Reynott']));
     }
 
 }

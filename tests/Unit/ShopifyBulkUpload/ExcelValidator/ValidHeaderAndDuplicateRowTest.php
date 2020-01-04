@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Library\Shopify\Errors;
 use App\Library\Shopify\ExcelValidator;
 use App\Models\ShopifyExcelUpload;
 use Illuminate\Support\Facades\Auth;
@@ -67,5 +68,34 @@ class ValidHeaderAndDuplicateRowTest extends TestCase
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
         $this->assertFalse($ExcelValidator->ValidateDuplicateRow($ExcelValidator->FileFormattedData[0]));
 
+    }
+
+    // Test case should assert True if both email and mobile number are empty else false.
+    public function testEmptyEmailOrContactShoudFail()
+    {
+        $data = TestCaseData::DATA;
+        $data['email_id'] = "";
+        $data['mobile_number'] = "";
+        $excel_data = array($data);
+
+        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
+        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        $this->assertTrue($error == Errors::CONTACT_DETAILS_ERROR);
+    }
+
+    // Test case should assert true if location is incorrect else false.
+    public function testIncorrectLocationShoudFail()
+    {
+        $data = TestCaseData::DATA;
+        $data['delivery_institution'] = "Apeejay";
+        $data['branch'] = "Mumbai";
+
+        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
+        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        $this->assertTrue($error == Errors::LOCATION_ERROR);
     }
 }
