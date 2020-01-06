@@ -67,8 +67,8 @@ class ExcelValidator
 
             $validation_error = $this->ValidateData($data);
 
-            if ($this->ValidateDuplicateRow($data) || !$validation_error) {
-                if (!$validation_error) {
+            if ($this->ValidateDuplicateRow($data) || $validation_error) {
+                if ($validation_error) {
                     $sheet_has_column_validation_error = true;
                 }
                 unset($this->FileFormattedData[$index]);
@@ -140,7 +140,7 @@ class ExcelValidator
         return $is_duplicate;
     }
 
-    public function ValidateData(array $data)
+    private function ValidateData(array $data)
     {
 
         $rules = [
@@ -208,9 +208,9 @@ class ExcelValidator
         $errors = $validator->getMessageBag()->toArray();
         if (! empty($errors)) {
             $this->errors['rows'][$this->row_no] = Arr::flatten(array_values($errors));
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public function ValidateAmount()
