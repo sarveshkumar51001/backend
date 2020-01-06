@@ -487,5 +487,60 @@ class ExcelValidator
             }
         }
     }
+    public function ValidateHigherEducationData(array $data){
+
+        $location_data = ShopifyExcelUpload::getLocation($data['delivery_institution'],$data['branch']);
+
+        // Proceed only if $location data is returned;
+        if($location_data){
+            // Proceeding only if location corresponds to higher institute
+            if($location_data['is_higher_education']){
+                // Checking whether the section value is for higher institutes
+                if(!in_array($data['class'],Student::HIGHER_CLASS_LIST)){
+                    $this->errors['rows'][$this->row_no][] = "Incorrect class given for higher education institutes";
+                }
+                if(!in_array($data['section'],Student::HIGHER_SECTION_LIST)){
+                    $this->errors['rows'][$this->row_no][] = "Incorrect section given for higher education institutes";
+                }
+            } else{
+                if(in_array($data['class'],Student::HIGHER_CLASS_LIST)){
+                    $this->errors['rows'][$this->row_no][] = "Higher Education classes are not valid for school entries.";
+                }
+                if(in_array($data['section'],Student::HIGHER_SECTION_LIST)){
+                    $this->errors['rows'][$this->row_no][] = "Higher Education sections are not valid for school entries.";
+                }
+            }
+        }
+    }
+
+    /**
+     * Function for validating class, section and other fields related to the Reynott Academy Data
+     *
+     * Takes excel row data as input and returns errors if validation fails.
+     *
+     * @param array $data
+     * @return array
+     */
+    public function ValidateReynottData(array $data) {
+        $errors = [];
+        if(!in_array($data['class'],array_merge(Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST))){
+            $errors[] = Errors::REYNOTT_CLASS_ERROR;
+        }
+        if(!in_array($data['section'],array_merge(Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST))){
+            $errors[] = Errors::REYNOTT_SECTION_ERROR;
+        }
+        if(in_array($data['class'],Student::REYNOTT_DROPPER_CLASS_LIST) && !in_array($data['section'],Student::REYNOTT_DROPPER_SECTION_LIST)){
+            $errors[] = Errors::REYNOTT_INTERDEPENDENCE_ERROR;
+        }
+        return $errors;
+    }
+
+    /**
+     * @return array
+     */
+    public function get_errors()
+    {
+        return $this->errors;
+    }
 
 }
