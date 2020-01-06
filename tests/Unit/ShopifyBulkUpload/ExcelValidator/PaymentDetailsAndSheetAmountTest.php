@@ -15,25 +15,6 @@ use Tests\TestCaseData;
 class PaymentDetailsAndSheetAmountTest extends TestCase
 {
 
-    /**
-     * @param $rows
-     * @return Excel
-     */
-    private function generate_raw_excel($rows)
-    {
-        $headers = array_keys($rows);
-
-        $ExcelFormatted = (new Excel($headers, $rows, [
-            'upload_date' => '27/11/2019',
-            'uploaded_by' => Auth::id(),
-            'file_id' => 'shopify-253637',
-            'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
-            'order_id' => 0,
-            'customer_id' => 0
-        ]));
-        return $ExcelFormatted;
-    }
-
     /** Test case for checking the missing cheque details results in an error.
      *
      * I/P - Missing cheque details for payment having mode as Cheque.
@@ -46,7 +27,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $data['chequedd_no_1'] = "";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment_1'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
 
@@ -70,7 +51,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $data['date_of_enrollment'] = "02/01/2020";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment_1'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
 
@@ -96,7 +77,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $data['chequedd_no_1'] = 34567;
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
 
@@ -120,7 +101,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $data['chequedd_no_1'] = 4564322;
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
 
@@ -144,7 +125,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $data['chequedd_no_1'] = 45678;
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
 
@@ -168,7 +149,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $mode = $data['mode_of_payment_1'];
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment_1'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
 
@@ -193,7 +174,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $data['amount_1'] = 3720;
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment_1'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
 
@@ -218,7 +199,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $data['chequedd_date_1'] = "15/01/2020";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -241,7 +222,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $data['chequedd_date_1'] = "01/01/2020";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment_1'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
 
@@ -264,7 +245,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $data['amount_1'] = "";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -290,7 +271,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
             'cheque-total' => 3720,
             'online-total' => 0];
 
-        $ExcelValidator = $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data),$CustomData);
+        $ExcelValidator = $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data),$CustomData);
         $ExcelValidator->ValidateAmount();
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -316,7 +297,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
             'cheque-total' => 0,
             'online-total' => 0];
 
-        $ExcelValidator = $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data),$CustomData);
+        $ExcelValidator = $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data),$CustomData);
         $ExcelValidator->ValidateAmount();
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -344,7 +325,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
             'cheque-total' => 3720,
             'online-total' => 0];
 
-        $ExcelValidator = $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data),$CustomData);
+        $ExcelValidator = $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data),$CustomData);
         $ExcelValidator->ValidateAmount();
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -364,7 +345,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
             'cheque-total' => 3720,
             'online-total' => 0];
 
-        $ExcelValidator = $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data),$CustomData);
+        $ExcelValidator = $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data),$CustomData);
 
         $this->assertEmpty($ExcelValidator->ValidateAmount());
     }
@@ -383,7 +364,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
             'cheque-total' => 0,
             'online-total' => 0];
 
-        $ExcelValidator = $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data),$CustomData);
+        $ExcelValidator = $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data),$CustomData);
         $ExcelValidator->ValidateAmount();
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -392,33 +373,5 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
 
         $this->assertEmpty($error);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

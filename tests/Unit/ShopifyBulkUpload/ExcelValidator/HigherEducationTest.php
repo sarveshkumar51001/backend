@@ -12,29 +12,6 @@ use Tests\TestCaseData;
 
 class HigherEducationTest extends TestCase
 {
-    /**
-     * Test case for Higher Education related validations
-     *
-     * Function takes data rows as input and return object of class Excel with formatted data
-     *
-     * @param $rows
-     * @return Excel
-     */
-    private function generate_raw_excel($rows)
-    {
-        $headers = array_keys($rows);
-
-        $ExcelFormatted = (new Excel($headers, $rows, [
-            'upload_date' => '27/11/2019',
-            'uploaded_by' => Auth::id(),
-            'file_id' => 'shopify-253637',
-            'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
-            'order_id' => 0,
-            'customer_id' => 0
-        ]));
-
-        return $ExcelFormatted;
-    }
 
     // Test case should assert Null if class and section are correct as per higher institutes.
     public function testHigherEducationPass(){
@@ -42,7 +19,7 @@ class HigherEducationTest extends TestCase
         $data = TestCaseData::DATA;
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $this->assertNull($ExcelValidator->ValidateHigherEducationData($ExcelValidator->FileFormattedData[0]));
     }
 
@@ -55,7 +32,7 @@ class HigherEducationTest extends TestCase
         $data['section'] = "Sem1";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateHigherEducationData($ExcelValidator->FileFormattedData[0]);
 
         $this->assertNotEmpty($ExcelValidator->get_errors());
@@ -69,7 +46,7 @@ class HigherEducationTest extends TestCase
         $data['section'] = "C";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateHigherEducationData($ExcelValidator->FileFormattedData[0]);
 
         $this->assertNotEmpty($ExcelValidator->get_errors());
@@ -84,7 +61,7 @@ class HigherEducationTest extends TestCase
         $data['section'] = "C";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateHigherEducationData($ExcelValidator->FileFormattedData[0]);
 
         $this->assertNotEmpty($ExcelValidator->get_errors());
@@ -100,7 +77,7 @@ class HigherEducationTest extends TestCase
         $data['section'] = "Sem 1";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateHigherEducationData($ExcelValidator->FileFormattedData[0]);
 
         $this->assertNotEmpty($ExcelValidator->get_errors());

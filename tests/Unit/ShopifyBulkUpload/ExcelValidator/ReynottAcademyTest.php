@@ -52,7 +52,7 @@ class ReynottAcademyTest extends TestCase
         $data['branch'] = "Reynott Academy Jalandhar";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -81,7 +81,7 @@ class ReynottAcademyTest extends TestCase
         $data['branch'] = "Reynott Academy Jalandhar";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -110,7 +110,7 @@ class ReynottAcademyTest extends TestCase
         $data['branch'] = "Reynott Academy Jalandhar";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -138,7 +138,7 @@ class ReynottAcademyTest extends TestCase
         $data['external_internal'] = "External";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateInternalExternalOrderType($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -166,7 +166,7 @@ class ReynottAcademyTest extends TestCase
         $data['external_internal'] = "Internal";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateInternalExternalOrderType($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -192,7 +192,7 @@ class ReynottAcademyTest extends TestCase
         $data['section'] = "C";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
         $this->assertEmpty($ExcelValidator->get_errors());
     }

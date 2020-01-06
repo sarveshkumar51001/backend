@@ -12,27 +12,9 @@ use Tests\TestCaseData;
 
 class ActivityDetailsTest extends TestCase
 {
-    /**
-     * Function takes data rows as input and return object of class Excel with formatted data
-     * @param $rows
-     * @return Excel
-     */
-    private function generate_raw_excel($rows)
-    {
-        $headers = array_keys($rows);
-
-        return (new Excel($headers, $rows, [
-            'upload_date' => '02/01/2020',
-            'uploaded_by' => Auth::id(),
-            'file_id' => 'shopify-253637',
-            'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
-            'order_id' => 0,
-            'customer_id' => 0
-        ]));
-    }
 
     /**
-     * For testing that invalid product id results in an error.
+     * Testing that invalid product id in DB results in an error.
      *
      * I/P - Invalid shopify product id
      * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
@@ -45,7 +27,8 @@ class ActivityDetailsTest extends TestCase
         $data['shopify_activity_id'] = "ABC-XYZ";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -57,7 +40,7 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
-     * For testing that duplicate product id results in an error.
+     * Testing that duplicate product id in DB results in an error.
      *
      * I/P - Duplicate Activity ID
      * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
@@ -70,7 +53,7 @@ class ActivityDetailsTest extends TestCase
         $data['shopify_activity_id'] = "ABC-001";
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -82,7 +65,7 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
-     * For testing that incorrect product fee results in an error.
+     * Testing that incorrect product fee results in an error.
      *
      * I/P - Incorrect Activity Fee
      * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
@@ -96,7 +79,7 @@ class ActivityDetailsTest extends TestCase
         $data['final_fee_incl_gst'] = 6372;
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -108,7 +91,7 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
-     * For testing that out of stock product results in an error.
+     * Testing that out of stock product results in an error.
      *
      * I/P - Out of stock product
      * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
@@ -123,7 +106,7 @@ class ActivityDetailsTest extends TestCase
         $data['final_fee_incl_gst'] = 1600;
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -134,7 +117,7 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
-     * For testing that incorrect final fee after including GST results in an error.
+     * Testing that incorrect final fee after including GST results in an error.
      *
      * I/P - Incorrect Final Fee
      * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
@@ -147,7 +130,7 @@ class ActivityDetailsTest extends TestCase
         $data['final_fee_incl_gst'] = 63721;
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -159,7 +142,7 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
-     * For testing that incorrect after discount fee results in an error.
+     * Testing that incorrect after discount fee results in an error.
      *
      * I/P - incorrect after discount fee
      * O/P - Test case will assert True if the error returned from the ExcelValidator is same as the expected error
@@ -173,7 +156,7 @@ class ActivityDetailsTest extends TestCase
         $data['final_fee_incl_gst'] = 50000;
         $excel_data = array($data);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -185,7 +168,7 @@ class ActivityDetailsTest extends TestCase
     }
 
     /**
-     * For testing that valid product id passes.
+     * Testing that valid product id passes.
      *
      * I/P - Valid shopify product id
      * O/P - Test case will assert Empty if the product id passed is valid.
@@ -194,67 +177,11 @@ class ActivityDetailsTest extends TestCase
 
         $data = array(TestCaseData::DATA);
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($data));
         $ExcelValidator->ValidateHigherEducationData($ExcelValidator->FileFormattedData[0]);
 
         $this->assertEmpty($ExcelValidator->get_errors());
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

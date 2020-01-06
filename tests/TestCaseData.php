@@ -2,7 +2,26 @@
 
 namespace Tests;
 
+use App\Library\Shopify\Excel;
+use App\Models\ShopifyExcelUpload;
+use Illuminate\Support\Facades\Auth;
+
 class TestCaseData{
+
+
+    public static function Generate_Raw_Excel($rows){
+
+        $headers = array_keys($rows);
+
+        return (new Excel($headers, $rows, [
+            'upload_date' => '02/01/2020',
+            'uploaded_by' => "5d1214cbafd58641b5532f82",
+            'file_id' => 'shopify-253637',
+            'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
+            'order_id' => 0,
+            'customer_id' => 0
+        ]));
+    }
 
     const DATA = [
     'sno' => 1,
