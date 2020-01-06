@@ -20,8 +20,6 @@ jobs:
       #
       # - image: redis:2.8.19
     resource_class: small
-    post-steps:
-      - jira/notify
     steps:
       - checkout
 
@@ -74,3 +72,4 @@ jobs:
           path: build/phpunit
       - store_artifacts:
           path: build/phpunit
+      - jira/notify
