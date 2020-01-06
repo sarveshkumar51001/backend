@@ -7,8 +7,6 @@ orbs:
 version: 2.1
 jobs:
   build:
-    post-steps:
-      - jira/notify
     docker:
       # Specify the version you desire here
       - image: circleci/php:7.3.7-cli-node-browsers
@@ -74,3 +72,5 @@ jobs:
           path: build/phpunit
       - store_artifacts:
           path: build/phpunit
+    post-steps:
+      - jira/notify
