@@ -23,7 +23,7 @@
 		"oseintow/laravel-shopify": "^1.0",
 		"phpclassic/php-shopify": "^1.0",
 		"sentry/sentry-laravel": "~1"
-	},
+    },
 	"require-dev" : {
 		"beyondcode/laravel-dump-server" : "^1.0",
 		"filp/whoops" : "^2.0",
