@@ -41,6 +41,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      */
     public function testMissingChequeDetailsShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['chequedd_no_1'] = "";
         $excel_data = array($data);
@@ -48,7 +49,10 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment_1'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == sprintf(Errors::CHEQUE_DD_DETAILS_ERROR,$index + 1));
 
@@ -61,6 +65,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      */
     public function testAlreadyUsedChequeDetailsShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['date_of_enrollment'] = "02/01/2020";
         $excel_data = array($data);
@@ -68,8 +73,10 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment_1'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
 
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == sprintf(Errors::CHEQUE_DETAILS_USED_ERROR,$index + 1));
     }
@@ -81,6 +88,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      */
     public function testIncorrectDetailsForCashPaymentShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['mode_of_payment'] = "Cash";
         $data['chequedd_no'] = 34354511;
@@ -91,8 +99,10 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
 
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
         $this->assertTrue($error == sprintf(Errors::CASH_PAYMENT_ERROR, $index + 1));
     }
 
@@ -103,6 +113,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      */
     public function testEmptyRefNoForOnlineShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['mode_of_payment'] = "NEFT";
         $data['txn_reference_number_only_in_case_of_paytm_or_online'] = "";
@@ -112,7 +123,10 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == sprintf(Errors::ONLINE_PAYMENT_ERROR,$index + 1));
     }
@@ -124,6 +138,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      */
     public function testOnlineNotSupported(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['mode_of_payment'] = "Online";
         $data['chequedd_no_1'] = 45678;
@@ -132,7 +147,10 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == sprintf(Errors::ONLINE_NOT_SUPPORTED_ERROR,$index + 1));
     }
@@ -144,6 +162,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      */
     public function testInvalidModeShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['mode_of_payment_1'] = "razorpay";
         $mode = $data['mode_of_payment_1'];
@@ -152,7 +171,10 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment_1'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == sprintf(Errors::INVALID_MODE_ERROR,$mode,$index + 1));
     }
@@ -164,6 +186,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      */
     public function testExpectedDateAmountEmptyShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['mode_of_payment_1'] = "";
         $data['chequedd_date_1'] = "";
@@ -173,7 +196,10 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment_1'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == sprintf(Errors::EXPECTED_DATE_AMOUNT_ERROR,$index + 1));
 
@@ -185,6 +211,8 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
      */
     public function testEmptyModePaymentDetailsShouldFail(){
+
+        $error = "";
         $data = TestCaseData::DATA;
         $data['mode_of_payment_1'] = "";
         $data['chequedd_date_1'] = "15/01/2020";
@@ -192,7 +220,10 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == Errors::FUTURE_PAYMENT_CHEQUE_DETAILS_ERROR);
     }
@@ -203,6 +234,8 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      * O/P - Test case should assert True if the error returned by the ExcelValidator matches the expected error.
      */
     public function testFutureDateForFutureInstallmentsShouldFail(){
+
+        $error = "";
         $data = TestCaseData::DATA;
         $data['mode_of_payment_1'] = "";
         $data['chequedd_date_1'] = "01/01/2020";
@@ -211,7 +244,10 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
         $index = array_search($data['mode_of_payment_1'],array_column($ExcelValidator->FileFormattedData[0]['payments'],'mode_of_payment'));
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == sprintf(Errors::FUTURE_INSTALLMENT_DATE_ERROR, $index + 1));
     }
@@ -223,13 +259,17 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      */
     public function testTotalInstallmentAndFinalFeeMismatchShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['amount_1'] = "";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidatePaymentDetails($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == Errors::ORDER_AMOUNT_TOTAL_ERROR);
     }
@@ -241,6 +281,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      */
     public function testCashAmountMismatch(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['date_of_enrollment'] = "04/01/2020";
         $excel_data = array($data);
@@ -251,8 +292,10 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
 
         $ExcelValidator = $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data),$CustomData);
         $ExcelValidator->ValidateAmount();
-        $error = head($ExcelValidator->get_errors()['sheet']);
 
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = head($ExcelValidator->get_errors()['sheet']);
+        }
         $this->assertTrue($error == sprintf(Errors::CASH_TOTAL_MISMATCH, $CustomData['cash-total'], $data['amount']));
 
     }
@@ -264,6 +307,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      */
     public function testChequeAmountMismatch(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['date_of_enrollment'] = "04/01/2020";
         $excel_data = array($data);
@@ -274,7 +318,10 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
 
         $ExcelValidator = $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data),$CustomData);
         $ExcelValidator->ValidateAmount();
-        $error = head($ExcelValidator->get_errors()['sheet']);
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = head($ExcelValidator->get_errors()['sheet']);
+        }
 
         $this->assertTrue($error == sprintf(Errors::CHEQUE_TOTAL_MISMATCH, $CustomData['cheque-total'], $data['amount_1']));
 
@@ -287,6 +334,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
      */
     public function testOnlineAmountMismatch(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['date_of_enrollment'] = "04/01/2020";
         $data['mode_of_payment'] = "Online";
@@ -298,13 +346,52 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
 
         $ExcelValidator = $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data),$CustomData);
         $ExcelValidator->ValidateAmount();
-        $error = head($ExcelValidator->get_errors()['sheet']);
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = head($ExcelValidator->get_errors()['sheet']);
+        }
 
         $this->assertTrue($error == sprintf(Errors::ONLINE_TOTAL_MISMATCH, $CustomData['online-total'], $data['amount']));
 
     }
 
+    public function testEmptySheetForAmount(){
 
+        $data = [];
+        $excel_data = array($data);
+
+        $CustomData = ['cash-total' => 0,
+            'cheque-total' => 3720,
+            'online-total' => 0];
+
+        $ExcelValidator = $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data),$CustomData);
+
+        $this->assertEmpty($ExcelValidator->ValidateAmount());
+    }
+
+    public function testPreviousAmount()
+    {
+        $error = "";
+        $data = TestCaseData::DATA;
+        $data['amount_1'] = 3000;
+        $data['mode_of_payment_2'] = "NEFT";
+        $data['amount_2'] = 720;
+
+        $excel_data = array($data);
+
+        $CustomData = ['cash-total' => 0,
+            'cheque-total' => 0,
+            'online-total' => 0];
+
+        $ExcelValidator = $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data),$CustomData);
+        $ExcelValidator->ValidateAmount();
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = head($ExcelValidator->get_errors()['sheet']);
+        }
+
+        $this->assertEmpty($error);
+    }
 
 
 

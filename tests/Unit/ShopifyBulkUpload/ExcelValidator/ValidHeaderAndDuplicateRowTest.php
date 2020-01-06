@@ -19,7 +19,7 @@ class ValidHeaderAndDuplicateRowTest extends TestCase
 
         return (new \App\Library\Shopify\Excel($headers, $rows, [
             'upload_date' => '27/11/2019',
-            'uploaded_by' => Auth::id(),
+            'uploaded_by' => "5d1214cbafd58641b5532f82",
             'file_id' => 'shopify-67587',
             'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
             'order_id' => 0,
@@ -28,7 +28,8 @@ class ValidHeaderAndDuplicateRowTest extends TestCase
     }
 
     // Test case should assert True if file headers are valid
-    public function testHasAllValidHeadersShouldPass() {
+    public function testHasAllValidHeadersShouldPass()
+    {
 
         $data = TestCaseData::DATA;
 
@@ -38,7 +39,8 @@ class ValidHeaderAndDuplicateRowTest extends TestCase
     }
 
     // Test case should assert False if the file headers are invalid
-    public function testHasAllValidHeadersShouldFail() {
+    public function testHasAllValidHeadersShouldFail()
+    {
 
         // Unsettled a key and replacing it with a incorrect one for test case execution.
         $data = TestCaseData::DATA;
@@ -51,7 +53,8 @@ class ValidHeaderAndDuplicateRowTest extends TestCase
     }
 
     // Test case should assert true if row is found to be duplicate
-    public function testHasDuplicateRowPass() {
+    public function testHasDuplicateRowPass()
+    {
 
         $data = TestCaseData::DATA;
 
@@ -73,6 +76,7 @@ class ValidHeaderAndDuplicateRowTest extends TestCase
     // Test case should assert True if both email and mobile number are empty else false.
     public function testEmptyEmailOrContactShoudFail()
     {
+        $error = "";
         $data = TestCaseData::DATA;
         $data['email_id'] = "";
         $data['mobile_number'] = "";
@@ -80,22 +84,63 @@ class ValidHeaderAndDuplicateRowTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
 
+        if (!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
         $this->assertTrue($error == Errors::CONTACT_DETAILS_ERROR);
     }
 
     // Test case should assert true if location is incorrect else false.
     public function testIncorrectLocationShoudFail()
     {
+        $error = "";
         $data = TestCaseData::DATA;
         $data['delivery_institution'] = "Apeejay";
         $data['branch'] = "Mumbai";
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if (!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == Errors::LOCATION_ERROR);
+    }
+
+    public function testAlreadyProcessedInstallmentShouldFail()
+    {
+        $error = "";
+        $data = TestCaseData::DATA;
+        $data['chequedd_no_1'] = 7004640;
+
+        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator->ValidateDuplicateRow($ExcelValidator->FileFormattedData[0]);
+        $index = array_search($data['mode_of_payment_1'], array_column($ExcelValidator->FileFormattedData[0]['payments'], 'mode_of_payment'));
+
+        if (!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
+
+        $this->assertTrue($error == sprintf(Errors::PROCESSED_INSTALLMENT_ERROR, $index + 1));
+    }
+
+    public function testUpdatedFieldsShouldFail()
+    {
+        $error = "";
+        $data = TestCaseData::DATA;
+        $data['student_first_name'] = "Sahil";
+        $fields_updated = ["student_first_name"];
+
+        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator->ValidateDuplicateRow($ExcelValidator->FileFormattedData[0]);
+
+        if (!empty($ExcelValidator->get_errors())) {
+            $error = head(head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
+
+        $this->assertTrue($error == sprintf(Errors::FIELD_UPDATED_ERROR, implode($fields_updated, ",")));
+
     }
 }

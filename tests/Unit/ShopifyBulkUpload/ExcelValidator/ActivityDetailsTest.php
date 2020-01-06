@@ -40,13 +40,17 @@ class ActivityDetailsTest extends TestCase
      */
     public function testIncorrectProductIDShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['shopify_activity_id'] = "ABC-XYZ";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == Errors::ACTIVITY_ID_ERROR);
 
@@ -61,13 +65,17 @@ class ActivityDetailsTest extends TestCase
      */
     public function testDuplicateActivityIDShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['shopify_activity_id'] = "ABC-001";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == sprintf(Errors::DUPLICATE_ACTIVITY_ERROR,$data['shopify_activity_id']));
 
@@ -82,6 +90,7 @@ class ActivityDetailsTest extends TestCase
      */
     public function testIncorrectActivityFeeShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['activity_fee'] = 6372;
         $data['final_fee_incl_gst'] = 6372;
@@ -89,7 +98,10 @@ class ActivityDetailsTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == Errors::ACTIVITY_FEE_ERROR);
 
@@ -104,6 +116,7 @@ class ActivityDetailsTest extends TestCase
      */
     public function testProductOutOfStockShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['shopify_activity_id'] = "ST18-SCNVD";
         $data['activity_fee'] = 1600;
@@ -112,8 +125,10 @@ class ActivityDetailsTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
 
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
         $this->assertTrue($error == Errors::OUT_OF_STOCK_ERROR);
 
     }
@@ -127,13 +142,17 @@ class ActivityDetailsTest extends TestCase
      */
     public function testIncorrectFeeMismatchShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['final_fee_incl_gst'] = 63721;
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == Errors::FINAL_FEE_ERROR);
 
@@ -148,6 +167,7 @@ class ActivityDetailsTest extends TestCase
      */
     public function testAfterDiscountFeeMismatchShouldFail(){
 
+        $error = "";
         $data = TestCaseData::DATA;
         $data['scholarship_discount'] = 3720;
         $data['final_fee_incl_gst'] = 50000;
@@ -155,7 +175,10 @@ class ActivityDetailsTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateActivityDetails($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == Errors::DISCOUNT_APPLICATION_ERROR);
 

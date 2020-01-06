@@ -320,6 +320,9 @@ class ExcelValidator
         foreach ($data['payments'] as $payment_index => $payment) {
 
             $payment = Arr::except($payment, ShopifyExcelUpload::PAYMENT_METAFIELDS);
+            /**
+             * @todo To be removed. It is a redundant check as payment array cannot be created without amount.
+             */
             if (empty($payment['amount'])) {
                 $this->errors['rows'][$this->row_no][] = sprintf(Errors::EMPTY_AMOUNT_ERROR, $payment_index + 1);
                 continue;

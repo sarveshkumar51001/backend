@@ -44,6 +44,7 @@ class ReynottAcademyTest extends TestCase
      */
     public function testIncorrectClassShouldFail()
     {
+        $error = "";
         $data = TestCaseData::DATA;
         $data['class'] = "6";
         $data['section'] = "A";
@@ -53,8 +54,10 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
 
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
         $this->assertTrue($error == Errors::REYNOTT_CLASS_ERROR);
 
     }
@@ -70,6 +73,7 @@ class ReynottAcademyTest extends TestCase
      */
     public function testIncorrectSectionShouldFail()
     {
+        $error = "";
         $data = TestCaseData::DATA;
         $data['class'] = "10";
         $data['section'] = "reynott";
@@ -79,7 +83,10 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == Errors::REYNOTT_SECTION_ERROR);
     }
@@ -95,6 +102,7 @@ class ReynottAcademyTest extends TestCase
      */
     public function testClassSectionInterdependence()
     {
+        $error = "";
         $data = TestCaseData::DATA;
         $data['class'] = "Dropper";
         $data['section'] = "F";
@@ -104,7 +112,10 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == Errors::REYNOTT_INTERDEPENDENCE_ERROR);
     }
@@ -119,6 +130,7 @@ class ReynottAcademyTest extends TestCase
      */
     public function testIncorrectApeejayOrderShouldFail()
     {
+        $error = "";
         $data = TestCaseData::DATA;
         $data['class'] = "8";
         $data['section'] = "C";
@@ -128,7 +140,10 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateInternalExternalOrderType($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == Errors::INCORRECT_APEEJAY_ORDER);
     }
@@ -143,6 +158,7 @@ class ReynottAcademyTest extends TestCase
      */
     public function testIncorrectNonApeejayOrderShouldFail()
     {
+        $error = "";
         $data = TestCaseData::DATA;
         $data['class'] = "8";
         $data['section'] = "C";
@@ -152,7 +168,10 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
         $ExcelValidator->ValidateInternalExternalOrderType($ExcelValidator->FileFormattedData[0]);
-        $error = implode(',',head(array_values($ExcelValidator->get_errors()['rows'])));
+
+        if(!empty($ExcelValidator->get_errors())) {
+            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
+        }
 
         $this->assertTrue($error == Errors::INCORRECT_NON_APEEJAY_ORDER);
     }
@@ -165,6 +184,7 @@ class ReynottAcademyTest extends TestCase
      * Expected O/P - Test case should assert empty if Reynott is a valid Delivery Institution as per application.
      */
     public function testReynottDeliveryInstitution() {
+
         $data = TestCaseData::DATA;
         $data['delivery_institution'] = "Reynott";
         $data['branch'] = "Reynott Academy Jalandhar";
