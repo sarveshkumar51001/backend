@@ -17,8 +17,8 @@ class TestCaseData{
     'student_last_name' => 'Sharma',
     'activity' => '1 year Pratham Law(2018)',
     'school_enrollment_no' => 'SKT-1918',
-    'class' => 'BTECH',
-    'section' => 'Sem1',
+    'class' => '2',
+    'section' => 'C',
     'parent_first_name' => 'Suresh',
     'parent_last_name' => 'Sharma',
     'mobile_number' => 8128384854,
@@ -96,6 +96,33 @@ class TestCaseData{
     'paid' => 63720,
     'pdc_collected' => 0,
     'pdc_to_be_collected' => 0,
+    ];
+
+    const EXPECTED_ERRORS_FLAT_FIELDS = [
+
+        "date_of_enrollment" => ["required","regex"],
+        "shopify_activity_id" => ["required","string"],
+        "delivery_institution" => ["required"],
+        "branch" => ["required","in"],
+        "external_internal" => ["required"],
+        "school_name" => ["required","string"],
+        "student_school_location" => ["required","string"],
+        "student_first_name" => ["required"],
+        "activity" => ["required"],
+        "school_enrollment_no" => ["required","string"],
+        "class" => ["required","in"],
+        "section" => ["required","in"],
+        "parent_first_name" => ["required"],
+        "mobile_number" => ["regex","not_exponential"],
+        "email_id" => ["email"],
+        "activity_fee" => ["required"],
+        "scholarship_discount" => ["numeric"],
+        "after_discount_fee" => ["numeric","amount"],
+        "final_fee_incl_gst" => ["required","numeric","amount"],
+        "amount" => ["numeric","amount"],
+        "payments.0.mode_of_payment" => ["required","in"],
+        "payments.0.amount" => ["required","numeric","amount"],
+        "payments" => ["required"]
     ];
 
 }
