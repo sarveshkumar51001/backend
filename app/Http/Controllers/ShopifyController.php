@@ -98,6 +98,7 @@ class ShopifyController extends BaseController
         $ExcelRaw = (new \App\Library\Shopify\Excel($headers, $rows, [
             'upload_date' => $request['date'],
             'uploaded_by' => Auth::user()->id,
+            'owner' => Auth::user()->id,
             'file_id' => $file_id,
             'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
             'order_id' => 0,
