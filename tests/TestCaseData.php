@@ -98,31 +98,34 @@ class TestCaseData{
     'pdc_to_be_collected' => 0,
     ];
 
-    const EXPECTED_ERRORS_FLAT_FIELDS = [
+    const EXPECTED_ERRORS_FOR_FLAT_FIELDS = [
 
-        "date_of_enrollment" => ["required","regex"],
+        "date_of_enrollment" => ["required"],
         "shopify_activity_id" => ["required","string"],
         "delivery_institution" => ["required"],
-        "branch" => ["required","in"],
+        "branch" => ["required"],
         "external_internal" => ["required"],
         "school_name" => ["required","string"],
         "student_school_location" => ["required","string"],
         "student_first_name" => ["required"],
         "activity" => ["required"],
         "school_enrollment_no" => ["required","string"],
-        "class" => ["required","in"],
-        "section" => ["required","in"],
+        "class" => ["required"],
+        "section" => ["required"],
         "parent_first_name" => ["required"],
-        "mobile_number" => ["regex","not_exponential"],
-        "email_id" => ["email"],
         "activity_fee" => ["required"],
         "scholarship_discount" => ["numeric"],
-        "after_discount_fee" => ["numeric","amount"],
-        "final_fee_incl_gst" => ["required","numeric","amount"],
-        "amount" => ["numeric","amount"],
-        "payments.0.mode_of_payment" => ["required","in"],
-        "payments.0.amount" => ["required","numeric","amount"],
+        "after_discount_fee" => ["numeric"],
+        "final_fee_incl_gst" => ["required","numeric"],
+        "amount" => ["numeric"],
         "payments" => ["required"]
     ];
 
+    const REQUIRED_FIELDS = ['date_of_enrollment', 'shopify_activity_id', 'delivery_institution', 'branch',
+        'external_internal', 'school_name', 'student_school_location', 'student_first_name', 'activity',
+        'school_enrollment_no', 'class', 'section', 'final_fee_incl_gst','parent_first_name'];
+
+    const STRING_FIELDS = ['shopify_activity_id', 'school_name', 'student_school_location', 'school_enrollment_no'];
+
+    const NUMERIC_FIELDS = ['scholarship_discount', 'after_discount_fee', 'final_fee_incl_gst'];
 }
