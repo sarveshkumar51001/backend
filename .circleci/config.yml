@@ -72,5 +72,4 @@ jobs:
           path: build/phpunit
       - store_artifacts:
           path: build/phpunit
-    post-steps:
       - jira/notify
