@@ -10,6 +10,9 @@ use Illuminate\Console\Command;
 use App\Library\Shopify\DB;
 use App\Models\ShopifyExcelUpload;
 
+/**
+ * @codeCoverageIgnore
+ */
 class DataFixForPartialOrders extends Command
 {
 
