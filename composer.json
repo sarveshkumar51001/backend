@@ -18,19 +18,20 @@
 		"laravel/framework": "5.7.*",
 		"laravel/socialite": "^3.2",
 		"laravel/tinker": "^1.0",
-		"maatwebsite/excel": "^2.1",
+		"maatwebsite/excel": "^3.1",
 		"mongodb/mongodb": "^1.4",
 		"oseintow/laravel-shopify": "^1.0",
 		"phpclassic/php-shopify": "^1.0",
 		"sentry/sentry-laravel": "~1"
-	},
+    },
 	"require-dev" : {
 		"beyondcode/laravel-dump-server" : "^1.0",
 		"filp/whoops" : "^2.0",
 		"fzaninotto/faker" : "^1.4",
 		"mockery/mockery" : "^1.0",
 		"nunomaduro/collision" : "^2.0",
-		"phpunit/phpunit" : "^7.0"
+		"phpunit/phpunit" : "^7.0",
+        "codacy/coverage": "dev-master"
 	},
 	"autoload" : {
 		"classmap" : [
@@ -49,12 +50,15 @@
 			"Tests\\" : "tests/"
 		}
 	},
+	"extra" : {},
 	"scripts" : {
 		"post-root-package-install" : "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
 		"post-create-project-cmd" : "@php artisan key:generate --ansi",
 		"post-autoload-dump" : [
 			"Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-			"@php artisan package:discover --ansi"
+			"@php artisan package:discover --ansi",
+            "@php \"./storage/docs/phpDocumentor/phpDocumentor.phar\"",
+            "@php \"./storage/docs/sami/sami.phar\" update \"./storage/docs/sami/sami.php\""
 		]
 	},
 	"config" : {

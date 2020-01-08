@@ -89,8 +89,8 @@ class Job
 
             // Create Customer in local DB if new customer is created in Shopify
             ShopifyCustomer::create($newShopifyCustomer);
-
         }
+
         // Check 3: Make sure by now we have customer id
         if (empty($shopifyCustomerId)) {
             throw new \Exception('Failed to get customer id from shopify data set');
@@ -100,6 +100,7 @@ class Job
         DB::update_customer_id_in_upload($Data->ID(), $shopifyCustomerId);
 
         $shopifyOrderId = $Data->GetOrderID();
+        $order = [];
 
         // Is it a new order?
         if (empty($Data->GetOrderID())) {
@@ -110,8 +111,9 @@ class Job
             $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
 
             $shopifyOrderId = $order['id'];
+            $shopifyOrderName = $order['name'];
 
-            DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId);
+            DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId,$shopifyOrderName);
         }
 
         // Payment notes array
@@ -141,11 +143,14 @@ class Job
 
                 if (!empty($transaction_response)) {
 
+                    // ID of the transaction
+                    $transaction_id = $transaction_response['id'];
+
                     // Adding current collected amount to previously collected amount
                     $order_amount += $installment['amount'];
 
                     // DB UPDATE: Mark the installment node as
-                    DB::mark_installment_status_processed($Data->ID(), $index);
+                    DB::mark_installment_status_processed($Data->ID(),$transaction_id, $index);
                 }
             } catch (ApiException $e) {
                 DB::populate_error_in_payments_array($Data->ID(), $index, $e->getMessage());
@@ -163,7 +168,8 @@ class Job
 
         // Finally mark the object as process completed
         DB::mark_status_completed($Data->ID());
-    }
 
+        return $order;
+    }
 
 }

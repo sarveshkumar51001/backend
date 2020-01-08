@@ -3,6 +3,7 @@ namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class DataRaw
 {
@@ -21,6 +22,8 @@ class DataRaw
         'bank_branch',
         'txn_reference_number_only_in_case_of_paytm_or_online'
     ];
+
+    private static $headers = [];
 
     /**
      * DataRaw constructor.
@@ -164,7 +167,7 @@ class DataRaw
     /**
      *
      * @param int $productVariantID
-     * @param array $customer_id
+     * @param int $customer_id
      *
      * @return array
      * @throws \Exception
@@ -193,7 +196,7 @@ class DataRaw
 
         $order_data['processed_at'] = get_iso_date_format($this->GetEnrollmentDate());
 
-        $location = ShopifyExcelUpload::getSchoolLocation($this->data['delivery_institution'], $this->data['branch']);
+        $location = ShopifyExcelUpload::getLocation($this->data['delivery_institution'], $this->data['branch']);
 
         $order_data['billing_address'] = [
             "first_name" => $this->data['parent_first_name'],
@@ -392,7 +395,6 @@ class DataRaw
      *
      * If the payment mode is cheque/dd then the payment process date is changed to the cheque/dd date else if the order
      * is of type installment and the mode is not cheque/dd then today's date is returned as the payment processed date.
-     *
      * @param $installment
      * @return string
      * @throws \Exception
@@ -412,5 +414,25 @@ class DataRaw
         }
 
         return $payment_process_date;
+    }
+
+    /* Create slugged headers with count for excel headers
+    *
+    * @param $header
+    * @return string
+    */
+    public static function getHeaderName($header) {
+        $slugged_header = Str::slug($header,'_');
+        $updated_header = $slugged_header;
+        $index = 1;
+        while(true) {
+            if(in_array($updated_header, self::$headers)) {
+                $updated_header = $slugged_header . "_$index";
+                $index++;
+            } else {
+                self::$headers[] = $updated_header;
+                return $updated_header;
+            }
+        }
     }
 }
