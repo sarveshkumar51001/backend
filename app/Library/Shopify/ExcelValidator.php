@@ -419,7 +419,6 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
             return;
         }
-        else {
         // Checking for delivery institution and validation data
         if ($data['delivery_institution'] == ShopifyExcelUpload::REYNOTT) {
 
@@ -430,7 +429,7 @@ class ExcelValidator
                 $this->errors['rows'][$this->row_no] = [];
             }
             if (!empty($this->errors['rows'])) {
-                $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no], $reynott_errors);            }
+                $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no], $reynott_errors);
             }
         }
     }
