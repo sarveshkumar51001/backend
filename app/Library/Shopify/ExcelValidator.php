@@ -402,9 +402,20 @@ class ExcelValidator
         }
     }
 
-    public function ValidateFieldValues(array $data)
-    {
 
+    /**
+     * Function for validating existence of excel fields like mobile number, email, delivery institution and branch.
+     *
+     * Check either email or mobile number must be present.
+     * Checks existence of delivery institution and branch combination
+     *
+     * When Delivery institution is Reynott,
+     * @see ExcelValidator::ValidateReynottData()
+     *
+     * @param array $data
+     */
+    public function ValidateFieldValues(array $data)
+    {   // Check if either mobile number or email id is empty or not, if empty throw error.
         if (empty($data['mobile_number']) && empty($data['email_id'])) {
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
         }
@@ -415,7 +426,6 @@ class ExcelValidator
             $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
             return;
         }
-
         // Checking for delivery institution and validation data
         if ($data['delivery_institution'] == ShopifyExcelUpload::REYNOTT) {
 
@@ -488,6 +498,22 @@ class ExcelValidator
         }
     }
 
+    /**
+     * Function for validating the data specific to the higher education institutes
+     *
+     * All the validations are only performed if any location is found for the data provided. If the location belongs
+     * to higher institutes (based on higher education tag in school mapping) then check whether the class
+     * and section are correct i.e. only the class and section corresponding to higher institutes are entered.
+     *
+     * Similarly if the location doesn't belongs to higher institutes
+     * then the class and section entered should be corresponding to the schools only.
+     *
+     * For eg: If the school is Apeejay Saket then class should be from 1 to 12 and section should be A to H not
+     * anything else. If the Institute is ASM Dwarka then class should be like BTech, BA, BBA etc and section should
+     * be Sem1, Sem2....Sem8.
+     *
+     * @param array $data
+     */
     public function ValidateHigherEducationData(array $data){
 
         $location_data = ShopifyExcelUpload::getLocation($data['delivery_institution'],$data['branch']);
@@ -537,6 +563,8 @@ class ExcelValidator
     }
 
     /**
+     * Function returns errors encountered while validating excel fields and rows
+     *
      * @return array
      */
     public function get_errors()
