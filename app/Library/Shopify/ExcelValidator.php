@@ -241,7 +241,6 @@ class ExcelValidator
     {
         $has_valid_header = false;
         if ($raw_headers = array_slice($this->File->GetRawHeaders(), 0, 91)) {
-            logger($raw_headers);
             foreach ($this->File->GetExcelHeaders() as $header) {
                 if (! in_array($header, $raw_headers)) {
                     $has_valid_header = false;
@@ -414,7 +413,7 @@ class ExcelValidator
         // Fetching location for the delivery institution and branch
         $location = ShopifyExcelUpload::getLocation($data['delivery_institution'], $data['branch']);
         if (! $location) {
-            $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
+            $this->errors['rows'][$this->row_no][] = Errors::LOCATION_ERROR;
             return;
         }
 

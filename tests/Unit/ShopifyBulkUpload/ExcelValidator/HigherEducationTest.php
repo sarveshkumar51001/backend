@@ -57,7 +57,6 @@ class HigherEducationTest extends TestCase
         if(!empty($ExcelValidator->get_errors())) {
             $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
         }
-        logger($error);
         $this->assertTrue($error == Errors::INSTITUTE_SECTION_ERROR);
     }
 
