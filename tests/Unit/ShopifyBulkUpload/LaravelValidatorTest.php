@@ -126,7 +126,8 @@ class LaravelValidatorTest extends TestCase
     /**
      *
      */
-    public function testMobileFormatErrors(){
+    public function testMobileFormatError()
+    {
         $data = TestCaseData::DATA;
         $field_name = "mobile_number";
         $data[$field_name] = "+917490093267";
@@ -136,6 +137,30 @@ class LaravelValidatorTest extends TestCase
         $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
         $error = head(head($ExcelValidator->get_errors()['rows']));
         $this->assertTrue(Str::contains($error, str_replace('_',' ',$field_name)) && Str::contains($error, $name));
+
+    }
+
+    public function testEmailFormatError()
+    {
+        $data = TestCaseData::DATA;
+        $field_name = "email_id";
+        $data[$field_name] = "hello.com";
+        $name = "valid email address";
+
+        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
+        $error = head(head($ExcelValidator->get_errors()['rows']));
+        $this->assertTrue(Str::contains($error, str_replace('_',' ',$field_name)) && Str::contains($error, $name));
+
+    }
+
+    public function testAmountFormat(){
+
+        $data = TestCaseData::DATA;
+
+        foreach(TestCaseData::AMOUNT_FLAT_FIELDS as $field){
+            $data[$field] = "";
+        }
 
     }
 }

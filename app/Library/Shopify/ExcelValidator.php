@@ -474,7 +474,6 @@ class ExcelValidator
                 $this->errors['rows'][$this->row_no][] = "Product is out of stock.";
             }
         }
-
         if (empty($scholarship_amount)) {
             if ($activity_fee != $final_fee) {
                 $this->errors['rows'][$this->row_no][] = "Final Fee  is not equal to the activity fee.";

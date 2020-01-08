@@ -98,36 +98,13 @@ class TestCaseData{
     'pdc_to_be_collected' => 0,
     ];
 
-    const EXPECTED_ERRORS_FOR_FLAT_FIELDS = [
-
-        "date_of_enrollment" => ["required"],
-        "shopify_activity_id" => ["required","string"],
-        "delivery_institution" => ["required"],
-        "branch" => ["required"],
-        "external_internal" => ["required"],
-        "school_name" => ["required","string"],
-        "student_school_location" => ["required","string"],
-        "student_first_name" => ["required"],
-        "activity" => ["required"],
-        "school_enrollment_no" => ["required","string"],
-        "class" => ["required"],
-        "section" => ["required"],
-        "parent_first_name" => ["required"],
-        "activity_fee" => ["required"],
-        "scholarship_discount" => ["numeric"],
-        "after_discount_fee" => ["numeric"],
-        "final_fee_incl_gst" => ["required","numeric"],
-        "amount" => ["numeric"],
-        "payments" => ["required"]
-    ];
-
     const REQUIRED_FLAT_FIELDS = ['date_of_enrollment', 'shopify_activity_id', 'delivery_institution', 'branch',
         'external_internal', 'school_name', 'student_school_location', 'student_first_name', 'activity',
         'school_enrollment_no', 'class', 'section', 'final_fee_incl_gst','parent_first_name'];
 
-    const REQUIRED_NESTED_FIELDS = ['mode_of_payment'];
-
     const STRING_FIELDS = ['shopify_activity_id', 'school_name', 'student_school_location', 'school_enrollment_no'];
 
     const NUMERIC_FIELDS = ['scholarship_discount', 'after_discount_fee', 'final_fee_incl_gst'];
+
+    const AMOUNT_FLAT_FIELDS = ['final_fee_incl_gst','after_discount_fee'];
 }
