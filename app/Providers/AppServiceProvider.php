@@ -19,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
         //Preventing error reporting for deprecated functions
         error_reporting(E_ALL ^ E_DEPRECATED);
 
+        /*
+         * Extending the Laravel Validator with a rule named not_exponential which validates whether an input value
+         * is not exponential.If the value is not exponential, validator passes else fails.
+         */
         Validator::extend('not_exponential', function ($attribute, $value, $parameters) {
             if (preg_match('/^\d+$/', $value)) {
                 return true;
@@ -26,6 +30,11 @@ class AppServiceProvider extends ServiceProvider
                 return false;
             }
         });
+
+        /*
+         * Extending the Laravel Validator with a rule named amount which validates whether an input value
+         * is amount.If the value is amount, validator passes else fails.
+         */
         Validator::extend('amount', function ($attribute, $value, $parameters) {
             if (preg_match('/^\d+(.\d{1,2})?$/', $value)) {
                 return true;
