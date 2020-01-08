@@ -72,9 +72,9 @@ class DB
 	 * @param $object_id
 	 * @param $shopify_order_id
      *
-	 *Function update order related data in mongodb
+	 * Function updates Shopify Order name data in mongodb
      *
-     * Takes MongoDB document id,shopify order id and name as input then fetches the document and updates the data
+     * Takes MongoDB document id, shopify order id and name as input then fetches the document and updates the order name
      * in the document.
      *
 	 * @return mixed
