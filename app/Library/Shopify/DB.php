@@ -71,7 +71,12 @@ class DB
 	/**
 	 * @param $object_id
 	 * @param $shopify_order_id
-	 *
+     *
+	 * Function updates Shopify Order name data in mongodb
+     *
+     * Takes MongoDB document id, shopify order id and name as input then fetches the document and updates the order name
+     * in the document.
+     *
 	 * @return mixed
 	 */
 	public static function update_order_id_in_upload($object_id, $shopify_order_id,$order_name) {
