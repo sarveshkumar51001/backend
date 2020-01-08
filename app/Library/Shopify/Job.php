@@ -104,14 +104,17 @@ class Job
         // Is it a new order?
         if (empty($Data->GetOrderID())) {
 
+            // Check whether the product exists in the inventory or not
             if (!DB::check_inventory_status($variantID)) {
                 throw new \Exception("Product [" . $Data->GetActivityID() . "] is out of stock.");
             }
+            // If order id doesn't exists, create a order by fetching the raw data
             $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
 
             $shopifyOrderId = $order['id'];
             $shopifyOrderName = $order['name'];
 
+            // Update order data in respective MongoDB document.
             DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId,$shopifyOrderName);
         }
 
