@@ -83,7 +83,7 @@ class ExcelValidator
         }
 
         if ($sheet_has_column_validation_error) {
-            $this->errors['sheet']['priority_error'] = 'There are errors in sheets due to which collection cannot be calculated correctly. Please correct below errors and try again.';
+            $this->errors['sheet']['priority_error'] = Errors::SHEET_ERRORS;
         } else {
             $this->ValidateAmount();
         }
@@ -324,10 +324,10 @@ class ExcelValidator
             /**
              * @todo To be removed. It is a redundant check as payment array cannot be created without amount.
              */
-            if (empty($payment['amount'])) {
-                $this->errors['rows'][$this->row_no][] = sprintf(Errors::EMPTY_AMOUNT_ERROR, $payment_index + 1);
-                continue;
-            }
+//            if (empty($payment['amount'])) {
+//                $this->errors['rows'][$this->row_no][] = sprintf(Errors::EMPTY_AMOUNT_ERROR, $payment_index + 1);
+//                continue;
+//            }
 
             $mode = strtolower($payment['mode_of_payment']);
             $amount += $payment['amount'];

@@ -336,6 +336,12 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
 
     }
 
+    /**
+     * Test case for checking whether the function return empty if no data in the excel sheet.
+     *
+     * I/P - Empty Excel File
+     * O/P - Test case will assert Empty if there is no data in the excel file else Not Empty.
+     */
     public function testEmptySheetForAmount(){
 
         $data = [];
@@ -350,6 +356,12 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $this->assertEmpty($ExcelValidator->ValidateAmount());
     }
 
+    /**
+     * Test case for checking whether the amount entered is reconciled with previous amount captured for the order
+     * in case of installment order.
+     *
+     * Test case will assert Empty if there is no error in sheet amount.
+     */
     public function testPreviousAmount()
     {
         $error = "";
