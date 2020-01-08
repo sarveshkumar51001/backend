@@ -404,7 +404,14 @@ class ExcelValidator
 
 
     /**
-     * Function for validating excel fields like mobile number, email id and external/internal.
+     * Function for validating existence of excel fields like mobile number, email, delivery institution and branch.
+     *
+     * Check either email or mobile number must be present.
+     * Checks existence of delivery institution and branch combination
+     *
+     * When Delivery institution is Reynott,
+     * @see ExcelValidator::ValidateReynottData()
+     *
      * @param array $data
      */
     public function ValidateFieldValues(array $data)
@@ -495,8 +502,10 @@ class ExcelValidator
      * Function for validating the data specific to the higher education institutes
      *
      * All the validations are only performed if any location is found for the data provided. If the location belongs
-     * to higher institutes then check whether the class and section are correct i.e. only the class and section
-     * corresponding to higher institutes are entered. Similarly if the location doesn't belongs to higher institutes
+     * to higher institutes (based on higher education tag in school mapping) then check whether the class
+     * and section are correct i.e. only the class and section corresponding to higher institutes are entered.
+     *
+     * Similarly if the location doesn't belongs to higher institutes
      * then the class and section entered should be corresponding to the schools only.
      *
      * For eg: If the school is Apeejay Saket then class should be from 1 to 12 and section should be A to H not
@@ -554,6 +563,8 @@ class ExcelValidator
     }
 
     /**
+     * Function returns errors encountered while validating excel fields and rows
+     *
      * @return array
      */
     public function get_errors()
