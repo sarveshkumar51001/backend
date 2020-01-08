@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
 
         /*
          * Extending the Laravel Validator with a rule named not_exponential which validates whether an input value
-         * is not exponential.If the value is not exponential, validator passes else fails.
+         * is not exponential. If the value is not exponential, validator passes else fails.
          */
         Validator::extend('not_exponential', function ($attribute, $value, $parameters) {
             if (preg_match('/^\d+$/', $value)) {
@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
 
         /*
          * Extending the Laravel Validator with a rule named amount which validates whether an input value
-         * is amount.If the value is amount, validator passes else fails.
+         * is a decimal number with upto 2 decimal precision. If the value is valid, validator passes else fails.
          */
         Validator::extend('amount', function ($attribute, $value, $parameters) {
             if (preg_match('/^\d+(.\d{1,2})?$/', $value)) {
