@@ -38,7 +38,8 @@ class LaravelValidatorTest extends TestCase
         if ($field_validation == 'required') {
             $data[$field_name] = "";
         } else if ($field_validation == 'string') {
-            $data[$field_name] = 468854788;
+            unset($data[$field_name]);
+            $data[$field_name] = 45453432;
         } else if ($field_validation == 'numeric') {
             $data[$field_name] = "TestData";
         }
@@ -46,6 +47,7 @@ class LaravelValidatorTest extends TestCase
         $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
         return $ExcelValidator->get_errors();
     }
+
     /**
      * Test case for checking whether valid data in all the fields asserts True or not.
      *
@@ -59,15 +61,27 @@ class LaravelValidatorTest extends TestCase
         $this->assertTrue($ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]));
     }
 
-    public function testRequiredErrors()
+    /**
+     * Test case for checking whether all the empty fields return required error or not.
+     *
+     * I/P - Empty fields
+     * O/P - Test case will assert True if all the errors returned by the ExcelValidator else False.
+     */
+    public function testFlatFieldRequiredErrors()
     {
         $rule = 'required';
-        foreach (TestCaseData::REQUIRED_FIELDS as $field_name) {
+        foreach (TestCaseData::REQUIRED_FLAT_FIELDS as $field_name) {
             $error = head(head($this->errors_per_field_validation($field_name, $rule)['rows']));
             $this->assertTrue(Str::contains($error, str_replace('_',' ',$field_name)) && Str::contains($error, $rule));
         }
     }
 
+    /**
+     * Test case for checking whether all the string fields with numeric data return string error or not.
+     *
+     * I/P - String type fields with numeric data
+     * O/P - Test case will assert True if all the errors returned by the ExcelValidator are correct else False.
+     */
     public function testStringErrors()
     {
         $rule = 'string';
@@ -77,12 +91,51 @@ class LaravelValidatorTest extends TestCase
         }
     }
 
+    /**
+     * Test case for checking whether all the numeric fields with string data return number error or not.
+     *
+     * I/P - Numeric type fields with string data
+     * O/P - Test case will assert True if all the errors returned by the ExcelValidator are correct else False.
+     */
     public function testNumericErrors()
     {
         $rule = 'numeric';
+        $name = "number";
         foreach(TestCaseData::NUMERIC_FIELDS as $field_name) {
             $error = head(head($this->errors_per_field_validation($field_name, $rule)['rows']));
-            $this->assertTrue(Str::contains($error, str_replace('_',' ',$field_name)) && Str::contains($error, $rule));
+            $this->assertTrue(Str::contains($error, str_replace('_',' ',$field_name)) && Str::contains($error, $name));
         }
+    }
+
+    /**
+     *
+     */
+    public function testDateFormatErrors(){
+        $data = TestCaseData::DATA;
+        $field_name = "date_of_enrollment";
+        $data[$field_name] = "02/01/20";
+        $name = "format";
+
+        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
+        $error = head(head($ExcelValidator->get_errors()['rows']));
+        $this->assertTrue(Str::contains($error, str_replace('_',' ',$field_name)) && Str::contains($error, $name));
+
+    }
+
+    /**
+     *
+     */
+    public function testMobileFormatErrors(){
+        $data = TestCaseData::DATA;
+        $field_name = "mobile_number";
+        $data[$field_name] = "+917490093267";
+        $name = "format";
+
+        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
+        $error = head(head($ExcelValidator->get_errors()['rows']));
+        $this->assertTrue(Str::contains($error, str_replace('_',' ',$field_name)) && Str::contains($error, $name));
+
     }
 }

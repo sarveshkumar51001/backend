@@ -121,9 +121,11 @@ class TestCaseData{
         "payments" => ["required"]
     ];
 
-    const REQUIRED_FIELDS = ['date_of_enrollment', 'shopify_activity_id', 'delivery_institution', 'branch',
+    const REQUIRED_FLAT_FIELDS = ['date_of_enrollment', 'shopify_activity_id', 'delivery_institution', 'branch',
         'external_internal', 'school_name', 'student_school_location', 'student_first_name', 'activity',
         'school_enrollment_no', 'class', 'section', 'final_fee_incl_gst','parent_first_name'];
+
+    const REQUIRED_NESTED_FIELDS = ['mode_of_payment'];
 
     const STRING_FIELDS = ['shopify_activity_id', 'school_name', 'student_school_location', 'school_enrollment_no'];
 

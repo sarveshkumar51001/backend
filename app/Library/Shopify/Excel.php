@@ -117,9 +117,11 @@ class Excel
 			    if(in_array($key, self::DATE_FIELDS) && is_numeric($value)) {
                         $value = Date::excelToDateTimeObject($value)->format(ShopifyExcelUpload::DATE_FORMAT);
                 }
-                $data[$key] = trim($value);
+                $data[$key] = $value;
+			    if(!is_numeric($value)){
+                    $data[$key] = trim($value);
+                }
 			}
-
 			return $data;
 		}, $this->rawData);
 
