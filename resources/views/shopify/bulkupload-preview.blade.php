@@ -13,7 +13,7 @@
                     @endforeach
                     </ul>
                 @endif
-                
+
                 @if(!empty($errored_data['rows']))
                     <div class="pull-right">
                     	<a href="#" onclick="$('.collapse').collapse('hide');" class="mr-2">Collapse All <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
@@ -27,13 +27,15 @@
                 				<div id="row-{{ $row_no }}" class="collapse">
                     				<ul>
                     				@foreach($errors as $error)
-                    					<li>{{ $error }}</li>
+                                        @php $error_slug = generate_error_slug($error) @endphp
+                    					<li>{{ $error }} <a target="_blank" href="https://wiki.valedra.com/link/33#{{$error_slug}}"> Help <i class="fa fa-external-link"></i></a></li>
                     				@endforeach
                     				</ul>
-								</div>                    				
+								</div>
                 			</li>
                 		@else
-                			<li><b>Row {{ $row_no }}</b> - {{ $errors[0] }}
+                                @php $error_slug = generate_error_slug($errors[0]) @endphp
+                                <li><b>Row {{ $row_no }}</b> - {{ $errors[0] }}<a target="_blank" href="https://wiki.valedra.com/link/33#{{$error_slug}}"> Help <i class="fa fa-external-link"></i></a></li>
             			@endif
                 	@endforeach
                 	</ul>
@@ -43,7 +45,7 @@
                 <div class="alert alert-success">Thank You! Your file was successfully uploaded. Your orders will be processed in few hours.
                 </div>
             @endif
-			
+
 			@if(!array_key_exists('incorrect_headers', $errored_data))
                 <table class="table table-striped table-bordered table-responsive table-fixed">
                     <thead>
@@ -53,7 +55,7 @@
                             @endforeach
                         </tr>
                         </thead>
-    
+
                         @foreach($excel_response as $index => $row)
                             <tr @if(!empty($errored_data['rows'][$index+1])) style="background: yellow;" @endif>
                                 @foreach(\App\Library\Shopify\Excel::$headerMap as $key => $header)
@@ -72,7 +74,7 @@
                                                     @endforeach
                                                     @endif
                                                     </thead>
-    
+
                                                     @foreach($row[$key] as $index => $installment)
                                                         <tr>
                                                             <td>{{$index}}</td>
@@ -82,7 +84,7 @@
                                                                 @endif
                                                             @endforeach
                                                         </tr>
-    
+
                                                     @endforeach
                                                 </table>
                                             </td>
@@ -93,7 +95,7 @@
                                         <td class="@if(!empty($errored_data['rows'][$index+1][$key])) alert-danger @endif "></td>
                                     @endif
                                 @endforeach
-                            </tr>                  
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
