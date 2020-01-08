@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use Psy\Util\Str;
 
 /**
  * Class ExcelValidator
@@ -61,6 +62,7 @@ class ExcelValidator
 
         // Finding data validation errors
         foreach ($this->FileFormattedData as $index => $data) {
+
             $this->row_no ++;
 
             $validation_error = $this->ValidateData($data);
@@ -72,6 +74,8 @@ class ExcelValidator
                 unset($this->FileFormattedData[$index]);
                 continue;
             }
+
+            $this->ValidateInternalExternalOrderType($data);
             $this->ValidateHigherEducationData($data);
             $this->ValidatePaymentDetails($data);
             $this->ValidateFieldValues($data);
@@ -161,10 +165,10 @@ class ExcelValidator
             "school_enrollment_no" => "required|string|min:4",
             "class" => [
                 "required",
-                Rule::in(array_merge(Student::CLASS_LIST,Student::HIGHER_CLASS_LIST))],
+                Rule::in(array_merge(Student::CLASS_LIST,Student::HIGHER_CLASS_LIST,Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST))],
 
             "section" => ["required",
-                Rule::in(array_merge(Student::SECTION_LIST,Student::HIGHER_SECTION_LIST))],
+                Rule::in(array_merge(Student::SECTION_LIST,Student::HIGHER_SECTION_LIST,Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST))],
 
             // Parent Details
             "parent_first_name" => "required",
@@ -358,14 +362,13 @@ class ExcelValidator
                 }
             } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
                 // Checking for cash mode payments
-                if (! array_contains_empty_value($cheque_dd_fields) || ! array_contains_empty_value($online_fields)) {
+                if (!array_contains_empty_value($cheque_dd_fields) || !array_contains_empty_value($online_fields)) {
                     // Cheque/DD/Online should be blank for cash payments
                     $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - For Cash payments, Cheque/DD/Online payment details are not applicable.";
                 }
-            } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])){
+            } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])) {
                 $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Online Payment mode is currently not supported.";
-            }
-            else if (! empty($mode)) {
+            } else if (!empty($mode)) {
                 // Checking for invalid paymemt mode
                 $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Invalid Payment Mode - $mode";
             }
@@ -382,7 +385,7 @@ class ExcelValidator
                                 'amount',
                                 'chequedd_date'
                             ];
-                            if (! array_contains_empty_value(Arr::except($cheque_dd_fields, $except_amount_date)) || ! array_contains_empty_value($online_fields)) {
+                            if (!array_contains_empty_value(Arr::except($cheque_dd_fields, $except_amount_date)) || !array_contains_empty_value($online_fields)) {
                                 $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Future Installments with no payment mode cannot have Cheque/DD/Online details";
                             }
                         } else {
@@ -402,20 +405,19 @@ class ExcelValidator
      * Function for validating excel fields like mobile number, email id and external/internal.
      * @param array $data
      */
-    private function ValidateFieldValues(array $data)
-    {   // Check if either mobile number or email id is empty or not, if empty throw error.
+    public function ValidateFieldValues(array $data)
+    {
+        // Check if either mobile number or email id is empty or not, if empty throw error.
         if (empty($data['mobile_number']) && empty($data['email_id'])) {
             $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
         }
+
         // Fetching location for the delivery institution and branch
         $location = ShopifyExcelUpload::getLocation($data['delivery_institution'], $data['branch']);
-
-        // If location not found and order type is not external...
-        if (!$location && strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER ) {
-            $this->errors['rows'][$this->row_no][] = "The order type should be external for institutes outside Apeejay.";
+        if (!$location) {
             $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
-        }
-        else {
+            return;
+        } else {
             // If the location captured doesn't corresponds to higher education institute
             if (!$location['is_higher_education']) {
                 // If school title is Apeejay then...
@@ -429,13 +431,50 @@ class ExcelValidator
                         $this->errors['rows'][$this->row_no][] = "The order type should be external for schools outside Apeejay and delivery institution should be other than Apeejay.";
                     }
                 }
-            } else{
+            } else {
                 // For the location corresponding to higher institutes, if the order type is not internal
                 // or delivery institution is not Apeejay then throw internal error for higher institutes
-                if(strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)){
+                if (strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER || strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
                     $this->errors['rows'][$this->row_no][] = "The order type should be internal for institutes under Apeejay Education Society and delivery institution should be Apeejay.";
                 }
+                // Checking for delivery institution and validation data
+                if ($data['delivery_institution'] == ShopifyExcelUpload::REYNOTT) {
+
+                    $reynott_errors = self::ValidateReynottData($data);
+
+                    // If no error recorded till this stage, initialize the row errors....
+                    if (!empty($reynott_errors) && empty($this->errors['rows'][$this->row_no])) {
+                        $this->errors['rows'][$this->row_no] = [];
+                    }
+                    if (!empty($this->errors['rows'])) {
+                        $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no], $reynott_errors);
+                    }
+                }
             }
+        }
+    }
+
+    public function ValidateInternalExternalOrderType(array $data) {
+        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER) {
+            $this->errors['rows'][$this->row_no][] = Errors::INCORRECT_APEEJAY_ORDER;
+        }
+        if (!strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::EXTERNAL_ORDER) {
+            $this->errors['rows'][$this->row_no][] = Errors::INCORRECT_NON_APEEJAY_ORDER;
+        }
+    }
+
+    /**
+     * @deprecated Not to be used
+     * @todo Remove in next release
+     * @param array $data
+     * @param $location
+     */
+    private function ValidateApeejayData(array $data, $location){
+
+        if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['delivery_institution']) != strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+            $this->errors['rows'][$this->row_no][] = "Delivery institution should be Apeejay for Apeejay Schools.";
+        } elseif (strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::SCHOOL_TITLE)) {
+            $this->errors['rows'][$this->row_no][] = "Delivery institution should not be Apeejay for external schools.";
         }
     }
 
@@ -510,6 +549,28 @@ class ExcelValidator
                 }
             }
         }
+    }
+
+    /**
+     * Function for validating class, section and other fields related to the Reynott Academy Data
+     *
+     * Takes excel row data as input and returns errors if validation fails.
+     *
+     * @param array $data
+     * @return array
+     */
+    public function ValidateReynottData(array $data) {
+        $errors = [];
+        if(!in_array($data['class'],array_merge(Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST))){
+            $errors[] = Errors::REYNOTT_CLASS_ERROR;
+        }
+        if(!in_array($data['section'],array_merge(Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST))){
+            $errors[] = Errors::REYNOTT_SECTION_ERROR;
+        }
+        if(in_array($data['class'],Student::REYNOTT_DROPPER_CLASS_LIST) && !in_array($data['section'],Student::REYNOTT_DROPPER_SECTION_LIST)){
+            $errors[] = Errors::REYNOTT_INTERDEPENDENCE_ERROR;
+        }
+        return $errors;
     }
 
     /**
