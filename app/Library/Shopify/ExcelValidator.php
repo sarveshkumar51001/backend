@@ -51,12 +51,12 @@ class ExcelValidator
     {
         $sheet_has_column_validation_error = false;
         if (! $this->HasAllValidHeaders()) {
-            $this->errors['incorrect_headers'] = 'Either few headers are incorrect or wrong sheet uploaded, to resolve download the latest sample format.';
+            $this->errors['incorrect_headers'] = Errors::INCORRECT_HEADER_ERROR;
             return $this->errors;
         }
 
         if (count($this->FileFormattedData) < 1) {
-            $this->errors['sheet']['empty_file'] = 'No data was found in the uploaded file';
+            $this->errors['sheet']['empty_file'] = Errors::EMPTY_FILE_ERROR;
             return $this->errors;
         }
 
@@ -83,7 +83,7 @@ class ExcelValidator
         }
 
         if ($sheet_has_column_validation_error) {
-            $this->errors['sheet']['priority_error'] = 'There are errors in sheets due to which collection cannot be calculated correctly. Please correct below errors and try again.';
+            $this->errors['sheet']['priority_error'] = Errors::SHEET_ERRORS;
         } else {
             $this->ValidateAmount();
         }
@@ -91,7 +91,7 @@ class ExcelValidator
         return $this->errors;
     }
 
-    private function ValidateDuplicateRow(array $row)
+    public function ValidateDuplicateRow(array $row)
     {
         $is_duplicate = false;
         $date_enroll = $row['date_of_enrollment'];
@@ -116,7 +116,7 @@ class ExcelValidator
             }
 
             if (! empty($fields_updated)) {
-                $this->errors['rows'][$this->row_no][] = "Only Payment data can be updated for an Order. Field(s) " . implode($fields_updated, ",") . " has been changed";
+                $this->errors['rows'][$this->row_no][] = sprintf(Errors::FIELD_UPDATED_ERROR, implode($fields_updated, ","));
             }
 
             // Existing payments array
@@ -127,14 +127,14 @@ class ExcelValidator
                 if (array_diff_assoc(Arr::only($existingpayments[$payment_index], ShopifyExcelUpload::CHEQUE_DD_FIELDS), Arr::only($payment, ShopifyExcelUpload::CHEQUE_DD_FIELDS))) {
                     $is_duplicate = false;
                     if ($existingpayments[$payment_index]['processed'] == 'Yes') {
-                        $this->errors['rows'][$this->row_no][] = "Already Processed installments can't be modified. Installment " . ($payment_index + 1) . " have been modified";
+                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::PROCESSED_INSTALLMENT_ERROR, $payment_index + 1);
                     }
                 }
             }
         }
 
         if ($is_duplicate) {
-            $this->errors['rows'][$this->row_no][] = "This order has already been processed";
+            $this->errors['rows'][$this->row_no][] = Errors::DUPLICATE_ROW_ERROR;
         }
 
         return $is_duplicate;
@@ -204,7 +204,6 @@ class ExcelValidator
 
         $validator = Validator::make($data, $rules);
         $errors = $validator->getMessageBag()->toArray();
-
         if (! empty($errors)) {
             $this->errors['rows'][$this->row_no] = Arr::flatten(array_values($errors));
             return false;
@@ -212,7 +211,7 @@ class ExcelValidator
         return true;
     }
 
-    private function ValidateAmount()
+    public function ValidateAmount()
     {
         if (count($this->FileFormattedData) < 1)
             return;
@@ -226,13 +225,13 @@ class ExcelValidator
         $modeWiseTotal = $this->get_amount_total();
 
         if ($amount_collected_cash != $modeWiseTotal['cash_total']) {
-            $this->errors['sheet'][] = "Cash total mismatch, Entered total $amount_collected_cash, Calculated total " . $modeWiseTotal['cash_total'];
+            $this->errors['sheet'][] = sprintf(Errors::CASH_TOTAL_MISMATCH, $amount_collected_cash, $modeWiseTotal['cash_total']);
         }
         if ($amount_collected_cheque != $modeWiseTotal['cheque_total']) {
-            $this->errors['sheet'][] = "Cheque total mismatch, Entered total $amount_collected_cheque, Calculated total " . $modeWiseTotal['cheque_total'];
+            $this->errors['sheet'][] = sprintf(Errors::CHEQUE_TOTAL_MISMATCH, $amount_collected_cheque, $modeWiseTotal['cheque_total']);
         }
         if ($amount_collected_online != $modeWiseTotal['online_total']) {
-            $this->errors['sheet'][] = "Online total mismatch, Entered total $amount_collected_online, Calculated total " . $modeWiseTotal['online_total'];
+            $this->errors['sheet'][] = sprintf(Errors::ONLINE_TOTAL_MISMATCH, $amount_collected_online, $modeWiseTotal['online_total']);
         }
     }
 
@@ -240,7 +239,6 @@ class ExcelValidator
     {
         $has_valid_header = false;
         if ($raw_headers = array_slice($this->File->GetRawHeaders(), 0, 91)) {
-
             foreach ($this->File->GetExcelHeaders() as $header) {
                 if (! in_array($header, $raw_headers)) {
                     $has_valid_header = false;
@@ -312,18 +310,21 @@ class ExcelValidator
         ];
     }
 
-    private function ValidatePaymentDetails(array $data)
+    public function ValidatePaymentDetails(array $data)
     {
         $amount = 0;
         $final_fee = $data['final_fee_incl_gst'];
 
         foreach ($data['payments'] as $payment_index => $payment) {
-            $payment = Arr::except($payment, ShopifyExcelUpload::PAYMENT_METAFIELDS);
 
-            if (empty($payment['amount'])) {
-                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Amount is required for any payment.";
-                continue;
-            }
+            $payment = Arr::except($payment, ShopifyExcelUpload::PAYMENT_METAFIELDS);
+            /**
+             * @todo To be removed. It is a redundant check as payment array cannot be created without amount.
+             */
+//            if (empty($payment['amount'])) {
+//                $this->errors['rows'][$this->row_no][] = sprintf(Errors::EMPTY_AMOUNT_ERROR, $payment_index + 1);
+//                continue;
+//            }
 
             $mode = strtolower($payment['mode_of_payment']);
             $amount += $payment['amount'];
@@ -342,34 +343,34 @@ class ExcelValidator
             $online_fields = Arr::only($payment, ShopifyExcelUpload::ONLINE_FIELDS);
 
             if (in_array($mode, array_map('strtolower', $offline_modes))) {
-                // Checking for offline mode payments
+                // Checking for offline mode PAYMENTS
                 if (array_contains_empty_value($cheque_dd_fields)) {
                     // Checking for blank cheque/dd details
-                    $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Cheque/DD Details are mandatory for transactions having payment mode as Cheque/DD.";
+                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::CHEQUE_DD_DETAILS_ERROR, $payment_index + 1);
                 } else {
                     if (DB::check_if_already_used($payment['chequedd_no'], $payment['micr_code'], $payment['drawee_account_number'], $payment_index, $data['shopify_activity_id'], $data['date_of_enrollment'], $data['school_enrollment_no'])) {
                         // Check if the combination of cheque no., micr_code and account_no. exists in database
-                        $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Cheque/DD Details already used before.";
+                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::CHEQUE_DETAILS_USED_ERROR, $payment_index + 1);
                     }
                 }
             } else if (in_array($mode, array_map('strtolower', $online_modes))) {
                 // Checking for online mode payments
                 if (array_contains_empty_value($online_fields)) {
                     // Checking for blank online details
-                    $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Transaction Reference No. is mandatory in case of Online Payment.";
+                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::ONLINE_PAYMENT_ERROR, $payment_index + 1);
                 }
             } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
                 // Checking for cash mode payments
                 if (! array_contains_empty_value($cheque_dd_fields) || ! array_contains_empty_value($online_fields)) {
                     // Cheque/DD/Online should be blank for cash payments
-                    $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - For Cash payments, Cheque/DD/Online payment details are not applicable.";
+                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::CASH_PAYMENT_ERROR, $payment_index + 1);
                 }
             } else if ($mode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE])){
-                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Online Payment mode is currently not supported.";
+                $this->errors['rows'][$this->row_no][] = sprintf(Errors::ONLINE_NOT_SUPPORTED_ERROR,$payment_index + 1);
             }
             else if (! empty($mode)) {
                 // Checking for invalid paymemt mode
-                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Invalid Payment Mode - $mode";
+                $this->errors['rows'][$this->row_no][] = sprintf(Errors::INVALID_MODE_ERROR, $mode, $payment_index + 1);
             }
 
             // Function for checking whether the combination of amount and date present for each installment.
@@ -377,7 +378,7 @@ class ExcelValidator
             if ($payment['type'] == ShopifyExcelUpload::TYPE_INSTALLMENT) {
                 if (empty($payment['mode_of_payment'])) {
                     if (empty($payment['amount']) || empty($payment['chequedd_date'])) {
-                        $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Expected Amount and Expected date of collection required for every installment of this order.";
+                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::EXPECTED_DATE_AMOUNT_ERROR, $payment_index + 1);
                     } else {
                         if (Carbon::now()->diffInDays(Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment['chequedd_date']), false) > 0) {
                             $except_amount_date = [
@@ -385,10 +386,10 @@ class ExcelValidator
                                 'chequedd_date'
                             ];
                             if (! array_contains_empty_value(Arr::except($cheque_dd_fields, $except_amount_date)) || ! array_contains_empty_value($online_fields)) {
-                                $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Future Installments with no payment mode cannot have Cheque/DD/Online details";
+                                $this->errors['rows'][$this->row_no][] = Errors::FUTURE_PAYMENT_CHEQUE_DETAILS_ERROR;
                             }
                         } else {
-                            $this->errors['rows'][$this->row_no][] = "Payment " . ($payment_index + 1) . " - Payment date should be in future for future installments";
+                            $this->errors['rows'][$this->row_no][] = sprintf(Errors::FUTURE_INSTALLMENT_DATE_ERROR, $payment_index + 1);
                         }
                     }
                 }
@@ -396,24 +397,34 @@ class ExcelValidator
         }
 
         if ($amount != $final_fee) {
-            $this->errors['rows'][$this->row_no][] = "Total Installment Amount and Final Fee Amount does not match";
+            $this->errors['rows'][$this->row_no][] = Errors::ORDER_AMOUNT_TOTAL_ERROR;
         }
     }
 
-    public function ValidateFieldValues(array $data)
-    {
 
+    /**
+     * Function for validating existence of excel fields like mobile number, email, delivery institution and branch.
+     *
+     * Check either email or mobile number must be present.
+     * Checks existence of delivery institution and branch combination
+     *
+     * When Delivery institution is Reynott,
+     * @see ExcelValidator::ValidateReynottData()
+     *
+     * @param array $data
+     */
+    public function ValidateFieldValues(array $data)
+    {   // Check if either mobile number or email id is empty or not, if empty throw error.
         if (empty($data['mobile_number']) && empty($data['email_id'])) {
-            $this->errors['rows'][$this->row_no][] = "Either Email or Mobile Number is mandatory.";
+            $this->errors['rows'][$this->row_no][] = Errors::CONTACT_DETAILS_ERROR;
         }
 
         // Fetching location for the delivery institution and branch
         $location = ShopifyExcelUpload::getLocation($data['delivery_institution'], $data['branch']);
         if (! $location) {
-            $this->errors['rows'][$this->row_no][] = 'No location exists for Delivery Institution and Branch';
+            $this->errors['rows'][$this->row_no][] = Errors::LOCATION_ERROR;
             return;
         }
-
         // Checking for delivery institution and validation data
         if ($data['delivery_institution'] == ShopifyExcelUpload::REYNOTT) {
 
@@ -428,7 +439,6 @@ class ExcelValidator
             }
         }
     }
-
     public function ValidateInternalExternalOrderType(array $data) {
         if (strstr($data['school_name'], ShopifyExcelUpload::SCHOOL_TITLE) && strtolower($data['external_internal']) != ShopifyExcelUpload::INTERNAL_ORDER) {
             $this->errors['rows'][$this->row_no][] = Errors::INCORRECT_APEEJAY_ORDER;
@@ -453,7 +463,7 @@ class ExcelValidator
         }
     }
 
-    private function ValidateActivityDetails(array $data)
+    public function ValidateActivityDetails(array $data)
     {
         $enrollment_date = $data['date_of_enrollment'];
         $enrollment_no = $data['school_enrollment_no'];
@@ -463,27 +473,44 @@ class ExcelValidator
         $scholarship_amount = $data['scholarship_discount'];
 
         if (! DB::shopify_product_database_exists($activity_id)) {
-            $this->errors['rows'][$this->row_no][] = "Activity ID is either incorrect or not available.";
+            $this->errors['rows'][$this->row_no][] = Errors::ACTIVITY_ID_ERROR;
         } else if (DB::is_activity_duplicate($activity_id)) {
-            $this->errors['rows'][$this->row_no][] = "More than one product exists with Activity ID [$activity_id]";
+            $this->errors['rows'][$this->row_no][] = sprintf(Errors::DUPLICATE_ACTIVITY_ERROR, $activity_id);
         } else if (! DB::check_activity_fee_value($activity_fee, $activity_id)) {
-            $this->errors['rows'][$this->row_no][] = "Activity Fee entered is incorrect.";
+            $this->errors['rows'][$this->row_no][] = Errors::ACTIVITY_FEE_ERROR;
         } else if (! DB::check_order_created($enrollment_date, $activity_id, $enrollment_no)) {
             $variant_id = DB::get_variant_id($activity_id);
             if (! DB::check_inventory_status($variant_id)) {
-                $this->errors['rows'][$this->row_no][] = "Product is out of stock.";
+                $this->errors['rows'][$this->row_no][] = Errors::OUT_OF_STOCK_ERROR;
             }
         }
         if (empty($scholarship_amount)) {
             if ($activity_fee != $final_fee) {
-                $this->errors['rows'][$this->row_no][] = "Final Fee  is not equal to the activity fee.";
+                $this->errors['rows'][$this->row_no][] = Errors::FINAL_FEE_ERROR;
             }
         } else {
             if ($final_fee != ($activity_fee - $scholarship_amount)) {
-                $this->errors['rows'][$this->row_no][] = "After applying discount and Final Fee amount does not match.";
+                $this->errors['rows'][$this->row_no][] = Errors::DISCOUNT_APPLICATION_ERROR;
             }
         }
     }
+
+    /**
+     * Function for validating the data specific to the higher education institutes
+     *
+     * All the validations are only performed if any location is found for the data provided. If the location belongs
+     * to higher institutes (based on higher education tag in school mapping) then check whether the class
+     * and section are correct i.e. only the class and section corresponding to higher institutes are entered.
+     *
+     * Similarly if the location doesn't belongs to higher institutes
+     * then the class and section entered should be corresponding to the schools only.
+     *
+     * For eg: If the school is Apeejay Saket then class should be from 1 to 12 and section should be A to H not
+     * anything else. If the Institute is ASM Dwarka then class should be like BTech, BA, BBA etc and section should
+     * be Sem1, Sem2....Sem8.
+     *
+     * @param array $data
+     */
     public function ValidateHigherEducationData(array $data){
 
         $location_data = ShopifyExcelUpload::getLocation($data['delivery_institution'],$data['branch']);
@@ -494,17 +521,17 @@ class ExcelValidator
             if($location_data['is_higher_education']){
                 // Checking whether the section value is for higher institutes
                 if(!in_array($data['class'],Student::HIGHER_CLASS_LIST)){
-                    $this->errors['rows'][$this->row_no][] = "Incorrect class given for higher education institutes";
+                    $this->errors['rows'][$this->row_no][] = Errors::INSTITUTE_CLASS_ERROR;
                 }
                 if(!in_array($data['section'],Student::HIGHER_SECTION_LIST)){
-                    $this->errors['rows'][$this->row_no][] = "Incorrect section given for higher education institutes";
+                    $this->errors['rows'][$this->row_no][] = Errors::INSTITUTE_SECTION_ERROR;
                 }
             } else{
                 if(in_array($data['class'],Student::HIGHER_CLASS_LIST)){
-                    $this->errors['rows'][$this->row_no][] = "Higher Education classes are not valid for school entries.";
+                    $this->errors['rows'][$this->row_no][] = Errors::SCHOOL_CLASS_ERROR;
                 }
                 if(in_array($data['section'],Student::HIGHER_SECTION_LIST)){
-                    $this->errors['rows'][$this->row_no][] = "Higher Education sections are not valid for school entries.";
+                    $this->errors['rows'][$this->row_no][] = Errors::SCHOOL_SECTION_ERROR;
                 }
             }
         }
@@ -533,6 +560,8 @@ class ExcelValidator
     }
 
     /**
+     * Function returns errors encountered while validating excel fields and rows
+     *
      * @return array
      */
     public function get_errors()

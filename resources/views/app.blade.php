@@ -40,8 +40,6 @@
     <link href="{{ URL::asset('vendors/css/ladda-themeless.min.css') }}" rel="stylesheet">
     <link href="{{ URL::asset('vendors/css/spinkit.min.css') }}" rel="stylesheet">
     <link href="{{ URL::asset('vendors/css/toastr.min.css') }}" rel="stylesheet">
-
-    <link href="{{ URL::asset('christmas/css/lights.css') }}" rel="stylesheet">
 </head>
 
 <!-- BODY options, add following classes to body to change options
@@ -82,52 +80,6 @@
 
 <!-- Main contents -->
 <div class="app-body">
-    <!-- Light Rope Starts -->
-    <ul class="lightrope">
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-    </ul>
-    <!-- Light Rope Ends -->
     @yield('body')
 </div>
 <!-- Footer -->
@@ -190,14 +142,5 @@
 <!-- Plugins and scripts required by this views -->
 <script src="{{ URL::asset('vendors/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ URL::asset('vendors/js/dataTables.bootstrap4.min.js') }}"></script>
-
-<!-- Snowfall Library Starts -->
-<script src="{{ URL::asset('christmas/js/snowfall.jquery.min.js') }}"></script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        $(document).snowfall({flakeCount : 150, maxSpeed : 5, maxSize : 5});
-    });
-</script>
-<!-- Snowfall Library Ends -->
 </body>
 </html>

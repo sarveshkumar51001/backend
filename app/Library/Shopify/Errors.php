@@ -85,4 +85,6 @@ class Errors
 
     const INCORRECT_NON_APEEJAY_ORDER = "The order type should be external for schools outside Apeejay.";
 
+    const SHEET_ERRORS = 'There are errors in sheets due to which collection cannot be calculated correctly. Please correct below errors and try again.';
+
 }
