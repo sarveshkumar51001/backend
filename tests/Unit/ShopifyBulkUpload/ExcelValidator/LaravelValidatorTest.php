@@ -14,25 +14,6 @@ use Tests\TestCaseData;
 
 class LaravelValidatorTest extends TestCase
 {
-
-    /**
-     * @param $rows
-     * @return Excel
-     */
-    private function generate_raw_excel($rows)
-    {
-        $headers = array_keys($rows);
-
-        return (new Excel($headers, $rows, [
-            'upload_date' => '27/11/2019',
-            'uploaded_by' => Auth::id(),
-            'file_id' => 'shopify-253637',
-            'job_status' => ShopifyExcelUpload::JOB_STATUS_PENDING,
-            'order_id' => 0,
-            'customer_id' => 0
-        ]));
-    }
-
     /**
      * Function for returning string, numeric and required errors for flat fields.
      *
@@ -54,7 +35,7 @@ class LaravelValidatorTest extends TestCase
         } else if ($field_validation == 'numeric') {
             $data[$field_name] = "TestData";
         }
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
         $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
         return $ExcelValidator->get_errors();
     }
@@ -68,7 +49,7 @@ class LaravelValidatorTest extends TestCase
     public function testValidFieldsShouldPass()
     {
         $data = array(TestCaseData::DATA);
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($data));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($data));
         $this->assertTrue($ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]));
     }
 
@@ -144,7 +125,7 @@ class LaravelValidatorTest extends TestCase
         $data[$field_name] = "02/01/20";
         $name = "format";
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
         $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -168,7 +149,7 @@ class LaravelValidatorTest extends TestCase
         $data[$field_name] = "+917490093267";
         $name = "format";
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
         $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -192,7 +173,7 @@ class LaravelValidatorTest extends TestCase
         $data[$field_name] = "hello.com";
         $name = "valid email address";
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
         $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
@@ -216,7 +197,7 @@ class LaravelValidatorTest extends TestCase
         foreach(TestCaseData::AMOUNT_FLAT_FIELDS as $field) {
             $data = TestCaseData::DATA;
             $data[$field] = 2000.4473;
-            $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+            $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
             $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
 
             if(!empty($ExcelValidator->get_errors())) {
@@ -241,7 +222,7 @@ class LaravelValidatorTest extends TestCase
             $data = TestCaseData::DATA;
             $data[$field] = "AD";
 
-            $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+            $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
             $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
 
             if(!empty($ExcelValidator->get_errors())) {
@@ -268,7 +249,7 @@ class LaravelValidatorTest extends TestCase
             $data = TestCaseData::DATA;
             $data[$field.'_'.$payment_no] = "asd";
 
-            $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+            $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
             $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
 
             if(!empty($ExcelValidator->get_errors())){
@@ -296,7 +277,7 @@ class LaravelValidatorTest extends TestCase
         $data = TestCaseData::DATA;
         $data[$field] = " ";
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
         $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())){
@@ -321,7 +302,7 @@ class LaravelValidatorTest extends TestCase
         $data = TestCaseData::DATA;
         $data[$field.'_'.$payment_no] = 123456;
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
         $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())){
@@ -348,7 +329,7 @@ class LaravelValidatorTest extends TestCase
             $data = TestCaseData::DATA;
             $data[$field.'_'.$payment_no] = "4.675E+13";
 
-            $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+            $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
             $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
 
             if(!empty($ExcelValidator->get_errors())){
@@ -374,7 +355,7 @@ class LaravelValidatorTest extends TestCase
         $data = TestCaseData::DATA;
         $data[$field] = "Razorpay";
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
         $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())){
@@ -399,7 +380,7 @@ class LaravelValidatorTest extends TestCase
         $data[$field] = "02/01/20";
         $name = "invalid";
 
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel(array($data)));
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel(array($data)));
         $ExcelValidator->ValidateData($ExcelValidator->FileFormattedData[0]);
 
         if(!empty($ExcelValidator->get_errors())) {
