@@ -102,9 +102,14 @@ class TestCaseData{
         'external_internal', 'school_name', 'student_school_location', 'student_first_name', 'activity',
         'school_enrollment_no', 'class', 'section', 'final_fee_incl_gst','parent_first_name'];
 
-    const STRING_FIELDS = ['shopify_activity_id', 'school_name', 'student_school_location', 'school_enrollment_no'];
+    const STRING_FLAT_FIELDS = ['shopify_activity_id', 'school_name', 'student_school_location', 'school_enrollment_no'];
 
-    const NUMERIC_FIELDS = ['scholarship_discount', 'after_discount_fee', 'final_fee_incl_gst'];
+    const NUMERIC_FLAT_FIELDS = ['scholarship_discount', 'after_discount_fee', 'final_fee_incl_gst'];
 
     const AMOUNT_FLAT_FIELDS = ['final_fee_incl_gst','after_discount_fee'];
+
+    const RULE_IN_FIELDS = ['class','section','branch'];
+
+    const NESTED_NUMERIC_FIELDS = ['amount','chequedd_no','micr_code','drawee_account_number'];
+
 }
