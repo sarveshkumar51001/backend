@@ -189,6 +189,7 @@ class ExcelValidator
             ],
             // All Payments
             "payments" => "required",
+            "payments.0.amount" => "required|numeric|amount",
             "payments.*.amount" => "numeric|amount",
             "payments.*.mode_of_payment" => [
                 Rule::in(ShopifyExcelUpload::payment_modes())

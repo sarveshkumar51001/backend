@@ -117,17 +117,46 @@ class TestCaseData{
         'pdc_to_be_collected' => 0,
     ];
 
-    const REQUIRED_FLAT_FIELDS = ['date_of_enrollment', 'shopify_activity_id', 'delivery_institution', 'branch',
+    const REQUIRED_FIELDS = ['date_of_enrollment', 'shopify_activity_id', 'delivery_institution', 'branch',
         'external_internal', 'school_name', 'student_school_location', 'student_first_name', 'activity',
         'school_enrollment_no', 'class', 'section', 'final_fee_incl_gst','parent_first_name'];
 
-    const STRING_FLAT_FIELDS = ['shopify_activity_id', 'school_name', 'student_school_location', 'school_enrollment_no'];
+    const STRING_FIELDS = ['shopify_activity_id', 'school_name', 'student_school_location', 'school_enrollment_no','drawee_name_1'];
 
-    const NUMERIC_FLAT_FIELDS = ['scholarship_discount', 'after_discount_fee', 'final_fee_incl_gst'];
+    const NUMERIC_FIELDS = ['scholarship_discount', 'after_discount_fee', 'final_fee_incl_gst','drawee_account_number_1','amount_1','micr_code_1','chequedd_no_1'];
 
-    const AMOUNT_FLAT_FIELDS = ['final_fee_incl_gst','after_discount_fee'];
+    const AMOUNT_FIELDS = ['final_fee_incl_gst','after_discount_fee','amount_1'];
 
-    const RULE_IN_FIELDS = ['class','section','branch'];
+    const RULE_IN_FIELDS = ['class','section','branch','mode_of_payment_1'];
 
-    const NESTED_NUMERIC_FIELDS = ['amount','chequedd_no','micr_code','drawee_account_number'];
+    const EMAIL_FIELDS = ['email_id'];
+
+    const REGEX_FIELDS = ['mobile_number','date_of_enrollment','chequedd_date_1'];
+
+    const NOT_EXPONENTIAL_FIELDS = ['drawee_account_number_1','micr_code_1','chequedd_no_1'];
+
+
+    const EXPECTED_ERRORS_PER_VALIDATION = [
+        'email' => 'The :attribute must be a valid email address.',
+        'numeric' => 'The :attribute must be a number.',
+        'regex' => 'The :attribute format is invalid.',
+        'required' => 'The :attribute field is required.',
+        'string' => 'The :attribute must be a string.',
+        'not_exponential' => 'The :attribute cannot contain decimal or exponential value.',
+        'amount' => 'The :attribute doesnt follow the standard amount format.',
+        'in' => 'The selected :attribute is invalid.',
+    ];
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
