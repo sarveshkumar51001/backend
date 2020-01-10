@@ -67,8 +67,8 @@ class ExcelValidator
 
             $validation_error = $this->ValidateData($data);
 
-            if ($this->ValidateDuplicateRow($data) || $validation_error) {
-                if ($validation_error) {
+            if ($this->ValidateDuplicateRow($data) || !$validation_error) {
+                if (!$validation_error) {
                     $sheet_has_column_validation_error = true;
                 }
                 unset($this->FileFormattedData[$index]);
