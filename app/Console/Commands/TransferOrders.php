@@ -15,7 +15,7 @@ class TransferOrders extends Command
      *
      * @var string
      */
-    protected $signature = 'TransferOrders:U2U';
+    protected $signature = 'TransferOrders:U2U {--run=}';
 
     /**
      * The console command description.
@@ -41,33 +41,41 @@ class TransferOrders extends Command
      */
     public function handle()
     {
-        // Ask user to input the file id and fetch the file data..
-        $file_id = $this->ask('Please enter the file id');
-        $file_data = Upload::where('file_id',$file_id)->first();
+        $file_data = [];
 
-        // Fetch user who uploaded the file..
-        $User = User::where('_id',$file_data->user_id)->first();
-        $this->info(sprintf('This file was uploaded by %s',$User->name));
+        if(empty($this->option('run'))) {
+            // Ask user to input the file id and fetch the file data..
+            $file_id = $this->ask('Please enter the file id');
+            $file_data = Upload::where('file_id', $file_id)->first();
+            if(empty($file_data)){
+                $this->error("The file provided does'not exists.");
+            }
+            // Fetch user who uploaded the file..
+            $User = User::where('_id', $file_data->user_id)->first();
+            $this->info(sprintf('This file was uploaded by %s', $User->name));
+        } else {
+            $order_name = $this->option('run');
+            $user_id = ShopifyExcelUpload::where('shopify_order_name',$order_name)->first(['owner']);
+            $User = User::where('_id',$user_id)->first();
+        }
 
         // Ask user to enter the email id to whom the transfer is to be done....
-        $to_email = $this->ask('Please enter the email id of the user to whom you want to transfer the file');
+        $to_email = $this->ask('Please enter the email id of the user to whom you want to transfer.');
 
         //Raise error if 'to' and 'from' email is found to be same....
         if($to_email == $User->email){
-            $this->error('File cannot be transferred to the user who created it. Please enter the correct email');
+            $this->error('Transfer cannot take place to the user who owns the file/order. Please enter the correct email');
             return ;
         }
-
         // Fetching completed orders count for that file and matching with the total orders of that file and if matched
         // then proceed further otherwise throw an error.
-        $orders_count = ShopifyExcelUpload::where('file_id',$file_id)->where('job_status','completed')->count();
-        if($orders_count != $file_data->metadata['new_order']){
+        $orders_count = ShopifyExcelUpload::where('file_id', $file_id)->where('job_status', 'completed')->count();
+        if ($orders_count != $file_data->metadata['new_order']) {
             $this->error('File cannot be transferred as some of the orders are still due for completion.');
-            return ;
+            return;
         }
 
-        $this->info(sprintf('Total number of entries to be affected are %s',$file_data->metadata['new_order']));
-
+        $this->alert(sprintf('Total number of entries to be affected are %s', $file_data->metadata['new_order']));
         // Asking user to choose whether to continue or not....
         $default_choice = 1;
         $choice = $this->choice('Do you wish to continue?', ['Yes', 'No'], $default_choice);
