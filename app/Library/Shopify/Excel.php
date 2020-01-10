@@ -84,7 +84,7 @@ class Excel
 		'after_discount_fee' => 'After Discount Fee',
 		'final_fee_incl_gst' => 'Final fee (incl GST)',
 		'payments' => 'Payments',
-		'errors' => 'Errors',
+		'errors' => 'Errors/Messages',
 		'file_id' => "File ID"
 	];
 

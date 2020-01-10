@@ -2,6 +2,8 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class DataRaw
 {
@@ -70,6 +72,16 @@ class DataRaw
     public function GetActivityID()
     {
         return $this->data['shopify_activity_id'] ?? '';
+    }
+
+    /**
+     * This function returns the enrollment date for the job being processed.
+     *
+     * @return mixed|string
+     */
+    public function GetEnrollmentDate()
+    {
+        return $this->data['date_of_enrollment'] ?? '';
     }
 
     public function GetOrderID()
@@ -155,7 +167,7 @@ class DataRaw
     /**
      *
      * @param int $productVariantID
-     * @param array $customer_id
+     * @param int $customer_id
      *
      * @return array
      * @throws \Exception
@@ -182,7 +194,9 @@ class DataRaw
             "id" => $customer_id
         ];
 
-        $location = ShopifyExcelUpload::getSchoolLocation($this->data['delivery_institution'], $this->data['branch']);
+        $order_data['processed_at'] = get_iso_date_format($this->GetEnrollmentDate());
+
+        $location = ShopifyExcelUpload::getLocation($this->data['delivery_institution'], $this->data['branch']);
 
         $order_data['billing_address'] = [
             "first_name" => $this->data['parent_first_name'],
@@ -307,23 +321,27 @@ class DataRaw
     }
 
     /**
+     * This function returns the transaction data to be posted on shopify.
      *
-     * @param array $installment
-     * @param int $number
+     * Takes a payment array as input and return empty if payment is empty or mode of payment is empty or payment is
+     * already processed, if not then create an array transaction data having details like transaction type , amount
+     * and the date at which the transaction is being processed and thus finally return it.
      *
+     * @param array $payment
+     * @param $process_date
      * @return array
      */
-    public static function GetTransactionData(array $installment)
+    public static function GetTransactionData(array $payment, $process_date)
     {
 
-        // Check if installment is empty or mode of payment is empty or installment is processed.
-        if (empty($installment) || empty($installment['mode_of_payment']) || strtolower($installment['processed']) == 'yes') {
+        if (empty($payment) || empty($payment['mode_of_payment']) || strtolower($payment['processed']) == 'yes') {
             return [];
         }
 
         $transaction_data = [
             "kind" => "capture",
-            "amount" => $installment['amount']
+            "amount" => $payment['amount'],
+            "processed_at" => $process_date
         ];
 
         return $transaction_data;
@@ -369,8 +387,42 @@ class DataRaw
         return $order_details;
     }
 
+    /**
+     * This function returns the payment process date for one time and installment orders.
+     *
+     * Takes the payment as input, Initialize the payment process date as the enrollment date for the order and format
+     * it as ISO date format using the 'get_iso_date_format' helper function.
+     *
+     * If the payment mode is cheque/dd then the payment process date is changed to the cheque/dd date else if the order
+     * is of type installment and the mode is not cheque/dd then today's date is returned as the payment processed date.
+     * @param $installment
+     * @return string
+     * @throws \Exception
+     */
+    public function GetPaymentProcessDate($installment) {
+
+        // Initializing payment process date to enrollment date
+        $payment_process_date = get_iso_date_format($this->GetEnrollmentDate());
+
+        // If payment type is cheque/DD.
+        if(! empty($installment['chequedd_date'])) {
+            $payment_process_date = get_iso_date_format($installment['chequedd_date']);
+        } elseif($this->HasInstallment()) {
+            // If payment type is installment and payment method if not cheque/DD.
+            // then make today's date as payment process date
+            $payment_process_date = Carbon::now()->toIso8601String();
+        }
+
+        return $payment_process_date;
+    }
+
+    /* Create slugged headers with count for excel headers
+    *
+    * @param $header
+    * @return string
+    */
     public static function getHeaderName($header) {
-        $slugged_header = str_slug($header, "_");
+        $slugged_header = Str::slug($header,'_');
         $updated_header = $slugged_header;
         $index = 1;
         while(true) {

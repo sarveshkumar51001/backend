@@ -12,13 +12,13 @@ class ShopifyOrdersImport implements ToCollection, WithHeadingRow, WithCalculate
 {
 
     /**
-    * @param Collection $collection
-    */
+     * @param Collection $rows
+     * @return Collection
+     */
     public function collection(Collection $rows)
     {
         return $rows;
     }
-
     /**
      * Function returns the position of the heading row in excel file
      * @return int
@@ -27,5 +27,5 @@ class ShopifyOrdersImport implements ToCollection, WithHeadingRow, WithCalculate
     {
         return 2;
     }
-    
+
 }

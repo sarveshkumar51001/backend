@@ -71,24 +71,35 @@ class DB
 	/**
 	 * @param $object_id
 	 * @param $shopify_order_id
-	 *
+     *
+	 * Function updates Shopify Order name data in mongodb
+     *
+     * Takes MongoDB document id, shopify order id and name as input then fetches the document and updates the order name
+     * in the document.
+     *
 	 * @return mixed
 	 */
-	public static function update_order_id_in_upload($object_id, $shopify_order_id) {
-		return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id]);
+	public static function update_order_id_in_upload($object_id, $shopify_order_id,$order_name) {
+		return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id,'shopify_order_name' => $order_name]);
 	}
 
 	/**
+     * This function marks the installment/payment as processed in MongoDB database.
+     *
+     * Takes document id , transaction id and the index value of the payment as input, fetch the document by id from
+     * database and update the processed status as 'Yes', order update time and shopify transaction id for the payment.
+     *
 	 * @param $_id Object ID - Primary key
 	 * @param int $number of installment store in database
 	 *
 	 * @return mixed
 	 */
-	public static function mark_installment_status_processed($_id, $number) {
+	public static function mark_installment_status_processed($_id, $transaction_id , $number) {
 		$installment_index = sprintf("payments.%s.processed", $number);
 		$order_update_node = sprintf("payments.%s.order_update_at", $number);
+		$transaction_id_node = sprintf("payments.%s.transaction_id",$number);
 
-		return ShopifyExcelUpload::find($_id)->update([$installment_index => 'Yes', $order_update_node => time()]);
+		return ShopifyExcelUpload::find($_id)->update([$installment_index => 'Yes', $order_update_node => time(),$transaction_id_node => $transaction_id]);
 	}
 
 	public static function populate_error_in_payments_array($_id,$number,$error){

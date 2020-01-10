@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+ini_set('precision', 20); // Fix for long integer converting to exponential number Ref:https://github.com/Maatwebsite/Laravel-Excel/issues/1384#issuecomment-362059935
+
 use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Jobs\ShopifyOrderCreation;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Library\Shopify\Errors;
 use App\Library\Shopify\ExcelValidator;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;

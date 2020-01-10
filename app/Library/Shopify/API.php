@@ -58,7 +58,7 @@ class API
 	public function UpdateCustomer($customer_id, array $data) {
 	    if(empty($data))
 	        return false;
-	    
+
 		$this->delay_request();
 		return $this->Shopify->Customer($customer_id)->put($data);
 	}
@@ -94,6 +94,11 @@ class API
 	    $this->delay_request();
 		return $this->Shopify->Order($orderID)->put($data);
 	}
+
+	public function CancelOrder($orderID,$data) {
+	    $this->delay_request();
+	    return $this->Shopify->Order($orderID)->cancel($data);
+    }
 
 	/**
 	 * @param $params
