@@ -1,4 +1,5 @@
 <?php
+
 function get_product_price($productID) {
 	$Product = \App\Models\Product::where('product_id', $productID)->first();
 
@@ -72,6 +73,13 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
         }
     }
     return false;
+}
+
+function generate_error_slug(string $str)
+{
+    $error_slug = str_replace('+', '-', urlencode('bkmrk-' . substr(strtolower(preg_replace('/ /', '-', trim($str))), 0, 20)));
+
+    return $error_slug;
 }
 
 /**
