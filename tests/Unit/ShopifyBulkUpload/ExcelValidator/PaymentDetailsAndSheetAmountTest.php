@@ -196,7 +196,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $error = "";
         $data = TestCaseData::DATA;
         $data['mode_of_payment_1'] = "";
-        $data['chequedd_date_1'] = "15/01/2020";
+        $data['chequedd_date_1'] = "10/02/2020";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
@@ -205,7 +205,6 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         if(!empty($ExcelValidator->get_errors())) {
             $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
         }
-
         $this->assertTrue($error == Errors::FUTURE_PAYMENT_CHEQUE_DETAILS_ERROR);
     }
 

@@ -56,3 +56,9 @@ function get_render_template(data) {
 
     return template;
 }
+
+function download_transactions() {
+    var link = "/get/transactions?daterange="+$('#txn_range').val();
+    window.open(link, '_blank');
+    return false;
+}

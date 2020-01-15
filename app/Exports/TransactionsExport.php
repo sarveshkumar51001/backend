@@ -24,20 +24,26 @@ class TransactionsExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'Activity Name',
-            'Activity Fee',
-            'Location',
+            'Date of Enrollment',
             'Student Enrollment No',
+            'Location',
+            'School Name',
             'Student Name',
             'Class',
-            'Shopify Order Name',
+            'Parent Name',
+            'Activity Name',
+            'Activity Fee',
+            'Scholarship/Discount',
             'Uploaded By',
             'Transaction Amount',
             'Transaction Mode',
             'Cheque/DD No',
             'Cheque/DD Date',
             'Reference No(PayTM/NEFT)',
-            'Transaction Upload Date'
+            'Transaction Upload Date',
+            'Payment Type',
+            'Shopify Order Name',
+            'Parent Order Name'
         ];
     }
 }

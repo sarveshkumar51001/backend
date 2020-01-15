@@ -53,6 +53,7 @@ Route::prefix('shopify')->group(function() {
     });
     Route::get('/transactions','TransactionController@index')->name('orders.transactions');
     Route::post('/get/transactions', 'TransactionController@search_transactions_by_location')->name('get.transactions');
+    Route::get('/get/transactions','TransactionController@search_transactions_by_location')->name('self.transactions');
 
 Route::prefix('imagereco')->group(function() {
         Route::get('/', 'ImageRecognitionController@listAllPeople')->name('imagereco.list-all-people');
