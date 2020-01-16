@@ -257,15 +257,8 @@ class ShopifyController extends BaseController
 
     public function previous_orders()
     {
-        $start = start_of_the_day(date('m/d/Y'));
-        $end = end_of_day(date('m/d/Y'));
-        if (request('daterange')) {
-            $range = explode(' - ', request('daterange'), 2);
-            if (count($range) == 2) {
-                $start = start_of_the_day($range[0]);
-                $end = end_of_day($range[1]);
-            }
-        }
+        $date_params = GetStartEndDate(request('daterange'));
+        [$start,$end] = $date_params;
 
         if ($start && $end) {
             if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
