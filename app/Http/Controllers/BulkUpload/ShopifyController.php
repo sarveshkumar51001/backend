@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BulkUpload;
 
 ini_set('precision', 20); // Fix for long integer converting to exponential number Ref:https://github.com/Maatwebsite/Laravel-Excel/issues/1384#issuecomment-362059935
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BulkUpload;
 
 use App\Exports\TransactionsExport;
 use App\Models\ShopifyExcelUpload;
