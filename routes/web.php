@@ -39,7 +39,9 @@ Route::prefix('shopify')->group(function() {
         Route::get('/previous/uploads', 'ShopifyController@previous_uploads')->name('bulkupload.previous_uploads');
         Route::get('/previous/orders', 'ShopifyController@previous_orders')->name('bulkupload.previous_orders');
         Route::get('/previous/file_download/{id}', 'ShopifyController@download_previous')->name('bulkupload.download_previous');
-        });
+        Route::get('/search','BulkUploadSearchController@index')->name('bulkupload.search');
+
+    });
 });
 
     Route::group(['prefix' => 'students'], function() {
