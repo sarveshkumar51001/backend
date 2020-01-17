@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\BulkUpload;
 
 use App\Exports\TransactionsExport;
+use App\Http\Controllers\BaseController;
 use App\Models\ShopifyExcelUpload;
 use App\User;
 use Carbon\Carbon;

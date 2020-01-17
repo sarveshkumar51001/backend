@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BulkUpload;
 
+use App\Http\Controllers\BaseController;
 use App\Library\Shopify\Search;
 
 class BulkUploadSearchController extends BaseController
@@ -17,55 +18,5 @@ class BulkUploadSearchController extends BaseController
 
         return view('shopify.bulkupload-search', ['breadcrumb' => $breadcrumb,'result' =>$result, 'query'=>request('qry')]);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\BulkUpload;
+namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Order;
