@@ -5,12 +5,6 @@
         <div class="card-body">
             <form method="get" action="" class="form-group">
                 <div class="row ml-3 mr-4">
-                    <div class="col-sm-4">
-                        <label>Search query</label>
-                        <div class="input-group">
-                            <input autocomplete="off" id="qry" name="qry" maxlength="50" type="text" required="required" class="form-control" value="{{ request('qry') }}" placeholder="Search by Name, ID, Acc.No., Enroll No....">
-                        </div>
-                    </div>
                     @if(in_array(\Auth::user()->email, \App\Http\Controllers\ShopifyController::$adminTeam))
                         <div class="col-sm-4">
                             <div class="form-group">
@@ -42,6 +36,12 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-sm-4">
+                            <label>Search query<span style="color: red; "> *</span></label>
+                            <div class="input-group">
+                                <input autocomplete="off" id="qry" name="qry" maxlength="50" type="text" required="required" class="form-control" value="{{ request('qry') }}" placeholder="Search by Name, ID, Acc.No., Enroll No....">
+                            </div>
+                        </div>
                     <div class="col-sm-4 pull-right">
                         <label>&nbsp;</label>
                         <div class="input-group">
@@ -51,6 +51,7 @@
                     </div>
                 </div>
             </form>
+            <p style="text-align:left"><span  style="color: red; "> *</span><b> Mandatory Fields</b></p>
             @if(!empty($result['students']->items())|| !empty($result['orders']->items()))
             <div class="row">
                 <div class="col-md-12">
