@@ -58,6 +58,10 @@ return [
 
         'mongodb' => [
 	        'driver'   => 'mongodb',
+            'dump' => [
+                'dump_binary_path' => '/usr/bin',
+                'authenticationDatabase' => 'admin',
+                ],
 	        'host'     => env('DB_HOST', 'localhost'),
 	        'port'     => env('DB_PORT', 27017),
 	        'database' => env('DB_DATABASE'),

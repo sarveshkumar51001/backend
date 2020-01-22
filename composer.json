@@ -15,15 +15,18 @@
 		"fideloper/proxy": "^4.0",
 		"guzzlehttp/guzzle": "^6.3",
 		"jenssegers/mongodb": "^3.4",
-		"laravel/framework": "5.7.*",
+		"laravel/framework": "5.8.*",
+		"laravel/slack-notification-channel": "^2.0",
 		"laravel/socialite": "^3.2",
 		"laravel/tinker": "^1.0",
 		"maatwebsite/excel": "^3.1",
 		"mongodb/mongodb": "^1.4",
 		"oseintow/laravel-shopify": "^1.0",
 		"phpclassic/php-shopify": "^1.0",
-		"sentry/sentry-laravel": "~1"
-    },
+		"sentry/sentry-laravel": "~1",
+		"spatie/db-dumper": "^2.15",
+		"spatie/laravel-backup": "^6.7"
+	},
 	"require-dev" : {
 		"beyondcode/laravel-dump-server" : "^1.0",
 		"filp/whoops" : "^2.0",

@@ -27,6 +27,9 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
         $schedule->command('PDCStatus:daily')->dailyAt('12:00');
+        $schedule->command('backup-run')->dailyAt('11:30');
+        $schedule->command('backup-run')->dailyAt('19:30');
+
     }
 
     /**
