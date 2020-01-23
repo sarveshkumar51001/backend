@@ -140,7 +140,7 @@ return [
         ],
 
         'slack' => [
-            'webhook_url' => 'https://hooks.slack.com/services/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',
+            'webhook_url' => env('SLACK_WEBHOOK_NOTIFICATION'),
 
             /*
              * If this is set to null the default channel of the webhook will be used.
@@ -154,7 +154,7 @@ return [
         ],
     ],
 
-    /*
+    /* 
      * Here you can specify which backups should be monitored.
      * If a backup does not meet the specified requirements the
      * UnHealthyBackupWasFound event will be fired.
