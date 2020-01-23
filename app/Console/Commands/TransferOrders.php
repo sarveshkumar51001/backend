@@ -44,14 +44,21 @@ class TransferOrders extends Command
         $file_data = [];
         $file_id = $order_name = $order_id = "";
 
+        // Progress bar creation and start
+        $bar = $this->output->createProgressBar(50);
+        $bar->start();
+
         // Checking if the user wants to transfer a file or a single order and fetching owner accordingly
         if(empty($this->option('run'))) {
             [$User,$file_id,$file_data] = $this->User_who_owns_file();
+            $bar->advance(10);
         } else {
             [$User,$order_name,$order_id] = $this->User_who_owns_order();
+            $bar->advance(10);
         }
         // Ask user to enter the email id to whom the transfer is to be done....
         $to_email = $this->ask('Please enter the email id of the user to whom you want to transfer.');
+        $bar->advance(10);
 
         //Raise error if 'to' and 'from' email is found to be same....
         if($to_email == $User->email){
@@ -68,12 +75,15 @@ class TransferOrders extends Command
         if($order_name){
             ShopifyExcelUpload::where('shopify_order_name',$order_name)->update(['owner' => $ToUser->_id]);
             $orders[]['order_id'] = $order_id;
+            $bar->advance(10);
         } else {
             $this->Transfer_file_to_user($file_id,$file_data,$ToUser);
             $orders = ShopifyExcelUpload::where('file_id',$file_id)->get(['order_id'])->toArray();
+            $bar->advance(10);
         }
         // Updating tags with new owner for each order in the file.
         $this->Update_tags($orders,$ToUser);
+        $bar->advance(20);
 
         $this->info("Transfer of order/file and update in shopify done successfully.");
 
