@@ -39,7 +39,7 @@ Route::prefix('shopify')->group(function() {
         Route::get('/previous/uploads', 'ShopifyController@previous_uploads')->name('bulkupload.previous_uploads');
         Route::get('/previous/orders', 'ShopifyController@previous_orders')->name('bulkupload.previous_orders');
         Route::get('/previous/file_download/{id}', 'ShopifyController@download_previous')->name('bulkupload.download_previous');
-    });
+        });
 });
 
     Route::group(['prefix' => 'students'], function() {
@@ -51,8 +51,11 @@ Route::prefix('shopify')->group(function() {
         });
 
     });
+    Route::get('/transactions','TransactionController@index')->name('orders.transactions');
+    Route::post('/get/transactions', 'TransactionController@search_transactions_by_location')->name('get.transactions');
+    Route::get('/get/transactions','TransactionController@search_transactions_by_location')->name('self.transactions');
 
-    Route::prefix('imagereco')->group(function() {
+Route::prefix('imagereco')->group(function() {
         Route::get('/', 'ImageRecognitionController@listAllPeople')->name('imagereco.list-all-people');
         Route::post('/', 'ImageRecognitionController@listAllPeople_result')->name('imagereco.list-all-people-result');
         Route::get('/search/name', 'ImageRecognitionController@searchByName')->name('imagereco.search-by-name');
