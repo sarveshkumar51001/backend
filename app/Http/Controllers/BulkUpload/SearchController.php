@@ -13,8 +13,17 @@ class SearchController extends BaseController
         $breadcrumb = ['Search' => ''];
         $limit = 25;
 
-        $result['students'] = Search::Students(request('qry'),request('school-name'),$limit);
-        $result['orders'] = Search::Orders(request('qry'),request('school-name'),request('date'),request('mode'),$limit);
+        $query = request('qry');
+        $school_name = request('school-name');
+        $date = request('daterange');
+        $mode = request('mode');
+
+        if(empty($query) && empty($school_name) && empty($date) && empty($mode)){
+            return view('shopify.bulkupload-search',['breadcrumb' => $breadcrumb,'Noquery'=>[]]);
+        }
+
+        $result['students'] = Search::Students($query,$school_name,$limit);
+        $result['orders'] = Search::Orders($query,$school_name,$date,$mode,$limit);
 
         return view('shopify.bulkupload-search', ['breadcrumb' => $breadcrumb,'result' =>$result, 'query'=>request('qry')]);
     }

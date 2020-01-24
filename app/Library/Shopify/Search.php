@@ -2,30 +2,47 @@
 
 namespace App\Library\Shopify;
 
+use App\Http\Controllers\BulkUpload\ShopifyController;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Student;
+use Illuminate\Support\Facades\Auth;
 
 class Search {
 
     public static function Orders($query,$school_name,$date,$mode,$limit)
     {
-        $Orders = ShopifyExcelUpload::where('student_first_name', 'like', "%$query%")
-            ->orWhere('parent_first_name', 'like', "%$query%")
-            ->orWhere('school_enrollment_no', 'like', "%$query%")
-            ->orWhere('payments.drawee_account_number', 'like', "%$query%")
-            ->orWhere('shopify_order_name', 'like', "%$query%")
-            ->orWhere('payments.txn_reference_number_only_in_case_of_paytm_or_online', 'like', "%$query%");
+        $Orders = null;
 
-        if (!empty($school_name)) {
+        if($query){
+            $Orders = ShopifyExcelUpload::where('student_first_name', 'like', "%$query%")
+                ->orWhere('parent_first_name', 'like', "%$query%")
+                ->orWhere('school_enrollment_no', 'like', "%$query%")
+                ->orWhere('payments.drawee_account_number', 'like', "%$query%")
+                ->orWhere('payments.chequedd_no','like',"%$query%")
+                ->orWhere('payments.micr_code','like',"%$query%")
+                ->orWhere('shopify_order_name', 'like', "%$query%")
+                ->orWhere('payments.txn_reference_number_only_in_case_of_paytm_or_online', 'like', "%$query%")
+                ->orderBy('_id','desc');
+        } else{
+            $Orders = ShopifyExcelUpload::orderBy('_id','desc');
+        }
+
+        if ($school_name) {
             $Orders->where('school_name', $school_name);
         }
-        if (!empty($date)) {
-            $Orders->orWhere('date_of_enrollment', $date)
-                ->orWhere('upload_date', $date)
-                ->orWhere('payments.chequedd_date', $date);
-        }
-        if (!empty($mode)) {
+//
+//        if ($date) {
+//            [$start_date,$end_date] = GetStartEndDate($date);
+//            $Orders->orWhereBetween('date_of_enrollment', [$start_date, $end_date])
+//                ->orWhereBetween('upload_date', [$start_date, $end_date])
+//                ->orWhereBetween('payments.chequedd_date', [$start_date, $end_date]);
+//        }
+        if ($mode) {
             $Orders->where('payments.mode_of_payment', $mode);
+        }
+
+        if(!in_array(\Auth::user()->email, ShopifyController::$adminTeam)) {
+            $Orders->where('uploaded_by', Auth::user()->id);
         }
 
         return $Orders->paginate($limit);

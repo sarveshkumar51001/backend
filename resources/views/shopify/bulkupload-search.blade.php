@@ -18,13 +18,14 @@
                             </div>
                         </div>
                     @endif
-                    <div class="col-sm-4">
-                        <label>Date</label>
-                        <div class="input-group">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                            <input autocomplete="off" id="date" name="date" maxlength="50" type="text" class="form-control datepicker" value="{{ request('date') }}" placeholder="(Cheque / Enrollment / Upload) Date">
+                        <div class="col-sm-4">
+                            <label><i class="fa fa-calendar" aria-hidden="true"></i> DateRange</label>
+                            <div class="input-group" style="width:300px;">
+                                <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
+                                <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
+                                <input type="hidden" name="filter" value="{{ request('filter') }}">
+                            </div>
                         </div>
-                    </div>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label>Transaction Mode</label>
@@ -37,9 +38,9 @@
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <label>Search query<span style="color: red; "> *</span></label>
+                            <label>Search query</label>
                             <div class="input-group">
-                                <input autocomplete="off" id="qry" name="qry" maxlength="50" type="text" required="required" class="form-control" value="{{ request('qry') }}" placeholder="Search by Name, ID, Acc.No., Enroll No....">
+                                <input autocomplete="off" id="qry" name="qry" maxlength="50" type="text" class="form-control" value="{{ request('qry') }}" placeholder="Search by Name, ID, Acc.No., Enroll No....">
                             </div>
                         </div>
                     <div class="col-sm-4 pull-right">
@@ -51,7 +52,6 @@
                     </div>
                 </div>
             </form>
-            <p style="text-align:left"><span  style="color: red; "> *</span><b> Mandatory Fields</b></p>
             @if(!empty($result['students']->items())|| !empty($result['orders']->items()))
             <div class="row">
                 <div class="col-md-12">
@@ -65,7 +65,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a tab="" class="nav-link @if(count($result['orders']) && !count($result['students'])) active @endif" data-toggle="tab" href="#orders" role="tab">Orders
+                                    <a tab="" class="nav-link @if(count($result['orders']) && !count($result['students'])) @endif" data-toggle="tab" href="#orders" role="tab">Orders
                                         <span class="badge badge-pill badge-success">{{ count($result['orders']) }}</span>
                                     </a>
                                 </li>
