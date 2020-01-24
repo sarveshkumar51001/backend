@@ -5,7 +5,7 @@ namespace App\Http\Controllers\BulkUpload;
 use App\Http\Controllers\BaseController;
 use App\Library\Shopify\Search;
 
-class BulkUploadSearchController extends BaseController
+class SearchController extends BaseController
 {
     public function search()
     {
