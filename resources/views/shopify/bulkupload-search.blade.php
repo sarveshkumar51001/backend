@@ -5,7 +5,7 @@
         <div class="card-body">
             <form method="get" action="" class="form-group">
                 <div class="row ml-3 mr-4">
-                    @if(in_array(\Auth::user()->email, \App\Http\Controllers\ShopifyController::$adminTeam))
+                    @if(in_array(\Auth::user()->email, \App\Http\Controllers\BulkUpload\ShopifyController::$adminTeam))
                         <div class="col-sm-4">
                             <div class="form-group">
                                 <label>School</label>
