@@ -22,8 +22,7 @@
                             <label><i class="fa fa-calendar" aria-hidden="true"></i> DateRange</label>
                             <div class="input-group" style="width:300px;">
                                 <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
-                                <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
-                                <input type="hidden" name="filter" value="{{ request('filter') }}">
+                                <input id="txn_range" name="search_daterange" class="form-control" type="text" value={{request('daterange')}}>
                             </div>
                         </div>
                         <div class="col-sm-4">
@@ -40,7 +39,7 @@
                         <div class="col-sm-4">
                             <label>Search query</label>
                             <div class="input-group">
-                                <input autocomplete="off" id="qry" name="qry" maxlength="50" type="text" class="form-control" value="{{ request('qry') }}" placeholder="Search by Name, ID, Acc.No., Enroll No....">
+                                <input autocomplete="off" id="qry" name="qry" maxlength="50" type="text" class="form-control" value="{{ request('qry') }}" placeholder="Search by Name, ID, Acc.No., Enroll No and Date....">
                             </div>
                         </div>
                     <div class="col-sm-4 pull-right">
@@ -52,28 +51,32 @@
                     </div>
                 </div>
             </form>
-            @if(!empty($result['students']->items())|| !empty($result['orders']->items()))
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <i class="fa fa-search"></i>  Search result of <strong>"{{ $query ?? '' }}"</strong>
+            @if(empty($result))
+                <div class="alert alert-danger">
+                    <h6><b>At least one field should contain data in order to search.</b></h6>
+                </div>
+                @elseif(!empty($result['students']->items())|| !empty($result['orders']->items()))
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fa fa-search"></i>  Search result of <strong>"{{ $query ?? '' }}"</strong>
                             <ul class="nav nav-tabs float-right" role="tablist">
                                 <li class="nav-item">
                                     <a tab="" class="nav-link @if(count($result['students'])) active @endif" data-toggle="tab" href="#students" role="tab">Students
-                                        <span class="badge badge-pill badge-success">{{ count($result['students']) }}</span>
+                                        <span class="badge badge-pill badge-success">{{ $result['students']->total() }}</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a tab="" class="nav-link @if(count($result['orders']) && !count($result['students'])) @endif" data-toggle="tab" href="#orders" role="tab">Orders
-                                        <span class="badge badge-pill badge-success">{{ count($result['orders']) }}</span>
+                                    <a tab="" class="nav-link @if(count($result['orders']) && !count($result['students']))active @endif" data-toggle="tab" href="#orders" role="tab">Orders
+                                        <span class="badge badge-pill badge-success">{{ $result['orders']->total() }}</span>
                                     </a>
                                 </li>
                             </ul>
                         </div>
                         <div class="card-body p-0">
                             <div class="tab-content">
-                                <div class="tab-pane @if(count($result['students'])) active  @endif" id="students">
+                                <div class="tab-pane @if(count($result['students'])) @endif" id="students">
                                     <table class="table table-bordered table-striped table-sm datatable">
                                         <thead>
                                         <tr>
@@ -103,7 +106,7 @@
                                         </tbody>
                                     </table>
                                     <div class="row pull-right mr-4">
-                                        {!! $result['students']->render() !!}
+                                        {{$result['students']->appends(request()->input())->links()}}
                                     </div>
                                 </div>
                                 <div class="tab-pane @if(count($result['orders'])) active @endif" id="orders">
@@ -145,7 +148,7 @@
                                         </tbody>
                                     </table>
                                     <div class="row pull-right mr-4">
-                                        {!! $result['orders']->render() !!}
+                                        {{$result['orders']->appends(request()->input())->links()}}
                                     </div>
                                 </div>
                             </div>
@@ -155,6 +158,7 @@
             </div>
             @endif
         </div>
+    </div>
 @endsection
 
             @section('footer-js')
@@ -162,16 +166,31 @@
                 <script src="{{ URL::asset('vendors/js/ladda.min.js') }}"></script>
                 <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
                 <script src="{{ URL::asset('vendors/js/jquery-ui.min.js') }}"></script>
-                <script src="{{ URL::asset('js/views/datepicker.js') }}"></script>
-                <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
+
                 <script>
                     // Load date picker
-                    $('.datepicker').datepicker({format: 'dd/mm/yyyy'}).on('changeDate', function(ev) {
-                        $(this).datepicker('hide');
-                    });
+
                     function form_submit() {
                         var loader = Ladda.create(document.querySelector('#file-upload-btn')).start();
                         loader.start();
                     }
+                    $(function() {
+
+                        $('#txn_range').daterangepicker({
+                            autoUpdateInput: false,
+                            locale: {
+                                cancelLabel: 'Clear'
+                            }
+                        });
+
+                        $('#txn_range').on('apply.daterangepicker', function(ev, picker) {
+                            $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+                        });
+
+                        $('#txn_range').on('cancel.daterangepicker', function(ev, picker) {
+                            $(this).val('');
+                        });
+
+                    });
                 </script>
 @endsection

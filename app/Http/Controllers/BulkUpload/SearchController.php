@@ -18,8 +18,10 @@ class SearchController extends BaseController
         $date = request('daterange');
         $mode = request('mode');
 
-        if(empty($query) && empty($school_name) && empty($date) && empty($mode)){
-            return view('shopify.bulkupload-search',['breadcrumb' => $breadcrumb,'Noquery'=>[]]);
+        if(request()->has('daterange')) {
+            if (!request()->filled('qry') && !request()->filled('school-name') && !request()->filled('mode')) {
+                return view('shopify.bulkupload-search', ['breadcrumb' => $breadcrumb, 'result' => $result]);
+            }
         }
 
         $result['students'] = Search::Students($query,$school_name,$limit);
