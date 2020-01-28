@@ -25,25 +25,31 @@ class TransactionsExport implements FromCollection, WithHeadings
     {
         return [
             'Date of Enrollment',
-            'Student Enrollment No',
+            'Shopify Activity ID',
+            'Delivery Institution',
             'Location',
             'School Name',
             'Student Name',
+            'Activity Name',
+            'Student Enrollment No',
             'Class',
             'Parent Name',
-            'Activity Name',
             'Activity Fee',
             'Scholarship/Discount',
-            'Uploaded By',
             'Transaction Amount',
             'Transaction Mode',
-            'Cheque/DD No',
-            'Cheque/DD Date',
             'Reference No(PayTM/NEFT)',
+            'Cheque/DD No',
+            'MICR Code',
+            'Cheque/DD Date',
+            'Drawee Name',
+            'Drawee Account Number',
+            'Bank Name',
             'Transaction Upload Date',
             'Payment Type',
             'Shopify Order Name',
-            'Parent Order Name'
+            'Parent Order Name',
+            'Uploaded By'
         ];
     }
 }
