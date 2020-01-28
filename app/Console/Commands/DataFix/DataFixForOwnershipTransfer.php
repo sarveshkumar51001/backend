@@ -26,7 +26,7 @@ class DataFixForOwnershipTransfer extends Command
      *
      * @var string
      */
-    protected $signature = 'DataFix:TransferOwnership';
+    protected $signature = 'DataFix:TransferOwnership {--run=}';
 
     /**
      * The console command description.
@@ -63,6 +63,10 @@ class DataFixForOwnershipTransfer extends Command
 
         foreach($user_list as $user){
             $bar->advance();
+            logger('yes');
+            if($this->option('run')){
+                break;
+            }
             ShopifyExcelUpload::where("uploaded_by", $user)->update(["owner" => $user]);
         }
         $this->info("-----PROCESS COMPLETED-----");
