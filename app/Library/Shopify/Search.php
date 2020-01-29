@@ -37,9 +37,8 @@ class Search {
         }
         if ($date) {
             [$start_date,$end_date] = GetStartEndDate($date);
-            $Orders->orWhereBetween('payments.upload_date', [$start_date, $end_date]);
+            $Orders->whereBetween('payments.upload_date', [$start_date, $end_date]);
         }
-
         if ($mode) {
             $Orders->where('payments.mode_of_payment', $mode);
         }
@@ -54,12 +53,13 @@ class Search {
     public static function Students($query,$school_name,$limit)
     {
         $Students = Student::where('student_first_name', 'like', "%$query%")
-            ->orWhere('parent_first_name', 'like', "%$query%")
-            ->orWhere('school_enrollment_no', 'like', "%$query%");
+                ->orWhere('parent_first_name', 'like', "%$query%")
+                ->orWhere('school_enrollment_no', 'like', "%$query%");
 
         if(!empty($school_name)){
             $Students->where('school_name',$school_name);
         }
         return $Students->paginate($limit);
+
     }
 }
