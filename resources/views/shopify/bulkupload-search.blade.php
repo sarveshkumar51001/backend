@@ -52,11 +52,11 @@
                     </div>
                 </div>
             </form>
-            @if(empty($result))
+            @if(empty($result) && $request)
                 <div class="alert alert-danger">
                     <h6><b>At least one field should contain data in order to search.</b></h6>
                 </div>
-                @elseif(!empty($result['students']->items())|| !empty($result['orders']->items()))
+                @elseif(!empty($result))
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
