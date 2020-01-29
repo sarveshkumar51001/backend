@@ -12,7 +12,7 @@
                                 <select name="school-name" class="form-control">
                                     <option selected="selected" value="">Select School </option>
                                     @foreach (App\Models\ShopifyExcelUpload::getBranchNames() as $school)
-                                        <option value="{{ 'Apeejay '.$school }}" @if($school == old('school-name')) selected @endif> Apeejay {{ $school }}</option>
+                                        <option value="{{ 'Apeejay '.$school }}" @if(request('school-name')== 'Apeejay '.$school) selected="selected" @endif> Apeejay {{ $school }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -22,7 +22,7 @@
                             <label><i class="fa fa-calendar" aria-hidden="true"></i> DateRange</label>
                             <div class="input-group" style="width:300px;">
                                 <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
-                                <input id="txn_range" name="search_daterange" class="form-control" type="text" value={{request('daterange')}}>
+                                <input id="txn_range" name="search_daterange" class="form-control" type="text" value="{{request('search_daterange')}}">
                             </div>
                         </div>
                         <div class="col-sm-4">
@@ -31,7 +31,8 @@
                                 <select name="mode" class="form-control">
                                     <option selected="selected" value="">Select Mode </option>
                                     @foreach (App\Models\ShopifyExcelUpload::payment_modes() as $mode)
-                                        <option value="{{ $mode }}" @if($mode == old('mode')) selected @endif>{{ $mode }}</option>
+                                        <option value="{{ $mode }}"  @if( request('mode') == $mode) selected="selected" @endif
+                                        >{{ $mode }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -39,7 +40,7 @@
                         <div class="col-sm-4">
                             <label>Search query</label>
                             <div class="input-group">
-                                <input autocomplete="off" id="qry" name="qry" maxlength="50" type="text" class="form-control" value="{{ request('qry') }}" placeholder="Search by Name, ID, Acc.No., Enroll No and Date....">
+                                <input id="qry" name="qry" maxlength="50" type="text" class="form-control" value="{{request('qry')}}" placeholder="Search by Name, ID, Acc.No., Enroll No and Date....">
                             </div>
                         </div>
                     <div class="col-sm-4 pull-right">
@@ -51,11 +52,11 @@
                     </div>
                 </div>
             </form>
-            @if(empty($result))
+            @if(empty($result) && $request)
                 <div class="alert alert-danger">
                     <h6><b>At least one field should contain data in order to search.</b></h6>
                 </div>
-                @elseif(!empty($result['students']->items())|| !empty($result['orders']->items()))
+                @elseif(!empty($result))
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
@@ -116,6 +117,7 @@
                                             <th>ID</th>
                                             <th>Parent Name</th>
                                             <th>Student Name</th>
+                                            <th>School Name</th>
                                             <th>Activity Name</th>
                                             <th>Activity Fee</th>
                                             <th>Upload Date</th>
@@ -136,6 +138,7 @@
                                                         @endif</td>
                                                     <td>{{ $order->parent_first_name }}</td>
                                                     <td>{{ $order->student_first_name }}</td>
+                                                    <td>{{ $order->school_name }}</td>
                                                     <td>{{ $order->activity }}</td>
                                                     <td>{{ $order->activity_fee }}</td>
                                                     <td>{{ $order->upload_date }}</td>
