@@ -55,19 +55,21 @@ class DataFixForOwnershipTransfer extends Command
     {
         $this->info("---- START OF PROCESS ---");
 
-        $users = User::all(['_id'])->toArray();
-        $user_list = Arr::flatten(array_values($users));
+        $ShopifyExcelUpload = ShopifyExcelUpload::query();
+        $collection = $ShopifyExcelUpload->where('owner','exists',false)->get(['_id','uploaded_by'])->toArray();
 
-        $bar = $this->output->createProgressBar(count($users));
+        $bar = $this->output->createProgressBar(count($collection));
         $bar->start();
 
-        foreach($user_list as $user){
+        foreach($collection as $document) {
+            $ShopifyExcelUpload->where('_id', $document['_id'])->update(['owner'=>$document['uploaded_by']]);
             $bar->advance();
-            logger('yes');
-            if($this->option('run')){
+            if ($this->option('run')) {
+                $bar->finish();
+                $order_name = (isset($document['shopify_order_name']) ? $document['shopify_order_name'] : '');
+                $this->info(sprintf("Single order with order name %s transferred successfully.",$order_name));
                 break;
             }
-            ShopifyExcelUpload::where("uploaded_by", $user)->update(["owner" => $user]);
         }
         $this->info("-----PROCESS COMPLETED-----");
         return ;
