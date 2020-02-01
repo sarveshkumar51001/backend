@@ -72,6 +72,10 @@ Route::group(['prefix' => 'api/v1/', /*'middleware' => ['auth']*/], function() {
 	});
 });
 
+Route::get('api/collection/', function () {
+    return (new \App\Http\Controllers\Api\CollectionController())->collection();
+});
+
         Auth::routes();
 
         use Oseintow\Shopify\Facades\Shopify;

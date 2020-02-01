@@ -142,3 +142,15 @@ function GetStartEndDate($date_range){
     }
     return [$start_date,$end_date];
 }
+
+function GroupByKey($Data,$key)
+{
+    $groupedData = [];
+    foreach ($Data as $data) {
+        if(!array_key_exists($key,$data)){
+            return [];
+        }
+        $groupedData[$data[$key]][] = $data;
+    }
+    return array_values($groupedData);
+}
