@@ -27,6 +27,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('bulkupload.previous_orders') }}"><i class="fa fa-upload"></i>Bulk Upload</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('bulkupload.search') }}"><i class="fa fa-search"></i>Search</a>
+                </li>
             </ul>
         </li>
         <li class="nav-title">Customer profiler</li>
