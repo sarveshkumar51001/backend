@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BulkUpload;
 
 use App\Exports\TransactionsExport;
+use App\Http\Controllers\BaseController;
 use App\Models\ShopifyExcelUpload;
 use App\User;
 use Carbon\Carbon;
@@ -43,29 +44,35 @@ class TransactionController extends BaseController
             $User = User::where('_id',$Order->uploaded_by)->first(['name']);
             $data = [
                 'Date of Enrollment' => $Order->date_of_enrollment,
-                'Student Enrollment No' => $Order->school_enrollment_no,
+                'Shopify Activity ID' => $Order->shopify_activity_id,
+                'Delivery Institution' => $Order->delivery_institution,
                 'Location' => $Order->student_school_location,
                 'School Name' => $Order->school_name,
                 'Student Name' => $Order->student_first_name . " " . $Order->student_last_name,
+                'Activity Name' => $Order->activity,
+                'Student Enrollment No' => $Order->school_enrollment_no,
                 'Class' => $Order->class.$Order->section,
                 'Parent Name' => $Order->parent_first_name . " " . $Order->parent_last_name,
-                'Activity Name' => $Order->activity,
                 'Activity Fee' => $Order->activity_fee,
-                'Scholarship/Discount' => $Order->scholarship_discount,
-                'Uploaded By' => !empty($User) ? $User['name'] : Null,
+                'Scholarship/Discount' => $Order->scholarship_discount
             ];
 
             if (sizeof($Order['payments']) == 1) {
                 $order_data[] = array_merge($data,[
                     'Transaction Amount' => head($Order->payments)['amount'],
                     'Transaction Mode' => head($Order->payments)['mode_of_payment'],
-                    'Cheque/DD No' => head($Order->payments)['chequedd_no'],
-                    'Cheque/DD Date' => head($Order->payments)['chequedd_date'],
                     'Reference No(PayTM/NEFT)' => head($Order->payments)['txn_reference_number_only_in_case_of_paytm_or_online'],
+                    'Cheque/DD No' => head($Order->payments)['chequedd_no'],
+                    'MICR Code' =>head($Order->payments)['micr_code'],
+                    'Cheque/DD Date' => head($Order->payments)['chequedd_date'],
+                    'Drawee Name' => head($Order->payments)['drawee_name'],
+                    'Drawee Account Number' => head($Order->payments)['drawee_account_number'],
+                    'Bank Name' => head($Order->payments)['bank_name'],
                     'Transaction Upload Date' => Carbon::createFromTimestamp(head($Order->payments)['upload_date'])->toDateString(),
                     'Payment Type' => "Full Payment",
                     'Shopify Order Name' => isset($Order->shopify_order_name) ? $Order->shopify_order_name : Null,
-                    'Parent Order Name' => Null
+                    'Parent Order Name' => Null,
+                    'Uploaded By' => !empty($User) ? $User['name'] : Null,
                     ]);
             }else{
                 foreach ($Order->payments as $payment) {
@@ -79,7 +86,8 @@ class TransactionController extends BaseController
                         'Transaction Upload Date' => Carbon::createFromTimestamp($payment['upload_date'])->toDateString(),
                         'Payment Type' => $payment['installment'] == 1 ? 'Registration/Booking Fee':'Installment'." ".$payment['installment'],
                         'Shopify Order Name' => isset($Order->shopify_order_name) ? $Order->shopify_order_name : Null,
-                        'Parent Order Name' => isset($Order->shopify_order_name) ? $Order->shopify_order_name : Null
+                        'Parent Order Name' => isset($Order->shopify_order_name) ? $Order->shopify_order_name : Null,
+                        'Uploaded By' => !empty($User) ? $User['name'] : Null,
                     ]);
                 }
             }

@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BulkUpload;
 
 ini_set('precision', 20); // Fix for long integer converting to exponential number Ref:https://github.com/Maatwebsite/Laravel-Excel/issues/1384#issuecomment-362059935
 
+use App\Http\Controllers\BaseController;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +23,8 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 class ShopifyController extends BaseController
 {
     public static $adminTeam = [
-        'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com', 'ankur@valedra.com'
+        'zuhaib@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com', 'ankur@valedra.com',
+        'ishaan.jain@valedra.com'
     ];
 
     public function upload()
