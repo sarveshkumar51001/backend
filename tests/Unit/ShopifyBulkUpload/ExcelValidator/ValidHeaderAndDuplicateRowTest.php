@@ -117,7 +117,7 @@ class ValidHeaderAndDuplicateRowTest extends TestCase
     {
         $error = "";
         $data = TestCaseData::DATA;
-        $data['chequedd_no_1'] = 7004640;
+        $data['chequedd_no_1'] = 70046480;
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
