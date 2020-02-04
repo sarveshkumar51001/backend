@@ -44,21 +44,16 @@ class TransferOrders extends Command
         $file_data = [];
         $file_id = $order_name = $order_id = "";
 
-        // Progress bar creation and start
-        $bar = $this->output->createProgressBar(50);
-        $bar->start();
+
 
         // Checking if the user wants to transfer a file or a single order and fetching owner accordingly
         if(empty($this->option('run'))) {
-            [$User,$file_id,$file_data] = $this->User_who_owns_file();
-            $bar->advance(10);
+            [$User,$file_id,$file_data] = $this->userWhoOwnsFile();
         } else {
-            [$User,$order_name,$order_id] = $this->User_who_owns_order();
-            $bar->advance(10);
+            [$User,$order_name,$order_id] = $this->userWhoOwnsOrder();
         }
         // Ask user to enter the email id to whom the transfer is to be done....
         $to_email = $this->ask('Please enter the email id of the user to whom you want to transfer.');
-        $bar->advance(10);
 
         //Raise error if 'to' and 'from' email is found to be same....
         if($to_email == $User->email){
@@ -75,15 +70,12 @@ class TransferOrders extends Command
         if($order_name){
             ShopifyExcelUpload::where('shopify_order_name',$order_name)->update(['owner' => $ToUser->_id]);
             $orders[]['order_id'] = $order_id;
-            $bar->advance(10);
         } else {
-            $this->Transfer_file_to_user($file_id,$file_data,$ToUser);
+            $this->transferFileToUser($file_id,$file_data,$ToUser);
             $orders = ShopifyExcelUpload::where('file_id',$file_id)->get(['order_id'])->toArray();
-            $bar->advance(10);
         }
         // Updating tags with new owner for each order in the file.
-        $this->Update_tags($orders,$ToUser);
-        $bar->advance(20);
+        $this->updateTags($orders,$ToUser);
 
         $this->info("Transfer of order/file and update in shopify done successfully.");
 
@@ -93,7 +85,7 @@ class TransferOrders extends Command
     /**
      * @return mixed
      */
-    private function User_who_owns_order(){
+    private function userWhoOwnsOrder(){
         // Ask user to input the order name of the order whose ownership needs to be transferred.
         $order_name = $this->ask('Please enter the shopify order name');
         $order = ShopifyExcelUpload::where('shopify_order_name',$order_name)->first(['owner','order_id']);
@@ -108,7 +100,7 @@ class TransferOrders extends Command
     /**
      * @return mixed
      */
-    private function User_who_owns_file()
+    private function userWhoOwnsFile()
     {
         // Ask user to input the file id and fetch the file data..
         $file_id = $this->ask('Please enter the file id');
@@ -124,7 +116,7 @@ class TransferOrders extends Command
         return [$User,$file_id,$file_data];
     }
 
-    private function Transfer_file_to_user($file_id,$file_data,$ToUser)
+    private function transferFileToUser($file_id,$file_data,$ToUser)
     {
         // Fetching completed orders count for that file and matching with the total orders of that file and if matched
         // then proceed further otherwise throw an error.
@@ -148,12 +140,15 @@ class TransferOrders extends Command
 
     }
 
-    private function Update_tags($orders,$ToUser){
+    private function updateTags($orders,$ToUser){
+
+        // Progress bar creation and start
+        $bar = $this->output->createProgressBar(count($orders));
+        $bar->start();
 
         // Fetch tags for the order, change the owner email address and update order with tags....
         foreach($orders as $order){
             $order_id = $order['order_id'];
-
             $shopifyAPI = new API();
             $params = ['fields' => 'tags'];
             $tags = $shopifyAPI->GetOrder($order_id,$params)['tags'];
@@ -165,6 +160,7 @@ class TransferOrders extends Command
                 }
             }
             $shopifyAPI->UpdateOrder($order_id,['tags' => implode(',',$tag_array)]);
+            $bar->advance();
         }
     }
 }
