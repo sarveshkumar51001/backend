@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
-use App\Library\Collection\Collection;
+use Maatwebsite\Excel;
+use App\Exports\CollectionExport;
 use App\Http\Controllers\Controller;
+use App\Library\Collection\Collection;
 
 /**
  * Class CollectionController
@@ -20,12 +22,20 @@ class CollectionController extends Controller
 	    $locationList = request('location') ? explode(',', request('location')) : [];
 
 	    $Collection = new Collection();
-        return $Collection->setStart($start)
+
+        $Collection->setStart($start)
             ->setEnd($end)
             ->setMode(request('mode'))
             ->setUsers($users)
             ->setLocation($locationList)
-            ->setIsPDC(request('pdc') == 'yes')
-            ->Get();
+            ->setIsPDC(request('pdc') == 'yes');
+
+        if(request('format') == 'csv') {
+            $Collection->setFormat('CSV');
+            return Excel\Facades\Excel::download(new CollectionExport($Collection->Get()),'collection.csv');
+        }
+
+        return $Collection->Get();
+
     }
 }

@@ -225,17 +225,15 @@ class Collection
 		foreach (CarbonPeriod::create($this->Start, '1 month', $this->End) as $Month) {
 			$month = [];
 			foreach ($locations as $location) {
-				$month['month'] = $Month->format('F Y');
-				$month['location'] = $location;
-				$month['amount'] = $this->groupedData[$location][$Month->format('F Y')] ?? 0;
-			}
+				$month['Month'] = $Month->format('F Y');
+				$month['Location'] = $location;
+				$month['Amount'] = $this->groupedData[$location][$Month->format('F Y')] ?? 0;
 
-			$csv[] = $month;
+                $csvList[] = $month;
+			}
 		}
 
-		$header = ['month', 'location', 'total'];
-
-		return [$header, $csvList];
+		return $csvList;
 	}
 
 	/**
