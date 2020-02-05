@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
-use App\Library\Collection;
+use App\Library\Collection\Collection;
 use App\Http\Controllers\Controller;
 
 /**
@@ -20,14 +20,12 @@ class CollectionController extends Controller
 	    $locationList = request('location') ? explode(',', request('location')) : [];
 
 	    $Collection = new Collection();
-	    $data = $Collection->setStart($start)
-		    ->setEnd($end)
-		    ->setMode(request('mode'))
-		    ->setUsers($users)
-		    ->setLocation($locationList)
-		    ->setIsPDC(request('pdc') == 'yes')
-		    ->Get();
-
-        return $data;
+        return $Collection->setStart($start)
+            ->setEnd($end)
+            ->setMode(request('mode'))
+            ->setUsers($users)
+            ->setLocation($locationList)
+            ->setIsPDC(request('pdc') == 'yes')
+            ->Get();
     }
 }

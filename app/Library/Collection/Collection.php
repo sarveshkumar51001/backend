@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Library;
+namespace App\Library\Collection;
+
 
 use App\User;
 use Carbon\Carbon;
@@ -158,17 +159,16 @@ class Collection
 
 		$this->groupedData = $groupedData;
 
-
 		/**
 		 * [
 		 *   "Saket" => [
 		 *                  "January 2019": 20000,
-		 *                  "Feburary 2019" : 3000
+		 *                  "February 2019" : 3000
 		 *
 		 *              ],
-		 *   "Pitumpura" => [
+		 *   "Pitampura" => [
 		 *                  "January 2019": 20000,
-		 *                  "Feburary 2019" : 3000
+		 *                  "February 2019" : 3000
 		 *
 		 *              ]
 		 * ]
@@ -235,7 +235,6 @@ class Collection
 
 		$header = ['month', 'location', 'total'];
 
-
 		return [$header, $csvList];
 	}
 
@@ -257,8 +256,8 @@ class Collection
 	 *
 	 * @return array
 	 * [
-	 *    "Janunary 2019" => 1000
-	 *    "Feburary 2019" => 2000
+	 *    "January 2019" => 1000
+	 *    "February 2019" => 2000
 	 * ]
 	 */
 	private function GetTotalAmountBreakUp(array $document)
@@ -294,7 +293,6 @@ class Collection
 				$monthlyTotal[$period] = $amount;
 			}
 		}
-
 		return $monthlyTotal;
 	}
 }
