@@ -20,6 +20,7 @@ class Job
      *
      * @param DataRaw $Data
      *
+     * @return array|void
      * @throws Exception
      */
     public static function run(DataRaw $Data)
@@ -107,30 +108,13 @@ class Job
             if (!DB::check_inventory_status($variantID)) {
                 throw new \Exception("Product [" . $Data->GetActivityID() . "] is out of stock.");
             }
-
-			if(!$Data->IsOnlinePayment()) {
+            if (!$Data->IsOnlinePayment()) {
                 $order = $ShopifyAPI->CreateOrder($Data->GetOrderCreateData($variantID, $shopifyCustomerId));
-
-            $shopifyOrderId = $order['id'];
-            $shopifyOrderName = $order['name'];
-
-            DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId,$shopifyOrderName);
-        }
-
-        // Payment notes array
-        $notes_array = DataRaw::GetPaymentDetails($Data->GetPaymentData());
-
-        $previous_collected_amount = 0;
-        $order_amount = 0;
-        $collected_amount = 0;
-        // Loop through all the installments in system for the order
-        foreach ($Data->GetPaymentData() as $index => $installment) {
-
-            // Getting previously collected amount for the order
-            if (strtolower($installment['processed']) == 'yes') {
-                $previous_collected_amount += $installment['amount'];
-            }
-			else{
+                $shopifyOrderId = $order['id'];
+                $shopifyOrderName = $order['name'];
+                // Update order data in respective MongoDB document.
+                DB::update_order_id_in_upload($Data->ID(), $shopifyOrderId, $shopifyOrderName);
+            } else{
 			    $order = $ShopifyAPI->CreateDraftOrder($Data->GetOrderCreateData($variantID,$shopifyCustomerId));
 			    $shopifyOrderId = $order['id'];
 			    $shopifyCheckoutUrl = $order['invoice_url'];
@@ -177,7 +161,6 @@ class Job
             	DB::populate_error_in_payments_array($Data->ID(), $index , $e->getMessage());
             	throw new ApiException($e->getMessage(),$e->getCode(),$e);
             }
-
 		}
         $collected_amount = $order_amount + $previous_collected_amount;
 
@@ -193,7 +176,7 @@ class Job
         }
         // Finally mark the object as process completed
         DB::mark_status_completed($Data->ID());
-    }
+
         return $order;
     }
 }

@@ -13,9 +13,11 @@
                         </div>
                         <div class="col-sm-7">
                             <form method="get" action="">
-                                <button type="submit" class="btn btn-outline-primary float-right ml-3">View</button>
-                                <fieldset class="form-group float-right">
-                                    <div class="input-group float-right" style="width:300px;">
+                                <button onclick="download_transactions();" id="download-transactions" type="button" class="btn btn-outline-primary float-right ml-3"><i class="fa fa-download">&nbsp;</i>Export Transactions</button>
+                                &nbsp;
+                                <button type="submit" class="btn btn-outline-primary float-right">View</button>
+                                <fieldset class="form-group float-lg-left">
+                                    <div class="input-group float-lg-left" style="width:300px;">
                                         <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
                                         <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
                                         <input type="hidden" name="filter" value="{{ request('filter') }}">
@@ -56,8 +58,9 @@
         <div class="row pull-right m-2">
             <a href="{{ route('bulkupload.upload') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-plus"> &nbsp;</i>New Upload</button></a>
             <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Upload History</button></a>
-            @if(in_array(\Auth::user()->email, \App\Http\Controllers\ShopifyController::$adminTeam))
+            @if(in_array(\Auth::user()->email, \App\Http\Controllers\BulkUpload\ShopifyController::$adminTeam))
                 <a href="{{ route('bulkupload.previous_orders') }}?filter=team"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-users"> &nbsp;</i>Team Uploads</button></a>
+                <a href="{{ route('orders.transactions') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-money"></i> Transactions</button></a>
             @endif
         </div>
         <div class="clearfix mt-2"></div>

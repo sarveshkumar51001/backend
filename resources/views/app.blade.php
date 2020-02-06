@@ -40,7 +40,6 @@
     <link href="{{ URL::asset('vendors/css/ladda-themeless.min.css') }}" rel="stylesheet">
     <link href="{{ URL::asset('vendors/css/spinkit.min.css') }}" rel="stylesheet">
     <link href="{{ URL::asset('vendors/css/toastr.min.css') }}" rel="stylesheet">
-
 </head>
 
 <!-- BODY options, add following classes to body to change options
@@ -143,6 +142,5 @@
 <!-- Plugins and scripts required by this views -->
 <script src="{{ URL::asset('vendors/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ URL::asset('vendors/js/dataTables.bootstrap4.min.js') }}"></script>
-
 </body>
 </html>

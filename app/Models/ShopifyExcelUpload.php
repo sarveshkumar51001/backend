@@ -34,6 +34,8 @@ class ShopifyExcelUpload extends Base
 
     const JOB_STATUS_PAYMENT_DUE = 'payment_due';
 
+    const REYNOTT = 'Reynott';
+
     const MODE_CASH = 1;
 
     const MODE_CHEQUE = 2;
@@ -252,11 +254,21 @@ class ShopifyExcelUpload extends Base
                 "pincode" => "127306",
                 "is_higher_education" => true
             ]
+        ],
+        "Reynott" => [
+            "Reynott Academy Jalandhar" => [
+                "city" => "Jalandhar",
+                "state" => "Punjab",
+                "pincode" => "144003",
+                "is_higher_education" => false
+            ]
         ]
     ];
 
     /**
-     * Returns Delivery Location
+     * Function returns school/institute location based on the delivery institution and branch provided. If the
+     * delivery institution exists in the school address mapping then fetch the location corresponding to the branch
+     * if exists, else return false.
      *
      * @param string $delivery_institution
      * @param string $branch
@@ -282,7 +294,7 @@ class ShopifyExcelUpload extends Base
      * @return array
      */
     public static function getBranchNames() {
-        return array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]);
+        return array_merge(array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]),array_keys(self::SCHOOL_ADDRESS_MAPPING['Reynott']));
     }
 
 }

@@ -12,12 +12,10 @@ use Illuminate\Support\Arr;
 
 class DB
 {
-	/**
-	 * @param $activity_id
-	 * @param $activity_fee
-	 *
-	 * @return int
-	 */
+    /**
+     * @param $activity_id
+     * @return int
+     */
 	public static function get_variant_id($activity_id) {
 	    try {
             $variants =  Product::ActiveProduct()->where('variants.sku', $activity_id)->firstOrFail(['variants']);
@@ -68,6 +66,7 @@ class DB
         }
         return false;
     }
+
     /**
      * @param $object_id
      * @param $shopify_order_id
@@ -83,6 +82,11 @@ class DB
      * @param $object_id
      * @param $shopify_order_id
      * @param $order_name
+     *
+     * Function updates Shopify Order name data in mongodb
+     *
+     * Takes MongoDB document id, shopify order id and name as input then fetches the document and updates the order name
+     * in the document.
      * @return mixed
      */
 	public static function update_order_id_in_upload($object_id, $shopify_order_id,$order_name) {
@@ -99,6 +103,11 @@ class DB
         return ShopifyExcelUpload::where('_id', $object_id)->update(['order_id'=> $shopify_order_id,'checkout_url' => $shopify_checkout_url]);
     }
 	/**
+     * This function marks the installment/payment as processed in MongoDB database.
+     *
+     * Takes document id , transaction id and the index value of the payment as input, fetch the document by id from
+     * database and update the processed status as 'Yes', order update time and shopify transaction id for the payment.
+     *
 	 * @param $_id Object ID - Primary key
 	 * @param int $number of installment store in database
 	 *

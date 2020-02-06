@@ -1,4 +1,5 @@
 <?php
+
 function get_product_price($productID) {
 	$Product = \App\Models\Product::where('product_id', $productID)->first();
 
@@ -74,6 +75,13 @@ function webhook_event_class(App\Models\Webhook $Webhook) {
     return false;
 }
 
+function generate_error_slug(string $str)
+{
+    $error_slug = str_replace('+', '-', urlencode('bkmrk-' . substr(strtolower(preg_replace('/ /', '-', trim($str))), 0, 20)));
+
+    return $error_slug;
+}
+
 /**
  * Returns ISO date format from default date format
  *
@@ -119,4 +127,18 @@ function job_attempted($job_id) {
 function job_completed($job_id) {
     $attempts = (string) Illuminate\Support\Facades\Cache::pull($job_id);
     return $attempts;
+}
+
+function GetStartEndDate($date_range){
+
+    $start_date = start_of_the_day(date('m/d/Y'));
+    $end_date = end_of_day(date('m/d/Y'));
+    if ($date_range) {
+        $range = explode(' - ', $date_range, 2);
+        if (count($range) == 2) {
+            $start_date = start_of_the_day($range[0]);
+            $end_date = end_of_day($range[1]);
+        }
+    }
+    return [$start_date,$end_date];
 }
