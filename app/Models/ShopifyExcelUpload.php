@@ -34,6 +34,8 @@ class ShopifyExcelUpload extends Base
 
     const REYNOTT = 'Reynott';
 
+    const PAGINATE_LIMIT = 100;
+
     const MODE_CASH = 1;
 
     const MODE_CHEQUE = 2;
