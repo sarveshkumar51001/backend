@@ -13,9 +13,11 @@
                         </div>
                         <div class="col-sm-7">
                             <form method="get" action="">
-                                <button type="submit" class="btn btn-outline-primary float-right ml-3">View</button>
-                                <fieldset class="form-group float-right">
-                                    <div class="input-group float-right" style="width:300px;">
+                                <button onclick="download_transactions();" id="download-transactions" type="button" class="btn btn-outline-primary float-right ml-3"><i class="fa fa-download">&nbsp;</i>Export Transactions</button>
+                                &nbsp;
+                                <button type="submit" class="btn btn-outline-primary float-right">View</button>
+                                <fieldset class="form-group float-lg-left">
+                                    <div class="input-group float-lg-left" style="width:300px;">
                                         <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
                                         <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
                                         <input type="hidden" name="filter" value="{{ request('filter') }}">
@@ -57,8 +59,9 @@
             <a href="{{ route('bulkupload.upload') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-plus"> &nbsp;</i>New Upload</button></a>
             <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Upload History</button></a>
             <a href="{{ route('bulkupload.post_dated_payments') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Post Dated Payments</button></a>
-            @if(in_array(\Auth::user()->email, \App\Http\Controllers\ShopifyController::$adminTeam))
+            @if(in_array(\Auth::user()->email, \App\Http\Controllers\BulkUpload\ShopifyController::$adminTeam))
                 <a href="{{ route('bulkupload.previous_orders') }}?filter=team"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-users"> &nbsp;</i>Team Uploads</button></a>
+                <a href="{{ route('orders.transactions') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-money"></i> Transactions</button></a>
             @endif
         </div>
         <div class="clearfix mt-2"></div>
@@ -76,7 +79,9 @@
                             @if(isset($row[$key]))
                                 @if(is_array($row[$key]))
                                     <td>
-                                        {{ $key == 'errors' ? json_encode($row[$key]) : count($row[$key]) }}
+                                        @if($key=='errors' && !empty($row[$key]))
+                                            <text style="color:red">{{ $row['errors']['message'] }}</text>
+                                        @endif
                                     </td>
                                 @else
                                     <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "><span class="
@@ -93,9 +98,13 @@
                                         <div>
                                             <strong onclick="render_upload_details('{{$row['_id']}}');" class="text-muted aside-menu-toggler" style="cursor: pointer"><a title="Payment Details"><i class="fa fa-money fa-2x"></i></a>&nbsp; </strong>
                                         </div>
-                                            @if(!$row['order_id'] == 0)
-                                            <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}">View <i class="fa fa-external-link"></i></a>
-                                            @endif
+                                                @if(!$row['order_id'] == 0)
+                                                    @if(!empty($row['shopify_order_name']))
+                                                        <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View {{$row['shopify_order_name']}} <i class="fa fa-external-link"></i></a>
+                                                    @else
+                                                        <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View <i class="fa fa-external-link"></i></a>
+                                                    @endif
+                                                @endif
                                         @else
                                             {{ $row[$key] }}
                                         @endif

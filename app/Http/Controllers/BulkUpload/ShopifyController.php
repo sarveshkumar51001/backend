@@ -1,13 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BulkUpload;
 
+ini_set('precision', 20); // Fix for long integer converting to exponential number Ref:https://github.com/Maatwebsite/Laravel-Excel/issues/1384#issuecomment-362059935
+
+use App\Http\Controllers\BaseController;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Jobs\ShopifyOrderCreation;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Library\Shopify\Errors;
 use App\Library\Shopify\ExcelValidator;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -24,7 +28,8 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 class ShopifyController extends BaseController
 {
     public static $adminTeam = [
-        'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com', 'ankur@valedra.com'
+        'zuhaib@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com', 'ankur@valedra.com',
+        'ishaan.jain@valedra.com'
     ];
 
     public function upload()
@@ -259,26 +264,19 @@ class ShopifyController extends BaseController
 
     public function previous_orders()
     {
-        $start = start_of_the_day(date('m/d/Y'));
-        $end = end_of_day(date('m/d/Y'));
-        if (request('daterange')) {
-            $range = explode(' - ', request('daterange'), 2);
-            if (count($range) == 2) {
-                $start = start_of_the_day($range[0]);
-                $end = end_of_day($range[1]);
-            }
-        }
+        $date_params = GetStartEndDate(request('daterange'));
+        [$start,$end] = $date_params;
 
         if ($start && $end) {
             if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
-                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->get();
+                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
             } else {
                 $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
                     ->whereBetween('payments.upload_date', [$start, $end])
-                    ->get();
+                    ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
             }
         } else {
-            $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
+            $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
         }
 
         $modeWiseData = [];

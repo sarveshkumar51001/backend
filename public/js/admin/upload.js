@@ -19,7 +19,7 @@ function render_upload_details(id) {
 function get_render_template(data) {
     var template ='';
     var index = 1;
-    $.each(data, function (key, payment) {
+    $.each(data.payments, function (key, payment) {
         template +=
             '<div class="callout m-0 text-muted bg-light text-uppercase">' +
             '<small>Payment '+index + '</small><small class="pull-right"><strong><i class="fa fa-rupee"></i>&nbsp;'+payment.amount+'</strong></small></div>';
@@ -55,4 +55,10 @@ function get_render_template(data) {
     });
 
     return template;
+}
+
+function download_transactions() {
+    var link = "/get/transactions?daterange="+$('#txn_range').val();
+    window.open(link, '_blank');
+    return false;
 }

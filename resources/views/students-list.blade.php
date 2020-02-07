@@ -59,8 +59,8 @@
             <div class="input-group">
                 <select name="school-name" class="form-control" required="required">
                 <option selected="selected" value="">Select School </option>
-                @foreach ($Student::SCHOOL_LIST as $school)
-                    <option value="{{ $school }}" @if($school == old('school-name')) selected @endif> {{ $school }}</option>
+                @foreach (App\Models\ShopifyExcelUpload::getBranchNames() as $school)
+                    <option value="{{ $school }}" @if($school == old('school-name')) selected @endif> Apeejay {{ $school }}</option>
                 @endforeach
                 </select>
             </div>
@@ -76,7 +76,8 @@
                 <div class="input-group">
                     <select name="class" class="form-control" required="required">
                         <option selected="selected" value="">Select Class </option>
-                    @foreach ($Student::CLASS_LIST as $class)
+                        @php $class_list = array_unique(array_merge(App\Models\Student::CLASS_LIST,App\Models\Student::HIGHER_CLASS_LIST,App\Models\Student::REYNOTT_CLASS_LIST,App\Models\Student::REYNOTT_DROPPER_CLASS_LIST))@endphp
+                    @foreach ($class_list as $class)
                         <option value="{{ $class }}" @if($class == old('class')) selected @endif> {{ $class }}</option>
                     @endforeach
                 </select>
@@ -89,9 +90,10 @@
                     <div class="input-group">
                             <select name="section" class="form-control">
                             <option selected="selected" value="">Select Section </option>
-                                @for ($section = 'A'; $section <= 'J'; $section++)
+                                @php $section_list = array_unique(array_merge(App\Models\Student::SECTION_LIST,App\Models\Student::HIGHER_SECTION_LIST,App\Models\Student::REYNOTT_SECTION_LIST,App\Models\Student::REYNOTT_DROPPER_SECTION_LIST))@endphp
+                                @foreach($section_list as $section)
                                     <option value="{{ $section }}" @if($section == old('section')) selected @endif> {{ $section }}</option>
-                                @endfor
+                                @endforeach
                             </select>
                         </div>
                     </div>
