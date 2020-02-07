@@ -15,6 +15,10 @@ use App\Library\Collection\Collection;
 class CollectionController extends Controller
 {
     public function collection() {
+    	if (!request('token') || request('token') != env('API_TOKEN')) {
+		    return response(['errors' => ['You don\'t have access.']], 403);
+	    }
+
 	    // Fetching timestamps and month for start and end date.
 	    $start = request('range_from') ? Carbon::createFromFormat('d/m/Y', request('range_from')) : Carbon::now()->startOfMonth();
 	    $end = request('range_to') ? Carbon::createFromFormat('d/m/Y', request('range_to')) : Carbon::now();
@@ -30,12 +34,10 @@ class CollectionController extends Controller
             ->setLocation($locationList)
             ->setIsPDC(request('pdc') == 'yes');
 
-        if(request('format') == 'csv') {
-            $Collection->setFormat('CSV');
-            return Excel\Facades\Excel::download(new CollectionExport($Collection->Get()),'collection.csv');
+        if(strtolower(request('format')) == 'csv') {
+            return Excel\Facades\Excel::download(new CollectionExport($Collection->Get()->toCSVFormat()), 'collection.csv');
         }
 
-        return $Collection->Get();
-
+        return response()->json($Collection->Get()->toJsonFormat());
     }
 }

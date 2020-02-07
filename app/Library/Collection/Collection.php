@@ -18,8 +18,6 @@ class Collection
 	public $results, $groupedData = [];
 	public $isPDC = true;
 
-	public $format = 'JSON';
-
 	private $columns = [
 		'_id',
 		'student_school_location',
@@ -138,7 +136,7 @@ class Collection
 	}
 
 	/**
-	 *
+	 * @return $this
 	 */
 	private function Format() {
 		$groupedData = [];
@@ -148,52 +146,49 @@ class Collection
 			}
 
 			$monthlyTotal = $this->GetTotalAmountBreakUp($result->toArray());
-			foreach ($monthlyTotal as $month => $total) {
+			foreach ($monthlyTotal as $month => $totalData) {
 				if (isset($groupedData[$result->student_school_location][$month])) {
-					$groupedData[$result->student_school_location][$month] += $total;
+					$groupedData[$result->student_school_location][$month]['total'] += $totalData['total'];
+					$groupedData[$result->student_school_location][$month]['txn_count'] += $totalData['txn_count'];
 				} else {
-					$groupedData[$result->student_school_location][$month] = $total;
-				}
+					$groupedData[$result->student_school_location][$month]['total'] = $totalData['total'];
+					$groupedData[$result->student_school_location][$month]['txn_count'] = $totalData['txn_count'];				}
 			}
 		}
-
-		$this->groupedData = $groupedData;
 
 		/**
 		 * [
 		 *   "Saket" => [
-		 *                  "January 2019": 20000,
-		 *                  "February 2019" : 3000
+		 *                  "January 2019":  [
+		 *                           total => 20000
+		 *                           txn_count => 10
+		 *                          ],
+		 *                  "February 2019":  [
+		 *                           total => 20000
+		 *                           txn_count => 10
+		 *                          ],
 		 *
 		 *              ],
 		 *   "Pitampura" => [
-		 *                  "January 2019": 20000,
-		 *                  "February 2019" : 3000
+		 *                  ""January 2019":  [
+		 *                           total => 20000
+		 *                           txn_count => 10
+		 *                          ],
+		 *                  "February 2019":  [
+		 *                           total => 20000
+		 *                           txn_count => 10
+		 *                          ],
 		 *
 		 *              ]
 		 * ]
 		 *
 		 */
-
-		if ($this->format == 'CSV') {
-			return $this->toCSV();
-		}
-
-		return $this->toJson();
-	}
-
-	/**
-	 * @param string $format
-	 *
-	 * @return Collection
-	 */
-	public function setFormat(string $format = 'JSON') {
-		$this->format = $format;
+		$this->groupedData = $groupedData;
 
 		return $this;
 	}
 
-	private function toJson() {
+	public function toJsonFormat() {
 		$locations = array_keys($this->groupedData);
 
 		$jsonArray = [];
@@ -205,7 +200,8 @@ class Collection
 			foreach ($locations as $location) {
 				$collection[] = [
 					'location' => $location,
-					'amount'   => $this->groupedData[$location][$Month->format('F Y')] ?? 0
+					'amount'   => $this->groupedData[$location][$Month->format('F Y')]['total'] ?? 0,
+					'txn_count' => $this->groupedData[$location][$Month->format('F Y')]['txn_count'] ?? 0
 				];
 			}
 
@@ -214,11 +210,11 @@ class Collection
 			$jsonArray[] = $month;
 		}
 
-		return json_encode($jsonArray);
+		return $jsonArray;
 
 	}
 
-	private function toCSV() {
+	public function toCSVFormat() {
 		$locations = array_keys($this->groupedData);
 
 		$csvList = [];
@@ -227,9 +223,10 @@ class Collection
 			foreach ($locations as $location) {
 				$month['Month'] = $Month->format('F Y');
 				$month['Location'] = $location;
-				$month['Amount'] = $this->groupedData[$location][$Month->format('F Y')] ?? 0;
+				$month['Txn Count'] = $this->groupedData[$location][$Month->format('F Y')]['txn_count'] ?? 0;
+				$month['Amount'] = $this->groupedData[$location][$Month->format('F Y')]['total'] ?? 0;
 
-                $csvList[] = $month;
+				$csvList[] = $month;
 			}
 		}
 
@@ -286,9 +283,11 @@ class Collection
 
 			$period = Carbon::createFromTimestamp($document['payments'][$key]['upload_date'])->format('F Y');
 			if (isset($monthlyTotal[$period])) {
-				$monthlyTotal[$period] += $amount;
+				$monthlyTotal[$period]['total'] += $amount;
+				$monthlyTotal[$period]['txn_count'] += 1;
 			} else {
-				$monthlyTotal[$period] = $amount;
+				$monthlyTotal[$period]['total'] = $amount;
+				$monthlyTotal[$period]['txn_count'] = 1;
 			}
 		}
 		return $monthlyTotal;
