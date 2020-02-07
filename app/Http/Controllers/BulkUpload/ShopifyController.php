@@ -264,14 +264,14 @@ class ShopifyController extends BaseController
 
         if ($start && $end) {
             if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
-                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->get();
+                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
             } else {
                 $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
                     ->whereBetween('payments.upload_date', [$start, $end])
-                    ->get();
+                    ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
             }
         } else {
-            $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
+            $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
         }
 
         $modeWiseData = [];
