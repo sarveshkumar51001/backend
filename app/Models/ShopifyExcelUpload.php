@@ -97,6 +97,16 @@ class ShopifyExcelUpload extends Base
         return array_values(self::$modesTitle);
     }
 
+    const PAYMENT_MODE_CASE_MAPPING = [
+        "cash" => "Cash",
+        "cheque" => "Cheque",
+        "dd" => "DD",
+        "pdc cheque" =>"PDC Cheque",
+        "online" => "Online",
+        "paytm qr code" => "Paytm QR Code",
+        "neft" => "NEFT"
+    ];
+
     const SCHOOL_ADDRESS_MAPPING = [
         "Apeejay" => [
             "Sheikh Sarai" => [
