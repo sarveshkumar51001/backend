@@ -25,6 +25,6 @@ class CollectionExport implements FromCollection, WithHeadings
 
     public function headings(): array
     {
-        return ['Month', 'Location', 'txn_count', 'Total'];
+        return ['Month', 'Location','order_count', 'txn_count', 'Total'];
     }
 }

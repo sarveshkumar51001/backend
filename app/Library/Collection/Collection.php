@@ -144,15 +144,20 @@ class Collection
 			if (!isset($groupedData[$result->student_school_location])) {
 				$groupedData[$result->student_school_location] = [];
 			}
-
 			$monthlyTotal = $this->GetTotalAmountBreakUp($result->toArray());
+			if(empty($monthlyTotal)){
+			   continue;
+            }
 			foreach ($monthlyTotal as $month => $totalData) {
 				if (isset($groupedData[$result->student_school_location][$month])) {
 					$groupedData[$result->student_school_location][$month]['total'] += $totalData['total'];
 					$groupedData[$result->student_school_location][$month]['txn_count'] += $totalData['txn_count'];
+					$groupedData[$result->student_school_location][$month]['order_count'] += $totalData['order_count'];
 				} else {
 					$groupedData[$result->student_school_location][$month]['total'] = $totalData['total'];
-					$groupedData[$result->student_school_location][$month]['txn_count'] = $totalData['txn_count'];				}
+					$groupedData[$result->student_school_location][$month]['txn_count'] = $totalData['txn_count'];
+                    $groupedData[$result->student_school_location][$month]['order_count'] = $totalData['order_count'];
+				}
 			}
 		}
 
@@ -162,10 +167,12 @@ class Collection
 		 *                  "January 2019":  [
 		 *                           total => 20000
 		 *                           txn_count => 10
+         *                           order_count => 5
 		 *                          ],
 		 *                  "February 2019":  [
 		 *                           total => 20000
 		 *                           txn_count => 10
+         *                           order_count => 5
 		 *                          ],
 		 *
 		 *              ],
@@ -173,10 +180,12 @@ class Collection
 		 *                  ""January 2019":  [
 		 *                           total => 20000
 		 *                           txn_count => 10
+         *                           order_count => 5
 		 *                          ],
 		 *                  "February 2019":  [
 		 *                           total => 20000
 		 *                           txn_count => 10
+         *                           order_count => 5
 		 *                          ],
 		 *
 		 *              ]
@@ -201,7 +210,8 @@ class Collection
 				$collection[] = [
 					'location' => $location,
 					'amount'   => $this->groupedData[$location][$Month->format('F Y')]['total'] ?? 0,
-					'txn_count' => $this->groupedData[$location][$Month->format('F Y')]['txn_count'] ?? 0
+					'txn_count' => $this->groupedData[$location][$Month->format('F Y')]['txn_count'] ?? 0,
+                    'order_count' => $this->groupedData[$location][$Month->format('F Y')]['order_count'] ?? 0
 				];
 			}
 
@@ -223,6 +233,7 @@ class Collection
 			foreach ($locations as $location) {
 				$month['Month'] = $Month->format('F Y');
 				$month['Location'] = $location;
+				$month['Order Count'] = $this->groupedData[$location][$Month->format('F Y')]['order_count'] ?? 0;
 				$month['Txn Count'] = $this->groupedData[$location][$Month->format('F Y')]['txn_count'] ?? 0;
 				$month['Amount'] = $this->groupedData[$location][$Month->format('F Y')]['total'] ?? 0;
 
@@ -258,6 +269,7 @@ class Collection
 	private function GetTotalAmountBreakUp(array $document)
 	{
 		$monthlyTotal = $final_keys = $mode_keys = $pdc_keys = [];
+		$period = "";
 		$processed_keys = array_keys(array_column($document['payments'], 'processed'), "Yes");
 
 		// Finding matching payments i.e. payments which are processed as well as payment mode equal to $mode.
@@ -277,10 +289,12 @@ class Collection
 			$final_keys = $processed_keys;
 		}
 
+		if(empty($final_keys)){
+		    return [];
+        }
 		// Looping through all the keys obtained to calculate the total collected/due amount.
 		foreach ($final_keys as $key) {
 			$amount = $document['payments'][$key]['amount'];
-
 			$period = Carbon::createFromTimestamp($document['payments'][$key]['upload_date'])->format('F Y');
 			if (isset($monthlyTotal[$period])) {
 				$monthlyTotal[$period]['total'] += $amount;
@@ -288,8 +302,10 @@ class Collection
 			} else {
 				$monthlyTotal[$period]['total'] = $amount;
 				$monthlyTotal[$period]['txn_count'] = 1;
+				$monthlyTotal[$period]['order_count'] = 0;
 			}
 		}
+		$monthlyTotal[$period]['order_count'] += 1;
 		return $monthlyTotal;
 	}
 }
