@@ -140,25 +140,25 @@ class Collection
 	 */
 	private function Format() {
 		$groupedData = [];
+
 		foreach ($this->results as $result) {
-			if (!isset($groupedData[$result->student_school_location])) {
-				$groupedData[$result->student_school_location] = [];
-			}
-			$monthlyTotal = $this->GetTotalAmountBreakUp($result->toArray());
-			if(empty($monthlyTotal)){
-			   continue;
+            if (!isset($groupedData[$result->student_school_location])) {
+                $groupedData[$result->student_school_location] = [];
             }
-			foreach ($monthlyTotal as $month => $totalData) {
-				if (isset($groupedData[$result->student_school_location][$month])) {
-					$groupedData[$result->student_school_location][$month]['total'] += $totalData['total'];
-					$groupedData[$result->student_school_location][$month]['txn_count'] += $totalData['txn_count'];
-					$groupedData[$result->student_school_location][$month]['order_count'] += $totalData['order_count'];
-				} else {
-					$groupedData[$result->student_school_location][$month]['total'] = $totalData['total'];
-					$groupedData[$result->student_school_location][$month]['txn_count'] = $totalData['txn_count'];
+
+            $monthlyTotal = $this->GetTotalAmountBreakUp($result->toArray());
+
+            foreach ($monthlyTotal as $month => $totalData) {
+                if (isset($groupedData[$result->student_school_location][$month])) {
+                    $groupedData[$result->student_school_location][$month]['total'] += $totalData['total'];
+                    $groupedData[$result->student_school_location][$month]['txn_count'] += $totalData['txn_count'];
+                    $groupedData[$result->student_school_location][$month]['order_count'] += $totalData['order_count'];
+                } else {
+                    $groupedData[$result->student_school_location][$month]['total'] = $totalData['total'];
+                    $groupedData[$result->student_school_location][$month]['txn_count'] = $totalData['txn_count'];
                     $groupedData[$result->student_school_location][$month]['order_count'] = $totalData['order_count'];
-				}
-			}
+                }
+            }
 		}
 
 		/**
@@ -193,7 +193,6 @@ class Collection
 		 *
 		 */
 		$this->groupedData = $groupedData;
-
 		return $this;
 	}
 
@@ -268,6 +267,7 @@ class Collection
 	 */
 	private function GetTotalAmountBreakUp(array $document)
 	{
+
 		$monthlyTotal = $final_keys = $mode_keys = $pdc_keys = [];
 		$period = "";
 		$processed_keys = array_keys(array_column($document['payments'], 'processed'), "Yes");
