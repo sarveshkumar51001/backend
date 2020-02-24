@@ -19,7 +19,7 @@ class LaravelValidatorTest extends TestCase
      * @param $field_validation
      * @return array
      */
-    private function errors_per_field_validation($field_name,$field_validation)
+    private function errors_per_field_validation($field_name, $field_validation)
     {
         $data = TestCaseData::DATA;
         if ($field_validation == 'required') {
@@ -41,7 +41,8 @@ class LaravelValidatorTest extends TestCase
      * @param $validation_name
      * @return array
      */
-    private function Expected_Errors($fields,$validation_name){
+    private function Expected_Errors($fields, $validation_name)
+    {
 
         $errors = [];
         $attribute_error = TestCaseData::EXPECTED_ERRORS_PER_VALIDATION[$validation_name];
@@ -49,15 +50,15 @@ class LaravelValidatorTest extends TestCase
 
         foreach ($fields as $field_name) {
             // For Flat fields...
-            if (!Str::contains($field_name,'_'.$payment_no)){
-                $field_name = str_replace('_',' ',$field_name);
-                $error = str_replace(':attribute',$field_name,$attribute_error);
+            if (!Str::contains($field_name, '_' . $payment_no)) {
+                $field_name = str_replace('_', ' ', $field_name);
+                $error = str_replace(':attribute', $field_name, $attribute_error);
                 $errors[] = $error;
             } // For Nested Fields...
             else {
-                $field_name = Str::replaceFirst('_'.$payment_no,'',$field_name);
-                $field_name = sprintf('payments.%s.%s',$payment_no,$field_name);
-                $error = str_replace(':attribute',$field_name,$attribute_error);
+                $field_name = Str::replaceFirst('_' . $payment_no, '', $field_name);
+                $field_name = sprintf('payments.%s.%s', $payment_no, $field_name);
+                $error = str_replace(':attribute', $field_name, $attribute_error);
                 $errors[] = $error;
             }
         }
@@ -70,13 +71,15 @@ class LaravelValidatorTest extends TestCase
      * @param $fields
      * @return array
      */
-    private function Actual_Errors_Per_Validation($fields,$rule){
+    private function Actual_Errors_Per_Validation($fields, $rule)
+    {
         $error = "";
         $errors = [];
         foreach ($fields as $field_name) {
-            if(!empty($this->errors_per_field_validation($field_name, $rule))) {
+            if (!empty($this->errors_per_field_validation($field_name, $rule))) {
                 $error = head(head($this->errors_per_field_validation($field_name, $rule)['rows']));
-            } $errors[] = $error;
+            }
+            $errors[] = $error;
         }
         return $errors;
     }
@@ -103,9 +106,9 @@ class LaravelValidatorTest extends TestCase
     public function testFieldRequiredErrors()
     {
         $rule = 'required';
-        $expected_errors = $this->Expected_Errors(TestCaseData::REQUIRED_FIELDS,$rule);
-        $actual_errors = $this->Actual_Errors_Per_Validation(TestCaseData::REQUIRED_FIELDS,$rule);
-        $this->assertTrue($expected_errors == $actual_errors);
+        $expected_errors = $this->Expected_Errors(TestCaseData::REQUIRED_FIELDS, $rule);
+        $actual_errors = $this->Actual_Errors_Per_Validation(TestCaseData::REQUIRED_FIELDS, $rule);
+        $this->assertTrue(array_diff($expected_errors, $actual_errors) === array_diff($actual_errors, $expected_errors));
     }
 
     /**
@@ -117,9 +120,9 @@ class LaravelValidatorTest extends TestCase
     public function testFieldStringErrors()
     {
         $rule = 'string';
-        $expected_errors = $this->Expected_Errors(TestCaseData::STRING_FIELDS,$rule);
-        $actual_errors = $this->Actual_Errors_Per_Validation(TestCaseData::STRING_FIELDS,$rule);
-        $this->assertTrue($expected_errors == $actual_errors);
+        $expected_errors = $this->Expected_Errors(TestCaseData::STRING_FIELDS, $rule);
+        $actual_errors = $this->Actual_Errors_Per_Validation(TestCaseData::STRING_FIELDS, $rule);
+        $this->assertTrue(array_diff($expected_errors, $actual_errors) === array_diff($actual_errors, $expected_errors));
     }
 
     /**
@@ -131,9 +134,9 @@ class LaravelValidatorTest extends TestCase
     public function testFieldNumericErrors()
     {
         $rule = 'numeric';
-        $expected_errors = $this->Expected_Errors(TestCaseData::NUMERIC_FIELDS,$rule);
-        $actual_errors = $this->Actual_Errors_Per_Validation(TestCaseData::NUMERIC_FIELDS,$rule);
-        $this->assertTrue($expected_errors == $actual_errors);
+        $expected_errors = $this->Expected_Errors(TestCaseData::NUMERIC_FIELDS, $rule);
+        $actual_errors = $this->Actual_Errors_Per_Validation(TestCaseData::NUMERIC_FIELDS, $rule);
+        $this->assertTrue(array_diff($expected_errors, $actual_errors) === array_diff($actual_errors, $expected_errors));
     }
 
     /**
@@ -141,14 +144,15 @@ class LaravelValidatorTest extends TestCase
      *
      * Test case will assert True if all the actual errors match the expected errors else False.
      */
-    public function testRegexErrors(){
+    public function testRegexErrors()
+    {
 
         $error = "";
-        $errors = [];
+        $actual_errors = [];
         $rule = 'regex';
-        $expected_errors = $this->Expected_Errors(TestCaseData::REGEX_FIELDS,$rule);
+        $expected_errors = $this->Expected_Errors(TestCaseData::REGEX_FIELDS, $rule);
 
-        foreach(TestCaseData::REGEX_FIELDS as $field) {
+        foreach (TestCaseData::REGEX_FIELDS as $field) {
             $data = TestCaseData::DATA;
             $data[$field] = "+9/2020%213";
 
@@ -157,9 +161,10 @@ class LaravelValidatorTest extends TestCase
 
             if (!empty($ExcelValidator->get_errors())) {
                 $error = head(head($ExcelValidator->get_errors()['rows']));
-            } $errors[] = $error;
+            }
+            $actual_errors[] = $error;
         }
-        $this->assertTrue($expected_errors == $errors);
+        $this->assertTrue(array_diff($expected_errors, $actual_errors) === array_diff($actual_errors, $expected_errors));
     }
 
     /**
@@ -170,11 +175,11 @@ class LaravelValidatorTest extends TestCase
     public function testEmailFormatError()
     {
         $error = "";
-        $errors = [];
+        $actual_errors = [];
         $rule = 'email';
-        $expected_errors = $this->Expected_Errors(TestCaseData::EMAIL_FIELDS,$rule);
+        $expected_errors = $this->Expected_Errors(TestCaseData::EMAIL_FIELDS, $rule);
 
-        foreach(TestCaseData::EMAIL_FIELDS as $field) {
+        foreach (TestCaseData::EMAIL_FIELDS as $field) {
             $data = TestCaseData::DATA;
             $data[$field] = "hello.com";
 
@@ -183,9 +188,10 @@ class LaravelValidatorTest extends TestCase
 
             if (!empty($ExcelValidator->get_errors())) {
                 $error = head(head($ExcelValidator->get_errors()['rows']));
-            } $errors[] = $error;
+            }
+            $actual_errors[] = $error;
         }
-        $this->assertTrue($expected_errors == $errors);
+        $this->assertTrue(array_diff($expected_errors, $actual_errors) === array_diff($actual_errors, $expected_errors));
 
     }
 
@@ -195,14 +201,14 @@ class LaravelValidatorTest extends TestCase
      * I/P - Amount fields with incorrect format
      * O/P - Test case will assert True if all the actual errors match the expected errors else False.
      */
-    public function testAmountFormatError(){
-
+    public function testAmountFormatError()
+    {
         $error = "";
-        $errors = [];
+        $actual_errors = [];
         $rule = 'amount';
-        $expected_errors = $this->Expected_Errors(TestCaseData::AMOUNT_FIELDS,$rule);
+        $expected_errors = $this->Expected_Errors(TestCaseData::AMOUNT_FIELDS, $rule);
 
-        foreach(TestCaseData::AMOUNT_FIELDS as $field) {
+        foreach (TestCaseData::AMOUNT_FIELDS as $field) {
             $data = TestCaseData::DATA;
             $data[$field] = 20000.46534;
 
@@ -211,9 +217,10 @@ class LaravelValidatorTest extends TestCase
 
             if (!empty($ExcelValidator->get_errors())) {
                 $error = head(head($ExcelValidator->get_errors()['rows']));
-            } $errors[] = $error;
+            }
+            $actual_errors[] = $error;
         }
-        $this->assertTrue($expected_errors == $errors);
+        $this->assertTrue(array_diff($expected_errors, $actual_errors) === array_diff($actual_errors, $expected_errors));
     }
 
     /**
@@ -222,14 +229,14 @@ class LaravelValidatorTest extends TestCase
      * I/P - list value fields with the value not present in the list.
      * O/P - Test case will assert True if all the actual errors match the expected errors else False..
      */
-    public function testListFields(){
-
+    public function testListFields()
+    {
         $error = "";
-        $errors = [];
+        $actual_errors = [];
         $rule = 'in';
-        $expected_errors = $this->Expected_Errors(TestCaseData::RULE_IN_FIELDS,$rule);
+        $expected_errors = $this->Expected_Errors(TestCaseData::RULE_IN_FIELDS, $rule);
 
-        foreach(TestCaseData::RULE_IN_FIELDS as $field) {
+        foreach (TestCaseData::RULE_IN_FIELDS as $field) {
             $data = TestCaseData::DATA;
             $data[$field] = 'AD';
 
@@ -238,9 +245,10 @@ class LaravelValidatorTest extends TestCase
 
             if (!empty($ExcelValidator->get_errors())) {
                 $error = head(head($ExcelValidator->get_errors()['rows']));
-            } $errors[] = $error;
+            }
+            $actual_errors[] = $error;
         }
-        $this->assertTrue($expected_errors == $errors);
+        $this->assertTrue(array_diff($expected_errors, $actual_errors) === array_diff($actual_errors, $expected_errors));
     }
 
     /**
@@ -249,14 +257,14 @@ class LaravelValidatorTest extends TestCase
      * I/P - Numeric fields with exponential values
      * O/P - Test case will assert True if all the actual errors match the expected errors else False.
      */
-    public function testNotExponentialError(){
-
+    public function testNotExponentialError()
+    {
         $error = "";
-        $errors = [];
+        $actual_errors = [];
         $rule = 'not_exponential';
-        $expected_errors = $this->Expected_Errors(TestCaseData::NOT_EXPONENTIAL_FIELDS,$rule);
+        $expected_errors = $this->Expected_Errors(TestCaseData::NOT_EXPONENTIAL_FIELDS, $rule);
 
-        foreach(TestCaseData::NOT_EXPONENTIAL_FIELDS as $field) {
+        foreach (TestCaseData::NOT_EXPONENTIAL_FIELDS as $field) {
             $data = TestCaseData::DATA;
             $data[$field] = '2.3332E+13';
 
@@ -265,8 +273,9 @@ class LaravelValidatorTest extends TestCase
 
             if (!empty($ExcelValidator->get_errors())) {
                 $error = head(head($ExcelValidator->get_errors()['rows']));
-            } $errors[] = $error;
+            }
+            $actual_errors[] = $error;
         }
-        $this->assertTrue($expected_errors == $errors);
+        $this->assertTrue(array_diff($expected_errors, $actual_errors) === array_diff($actual_errors, $expected_errors));
     }
 }

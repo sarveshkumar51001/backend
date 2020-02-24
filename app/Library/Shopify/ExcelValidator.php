@@ -140,6 +140,10 @@ class ExcelValidator
         return $is_duplicate;
     }
 
+    /**
+     * @param array $data
+     * @return bool
+     */
     public function ValidateData(array $data)
     {
 
