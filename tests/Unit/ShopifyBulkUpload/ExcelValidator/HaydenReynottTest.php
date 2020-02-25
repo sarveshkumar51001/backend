@@ -92,4 +92,23 @@ class HaydenReynottTest extends TestCase
         $this->assertTrue($error == Errors::HAYDEN_REYNOTT_SECTION_ERROR);
     }
 
+    /**
+     * Test case for validating that correct entries for class, section, delivery institution and branch.
+     * Test case will assert empty if no error found.
+     */
+    public function testCorrectDetailsShouldPass()
+    {
+        $data = TestCaseData::DATA;
+        $data['class'] = "9";
+        $data['section'] = "A";
+        $data['delivery_institution'] = "H&R";
+        $data['branch'] = "Dwarka";
+        $excel_data = array($data);
+
+        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
+        $ExcelValidator->ValidateHaydenReynottData($ExcelValidator->FileFormattedData[0]);
+
+        $this->assertEmpty($ExcelValidator->get_errors());
+    }
+
 }
