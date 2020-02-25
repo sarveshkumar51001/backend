@@ -48,4 +48,8 @@ class Student extends Base
 
     const REYNOTT_DROPPER_SECTION_LIST = ["Reynott"];
 
+    const HAYDEN_REYNOTT_CLASS_LIST = [9,10,11,12,"Creative Arts"];
+
+    const HAYDEN_REYNOTT_SECTION_LIST = ["H&R"];
+
 }

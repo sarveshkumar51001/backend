@@ -87,4 +87,8 @@ class Errors
 
     const SHEET_ERRORS = 'There are errors in sheets due to which collection cannot be calculated correctly. Please correct below errors and try again.';
 
+    const HAYDEN_REYNOTT_CLASS_ERROR = "Class entered for H&R is incorrect.";
+
+    const HAYDEN_REYNOTT_SECTION_ERROR = "Section entered for H&R is incorrect.";
+
 }

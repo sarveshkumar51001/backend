@@ -196,7 +196,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $error = "";
         $data = TestCaseData::DATA;
         $data['mode_of_payment_1'] = "";
-        $data['chequedd_date_1'] = "10/02/2020";
+        $data['chequedd_date_1'] = "10/02/2021";
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
