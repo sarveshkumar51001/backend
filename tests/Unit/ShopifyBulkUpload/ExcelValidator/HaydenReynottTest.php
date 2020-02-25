@@ -56,7 +56,7 @@ class HaydenReynottTest extends TestCase
         $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateHaydenReynottData($ExcelValidator->FileFormattedData[0]);
 
-        if(!empty($ExcelValidator->get_errors())) {
+        if (!empty($ExcelValidator->get_errors())) {
             $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
         }
         $this->assertTrue($error == Errors::HAYDEN_REYNOTT_CLASS_ERROR);
@@ -85,7 +85,7 @@ class HaydenReynottTest extends TestCase
         $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateHaydenReynottData($ExcelValidator->FileFormattedData[0]);
 
-        if(!empty($ExcelValidator->get_errors())) {
+        if (!empty($ExcelValidator->get_errors())) {
             $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
         }
 
