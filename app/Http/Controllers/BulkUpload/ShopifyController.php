@@ -5,6 +5,7 @@ namespace App\Http\Controllers\BulkUpload;
 ini_set('precision', 20); // Fix for long integer converting to exponential number Ref:https://github.com/Maatwebsite/Laravel-Excel/issues/1384#issuecomment-362059935
 
 use App\Http\Controllers\BaseController;
+use App\Library\Collection\Collection;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Auth;
@@ -257,8 +258,33 @@ class ShopifyController extends BaseController
         return view('shopify.past-files-upload')->with('files', $Uploads)->with('breadcrumb', $breadcrumb);
     }
 
+    public function location_wise_collection()
+    {
+        $start = Carbon::today()->startOfDay();
+        $end = Carbon::today()->endOfDay();
+        if (request('daterange')) {
+            $range = explode(' - ', request('daterange'), 2);
+            if (count($range) == 2) {
+                $start = Carbon::createFromFormat('m/d/Y',$range[0]);
+                $end = Carbon::createFromFormat('m/d/Y',$range[1]);
+            }
+        }
+        $users = !in_array(Auth::user()->email,self::$adminTeam) ? [Auth::user()->email] : [];
+
+        $Collection = new Collection();
+
+        return $Collection->setStart($start)
+            ->setEnd($end)
+            ->setUsers($users)
+            ->setIsPDC(false)
+            ->Get()
+            ->toCSVFormat();
+    }
+
     public function previous_orders()
     {
+        $revenue_data = $this->location_wise_collection();
+
         $date_params = GetStartEndDate(request('daterange'));
         [$start,$end] = $date_params;
 
@@ -322,7 +348,8 @@ class ShopifyController extends BaseController
         return view('shopify.previous-orders')
             ->with('records_array', $mongodb_records)
             ->with('breadcrumb', $breadcrumb)
-            ->with('metadata', $modeWiseData);
+            ->with('metadata', $modeWiseData)
+            ->with('revenue_data',$revenue_data);
     }
 
     public function download_previous($id)
