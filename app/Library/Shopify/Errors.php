@@ -89,6 +89,6 @@ class Errors
 
     const HAYDEN_REYNOTT_CLASS_ERROR = "Class entered for H&R is incorrect.";
 
-    const HAYDEN_REYNOTT_SECTION_ERROR = "Section entered for H&R is incorrect.";
+    const HAYDEN_REYNOTT_SECTION_ERROR = "Section entered for Hayden & Reynott is incorrect. It can only be H&R";
 
 }
