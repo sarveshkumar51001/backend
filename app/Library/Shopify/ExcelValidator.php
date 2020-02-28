@@ -169,7 +169,7 @@ class ExcelValidator
                 Rule::in(array_merge(Student::CLASS_LIST,Student::HIGHER_CLASS_LIST,Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST,Student::HAYDEN_REYNOTT_CLASS_LIST))],
 
             "section" => ["required",
-                Rule::in(array_merge(Student::SECTION_LIST,Student::HIGHER_SECTION_LIST,Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST,Student::HAYDEN_REYNOTT_SECTION_LIST))],
+                Rule::in(array_merge(Student::SECTION_LIST,Student::HIGHER_SECTION_LIST,Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST,[ShopifyExcelUpload::HAYDEN_REYNOTT]))],
 
             // Parent Details
             "parent_first_name" => "required",
@@ -520,7 +520,7 @@ class ExcelValidator
         $location_data = ShopifyExcelUpload::getLocation($data['delivery_institution'],$data['branch']);
 
         // Proceed only if $location data is returned;
-        if($location_data){
+        if( $location_data && $data['section'] != ShopifyExcelUpload::HAYDEN_REYNOTT){
             // Proceeding only if location corresponds to higher institute
             if($location_data['is_higher_education']){
                 // Checking whether the section value is for higher institutes
@@ -569,13 +569,12 @@ class ExcelValidator
      */
     public function ValidateHaydenReynottData(array $data)
     {
-        if(strtolower($data['delivery_institution']) == strtolower(ShopifyExcelUpload::HAYDEN_REYNOTT)){
+        if($data['section'] == ShopifyExcelUpload::HAYDEN_REYNOTT){
             if(!in_array($data['class'],array_merge(Student::HIGHER_CLASS_LIST,Student::HAYDEN_REYNOTT_CLASS_LIST))){
                 $this->errors['rows'][$this->row_no][] = Errors::HAYDEN_REYNOTT_CLASS_ERROR;
             }
-            if(!in_array($data['section'],array_merge(Student::REYNOTT_SECTION_LIST,Student::HAYDEN_REYNOTT_SECTION_LIST))){
-                $this->errors['rows'][$this->row_no][] = Errors::HAYDEN_REYNOTT_SECTION_ERROR;
-            }
+        } else{
+            $this->errors['rows'][$this->row_no][] = Errors::HAYDEN_REYNOTT_SECTION_ERROR;
         }
     }
 

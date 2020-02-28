@@ -48,7 +48,7 @@ class HaydenReynottTest extends TestCase
         $error = "";
         $data = TestCaseData::DATA;
         $data['class'] = "6";
-        $data['section'] = "A";
+        $data['section'] = "H&R";
         $data['delivery_institution'] = "H&R";
         $data['branch'] = "Plot 23 Gurugram";
         $excel_data = array($data);
@@ -100,7 +100,7 @@ class HaydenReynottTest extends TestCase
     {
         $data = TestCaseData::DATA;
         $data['class'] = "9";
-        $data['section'] = "A";
+        $data['section'] = "H&R";
         $data['delivery_institution'] = "H&R";
         $data['branch'] = "Dwarka";
         $excel_data = array($data);
