@@ -90,7 +90,7 @@
                     <div class="input-group">
                             <select name="section" class="form-control">
                             <option selected="selected" value="">Select Section </option>
-                                @php $section_list = array_unique(array_merge(App\Models\Student::SECTION_LIST,App\Models\Student::HIGHER_SECTION_LIST,App\Models\Student::REYNOTT_SECTION_LIST,App\Models\Student::REYNOTT_DROPPER_SECTION_LIST,App\Models\Student::HAYDEN_REYNOTT_SECTION_LIST))@endphp
+                                @php $section_list = array_unique(array_merge(App\Models\Student::SECTION_LIST,App\Models\Student::HIGHER_SECTION_LIST,App\Models\Student::REYNOTT_SECTION_LIST,App\Models\Student::REYNOTT_DROPPER_SECTION_LIST,[App\Models\ShopifyExcelUpload::HAYDEN_REYNOTT]))@endphp
                                 @foreach($section_list as $section)
                                     <option value="{{ $section }}" @if($section == old('section')) selected @endif> {{ $section }}</option>
                                 @endforeach
