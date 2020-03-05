@@ -231,7 +231,12 @@ class Collection
 				];
 			}
 
-			$month['collection'] = $collection;
+            $keys = array_keys(array_column($collection,'amount'),'0');
+			foreach($keys as $key){
+                unset($collection[$key]);
+            }
+
+			$month['collection'] = array_values($collection);
 
 			$jsonArray[] = $month;
 		}
@@ -256,6 +261,11 @@ class Collection
 				$csvList[] = $month;
 			}
 		}
+
+        $keys = array_keys(array_column($csvList,'Amount'),'0');
+        foreach($keys as $key){
+            unset($csvList[$key]);
+        }
 		return $csvList;
 	}
 

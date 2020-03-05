@@ -273,15 +273,28 @@ class ShopifyController extends BaseController
 
         $Collection = new Collection();
 
-        $data = $Collection->setStart($start)
+        $data =  $Collection->setStart($start)
             ->setEnd($end)
             ->setUsers($users)
             ->setIsPDC(request('pdc') == 'yes')
             ->setBreakBy('branch')
             ->Get()
             ->toCSVFormat();
-        
-        return;
+
+        $final = array();
+        foreach($data as $doc) {
+            if(isset($final[$doc['branch']])){
+                $final[$doc['branch']]['amount'] += $doc['Amount'];
+                $final[$doc['branch']]['order_count'] += $doc['Order Count'];
+                $final[$doc['branch']]['txn_count'] += $doc['Txn Count'];
+            } else{
+                $final[$doc['branch']]['amount'] = $doc['Amount'];
+                $final[$doc['branch']]['order_count'] = $doc['Order Count'];
+                $final[$doc['branch']]['txn_count'] = $doc['Txn Count'];
+            }
+        }
+
+        return $final;
     }
 
     public function previous_orders()
