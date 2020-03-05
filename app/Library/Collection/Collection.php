@@ -14,12 +14,14 @@ use Carbon\CarbonPeriod;
 class Collection
 {
 	public $Start, $End, $mode;
-	public $users, $location = [];
+	public $users, $location = [],$break;
 	public $results, $groupedData = [];
 	public $isPDC = true;
 
 	private $columns = [
 		'_id',
+        'activity',
+        'branch',
 		'student_school_location',
 		'payments.amount',
 		'payments.processed',
@@ -103,6 +105,12 @@ class Collection
 		return $this;
 	}
 
+	public function setBreakBy($break) {
+	    $this->break = $break;
+
+	    return $this;
+    }
+
 	private function LoadFromDB() {
 		// If daterange is empty then assign current month as start and end time for fetching documents else
 		// the daterange sent in request.
@@ -135,35 +143,45 @@ class Collection
 		$this->results = $documents->get($this->columns);
 	}
 
+	private function BreakByMapping(){
+
+	    if($this->break == 'product')
+	        $column = 'activity';
+	    elseif($this->break == 'branch')
+            $column = 'branch';
+	    else
+	        $column = 'student_school_location';
+
+	    return $column;
+    }
+
 	/**
 	 * @return $this
 	 */
 	private function Format() {
 		$groupedData = [];
-
+		$column = $this->BreakByMapping();
 		foreach ($this->results as $result) {
-            if (!isset($groupedData[$result->student_school_location])) {
-                $groupedData[$result->student_school_location] = [];
+            if (!isset($groupedData[$result->$column])) {
+                $groupedData[$result->$column] = [];
             }
-
             $monthlyTotal = $this->GetTotalAmountBreakUp($result->toArray());
-
             foreach ($monthlyTotal as $month => $totalData) {
-                if (isset($groupedData[$result->student_school_location][$month])) {
-                    $groupedData[$result->student_school_location][$month]['total'] += $totalData['total'];
-                    $groupedData[$result->student_school_location][$month]['txn_count'] += $totalData['txn_count'];
-                    $groupedData[$result->student_school_location][$month]['order_count'] += $totalData['order_count'];
+                if (isset($groupedData[$result->$column][$month])) {
+                    $groupedData[$result->$column][$month]['total'] += $totalData['total'];
+                    $groupedData[$result->$column][$month]['txn_count'] += $totalData['txn_count'];
+                    $groupedData[$result->$column][$month]['order_count'] += $totalData['order_count'];
                 } else {
-                    $groupedData[$result->student_school_location][$month]['total'] = $totalData['total'];
-                    $groupedData[$result->student_school_location][$month]['txn_count'] = $totalData['txn_count'];
-                    $groupedData[$result->student_school_location][$month]['order_count'] = $totalData['order_count'];
+                    $groupedData[$result->$column][$month]['total'] = $totalData['total'];
+                    $groupedData[$result->$column][$month]['txn_count'] = $totalData['txn_count'];
+                    $groupedData[$result->$column][$month]['order_count'] = $totalData['order_count'];
                 }
             }
 		}
-
+		// Standard format
 		/**
 		 * [
-		 *   "Saket" => [
+		 *   "Product/Location/Branch" => [
 		 *                  "January 2019":  [
 		 *                           total => 20000
 		 *                           txn_count => 10
@@ -176,7 +194,7 @@ class Collection
 		 *                          ],
 		 *
 		 *              ],
-		 *   "Pitampura" => [
+		 *   "Product/Location/Branch" => [
 		 *                  ""January 2019":  [
 		 *                           total => 20000
 		 *                           txn_count => 10
@@ -197,7 +215,7 @@ class Collection
 	}
 
 	public function toJsonFormat() {
-		$locations = array_keys($this->groupedData);
+		$group_keys = array_keys($this->groupedData);
 
 		$jsonArray = [];
 		foreach (CarbonPeriod::create($this->Start, '1 month', $this->End) as $Month) {
@@ -205,12 +223,12 @@ class Collection
 			$month['month'] = $Month->format('F Y');
 
 			$collection = [];
-			foreach ($locations as $location) {
+			foreach ($group_keys as $key) {
 				$collection[] = [
-					'location' => $location,
-					'amount'   => $this->groupedData[$location][$Month->format('F Y')]['total'] ?? 0,
-					'txn_count' => $this->groupedData[$location][$Month->format('F Y')]['txn_count'] ?? 0,
-                    'order_count' => $this->groupedData[$location][$Month->format('F Y')]['order_count'] ?? 0
+                    ($this->break) ? $this->break :'location' => $key,
+					'amount'   => $this->groupedData[$key][$Month->format('F Y')]['total'] ?? 0,
+					'txn_count' => $this->groupedData[$key][$Month->format('F Y')]['txn_count'] ?? 0,
+                    'order_count' => $this->groupedData[$key][$Month->format('F Y')]['order_count'] ?? 0
 				];
 			}
 
@@ -224,17 +242,17 @@ class Collection
 	}
 
 	public function toCSVFormat() {
-		$locations = array_keys($this->groupedData);
+		$group_keys = array_keys($this->groupedData);
 
 		$csvList = [];
 		foreach (CarbonPeriod::create($this->Start, '1 month', $this->End) as $Month) {
 			$month = [];
-			foreach ($locations as $location) {
-				$month['Month'] = $Month->format('F Y');
-				$month['Location'] = $location;
-				$month['Order Count'] = $this->groupedData[$location][$Month->format('F Y')]['order_count'] ?? 0;
-				$month['Txn Count'] = $this->groupedData[$location][$Month->format('F Y')]['txn_count'] ?? 0;
-				$month['Amount'] = $this->groupedData[$location][$Month->format('F Y')]['total'] ?? 0;
+			foreach ($group_keys as $key) {
+                $month['Month'] = $Month->format('F Y');
+                ($this->break) ? $month[$this->break] : $month['Location'] = $key;
+				$month['Order Count'] = $this->groupedData[$key][$Month->format('F Y')]['order_count'] ?? 0;
+				$month['Txn Count'] = $this->groupedData[$key][$Month->format('F Y')]['txn_count'] ?? 0;
+				$month['Amount'] = $this->groupedData[$key][$Month->format('F Y')]['total'] ?? 0;
 
 				$csvList[] = $month;
 			}

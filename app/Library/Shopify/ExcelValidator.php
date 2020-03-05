@@ -573,8 +573,6 @@ class ExcelValidator
             if(!in_array($data['class'],array_merge(Student::HIGHER_CLASS_LIST,Student::HAYDEN_REYNOTT_CLASS_LIST))){
                 $this->errors['rows'][$this->row_no][] = Errors::HAYDEN_REYNOTT_CLASS_ERROR;
             }
-        } else{
-            $this->errors['rows'][$this->row_no][] = Errors::HAYDEN_REYNOTT_SECTION_ERROR;
         }
     }
 
