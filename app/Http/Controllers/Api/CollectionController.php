@@ -37,7 +37,7 @@ class CollectionController extends Controller
             ->setBreakBy($break_by);
 
         if(strtolower(request('format')) == 'csv') {
-            return Excel\Facades\Excel::download(new CollectionExport($Collection->Get()->toCSVFormat()), 'collection.csv');
+            return Excel\Facades\Excel::download(new CollectionExport($break_by,$Collection->Get()->toCSVFormat()), 'collection.csv');
         }
         return response()->json($Collection->Get()->toJsonFormat());
     }
