@@ -232,7 +232,12 @@ class Collection
 				];
 			}
 
-			$month['collection'] = $collection;
+            $keys = array_keys(array_column($collection,'amount'),'0');
+			foreach($keys as $key){
+                unset($collection[$key]);
+            }
+
+			$month['collection'] = array_values($collection);
 
 			$jsonArray[] = $month;
 		}
@@ -249,7 +254,7 @@ class Collection
 			$month = [];
 			foreach ($group_keys as $key) {
                 $month['Month'] = $Month->format('F Y');
-                ($this->break) ? $month[$this->break] : $month['Location'] = $key;
+                $month[($this->break) ? $this->break :'location'] = $key;
 				$month['Order Count'] = $this->groupedData[$key][$Month->format('F Y')]['order_count'] ?? 0;
 				$month['Txn Count'] = $this->groupedData[$key][$Month->format('F Y')]['txn_count'] ?? 0;
 				$month['Amount'] = $this->groupedData[$key][$Month->format('F Y')]['total'] ?? 0;
@@ -257,6 +262,10 @@ class Collection
 				$csvList[] = $month;
 			}
 		}
+        $keys = array_keys(array_column($csvList,'Amount'),'0');
+        foreach($keys as $key){
+            unset($csvList[$key]);
+        }
 
 		return $csvList;
 	}
