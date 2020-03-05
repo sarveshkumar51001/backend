@@ -144,7 +144,6 @@ class Collection
 	}
 
 	private function BreakByMapping(){
-
 	    if($this->break == 'product')
 	        $column = 'activity';
 	    elseif($this->break == 'branch')
@@ -262,11 +261,11 @@ class Collection
 				$csvList[] = $month;
 			}
 		}
+
         $keys = array_keys(array_column($csvList,'Amount'),'0');
         foreach($keys as $key){
             unset($csvList[$key]);
         }
-
 		return $csvList;
 	}
 
