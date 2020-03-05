@@ -276,7 +276,7 @@ class ShopifyController extends BaseController
         $data =  $Collection->setStart($start)
             ->setEnd($end)
             ->setUsers($users)
-            ->setIsPDC(request('pdc') == 'yes')
+            ->setIsPDC(false)
             ->setBreakBy('branch')
             ->Get()
             ->toCSVFormat();
