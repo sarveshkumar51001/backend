@@ -144,7 +144,6 @@ class Collection
 	}
 
 	private function BreakByMapping(){
-
 	    if($this->break == 'product')
 	        $column = 'activity';
 	    elseif($this->break == 'branch')
@@ -249,7 +248,7 @@ class Collection
 			$month = [];
 			foreach ($group_keys as $key) {
                 $month['Month'] = $Month->format('F Y');
-                ($this->break) ? $month[$this->break] : $month['Location'] = $key;
+                $month[($this->break) ? $this->break :'location'] = $key;
 				$month['Order Count'] = $this->groupedData[$key][$Month->format('F Y')]['order_count'] ?? 0;
 				$month['Txn Count'] = $this->groupedData[$key][$Month->format('F Y')]['txn_count'] ?? 0;
 				$month['Amount'] = $this->groupedData[$key][$Month->format('F Y')]['total'] ?? 0;
@@ -257,7 +256,6 @@ class Collection
 				$csvList[] = $month;
 			}
 		}
-
 		return $csvList;
 	}
 

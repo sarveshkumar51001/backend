@@ -25,7 +25,7 @@ class ShopifyController extends BaseController
 {
     public static $adminTeam = [
         'zuhaib@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com', 'ankur@valedra.com',
-        'ishaan.jain@valedra.com'
+        'ishaan.jain@valedra.com','robert@valedra.com','raksha@valedra.com'
     ];
 
     public function upload()
@@ -273,12 +273,15 @@ class ShopifyController extends BaseController
 
         $Collection = new Collection();
 
-        return $Collection->setStart($start)
+        $data = $Collection->setStart($start)
             ->setEnd($end)
             ->setUsers($users)
-            ->setIsPDC(false)
+            ->setIsPDC(request('pdc') == 'yes')
+            ->setBreakBy('branch')
             ->Get()
             ->toCSVFormat();
+        
+        return;
     }
 
     public function previous_orders()

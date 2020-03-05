@@ -63,7 +63,7 @@
                     <div class="bg-gradient-primary p-3 mfe-3" style="color: red"><b>{{floor($data['Amount']/array_sum(array_column($revenue_data,'Amount'))*100)}}%</b></div>
                 <div>
                     <div class="text-value text-primary"><b>{{$data['Amount']}}</b></div>
-                    <div class="text-muted text-uppercase font-weight-bold small">{{$data['Location']}}</div>
+                    <div class="text-muted text-uppercase font-weight-bold small">{{$data['branch']}}</div>
                 <div class="text-muted text-uppercase font-weight-bold small">{{$data['Order Count']." Orders"}} / {{$data['Txn Count']." Txns"}}</div>
                 </div>
                 </div>
