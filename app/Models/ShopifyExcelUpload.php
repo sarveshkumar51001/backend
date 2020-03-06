@@ -34,6 +34,8 @@ class ShopifyExcelUpload extends Base
 
     const REYNOTT = 'Reynott';
 
+    const HAYDEN_REYNOTT = 'H&R';
+
     const PAGINATE_LIMIT = 100;
 
     const MODE_CASH = 1;
@@ -267,6 +269,20 @@ class ShopifyExcelUpload extends Base
                 "pincode" => "144003",
                 "is_higher_education" => false
             ]
+        ],
+        "H&R" => [
+            "Plot 23 Gurgaon" => [
+                "city" => "Gurugram",
+                "state" => "Haryana",
+                "pincode" => "122003",
+                "is_higher_education" => false
+            ],
+            "Dwarka" => [
+                "city" => "Delhi",
+                "state" => "Delhi",
+                "pincode" => "110037",
+                "is_higher_education" => false
+            ]
         ]
     ];
 
@@ -299,7 +315,7 @@ class ShopifyExcelUpload extends Base
      * @return array
      */
     public static function getBranchNames() {
-        return array_merge(array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]),array_keys(self::SCHOOL_ADDRESS_MAPPING['Reynott']));
+        return array_merge(array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]),array_keys(self::SCHOOL_ADDRESS_MAPPING['Reynott']),array_keys(self::SCHOOL_ADDRESS_MAPPING["H&R"]));
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ShopifyExcelUpload;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -22,8 +23,8 @@ class StudentController extends BaseController
 		$rules = [
                 'school-name' => 'required|string',
                 'student-name' => 'required|string|min:3|max:100',
-	            'class' => ["required",Rule::in(Student::CLASS_LIST)],
-                'section' => 'max:1'
+	            'class' => ["required",Rule::in(array_merge(Student::CLASS_LIST,Student::HIGHER_CLASS_LIST,Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST,Student::HAYDEN_REYNOTT_CLASS_LIST))],
+                'section' => Rule::in(array_merge(Student::SECTION_LIST,Student::HIGHER_SECTION_LIST,Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST,[ShopifyExcelUpload::HAYDEN_REYNOTT]))
             ];
 
 		$validator = Validator::make($request->all(), $rules);

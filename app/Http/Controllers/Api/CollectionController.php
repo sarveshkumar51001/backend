@@ -23,6 +23,7 @@ class CollectionController extends Controller
 	    // Fetching timestamps and month for start and end date.
 	    $start = request('range_from') ? Carbon::createFromFormat('d/m/Y', request('range_from')) : Carbon::now()->startOfMonth();
 	    $end = request('range_to') ? Carbon::createFromFormat('d/m/Y', request('range_to')) : Carbon::now();
+
 	    $users = request('users') ? explode(',', strtolower(request('users'))) : [];
         $locations = request('location') ? explode(',', strtolower(request('location'))) : [];
 
@@ -39,6 +40,7 @@ class CollectionController extends Controller
                 $locationList[] = ucwords($location);
             }
         }
+	    $break_by = (request('break_by')) ? request('break_by') : '';
 
 	    $Collection = new Collection();
 
@@ -47,12 +49,12 @@ class CollectionController extends Controller
             ->setMode($payment_mode)
             ->setUsers($users)
             ->setLocation($locationList)
-            ->setIsPDC(strtolower(request('pdc')) == 'yes');
+            ->setIsPDC(strtolower(request('pdc')) == 'yes')
+            ->setBreakBy($break_by);
 
         if(strtolower(request('format')) == 'csv') {
-            return Excel\Facades\Excel::download(new CollectionExport($Collection->Get()->toCSVFormat()), 'collection.csv');
+            return Excel\Facades\Excel::download(new CollectionExport($break_by,$Collection->Get()->toCSVFormat()), 'collection.csv');
         }
-
         return response()->json($Collection->Get()->toJsonFormat());
     }
 }

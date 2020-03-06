@@ -1,7 +1,7 @@
 @extends('admin.app')
 
 @section('content')
-    <div class="col-md-12">
+    <div class="col-md-12" xmlns:width="http://www.w3.org/1999/xhtml">
 
         <div class="row">
             <div class="card col-sm-12">
@@ -53,6 +53,22 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
+    @foreach($revenue_data as $location => $data)
+            <div class="col-lg-3">
+            <div class="card"style="width:220px">
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="bg-gradient-primary p-3 mfe-3"data-icon="" style="color: red"><b>{{floor($data['amount']/array_sum(array_column($revenue_data,'amount'))*100)}}%</b></div>
+                <div>
+                    <div class="text-value text-primary"><b> ₹ {{$data['amount']}}</b></div>
+                    <div class="text-muted text-uppercase font-weight-bold small">{{$location}}</div>
+                <div class="text-muted text-uppercase font-weight-bold small">{{$data['order_count']." Orders"}} / {{$data['txn_count']." Txns"}}</div>
+                </div>
+                </div>
+            </div>
+            </div>
+    @endforeach
     </div>
     <div class="body">
         <div class="row pull-right m-2">
