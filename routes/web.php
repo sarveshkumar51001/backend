@@ -31,14 +31,16 @@ Route::prefix('shopify')->group(function() {
     Route::get('/products/{id}', 'ProductController@view');
     Route::get('/search', 'SearchController@index');
     Route::prefix('bulkupload')->group(function () {
-        Route::get('/', 'ShopifyController@upload')->name('bulkupload.upload');
-        Route::post('/preview', 'ShopifyController@upload_preview')->name('bulkupload.upload_preview');
+        Route::get('/', 'BulkUpload\ShopifyController@upload')->name('bulkupload.upload');
+        Route::post('/preview', 'BulkUpload\ShopifyController@upload_preview')->name('bulkupload.upload_preview');
         Route::get('/preview', function () {
             return redirect()->route('bulkupload.upload');
         });
-        Route::get('/previous/uploads', 'ShopifyController@previous_uploads')->name('bulkupload.previous_uploads');
-        Route::get('/previous/orders', 'ShopifyController@previous_orders')->name('bulkupload.previous_orders');
-        Route::get('/previous/file_download/{id}', 'ShopifyController@download_previous')->name('bulkupload.download_previous');
+        Route::get('/previous/uploads', 'BulkUpload\ShopifyController@previous_uploads')->name('bulkupload.previous_uploads');
+        Route::get('/previous/orders', 'BulkUpload\ShopifyController@previous_orders')->name('bulkupload.previous_orders');
+        Route::get('/previous/file_download/{id}', 'BulkUpload\ShopifyController@download_previous')->name('bulkupload.download_previous');
+        Route::get('/search', 'BulkUpload\SearchController@search')->name('bulkupload.search');
+
     });
 });
 
@@ -51,8 +53,11 @@ Route::prefix('shopify')->group(function() {
         });
 
     });
+    Route::get('/transactions','BulkUpload\TransactionController@index')->name('orders.transactions');
+    Route::post('/get/transactions', 'BulkUpload\TransactionController@search_transactions_by_location')->name('get.transactions');
+    Route::get('/get/transactions','BulkUpload\TransactionController@search_transactions_by_location')->name('self.transactions');
 
-    Route::prefix('imagereco')->group(function() {
+Route::prefix('imagereco')->group(function() {
         Route::get('/', 'ImageRecognitionController@listAllPeople')->name('imagereco.list-all-people');
         Route::post('/', 'ImageRecognitionController@listAllPeople_result')->name('imagereco.list-all-people-result');
         Route::get('/search/name', 'ImageRecognitionController@searchByName')->name('imagereco.search-by-name');
@@ -65,6 +70,10 @@ Route::group(['prefix' => 'api/v1/', /*'middleware' => ['auth']*/], function() {
 	Route::get('upload/{id}', function ($id) {
 		return (new \App\Http\Controllers\Api\OrderController())->get_upload_details($id);
 	});
+});
+
+Route::get('api/collection/', function () {
+    return (new \App\Http\Controllers\Api\CollectionController())->collection();
 });
 
         Auth::routes();

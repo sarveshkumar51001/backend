@@ -6,6 +6,7 @@ use App\Library\Shopify\Errors;
 use App\Library\Shopify\Excel;
 use App\Library\Shopify\ExcelValidator;
 use App\Models\ShopifyExcelUpload;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
@@ -196,7 +197,7 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         $error = "";
         $data = TestCaseData::DATA;
         $data['mode_of_payment_1'] = "";
-        $data['chequedd_date_1'] = "15/01/2020";
+        $data['chequedd_date_1'] = Carbon::now()->addDay()->format(ShopifyExcelUpload::DATE_FORMAT);
         $excel_data = array($data);
 
         $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
@@ -205,7 +206,6 @@ class PaymentDetailsAndSheetAmountTest extends TestCase
         if(!empty($ExcelValidator->get_errors())) {
             $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
         }
-
         $this->assertTrue($error == Errors::FUTURE_PAYMENT_CHEQUE_DETAILS_ERROR);
     }
 

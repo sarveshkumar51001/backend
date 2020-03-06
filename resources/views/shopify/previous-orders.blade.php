@@ -1,7 +1,7 @@
 @extends('admin.app')
 
 @section('content')
-    <div class="col-md-12">
+    <div class="col-md-12" xmlns:width="http://www.w3.org/1999/xhtml">
 
         <div class="row">
             <div class="card col-sm-12">
@@ -13,9 +13,11 @@
                         </div>
                         <div class="col-sm-7">
                             <form method="get" action="">
-                                <button type="submit" class="btn btn-outline-primary float-right ml-3">View</button>
-                                <fieldset class="form-group float-right">
-                                    <div class="input-group float-right" style="width:300px;">
+                                <button onclick="download_transactions();" id="download-transactions" type="button" class="btn btn-outline-primary float-right ml-3"><i class="fa fa-download">&nbsp;</i>Export Transactions</button>
+                                &nbsp;
+                                <button type="submit" class="btn btn-outline-primary float-right">View</button>
+                                <fieldset class="form-group float-lg-left">
+                                    <div class="input-group float-lg-left" style="width:300px;">
                                         <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
                                         <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
                                         <input type="hidden" name="filter" value="{{ request('filter') }}">
@@ -52,12 +54,29 @@
             </div>
         </div>
     </div>
+    <div class="row">
+    @foreach($revenue_data as $location => $data)
+            <div class="col-lg-3">
+            <div class="card"style="width:220px">
+                <div class="card-body p-3 d-flex align-items-center">
+                    <div class="bg-gradient-primary p-3 mfe-3"data-icon="" style="color: red"><b>{{floor($data['amount']/array_sum(array_column($revenue_data,'amount'))*100)}}%</b></div>
+                <div>
+                    <div class="text-value text-primary"><b> ₹ {{$data['amount']}}</b></div>
+                    <div class="text-muted text-uppercase font-weight-bold small">{{$location}}</div>
+                <div class="text-muted text-uppercase font-weight-bold small">{{$data['order_count']." Orders"}} / {{$data['txn_count']." Txns"}}</div>
+                </div>
+                </div>
+            </div>
+            </div>
+    @endforeach
+    </div>
     <div class="body">
         <div class="row pull-right m-2">
             <a href="{{ route('bulkupload.upload') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-plus"> &nbsp;</i>New Upload</button></a>
             <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Upload History</button></a>
-            @if(in_array(\Auth::user()->email, \App\Http\Controllers\ShopifyController::$adminTeam))
+            @if(in_array(\Auth::user()->email, \App\Http\Controllers\BulkUpload\ShopifyController::$adminTeam))
                 <a href="{{ route('bulkupload.previous_orders') }}?filter=team"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-users"> &nbsp;</i>Team Uploads</button></a>
+                <a href="{{ route('orders.transactions') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-money"></i> Transactions</button></a>
             @endif
         </div>
         <div class="clearfix mt-2"></div>
@@ -114,6 +133,9 @@
                 @endforeach
                 </tbody>
             </table>
+            <div class="row pull-right mr-4">
+                {!! $records_array->render() !!}
+            </div>
         </div>
     </div>
 @endsection

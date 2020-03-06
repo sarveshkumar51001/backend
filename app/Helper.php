@@ -128,3 +128,29 @@ function job_completed($job_id) {
     $attempts = (string) Illuminate\Support\Facades\Cache::pull($job_id);
     return $attempts;
 }
+
+function GetStartEndDate($date_range){
+
+    $start_date = start_of_the_day(date('m/d/Y'));
+    $end_date = end_of_day(date('m/d/Y'));
+    if ($date_range) {
+        $range = explode(' - ', $date_range, 2);
+        if (count($range) == 2) {
+            $start_date = start_of_the_day($range[0]);
+            $end_date = end_of_day($range[1]);
+        }
+    }
+    return [$start_date,$end_date];
+}
+
+function GroupByKey($Data,$key)
+{
+    $groupedData = [];
+    foreach ($Data as $data) {
+        if(!array_key_exists($key,$data)){
+            return [];
+        }
+        $groupedData[$data[$key]][] = $data;
+    }
+    return array_values($groupedData);
+}

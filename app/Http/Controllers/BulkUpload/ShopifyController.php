@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\BulkUpload;
 
 ini_set('precision', 20); // Fix for long integer converting to exponential number Ref:https://github.com/Maatwebsite/Laravel-Excel/issues/1384#issuecomment-362059935
 
+use App\Http\Controllers\BaseController;
+use App\Library\Collection\Collection;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +24,8 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 class ShopifyController extends BaseController
 {
     public static $adminTeam = [
-        'zuhaib@valedra.com', 'ishaan.jain@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com', 'ankur@valedra.com'
+        'zuhaib@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com', 'ankur@valedra.com',
+        'ishaan.jain@valedra.com','robert@valedra.com','raksha@valedra.com'
     ];
 
     public function upload()
@@ -255,28 +258,62 @@ class ShopifyController extends BaseController
         return view('shopify.past-files-upload')->with('files', $Uploads)->with('breadcrumb', $breadcrumb);
     }
 
-    public function previous_orders()
+    public function location_wise_collection()
     {
-        $start = start_of_the_day(date('m/d/Y'));
-        $end = end_of_day(date('m/d/Y'));
+        $start = Carbon::today()->startOfDay();
+        $end = Carbon::today()->endOfDay();
         if (request('daterange')) {
             $range = explode(' - ', request('daterange'), 2);
             if (count($range) == 2) {
-                $start = start_of_the_day($range[0]);
-                $end = end_of_day($range[1]);
+                $start = Carbon::createFromFormat('m/d/Y',$range[0]);
+                $end = Carbon::createFromFormat('m/d/Y',$range[1]);
+            }
+        }
+        $users = !in_array(Auth::user()->email,self::$adminTeam) ? [Auth::user()->email] : [];
+
+        $Collection = new Collection();
+
+        $data =  $Collection->setStart($start)
+            ->setEnd($end)
+            ->setUsers($users)
+            ->setIsPDC(false)
+            ->setBreakBy('branch')
+            ->Get()
+            ->toCSVFormat();
+
+        $final = array();
+        foreach($data as $doc) {
+            if(isset($final[$doc['branch']])){
+                $final[$doc['branch']]['amount'] += $doc['Amount'];
+                $final[$doc['branch']]['order_count'] += $doc['Order Count'];
+                $final[$doc['branch']]['txn_count'] += $doc['Txn Count'];
+            } else{
+                $final[$doc['branch']]['amount'] = $doc['Amount'];
+                $final[$doc['branch']]['order_count'] = $doc['Order Count'];
+                $final[$doc['branch']]['txn_count'] = $doc['Txn Count'];
             }
         }
 
+        return $final;
+    }
+
+    public function previous_orders()
+    {
+        $revenue_data = $this->location_wise_collection();
+
+        $date_params = GetStartEndDate(request('daterange'));
+        [$start,$end] = $date_params;
+
         if ($start && $end) {
             if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
-                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->get();
+                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
             } else {
                 $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
                     ->whereBetween('payments.upload_date', [$start, $end])
-                    ->get();
+                    ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
             }
         } else {
-            $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->get();
+            $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
         }
 
         $modeWiseData = [];
@@ -327,7 +364,8 @@ class ShopifyController extends BaseController
         return view('shopify.previous-orders')
             ->with('records_array', $mongodb_records)
             ->with('breadcrumb', $breadcrumb)
-            ->with('metadata', $modeWiseData);
+            ->with('metadata', $modeWiseData)
+            ->with('revenue_data',$revenue_data);
     }
 
     public function download_previous($id)

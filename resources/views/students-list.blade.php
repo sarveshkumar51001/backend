@@ -76,7 +76,7 @@
                 <div class="input-group">
                     <select name="class" class="form-control" required="required">
                         <option selected="selected" value="">Select Class </option>
-                        @php $class_list = array_unique(array_merge(App\Models\Student::CLASS_LIST,App\Models\Student::HIGHER_CLASS_LIST,App\Models\Student::REYNOTT_CLASS_LIST,App\Models\Student::REYNOTT_DROPPER_CLASS_LIST))@endphp
+                        @php $class_list = array_unique(array_merge(App\Models\Student::CLASS_LIST,App\Models\Student::HIGHER_CLASS_LIST,App\Models\Student::REYNOTT_CLASS_LIST,App\Models\Student::REYNOTT_DROPPER_CLASS_LIST,App\Models\Student::HAYDEN_REYNOTT_CLASS_LIST))@endphp
                     @foreach ($class_list as $class)
                         <option value="{{ $class }}" @if($class == old('class')) selected @endif> {{ $class }}</option>
                     @endforeach
@@ -90,7 +90,7 @@
                     <div class="input-group">
                             <select name="section" class="form-control">
                             <option selected="selected" value="">Select Section </option>
-                                @php $section_list = array_unique(array_merge(App\Models\Student::SECTION_LIST,App\Models\Student::HIGHER_SECTION_LIST,App\Models\Student::REYNOTT_SECTION_LIST,App\Models\Student::REYNOTT_DROPPER_SECTION_LIST))@endphp
+                                @php $section_list = array_unique(array_merge(App\Models\Student::SECTION_LIST,App\Models\Student::HIGHER_SECTION_LIST,App\Models\Student::REYNOTT_SECTION_LIST,App\Models\Student::REYNOTT_DROPPER_SECTION_LIST,[App\Models\ShopifyExcelUpload::HAYDEN_REYNOTT]))@endphp
                                 @foreach($section_list as $section)
                                     <option value="{{ $section }}" @if($section == old('section')) selected @endif> {{ $section }}</option>
                                 @endforeach
