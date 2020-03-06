@@ -43,7 +43,7 @@ class Search {
             $Orders->where('payments.mode_of_payment', $mode);
         }
 
-        if(!in_array(\Auth::user()->email, ShopifyController::$adminTeam)) {
+        if(!is_admin()) {
             $Orders->where('uploaded_by', Auth::user()->id);
         }
 

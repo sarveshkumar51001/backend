@@ -7,18 +7,25 @@
         </div>
         <form method="POST" action="{{ route('get.transactions') }}" enctype="multipart/form-data" onsubmit="form_submit()">
             <div class = "card-body">
+                @foreach($errors->all() as $key => $value)
+                    <div class="alert alert-danger">
+                        {{ $value }}
+                    </div>
+                @endforeach
                 <div class="row">
-                    <div class="col-sm-4">
+                    @if(is_admin())
+                        <div class="col-sm-4">
                         <label><i class="fa fa-address-book" aria-hidden="true"></i> Location*</label>
                             <div class="input-group">
                                 <select name="location" class="form-control" required="required">
                                     <option selected="selected" value="">Location </option>
                                     @foreach (App\Models\ShopifyExcelUpload::getBranchNames() as $school)
-                                        <option value="{{ $school }}" @if($school == old('school-name')) selected @endif> {{ $school }}</option>
+                                        <option value="{{ $school }}" @if($school == old('location') || $school == request('location')) selected @endif> {{ $school }}</option>
                                     @endforeach
                                 </select>
                             </div>
                     </div>
+                    @endif
                     <div class="col-sm-4">
                         <label><i class="fa fa-calendar" aria-hidden="true"></i> Txn DateRange*</label>
                             <div class="input-group" style="width:300px;">
@@ -26,6 +33,18 @@
                                 <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
                                 <input type="hidden" name="filter" value="{{ request('filter') }}">
                             </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <label><i class="fa fa-address-book" aria-hidden="true"></i> Reco Status*</label>
+                        <div class="input-group">
+                            <select name="reco_status" class="form-control" required="required">
+                                <option selected="selected" value="">Select </option>
+                                @foreach(array_merge(['all'], \App\Models\ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS) as $reco_status)
+                                    <option value="{{$reco_status}}" @if($reco_status == old('reco_status') || $reco_status == request('reco_status')) selected @endif>{{strtoupper($reco_status)}}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     {{ csrf_field() }}
                     <div class="col-sm-4">

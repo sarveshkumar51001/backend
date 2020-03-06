@@ -4,6 +4,7 @@ namespace App\Http\Controllers\BulkUpload;
 
 use App\Http\Controllers\BaseController;
 use App\Imports\ReconcilationImport;
+use App\Library\Permission;
 use App\Library\Shopify\Reconciliation\File;
 use App\Library\Shopify\Reconciliation\Reconcile;
 use App\Library\Shopify\Reconciliation\Source\ISource;
@@ -16,11 +17,21 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 class ReconcileController extends BaseController
 {
+
     public function index() {
+        if(!has_permission(Permission::PERMISSION_RECONCILE)) {
+            return abort('403');
+        }
+
         return view('shopify.reconcile.index');
     }
 
     public function preview(Request $request) {
+
+        if(!has_permission(Permission::PERMISSION_RECONCILE)) {
+            return abort(403);
+        }
+
         $rules = [
             "source" => "required",
             "file" => "required|mimes:csv,txt"

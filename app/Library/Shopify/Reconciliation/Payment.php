@@ -11,7 +11,7 @@ class Payment {
 
     const RECO = 'reconcilation';
 
-    public function __construct(array $payment, int $index)
+    public function __construct(array $payment, int $index = 0)
     {
         $this->payment = $payment;
         $this->index = $index;

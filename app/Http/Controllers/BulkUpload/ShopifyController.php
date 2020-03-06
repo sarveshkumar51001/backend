@@ -23,11 +23,6 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 class ShopifyController extends BaseController
 {
-    public static $adminTeam = [
-        'zuhaib@valedra.com', 'bishwanath@valedra.com', 'kartik@valedra.com', 'ankur@valedra.com',
-        'ishaan.jain@valedra.com'
-    ];
-
     public function upload()
     {
         $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'New Upload' => ''];
@@ -269,7 +264,7 @@ class ShopifyController extends BaseController
                 $end = Carbon::createFromFormat('m/d/Y',$range[1]);
             }
         }
-        $users = !in_array(Auth::user()->email,self::$adminTeam) ? [Auth::user()->email] : [];
+        $users = is_admin() ? [Auth::user()->email] : [];
 
         $Collection = new Collection();
 
@@ -289,7 +284,7 @@ class ShopifyController extends BaseController
         [$start,$end] = $date_params;
 
         if ($start && $end) {
-            if (request('filter') == 'team' && in_array(Auth::user()->email, self::$adminTeam)) {
+            if (request('filter') == 'team' && is_admin()) {
                 $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
             } else {
                 $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)

@@ -99,7 +99,13 @@ class ShopifyExcelUpload extends Base
 
     const PAYMENT_SETTLEMENT_STATUS_RETURNED = 'returned';
     const PAYMENT_SETTLEMENT_STATUS_SETTLED = 'settled';
-    const PAYMENT_SETTLEMENT_STATUS_DEFAULT = 'unsettled';
+    const PAYMENT_SETTLEMENT_STATUS_DEFAULT = 'pending';
+
+    const PAYMENT_RECONCILIATION_STATUS = [
+        self::PAYMENT_SETTLEMENT_STATUS_DEFAULT,
+        self::PAYMENT_SETTLEMENT_STATUS_SETTLED,
+        self::PAYMENT_SETTLEMENT_STATUS_RETURNED
+    ];
 
     const PAYMENT_SETTLEMENT_MODE_BANK = 'bank';
     const PAYMENT_SETTLEMENT_MODE_MANUAL = 'manual';
