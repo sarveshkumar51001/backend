@@ -24,6 +24,7 @@ class CollectionController extends Controller
 	    $end = request('range_to') ? Carbon::createFromFormat('d/m/Y', request('range_to')) : Carbon::now();
 	    $users = request('users') ? explode(',', request('users')) : [];
 	    $locationList = request('location') ? explode(',', request('location')) : [];
+	    $break_by = (request('break_by')) ? request('break_by') : '';
 
 	    $Collection = new Collection();
 
@@ -32,12 +33,12 @@ class CollectionController extends Controller
             ->setMode(request('mode'))
             ->setUsers($users)
             ->setLocation($locationList)
-            ->setIsPDC(request('pdc') == 'yes');
+            ->setIsPDC(request('pdc') == 'yes')
+            ->setBreakBy($break_by);
 
         if(strtolower(request('format')) == 'csv') {
-            return Excel\Facades\Excel::download(new CollectionExport($Collection->Get()->toCSVFormat()), 'collection.csv');
+            return Excel\Facades\Excel::download(new CollectionExport($break_by,$Collection->Get()->toCSVFormat()), 'collection.csv');
         }
-
         return response()->json($Collection->Get()->toJsonFormat());
     }
 }

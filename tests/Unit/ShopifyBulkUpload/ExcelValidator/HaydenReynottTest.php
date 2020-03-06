@@ -62,36 +62,6 @@ class HaydenReynottTest extends TestCase
         $this->assertTrue($error == Errors::HAYDEN_REYNOTT_CLASS_ERROR);
 
     }
-
-    /**
-     * Purpose: To check whether the function returns error on passing incorrect section or not.
-     *
-     * I/P - Incorrect section for hayden & reynott academy along with other institution details
-     *
-     * Expected O/P - Test case should assert True if the section is incorrect according to the Hayden and Reynott Academy and the
-     * error is matched.
-     *
-     */
-    public function testIncorrectSectionShouldFail()
-    {
-        $error = "";
-        $data = TestCaseData::DATA;
-        $data['class'] = "10";
-        $data['section'] = "reynott";
-        $data['delivery_institution'] = "H&R";
-        $data['branch'] = "Dwarka";
-        $excel_data = array($data);
-
-        $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
-        $ExcelValidator->ValidateHaydenReynottData($ExcelValidator->FileFormattedData[0]);
-
-        if (!empty($ExcelValidator->get_errors())) {
-            $error = implode(',', head(array_values($ExcelValidator->get_errors()['rows'])));
-        }
-
-        $this->assertTrue($error == Errors::HAYDEN_REYNOTT_SECTION_ERROR);
-    }
-
     /**
      * Test case for validating that correct entries for class, section, delivery institution and branch.
      * Test case will assert empty if no error found.
