@@ -13,7 +13,17 @@
                         </div>
                         <div class="col-sm-7">
                             <form method="get" action="">
-                                <button onclick="download_transactions();" id="download-transactions" type="button" class="btn btn-outline-primary float-right ml-3"><i class="fa fa-download">&nbsp;</i>Export Transactions</button>
+                                <div class="dropdown show">
+                                    <a class="btn btn-outline-primary dropdown-toggle float-right ml-3" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-download">&nbsp;</i>Export Transactions
+                                    </a>
+
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                        @foreach(array_merge(['all'], \App\Models\ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS) as $reco_status)
+                                            <a class="dropdown-item" onclick="download_transactions('{{$reco_status}}');" href="#">{{strtoupper($reco_status)}}</a>
+                                        @endforeach
+                                    </div>
+                                </div>
                                 &nbsp;
                                 <button type="submit" class="btn btn-outline-primary float-right">View</button>
                                 <fieldset class="form-group float-lg-left">
@@ -74,68 +84,75 @@
         <div class="row pull-right m-2">
             <a href="{{ route('bulkupload.upload') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-plus"> &nbsp;</i>New Upload</button></a>
             <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Upload History</button></a>
-            @if(in_array(\Auth::user()->email, \App\Http\Controllers\BulkUpload\ShopifyController::$adminTeam))
+            @if(is_admin())
                 <a href="{{ route('bulkupload.previous_orders') }}?filter=team"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-users"> &nbsp;</i>Team Uploads</button></a>
                 <a href="{{ route('orders.transactions') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-money"></i> Transactions</button></a>
             @endif
         </div>
         <div class="clearfix mt-2"></div>
-        <div class="card-body">
-            <table class="table table-bordered table-striped table-sm datatable table-responsive">
-                <thead>
-                    @foreach(\App\Library\Shopify\Excel::$headerViewMap as $header)
-                        <td><strong>{{ $header }}</strong></td>
-                    @endforeach
-                </thead>
-                <tbody>
-                @foreach($records_array as $row)
-                    <tr>
-                        @foreach(\App\Library\Shopify\Excel::$headerViewMap as $key => $header)
-                            @if(isset($row[$key]))
-                                @if(is_array($row[$key]))
-                                    <td>
-                                        @if($key=='errors' && !empty($row[$key]))
-                                            <text style="color:red">{{ $row['errors']['message'] }}</text>
-                                        @endif
-                                    </td>
-                                @else
-                                    <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "><span class="
 
-                                    @if($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_PENDING)
-                                                badge badge-warning
-                                    @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_COMPLETED)
-                                                badge badge-success
-                                    @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_FAILED)
-                                                badge badge-danger
-                                    @endif
-                                    ">
-                                        @if($key == 'order_id')
-                                        <div>
-                                            <strong onclick="render_upload_details('{{$row['_id']}}');" class="text-muted aside-menu-toggler" style="cursor: pointer"><a title="Payment Details"><i class="fa fa-money fa-2x"></i></a>&nbsp; </strong>
-                                        </div>
-                                                @if(!$row['order_id'] == 0)
-                                                    @if(!empty($row['shopify_order_name']))
-                                                        <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View {{$row['shopify_order_name']}} <i class="fa fa-external-link"></i></a>
-                                                    @else
-                                                        <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View <i class="fa fa-external-link"></i></a>
-                                                    @endif
-                                                @endif
-                                        @else
-                                            {{ $row[$key] }}
-                                        @endif
-                                        </span></td>
-                                @endif
-                            @else
-                                <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "></td>
-                            @endif
+        <div class="card">
+            <div class="card-body">
+            @if(count($records_array) == 0)
+                <h2 class="text-center text-warning">No data available for selected range</h2>
+            @else
+                <table class="table table-bordered table-striped table-sm datatable table-responsive">
+                    <thead>
+                        @foreach(\App\Library\Shopify\Excel::$headerViewMap as $header)
+                            <td><strong>{{ $header }}</strong></td>
                         @endforeach
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-            <div class="row pull-right mr-4">
-                {!! $records_array->render() !!}
-            </div>
+                    </thead>
+                    <tbody>
+                    @foreach($records_array as $row)
+                        <tr>
+                            @foreach(\App\Library\Shopify\Excel::$headerViewMap as $key => $header)
+                                @if(isset($row[$key]))
+                                    @if(is_array($row[$key]))
+                                        <td>
+                                            @if($key=='errors' && !empty($row[$key]))
+                                                <text style="color:red">{{ $row['errors']['message'] }}</text>
+                                            @endif
+                                        </td>
+                                    @else
+                                        <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "><span class="
+
+                                        @if($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_PENDING)
+                                                    badge badge-warning
+                                        @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_COMPLETED)
+                                                    badge badge-success
+                                        @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_FAILED)
+                                                    badge badge-danger
+                                        @endif
+                                        ">
+                                            @if($key == 'order_id')
+                                            <div>
+                                                <strong onclick="render_upload_details('{{$row['_id']}}');" class="text-muted aside-menu-toggler" style="cursor: pointer"><a title="Payment Details"><i class="fa fa-money fa-2x"></i></a>&nbsp; </strong>
+                                            </div>
+                                                    @if(!$row['order_id'] == 0)
+                                                        @if(!empty($row['shopify_order_name']))
+                                                            <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View {{$row['shopify_order_name']}} <i class="fa fa-external-link"></i></a>
+                                                        @else
+                                                            <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View <i class="fa fa-external-link"></i></a>
+                                                        @endif
+                                                    @endif
+                                            @else
+                                                {{ $row[$key] }}
+                                            @endif
+                                            </span></td>
+                                    @endif
+                                @else
+                                    <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "></td>
+                                @endif
+                            @endforeach
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+                <div class="row pull-right mr-4">
+                    {!! $records_array->render() !!}
+                </div>
+            @endif
+        </div>
         </div>
     </div>
 @endsection
@@ -158,7 +175,7 @@
     <script src="{{ URL::asset('vendors/js/ladda.min.js') }}"></script>
     <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
     <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
-    <script src="{{ URL::asset('js/admin/upload.js') }}"></script>
+    <script src="{{ URL::asset('js/admin/upload.js?v=1.0') }}"></script>
     <script>
         _Payload.headers = {!! json_encode(\App\Library\Shopify\Excel::$headerMap)  !!};
     </script>

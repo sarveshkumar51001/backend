@@ -84,6 +84,32 @@ class ShopifyExcelUpload extends Base
         'pdc_to_be_collected'
     ];
 
+    const PaymentSettlementStatus = 'settlement_status';
+    const PaymentSettlementMode = 'settlement_mode';
+    const PaymentReturnedDate = 'return_date';
+    const PaymentReturnedBy = 'return_by';
+    const PaymentUpdatedAt = 'order_update_at';
+    const PaymentLiquidationDate = 'liquidation_date';
+    const PaymentSettledDate = 'settled_date';
+    const PaymentSettledBy = 'settled_by';
+    const PaymentDepositDate = 'deposit_date';
+    const PaymentAmount = 'amount';
+    const PaymentProcessed = 'processed';
+
+
+    const PAYMENT_SETTLEMENT_STATUS_RETURNED = 'returned';
+    const PAYMENT_SETTLEMENT_STATUS_SETTLED = 'settled';
+    const PAYMENT_SETTLEMENT_STATUS_DEFAULT = 'pending';
+
+    const PAYMENT_RECONCILIATION_STATUS = [
+        self::PAYMENT_SETTLEMENT_STATUS_DEFAULT,
+        self::PAYMENT_SETTLEMENT_STATUS_SETTLED,
+        self::PAYMENT_SETTLEMENT_STATUS_RETURNED
+    ];
+
+    const PAYMENT_SETTLEMENT_MODE_BANK = 'bank';
+    const PAYMENT_SETTLEMENT_MODE_MANUAL = 'manual';
+
     public static $modesTitle = [
         self::MODE_CASH => 'Cash',
         self::MODE_CHEQUE => 'Cheque',
@@ -97,6 +123,10 @@ class ShopifyExcelUpload extends Base
     public static function payment_modes()
     {
         return array_values(self::$modesTitle);
+    }
+
+    public function getOrder() {
+        return $this->shopify_order_name ?? $this->order_id;
     }
 
     const SCHOOL_ADDRESS_MAPPING = [

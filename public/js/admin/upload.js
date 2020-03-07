@@ -57,8 +57,12 @@ function get_render_template(data) {
     return template;
 }
 
-function download_transactions() {
+function download_transactions(reco_status = '') {
     var link = "/get/transactions?daterange="+$('#txn_range').val();
+
+    if(reco_status) {
+        link += "&reco_status="+reco_status;
+    }
     window.open(link, '_blank');
     return false;
 }
