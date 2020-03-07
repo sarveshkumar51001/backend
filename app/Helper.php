@@ -156,8 +156,8 @@ function GroupByKey($Data,$key)
 }
 
 function is_admin() {
-
-    if(in_array(\App\Library\Permission::PERMISSION_ADMIN, \Auth::user()->permissions)) {
+	$userPermission = !empty(\Auth::user()->permissions) ? \Auth::user()->permissions : [];
+    if(in_array(\App\Library\Permission::PERMISSION_ADMIN, $userPermission)) {
         return true;
     }
     return false;
@@ -169,7 +169,8 @@ function has_permission($permission) {
         return true;
     }
 
-    if(in_array($permission, \Auth::user()->permissions)) {
+	$userPermission = !empty(\Auth::user()->permissions) ? \Auth::user()->permissions : [];
+    if(in_array($permission, $userPermission)) {
         return true;
     }
 
