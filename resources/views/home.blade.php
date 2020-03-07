@@ -40,7 +40,7 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="callout callout-success b-t-1 b-r-1 b-b-1">
+                                <div class="callout callout-bordered b-t-1 b-r-1 b-b-1">
                                     <small class="text-muted">TRANSACTION AMOUNT</small><br>
                                     <strong class="h4">₹ {{amount_inr_format($reco_data['all']['amount'])}}</strong>
                                 </div>
@@ -52,7 +52,7 @@
                                 $reco_statuses = [
                                     'pending' => 'warning',
                                     'settled' => 'success',
-                                    'returned' => 'error'
+                                    'returned' => 'danger'
                                     ];
                             @endphp
                             @foreach($reco_statuses as $status => $color)

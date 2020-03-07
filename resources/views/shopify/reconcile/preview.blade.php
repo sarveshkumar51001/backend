@@ -47,7 +47,7 @@
             <div class="col-6">
                 <div class="callout callout-success b-t-1 b-r-1 b-b-1">
                     <small class="text-muted">SHEET TOTAL</small><br>
-                    <strong class="h4">₹ {{$metrics['file_amount']}}</strong>
+                    <strong class="h4">₹ {{amount_inr_format($metrics['file_amount'])}}</strong>
                 </div>
             </div>
             <div class="col-lg-3">
@@ -57,7 +57,7 @@
                         <div class="text-muted text-uppercase font-weight-bold small">Reconcileable Transactions</div>
                         <div class="progress progress-xs my-2">
                             <div class="progress-bar bg-success" role="progressbar" style="width: {{ $metrics['total_settled_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['file_settleable_amount']/$metrics['file_amount'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div><div class="text-value-lg font-weight-bold text-success">₹ {{$metrics['file_settleable_amount']}}</div>
+                        </div><div class="text-value-lg font-weight-bold text-success">₹ {{amount_inr_format($metrics['file_settleable_amount'])}}</div>
                     </div>
                 </div>
             </div>
@@ -69,7 +69,7 @@
                         <div class="text-muted text-uppercase font-weight-bold small">Already Settled Transactions</div>
                         <div class="progress progress-xs my-2">
                             <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $metrics['already_settled_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['file_settleable_amount']/$metrics['file_amount'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div><div class="text-value-lg font-weight-bold text-primary">₹ {{$metrics['already_settled_amount']}}</div>
+                        </div><div class="text-value-lg font-weight-bold text-primary">₹ {{amount_inr_format($metrics['already_settled_amount'])}}</div>
                     </div>
                 </div>
             </div>
@@ -81,7 +81,7 @@
                         <div class="text-muted text-uppercase font-weight-bold small">Failed Transactions</div>
                         <div class="progress progress-xs my-2">
                             <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $metrics['failed_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['file_settleable_amount']/$metrics['file_amount'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div><div class="text-value-lg font-weight-bold text-danger">₹ {{$metrics['failed_amount']}}</div>
+                        </div><div class="text-value-lg font-weight-bold text-danger">₹ {{amount_inr_format($metrics['failed_amount'])}}</div>
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
                         <div class="text-muted text-uppercase font-weight-bold small">Not Found Transactions</div>
                         <div class="progress progress-xs my-2">
                             <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $metrics['not_found_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['file_settleable_amount']/$metrics['file_amount'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div><div class="text-value-lg font-weight-bold text-warning">₹ {{$metrics['not_found_amount']}}</div>
+                        </div><div class="text-value-lg font-weight-bold text-warning">₹ {{amount_inr_format($metrics['not_found_amount'])}}</div>
                     </div>
                 </div>
             </div>
