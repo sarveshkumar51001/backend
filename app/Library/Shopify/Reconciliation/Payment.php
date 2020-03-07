@@ -9,7 +9,7 @@ class Payment {
 
     private $index;
 
-    const RECO = 'reconcilation';
+    const RECO = 'reconciliation';
 
     public function __construct(array $payment, int $index = 0)
     {
