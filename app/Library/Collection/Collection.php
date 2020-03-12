@@ -114,6 +114,7 @@ class Collection
 	private function LoadFromDB() {
 		// If daterange is empty then assign current month as start and end time for fetching documents else
 		// the daterange sent in request.
+
 		$documents = ShopifyExcelUpload::whereBetween('payments.upload_date', [$this->Start->timestamp, $this->End->timestamp]);
 
 		// If not empty location then filter the documents on location.
@@ -217,7 +218,7 @@ class Collection
 		$group_keys = array_keys($this->groupedData);
 
 		$jsonArray = [];
-		foreach (CarbonPeriod::create($this->Start, '1 month', $this->End) as $Month) {
+		foreach (CarbonPeriod::create($this->Start->startOfMonth(), '1 month', $this->End->endOfMonth()) as $Month) {
 			$month = [];
 			$month['month'] = $Month->format('F Y');
 
@@ -240,7 +241,6 @@ class Collection
 
 			$jsonArray[] = $month;
 		}
-
 		return $jsonArray;
 
 	}
@@ -249,7 +249,7 @@ class Collection
 		$group_keys = array_keys($this->groupedData);
 
 		$csvList = [];
-		foreach (CarbonPeriod::create($this->Start, '1 month', $this->End) as $Month) {
+		foreach (CarbonPeriod::create($this->Start->startOfMonth(), '1 month', $this->End->endOfMonth()) as $Month) {
 			$month = [];
 			foreach ($group_keys as $key) {
                 $month['Month'] = $Month->format('F Y');

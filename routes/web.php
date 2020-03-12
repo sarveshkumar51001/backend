@@ -42,6 +42,11 @@ Route::prefix('shopify')->group(function() {
         Route::get('/search', 'BulkUpload\SearchController@search')->name('bulkupload.search');
 
     });
+
+    Route::prefix('reconcile')->group(function () {
+        Route::get('/', 'BulkUpload\ReconcileController@index')->name('bulkupload.reconcile.index');
+        Route::post('/preview', 'BulkUpload\ReconcileController@preview')->name('bulkupload.reconcile.preview');
+    });
 });
 
     Route::group(['prefix' => 'students'], function() {
@@ -66,10 +71,12 @@ Route::prefix('imagereco')->group(function() {
         Route::post('/search/image', 'ImageRecognitionController@searchByImage_result')->name('imagereco.search-by-image-result');
     });
 
-Route::group(['prefix' => 'api/v1/', /*'middleware' => ['auth']*/], function() {
-	Route::get('upload/{id}', function ($id) {
-		return (new \App\Http\Controllers\Api\OrderController())->get_upload_details($id);
-	});
+Route::group(['prefix' => 'api/v1/', 'middleware' => ['auth']], function() {
+    Route::post('reconcile', 'Api\ReconcileController@reconcile');
+});
+
+Route::get('api/v1/upload/{id}', function ($id) {
+    return (new \App\Http\Controllers\Api\OrderController())->get_upload_details($id);
 });
 
 Route::get('api/collection/', function () {

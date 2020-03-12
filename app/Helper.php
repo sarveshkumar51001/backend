@@ -154,3 +154,25 @@ function GroupByKey($Data,$key)
     }
     return array_values($groupedData);
 }
+
+function is_admin() {
+	$userPermission = !empty(\Auth::user()->permissions) ? \Auth::user()->permissions : [];
+    if(in_array(\App\Library\Permission::PERMISSION_ADMIN, $userPermission)) {
+        return true;
+    }
+    return false;
+}
+
+function has_permission($permission) {
+
+    if(is_admin()) {
+        return true;
+    }
+
+	$userPermission = !empty(\Auth::user()->permissions) ? \Auth::user()->permissions : [];
+    if(in_array($permission, $userPermission)) {
+        return true;
+    }
+
+    return false;
+}
