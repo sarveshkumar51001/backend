@@ -39,7 +39,7 @@ class IDFC extends Base {
     }
 
     public function GetModeAmount(): string {
-        return strval(str_replace(",","", $this->row['instrumentinstruction_amount'])) ;
+        return strval(round(str_replace(",","", $this->row['instrumentinstruction_amount']),0)) ;
     }
 
     public function IsReturned(): bool {
