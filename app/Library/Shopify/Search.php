@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class Search {
 
-    public static function Orders($query,$school_name,$date,$mode,$limit)
+    public static function Orders($query,$school_name,$upload_date,$chequedd_date,$mode,$limit)
     {
         $Orders = null;
 
@@ -35,9 +35,13 @@ class Search {
         if ($school_name) {
             $Orders->where('school_name', $school_name);
         }
-        if ($date) {
-            [$start_date,$end_date] = GetStartEndDate($date);
+        if ($upload_date) {
+            [$start_date,$end_date] = GetStartEndDate($upload_date);
             $Orders->whereBetween('payments.upload_date', [$start_date, $end_date]);
+        }
+
+        if ($chequedd_date) {
+
         }
         if ($mode) {
             $Orders->where('payments.mode_of_payment', $mode);

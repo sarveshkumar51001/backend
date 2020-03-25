@@ -19,11 +19,21 @@
                         </div>
                     @endif
                         <div class="col-sm-4">
-                            <label><i class="fa fa-calendar" aria-hidden="true"></i> DateRange</label>
+                            <label><i class="fa fa-calendar" aria-hidden="true"></i> DateRange </label>
                             <div class="input-group" style="width:300px;">
                                 <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
-                                <input id="txn_range" name="search_daterange" class="form-control" type="text" value="{{request('search_daterange')}}">
+                                <input id="txn_range" name="upload_daterange" class="form-control" type="text" value="{{request('upload_daterange')}}">
                             </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <select name="multi-select" class="mdb-select colorful-select dropdown-primary md-form" multiple searchable="Search here..">
+                                <option value="" disabled selected>Choose your Filter</option>
+                                <option value="upload_date">Order Upload Date</option>
+                                <option value="chequedd_date">Cheque/DD Date</option>
+                                <option value="date_of_enrollment">Enrollment Date</option>
+                            </select>
+                            <label class="mdb-main-label">Date types</label>
+                            <button class="btn-save btn btn-primary btn-sm">Save</button>
                         </div>
                         <div class="col-sm-4">
                             <div class="form-group">
