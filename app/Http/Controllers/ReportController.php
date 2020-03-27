@@ -70,6 +70,8 @@ Class ReportController extends BaseController
         if(!empty(request('download-csv'))){
             return Excel\Facades\Excel::download(new ReportExport($order_data),'cheque_deposit_report.csv');
         }
+
+        session()->flashInput(request()->input());
         return view('shopify.reports-main',['breadcrumb' => $breadcrumb,'data' =>$order_data,'param' => $param]);
     }
 }
