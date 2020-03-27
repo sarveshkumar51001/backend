@@ -14,7 +14,9 @@
                         <div class="input-group">
                             <select name="report-type" class="form-control" required="required">
                                 <option selected="selected" value="">Select Report Type </option>
-                                <option value="Bank Cheque Deposit Report">Bank Cheque Deposit Report</option>
+                                @foreach(\App\Library\Shopify\Report::REPORT_NAME_MAPPING as $key => $value)
+                                <option value="{{ $key }}" @if($key == old('report-type')) selected @endif> {{ $value }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -44,7 +46,7 @@
       <tbody>
           @foreach($data as $doc)
               <tr>
-              @foreach(\App\Models\ShopifyExcelUpload::REPORT_KEYS as $key)
+              @foreach(\App\Models\ShopifyExcelUpload::CHEQUE_REPORT_KEYS as $key)
               <td>{{$doc[$key]}}</td>
                   @endforeach
               </tr>

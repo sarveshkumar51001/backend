@@ -309,6 +309,7 @@ class ShopifyExcelUpload extends Base
         ],
         "Reynott" => [
             "Reynott Academy Jalandhar" => [
+                "code" => "",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144003",
@@ -317,12 +318,14 @@ class ShopifyExcelUpload extends Base
         ],
         "H&R" => [
             "Plot 23 Gurgaon" => [
+                "code" => "",
                 "city" => "Gurugram",
                 "state" => "Haryana",
                 "pincode" => "122003",
                 "is_higher_education" => false
             ],
             "Dwarka" => [
+                "code" => "",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110037",
@@ -356,18 +359,6 @@ class ShopifyExcelUpload extends Base
             }
         }
         return false;
-    }
-
-    public static function getSchoolCode($delivery_institution,$branch)
-    {
-
-        if (array_key_exists($delivery_institution, self::SCHOOL_ADDRESS_MAPPING)) {
-            $locations = self::SCHOOL_ADDRESS_MAPPING[$delivery_institution];
-
-            if (array_key_exists($branch, $locations)) {
-                return $locations[$branch]['code'];
-            }
-        }
     }
 
     /**

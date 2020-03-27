@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ReportExport;
+use App\Library\Shopify\Report;
 use App\Models\ShopifyExcelUpload;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel;
@@ -27,7 +28,7 @@ Class ReportController extends BaseController
 
             $data = [
                 'Sl. No.' => '',
-                'School Code' => ShopifyExcelUpload::getSchoolCode($Order->delivery_institution,$Order->branch),
+                'School Code' => Report::getSchoolCode($Order->delivery_institution,$Order->branch),
                 'Student Name' => $Order->student_first_name . " " . $Order->student_last_name,
                 'Activity' => $Order->activity,
                 'Class & Section' => $Order->class . " " . $Order->section
@@ -36,6 +37,7 @@ Class ReportController extends BaseController
             if(head($Order['payments'])['mode_of_payment'] == ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]
             || head($Order['payments'])['mode_of_payment'] == ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD]) {
                 if (sizeof($Order['payments']) == 1) {
+                    $data['Sl. No.'] = $count++;
                     $order_data[] = array_merge($data, [
                         'Drawer Account No.' => head($Order['payments'])['drawee_account_number'],
                         'MICR Code' => head($Order['payments'])['micr_code'],
@@ -51,7 +53,7 @@ Class ReportController extends BaseController
 
                     if($payment['mode_of_payment'] == ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]
                     || $payment['mode_of_payment'] == ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD]) {
-
+                        $data['Sl. No.'] = $count++;
                         $order_data[] = array_merge($data, [
                             'Drawer Account No.' => $payment['drawee_account_number'],
                             'MICR Code' => $payment['micr_code'],
@@ -66,7 +68,7 @@ Class ReportController extends BaseController
             }
         }
         if(!empty(request('download-csv'))){
-            return Excel\Facades\Excel::download(new ReportExport($order_data),'cheque_deposit_report.xlsx');
+            return Excel\Facades\Excel::download(new ReportExport($order_data),'cheque_deposit_report.csv');
         }
         return view('shopify.reports-main',['breadcrumb' => $breadcrumb,'data' =>$order_data,'param' => $param]);
     }
