@@ -42,12 +42,12 @@ Route::prefix('shopify')->group(function() {
         Route::get('/search', 'BulkUpload\SearchController@search')->name('bulkupload.search');
 
     });
-
     Route::prefix('reconcile')->group(function () {
         Route::get('/', 'BulkUpload\ReconcileController@index')->name('bulkupload.reconcile.index');
         Route::post('/preview', 'BulkUpload\ReconcileController@preview')->name('bulkupload.reconcile.preview');
     });
 });
+    Route::get('/revenue/reports','ReportController@main')->name('revenue.reports');
 
     Route::group(['prefix' => 'students'], function() {
         Route::get('/search', 'StudentController@index')->name('search.students');

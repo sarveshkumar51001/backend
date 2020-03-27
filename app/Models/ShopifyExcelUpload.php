@@ -132,150 +132,175 @@ class ShopifyExcelUpload extends Base
     const SCHOOL_ADDRESS_MAPPING = [
         "Apeejay" => [
             "Sheikh Sarai" => [
+                "code" => "VALSS",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110017",
                 "is_higher_education" => false
             ],
             "Sheikh Sarai International" => [
+                "code" => "VALSSI",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110017",
                 "is_higher_education" => false
             ],
             "Pitampura" => [
+                "code" => "VALPP",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110034",
                 "is_higher_education" => false
             ],
             "Saket" => [
+                "code" => "VALSKT",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110017",
                 "is_higher_education" => false
             ],
             "Noida" => [
+                "code" => "VALNVD",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201301",
                 "is_higher_education" => false
             ],
             "Nerul" => [
+                "code" => "VALNRL",
                 "city" => "Mumbai",
                 "state" => "Maharashtra",
                 "pincode" => "400706",
                 "is_higher_education" => false
             ],
             "Kharghar" => [
+                "code" => "VALKHG",
                 "city" => "Mumbai",
                 "state" => "Maharashtra",
                 "pincode" => "410210",
                 "is_higher_education" => false
             ],
             "Faridabad 15" => [
+                "code" => "VALFBD15",
                 "city" => "Faridabad",
                 "state" => "Haryana",
                 "pincode" => "121007",
                 "is_higher_education" => false
             ],
             "Faridabad 21D" => [
+                "code" => "VALFBD21D",
                 "city" => "Faridabad",
                 "state" => "Haryana",
                 "pincode" => "121012",
                 "is_higher_education" => false
             ],
             "Charkhi Dadri" => [
+                "code" => "VALCKD",
                 "city" => "Charkhi Dadri",
                 "state" => "Haryana",
                 "pincode" => "127306",
                 "is_higher_education" => false
             ],
             "Mahavir Marg" => [
+                "code" => "VALMMJ",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144001",
                 "is_higher_education" => false
             ],
             "Rama Mandi" => [
+                "code" => "VALRMJ",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144023",
                 "is_higher_education" => false
             ],
             "Tanda Road" => [
+                "code" => "VALTRJ",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144001",
                 "is_higher_education" => false
             ],
             "Model Town" => [
+                "code" => "VALMTJ",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144003",
                 "is_higher_education" => false
             ],
             "Greater Noida" => [
+                "code" => "VALGNVD",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201306",
                 "is_higher_education" => false
             ],
             "Greater Kailash" => [
+                "code" => "VALGK",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110048",
                 "is_higher_education" => false
             ],
             "ACFA Mahavir Marg" => [
+                "code" => "",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144001",
                 "is_higher_education" => true
             ],
             "AIMTC Rama Mandi" => [
+                "code" => "",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144023",
                 "is_higher_education" => true
             ],
             "AID New Delhi" => [
+                "code" => "",
                 "city" => "New Delhi",
                 "state" => "New Delhi",
                 "pincode" => "110062",
                 "is_higher_education" => true
             ],
             "AIMC Dwarka" => [
+                "code" => "",
                 "city" => "New Delhi",
                 "state" => "New Delhi",
                 "pincode" => "110077",
                 "is_higher_education" => true
             ],
             "ASM Dwarka" => [
+                "code" => "",
                 "city" => "New Delhi",
                 "state" => "New Delhi",
                 "pincode" => "110077",
                 "is_higher_education" => true
             ],
             "AITCS Greater Noida" => [
+                "code" => "",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201308",
                 "is_higher_education" => true
             ],
             "AITSM Greater Noida" => [
+                "code" => "",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201308",
                 "is_higher_education" => true
             ],
             "AITSAP Greater Noida" => [
+                "code" => "",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201308",
                 "is_higher_education" => true
             ],
             "SPGC Charkhi Dadri" => [
+                "code" => "",
                 "city" => "Charkhi Dadri",
                 "state" => "Haryana",
                 "pincode" => "127306",
@@ -306,6 +331,10 @@ class ShopifyExcelUpload extends Base
         ]
     ];
 
+    const CHEQUE_REPORT_KEYS = ['Sl. No.','School Code','Student Name','Activity','Class & Section','Drawer Account No.',
+        'MICR Code','Instrument Type (Chq/DD)','Cheque/DD No.','Cheque/DD Date','Cheque/DD Amount','Drawn On Bank'];
+
+
     /**
      * Function returns school/institute location based on the delivery institution and branch provided. If the
      * delivery institution exists in the school address mapping then fetch the location corresponding to the branch
@@ -327,6 +356,18 @@ class ShopifyExcelUpload extends Base
             }
         }
         return false;
+    }
+
+    public static function getSchoolCode($delivery_institution,$branch)
+    {
+
+        if (array_key_exists($delivery_institution, self::SCHOOL_ADDRESS_MAPPING)) {
+            $locations = self::SCHOOL_ADDRESS_MAPPING[$delivery_institution];
+
+            if (array_key_exists($branch, $locations)) {
+                return $locations[$branch]['code'];
+            }
+        }
     }
 
     /**

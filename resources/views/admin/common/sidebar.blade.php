@@ -35,6 +35,8 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('bulkupload.search') }}"><i class="fa fa-search"></i>Search</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('revenue.reports') }}"><i class="fa fa-file"></i> Reports</a></li>
             </ul>
         </li>
         <li class="nav-title">Customer profiler</li>
