@@ -22,7 +22,7 @@ Class ReportController extends BaseController
         $date_params = getStartEndDate(request('daterange'));
         [$start_date, $end_date] = $date_params;
         $Orders = ShopifyExcelUpload::where('uploaded_by', Auth::id())->whereBetween('payments.upload_date', [$start_date, $end_date])->get();
-        $count = 0;
+        $count = 1;
 
         foreach ($Orders as $Order) {
 

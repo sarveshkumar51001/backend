@@ -13,9 +13,9 @@
                         <label><i class="fa fa-tag">Report Type</i></label>
                         <div class="input-group">
                             <select name="report-type" class="form-control" required="required">
-                                <option selected="selected" value="">Select Report Type </option>
+                                <option value="" selected disabled>Select Report Type </option>
                                 @foreach(\App\Library\Shopify\Report::REPORT_NAME_MAPPING as $key => $value)
-                                <option value="{{ $key }}" @if($key == old('report-type')) selected @endif> {{ $value }}</option>
+                                <option value="{{ $key }}" @if($key == old('report-type')) selected = "selected" @endif> {{ $value }}</option>
                                 @endforeach
                             </select>
                         </div>
