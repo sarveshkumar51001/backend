@@ -22,10 +22,11 @@ class Report
 
     public static function ValidateLocation($location){
 
-        $user_access = ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING[$location[0]][$location[1]]['access'];
-        if(in_array(Auth::user()->email,$user_access))
-        {
-            return true;
+        if(sizeof($location) == 2){
+            $user_access = ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING[$location[0]][$location[1]]['access'];
+            if(in_array(Auth::user()->email,$user_access)) {
+                return true;
+            }
         }
         return false;
     }
@@ -41,12 +42,16 @@ class Report
         return " " ;
     }
 
-    public static function getBankChequeDepositData($start,$end,$location)
+    public static function getBankChequeDepositData($start,$end,$location,$admin)
     {
-        $Orders = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
-            ->where('delivery_institution', $location[0])
-            ->where('branch', $location[1])
-            ->get();
+        $Orders = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end]);
+
+        if(!$admin){
+            $Orders->where('delivery_institution', $location[0])
+                    ->where('branch', $location[1]);
+        }
+
+        $Orders = $Orders->get();
 
         $count = 1;
         $order_data = [];

@@ -42,15 +42,18 @@ Class ReportController extends BaseController
             [$start_date, $end_date] = $date_params;
             $location = !empty(request('school-name')) ? explode(' ', request('school-name'), 2) : [];
 
-            $User = head(User::where('_id', Auth::user()->id)->first()['permissions']);
+            $admin = false;
+            if(head($location) == ShopifyExcelUpload::ALL_SCHOOLS){
+                $admin = true;
+            }
 
             if (!empty($location)) {
-                if (Report::ValidateLocation($location) || $User == ShopifyExcelUpload::ADMIN) {
+                if (Report::ValidateLocation($location) || is_admin()) {
                     if ($report_type == '1') {
-                        $data = Report::getBankChequeDepositData($start_date, $end_date, $location);
+                        $data = Report::getBankChequeDepositData($start_date, $end_date, $location,$admin);
                     }
                 } else {
-                    return response('You don\'t have access to any organization nor you are an admin', 404);
+                    return response('You don\'t have access to the organization selected nor you are an admin', 404);
                 }
             }
             //
