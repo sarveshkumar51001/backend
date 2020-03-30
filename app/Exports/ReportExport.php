@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 
-class ReportExport implements FromCollection,WithHeadingRow,WithHeadings
+class ReportExport implements FromCollection,WithHeadings
 {
     private $data;
     use Exportable;
@@ -22,11 +22,6 @@ class ReportExport implements FromCollection,WithHeadingRow,WithHeadings
     public function collection()
     {
         return collect($this->data);
-    }
-
-    public function headingRow() :int
-    {
-        return 2;
     }
 
     public function headings(): array
