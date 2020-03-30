@@ -64,7 +64,7 @@
               @endforeach
       </tbody>
   </table>
-      @elseif(empty($data) && $param)
+      @elseif(empty($data) && $param == 'POST')
       <h3 style="color: red"><b>No data found for the given period.</b></h3>
     @endif
 @endsection
