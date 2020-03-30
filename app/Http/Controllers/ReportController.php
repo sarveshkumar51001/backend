@@ -21,7 +21,10 @@ Class ReportController extends BaseController
         $report_type = '';
         $breadcrumb = ['Reports' => ''];
 
+
         if(\Request::isMethod('post')) {
+
+
 
             $report_type = !empty(request('report-type')) ? request('report-type') : '';
 
@@ -44,7 +47,6 @@ Class ReportController extends BaseController
                 return Excel\Facades\Excel::download(new ReportExport($data), $filename);
             }
         }
-
         session()->flashInput(request()->input());
         return view('shopify.reports-main',['breadcrumb' => $breadcrumb,'data' =>$data,'param' => $report_type]);
     }
