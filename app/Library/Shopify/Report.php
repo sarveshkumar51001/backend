@@ -22,10 +22,9 @@ class Report
 
     public static function ValidateLocation($location){
 
-        $user_org_access = explode(',',User::where('_id',Auth::user()->id)->first()['organization']);
-        $code = self::getSchoolCode($location[0],$location[1]);
-
-        if(in_array($code,$user_org_access)){
+        $user_access = ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING[$location[0]][$location[1]]['access'];
+        if(in_array(Auth::user()->email,$user_access))
+        {
             return true;
         }
         return false;

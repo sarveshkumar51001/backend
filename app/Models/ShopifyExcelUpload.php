@@ -36,6 +36,8 @@ class ShopifyExcelUpload extends Base
 
     const HAYDEN_REYNOTT = 'H&R';
 
+    const ADMIN = "is_admin";
+
     const PAGINATE_LIMIT = 100;
 
     const MODE_CASH = 1;
@@ -137,7 +139,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Delhi",
                 "pincode" => "110017",
                 "is_higher_education" => false,
-                "address" => 'Apeejay School Sheikh Sarai, Phase 1, New Delhi-110017'
+                "address" => 'Apeejay School Sheikh Sarai, Phase 1, New Delhi-110017',
+                'access' => ['vibha.sang@valedra.com']
             ],
             "Sheikh Sarai International" => [
                 "code" => "VALSSI",
@@ -145,7 +148,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Delhi",
                 "pincode" => "110017",
                 "is_higher_education" => false,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "Pitampura" => [
                 "code" => "VALPIT",
@@ -154,6 +158,7 @@ class ShopifyExcelUpload extends Base
                 "pincode" => "110034",
                 "is_higher_education" => false,
                 "address" => 'Apeejay School Pitampura, Plot No10, road No:42, Sainik Vihar,Pitampura, Delhi-110034',
+                'access' => ['neha.oberoi@valedra.com']
             ],
             "Saket" => [
                 "code" => "VALSKT",
@@ -161,7 +166,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Delhi",
                 "pincode" => "110017",
                 "is_higher_education" => false,
-                "address" => 'Apeejay school Saket, J block  Saket, New Delhi-110017'
+                "address" => 'Apeejay school Saket, J block  Saket, New Delhi-110017',
+                'access' => ['sarthak@valedra.com']
             ],
             "Noida" => [
                 "code" => "VALNVD",
@@ -169,7 +175,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "UP",
                 "pincode" => "201301",
                 "is_higher_education" => false,
-                "address" => 'Apeejay School Sector 16, A Noida-201301'
+                "address" => 'Apeejay School Sector 16, A Noida-201301',
+                'access' => ['ritika.sinha@valedra.com','milana@valedra.com']
             ],
             "Nerul" => [
                 "code" => "VALNRL",
@@ -177,7 +184,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Maharashtra",
                 "pincode" => "400706",
                 "is_higher_education" => false,
-                "address" => 'Apeejay School Sector XV, Nerul, Navi Mumbai-400706'
+                "address" => 'Apeejay School Sector XV, Nerul, Navi Mumbai-400706',
+                'access' => ['jyoti@valedra.com']
             ],
             "Kharghar" => [
                 "code" => "VALKHG",
@@ -185,7 +193,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Maharashtra",
                 "pincode" => "410210",
                 "is_higher_education" => false,
-                "address" => 'Apeejay School, Sector 21, Kharghar, Navi Mumbai-410210'
+                "address" => 'Apeejay School, Sector 21, Kharghar, Navi Mumbai-410210',
+                'access' => ['tulika@valedra.com']
             ],
             "Faridabad 15" => [
                 "code" => "VALFBD",
@@ -193,7 +202,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Haryana",
                 "pincode" => "121007",
                 "is_higher_education" => false,
-                "address" => 'Apeejay School Sector 15 Faridabad. NCR,121007.'
+                "address" => 'Apeejay School Sector 15 Faridabad. NCR,121007.',
+                'access' => ['sunil@valedra.com']
             ],
             "Faridabad 21D" => [
                 "code" => "VALSVG",
@@ -201,7 +211,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Haryana",
                 "pincode" => "121012",
                 "is_higher_education" => false,
-                "address" => 'Apeejay School , Sector 21 D, Faridabad, NCR 121007'
+                "address" => 'Apeejay School , Sector 21 D, Faridabad, NCR 121007',
+                'access' => ['sunil@valedra.com']
             ],
             "Charkhi Dadri" => [
                 "code" => "VALCKD",
@@ -209,7 +220,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Haryana",
                 "pincode" => "127306",
                 "is_higher_education" => false,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "Mahavir Marg" => [
                 "code" => "VALMM",
@@ -217,7 +229,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Punjab",
                 "pincode" => "144001",
                 "is_higher_education" => false,
-                "address" => 'Apeejay School Bhagwan Mahavir Marg Mahavir Margr, Jalandhar-144001'
+                "address" => 'Apeejay School Bhagwan Mahavir Marg Mahavir Margr, Jalandhar-144001',
+                'access' => ['neeraj@valedra.com']
             ],
             "Rama Mandi" => [
                 "code" => "VALRM",
@@ -225,7 +238,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Punjab",
                 "pincode" => "144023",
                 "is_higher_education" => false,
-                "address" => ''
+                "address" => '',
+                'access' => ['neeraj@valedra.com']
             ],
             "Tanda Road" => [
                 "code" => "VALTR",
@@ -233,7 +247,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Punjab",
                 "pincode" => "144001",
                 "is_higher_education" => false,
-                "address" => ''
+                "address" => '',
+                'access' => ['neeraj@valedra.com']
             ],
             "Model Town" => [
                 "code" => "VALMT",
@@ -241,7 +256,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Punjab",
                 "pincode" => "144003",
                 "is_higher_education" => false,
-                "address" => ''
+                "address" => '',
+                'access' => ['neeraj@valedra.com']
             ],
             "Greater Noida" => [
                 "code" => "VALAIS",
@@ -249,7 +265,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "UP",
                 "pincode" => "201306",
                 "is_higher_education" => false,
-                "address" => 'Apeejay International School 1, Institutional Area, Gamma Sector,Surajpur Kansa Road, PO Tughalpur,Greater Noida-201308'
+                "address" => 'Apeejay International School 1, Institutional Area, Gamma Sector,Surajpur Kansa Road, PO Tughalpur,Greater Noida-201308',
+                'access' => ''
             ],
             "Greater Kailash" => [
                 "code" => "VALGK",
@@ -257,7 +274,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Delhi",
                 "pincode" => "110048",
                 "is_higher_education" => false,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "ACFA Mahavir Marg" => [
                 "code" => "",
@@ -265,7 +283,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Punjab",
                 "pincode" => "144001",
                 "is_higher_education" => true,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "AIMTC Rama Mandi" => [
                 "code" => "",
@@ -273,7 +292,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Punjab",
                 "pincode" => "144023",
                 "is_higher_education" => true,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "AID New Delhi" => [
                 "code" => "",
@@ -281,7 +301,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "New Delhi",
                 "pincode" => "110062",
                 "is_higher_education" => true,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "AIMC Dwarka" => [
                 "code" => "",
@@ -289,7 +310,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "New Delhi",
                 "pincode" => "110077",
                 "is_higher_education" => true,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "ASM Dwarka" => [
                 "code" => "",
@@ -297,7 +319,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "New Delhi",
                 "pincode" => "110077",
                 "is_higher_education" => true,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "AITCS Greater Noida" => [
                 "code" => "",
@@ -305,7 +328,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "UP",
                 "pincode" => "201308",
                 "is_higher_education" => true,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "AITSM Greater Noida" => [
                 "code" => "",
@@ -313,7 +337,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "UP",
                 "pincode" => "201308",
                 "is_higher_education" => true,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "AITSAP Greater Noida" => [
                 "code" => "",
@@ -321,7 +346,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "UP",
                 "pincode" => "201308",
                 "is_higher_education" => true,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "SPGC Charkhi Dadri" => [
                 "code" => "",
@@ -329,7 +355,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Haryana",
                 "pincode" => "127306",
                 "is_higher_education" => true,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ]
         ],
         "Reynott" => [
@@ -339,7 +366,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Punjab",
                 "pincode" => "144003",
                 "is_higher_education" => false,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ]
         ],
         "H&R" => [
@@ -349,7 +377,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Haryana",
                 "pincode" => "122003",
                 "is_higher_education" => false,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ],
             "Dwarka" => [
                 "code" => "",
@@ -357,7 +386,8 @@ class ShopifyExcelUpload extends Base
                 "state" => "Delhi",
                 "pincode" => "110037",
                 "is_higher_education" => false,
-                "address" => ''
+                "address" => '',
+                'access' => ''
             ]
         ]
     ];

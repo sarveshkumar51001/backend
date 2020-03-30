@@ -8,6 +8,13 @@
       </div>
       <form method="post" action="{{route('revenue.reports')}}" enctype="multipart/form-data" id="report-form">
             <div class = "card-body">
+                @if (!$errors->Errors->isEmpty())
+                    <div class="alert alert-danger" role="alert">
+                        @foreach($errors->Errors->all() as $error)
+                            <p class="m-0">{{ $error }}</p>
+                        @endforeach
+                    </div>
+                @endif
                 <div class="row">
                     <div class="col-sm-4">
                         <label><i class="fa fa-tag">Report Type</i></label>
@@ -15,7 +22,7 @@
                             <select name="report-type" class="form-control" required="required">
                                 <option value="" selected disabled>Select Report Type </option>
                                 @foreach(\App\Library\Shopify\Report::REPORT_MAPPING as $key => $value)
-                                <option value="{{ $key }}" @if($key == old('report-type')) selected = "selected" @endif> {{ $value['name'] }}</option>
+                                    <option value="{{ $key }}" @if($key == old('report-type')) selected = "selected" @endif> {{ $value['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -23,10 +30,10 @@
                     <div class="col-sm-4">
                         <label><i class="fa fa-university" aria-hidden="true"></i> School</label>
                         <div class="input-group">
-                            <select name="school-name" class="form-control">
+                            <select name="school-name" class="form-control" required="required">
                                 <option value="" selected disabled>Select School </option>
                                 @foreach (array_keys(\App\Models\ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING["Apeejay"]) as $school)
-                                    <option value="{{"Apeejay"." ".$school }}" @if($school == old('school-name')) selected="selected" @endif> Apeejay {{ $school }}</option>
+                                    <option value="{{"Apeejay"." ".$school }}" @if("Apeejay ".$school == old('school-name')) selected="selected" @endif> Apeejay {{ $school }}</option>
                                 @endforeach
                             </select>
                         </div>
