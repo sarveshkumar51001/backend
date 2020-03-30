@@ -6,7 +6,7 @@
       <div class="card-header">
           <i class="fa fa-file"></i>Reports
       </div>
-      <form method="get" action="" enctype="multipart/form-data" id="report-form">
+      <form method="post" action="{{route('revenue.reports')}}" enctype="multipart/form-data" id="report-form">
             <div class = "card-body">
                 <div class="row">
                     <div class="col-sm-4">
@@ -14,8 +14,19 @@
                         <div class="input-group">
                             <select name="report-type" class="form-control" required="required">
                                 <option value="" selected disabled>Select Report Type </option>
-                                @foreach(\App\Library\Shopify\Report::REPORT_NAME_MAPPING as $key => $value)
-                                <option value="{{ $key }}" @if($key == old('report-type')) selected = "selected" @endif> {{ $value }}</option>
+                                @foreach(\App\Library\Shopify\Report::REPORT_MAPPING as $key => $value)
+                                <option value="{{ $key }}" @if($key == old('report-type')) selected = "selected" @endif> {{ $value['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <label><i class="fa fa-university" aria-hidden="true"></i> School</label>
+                        <div class="input-group">
+                            <select name="school-name" class="form-control">
+                                <option value="" selected disabled>Select School </option>
+                                @foreach (array_keys(\App\Models\ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING["Apeejay"]) as $school)
+                                    <option value="{{"Apeejay"." ".$school }}" @if($school == old('school-name')) selected="selected" @endif> Apeejay {{ $school }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -46,7 +57,7 @@
       <tbody>
           @foreach($data as $doc)
               <tr>
-              @foreach(\App\Models\ShopifyExcelUpload::CHEQUE_REPORT_KEYS as $key)
+              @foreach(\App\Library\Shopify\Report::REPORT_MAPPING[$param]['keys'] as $key)
               <td>{{$doc[$key]}}</td>
                   @endforeach
               </tr>

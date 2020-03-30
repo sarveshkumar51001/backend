@@ -40,6 +40,8 @@ Route::prefix('shopify')->group(function() {
         Route::get('/previous/orders', 'BulkUpload\ShopifyController@previous_orders')->name('bulkupload.previous_orders');
         Route::get('/previous/file_download/{id}', 'BulkUpload\ShopifyController@download_previous')->name('bulkupload.download_previous');
         Route::get('/search', 'BulkUpload\SearchController@search')->name('bulkupload.search');
+        Route::get('/reports','ReportController@main')->name('revenue.reports');
+        Route::post('/reports','ReportController@main')->name('revenue.reports');
 
     });
     Route::prefix('reconcile')->group(function () {
@@ -47,7 +49,6 @@ Route::prefix('shopify')->group(function() {
         Route::post('/preview', 'BulkUpload\ReconcileController@preview')->name('bulkupload.reconcile.preview');
     });
 });
-    Route::get('/revenue/reports','ReportController@main')->name('revenue.reports');
 
     Route::group(['prefix' => 'students'], function() {
         Route::get('/search', 'StudentController@index')->name('search.students');

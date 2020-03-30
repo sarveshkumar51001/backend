@@ -136,175 +136,200 @@ class ShopifyExcelUpload extends Base
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110017",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Sheikh Sarai, Phase 1, New Delhi-110017'
             ],
             "Sheikh Sarai International" => [
                 "code" => "VALSSI",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110017",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => ''
             ],
             "Pitampura" => [
-                "code" => "VALPP",
+                "code" => "VALPIT",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110034",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Pitampura, Plot No10, road No:42, Sainik Vihar,Pitampura, Delhi-110034',
             ],
             "Saket" => [
                 "code" => "VALSKT",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110017",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay school Saket, J block  Saket, New Delhi-110017'
             ],
             "Noida" => [
                 "code" => "VALNVD",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201301",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Sector 16, A Noida-201301'
             ],
             "Nerul" => [
                 "code" => "VALNRL",
                 "city" => "Mumbai",
                 "state" => "Maharashtra",
                 "pincode" => "400706",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Sector XV, Nerul, Navi Mumbai-400706'
             ],
             "Kharghar" => [
                 "code" => "VALKHG",
                 "city" => "Mumbai",
                 "state" => "Maharashtra",
                 "pincode" => "410210",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School, Sector 21, Kharghar, Navi Mumbai-410210'
             ],
             "Faridabad 15" => [
-                "code" => "VALFBD15",
+                "code" => "VALFBD",
                 "city" => "Faridabad",
                 "state" => "Haryana",
                 "pincode" => "121007",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Sector 15 Faridabad. NCR,121007.'
             ],
             "Faridabad 21D" => [
-                "code" => "VALFBD21D",
+                "code" => "VALSVG",
                 "city" => "Faridabad",
                 "state" => "Haryana",
                 "pincode" => "121012",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School , Sector 21 D, Faridabad, NCR 121007'
             ],
             "Charkhi Dadri" => [
                 "code" => "VALCKD",
                 "city" => "Charkhi Dadri",
                 "state" => "Haryana",
                 "pincode" => "127306",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => ''
             ],
             "Mahavir Marg" => [
-                "code" => "VALMMJ",
+                "code" => "VALMM",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144001",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Bhagwan Mahavir Marg Mahavir Margr, Jalandhar-144001'
             ],
             "Rama Mandi" => [
-                "code" => "VALRMJ",
+                "code" => "VALRM",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144023",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => ''
             ],
             "Tanda Road" => [
-                "code" => "VALTRJ",
+                "code" => "VALTR",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144001",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => ''
             ],
             "Model Town" => [
-                "code" => "VALMTJ",
+                "code" => "VALMT",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144003",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => ''
             ],
             "Greater Noida" => [
-                "code" => "VALGNVD",
+                "code" => "VALAIS",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201306",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay International School 1, Institutional Area, Gamma Sector,Surajpur Kansa Road, PO Tughalpur,Greater Noida-201308'
             ],
             "Greater Kailash" => [
                 "code" => "VALGK",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110048",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => ''
             ],
             "ACFA Mahavir Marg" => [
                 "code" => "",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144001",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => ''
             ],
             "AIMTC Rama Mandi" => [
                 "code" => "",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144023",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => ''
             ],
             "AID New Delhi" => [
                 "code" => "",
                 "city" => "New Delhi",
                 "state" => "New Delhi",
                 "pincode" => "110062",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => ''
             ],
             "AIMC Dwarka" => [
                 "code" => "",
                 "city" => "New Delhi",
                 "state" => "New Delhi",
                 "pincode" => "110077",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => ''
             ],
             "ASM Dwarka" => [
                 "code" => "",
                 "city" => "New Delhi",
                 "state" => "New Delhi",
                 "pincode" => "110077",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => ''
             ],
             "AITCS Greater Noida" => [
                 "code" => "",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201308",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => ''
             ],
             "AITSM Greater Noida" => [
                 "code" => "",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201308",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => ''
             ],
             "AITSAP Greater Noida" => [
                 "code" => "",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201308",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => ''
             ],
             "SPGC Charkhi Dadri" => [
                 "code" => "",
                 "city" => "Charkhi Dadri",
                 "state" => "Haryana",
                 "pincode" => "127306",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => ''
             ]
         ],
         "Reynott" => [
@@ -313,7 +338,8 @@ class ShopifyExcelUpload extends Base
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144003",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => ''
             ]
         ],
         "H&R" => [
@@ -322,21 +348,19 @@ class ShopifyExcelUpload extends Base
                 "city" => "Gurugram",
                 "state" => "Haryana",
                 "pincode" => "122003",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => ''
             ],
             "Dwarka" => [
                 "code" => "",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110037",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => ''
             ]
         ]
     ];
-
-    const CHEQUE_REPORT_KEYS = ['Sl. No.','School Code','Student Name','Activity','Class & Section','Drawer Account No.',
-        'MICR Code','Instrument Type (Chq/DD)','Cheque/DD No.','Cheque/DD Date','Cheque/DD Amount','Drawn On Bank'];
-
 
     /**
      * Function returns school/institute location based on the delivery institution and branch provided. If the

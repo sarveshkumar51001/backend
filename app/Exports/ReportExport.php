@@ -2,13 +2,14 @@
 
 namespace App\Exports;
 
-use App\Models\ShopifyExcelUpload;
+use App\Library\Shopify\Report;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 
-class ReportExport implements FromCollection, WithHeadings
+class ReportExport implements FromCollection,WithHeadingRow,WithHeadings
 {
     private $data;
     use Exportable;
@@ -23,8 +24,13 @@ class ReportExport implements FromCollection, WithHeadings
         return collect($this->data);
     }
 
+    public function headingRow() :int
+    {
+        return 2;
+    }
+
     public function headings(): array
     {
-        return ShopifyExcelUpload::CHEQUE_REPORT_KEYS;
+        return Report::CHEQUE_REPORT_KEYS;
     }
 }
