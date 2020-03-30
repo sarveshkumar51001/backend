@@ -22,7 +22,7 @@ class Report
 
     public static function ValidateLocation($location){
 
-        $user_org_access = explode(',',User::where('id',Auth::user()->id)->first()['organization']);
+        $user_org_access = explode(',',User::where('_id',Auth::user()->id)->first()['organization']);
         $code = self::getSchoolCode($location[0],$location[1]);
 
         if(in_array($code,$user_org_access)){
@@ -52,6 +52,8 @@ class Report
         $count = 1;
         $order_data = [];
 
+
+
         foreach ($Orders as $Order) {
 
             $data = [
@@ -62,22 +64,23 @@ class Report
                 'Class & Section' => $Order->class . " " . $Order->section
             ];
 
-            if(head($Order['payments'])['mode_of_payment'] == ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]
-                || head($Order['payments'])['mode_of_payment'] == ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD]) {
                 if (sizeof($Order['payments']) == 1) {
 
-                    $data['Sl. No.'] = $count++;
-                    $order_data[] = array_merge($data, [
-                        'Drawer Account No.' => head($Order['payments'])['drawee_account_number'],
-                        'MICR Code' => head($Order['payments'])['micr_code'],
-                        'Instrument Type (Chq/DD)' => head($Order['payments'])['mode_of_payment'],
-                        'Cheque/DD No.' => head($Order['payments'])['chequedd_no'],
-                        'Cheque/DD Date' => head($Order['payments'])['chequedd_date'] ,
-                        'Cheque/DD Amount' => head($Order['payments'])['amount'] ,
-                        'Drawn On Bank' => head($Order['payments'])['bank_name']
-                    ]);
-                }
-            }else{
+                    if (head($Order['payments'])['mode_of_payment'] == ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]
+                        || head($Order['payments'])['mode_of_payment'] == ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD]) {
+
+                        $data['Sl. No.'] = $count++;
+                        $order_data[] = array_merge($data, [
+                            'Drawer Account No.' => head($Order['payments'])['drawee_account_number'],
+                            'MICR Code' => head($Order['payments'])['micr_code'],
+                            'Instrument Type (Chq/DD)' => head($Order['payments'])['mode_of_payment'],
+                            'Cheque/DD No.' => head($Order['payments'])['chequedd_no'],
+                            'Cheque/DD Date' => head($Order['payments'])['chequedd_date'],
+                            'Cheque/DD Amount' => head($Order['payments'])['amount'],
+                            'Drawn On Bank' => head($Order['payments'])['bank_name']
+                        ]);
+                    }
+                } else{
                 foreach ($Order->payments as $payment) {
 
                     if($payment['mode_of_payment'] == ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]

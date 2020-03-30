@@ -45,6 +45,6 @@ Class ReportController extends BaseController
             }
         }
         session()->flashInput(request()->input());
-        return view('shopify.reports-main',['breadcrumb' => $breadcrumb,'data' =>$data,'param' => request()->method()]);
+        return view('shopify.reports-main',['breadcrumb' => $breadcrumb,'data' =>$data,'param' => request()->method(),'type' => $report_type]);
     }
 }

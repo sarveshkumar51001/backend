@@ -57,7 +57,7 @@
       <tbody>
           @foreach($data as $doc)
               <tr>
-              @foreach(\App\Library\Shopify\Report::REPORT_MAPPING[$param]['keys'] as $key)
+              @foreach(\App\Library\Shopify\Report::REPORT_MAPPING[$type]['keys'] as $key)
               <td>{{$doc[$key]}}</td>
                   @endforeach
               </tr>
