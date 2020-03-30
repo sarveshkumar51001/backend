@@ -61,8 +61,8 @@ Class ReportController extends BaseController
             if (!empty(request('download-csv')) && !empty($data)) {
                 return Excel\Facades\Excel::download(new ReportExport($data), $filename);
             }
-            session()->flashInput(request()->input());
-            return view('shopify.reports-main', ['breadcrumb' => $breadcrumb, 'data' => $data, 'param' => request()->method(), 'type' => $report_type]);
         }
+        session()->flashInput(request()->input());
+        return view('shopify.reports-main', ['breadcrumb' => $breadcrumb, 'data' => $data, 'param' => request()->method(), 'type' => $report_type]);
     }
 }
