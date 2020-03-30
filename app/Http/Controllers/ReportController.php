@@ -27,8 +27,8 @@ Class ReportController extends BaseController
 
             $date_params = getStartEndDate(request('daterange'));
             [$start_date, $end_date] = $date_params;
-            $location = !empty(request('school-name')) ? explode(' ', request('school-name')) : [];
-
+            $location = !empty(request('school-name')) ? explode(' ', request('school-name'),2) : [];
+            
             if(!empty($location) && Report::ValidateLocation($location)) {
                 if ($report_type == '1') {
                     $data = Report::getBankChequeDepositData($start_date, $end_date, $location);

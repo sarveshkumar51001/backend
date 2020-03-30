@@ -52,8 +52,6 @@ class Report
         $count = 1;
         $order_data = [];
 
-
-
         foreach ($Orders as $Order) {
 
             $data = [
