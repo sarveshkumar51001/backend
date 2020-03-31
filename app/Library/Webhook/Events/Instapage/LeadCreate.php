@@ -2,6 +2,7 @@
 namespace App\Library\Webhook\Events\Instapage;
 
 use App\Library\Webhook\Channel;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Library\Instapage\WebhookDataInstapage;
 use App\Models\Webhook;
@@ -52,7 +53,7 @@ class LeadCreate
 
 	    // https://events.valedra.com/online-yoga
         // http://bit.ly/yoga-online-at-home
-        elseif ($page_id == 20202660)
+        elseif ($page_id == 20202660 && time() < 1585708200)
         {
             Mail::send('emails.instapage.20202660', ['body' => $body], function ($message) use($email) {
                 $message->from('support@valedra.com', 'Valedra');
@@ -64,7 +65,7 @@ class LeadCreate
 
         // https://events.valedra.com/zumba-at-home
         // http://bit.ly/zumba-at-home
-        elseif ($page_id == 20221695)
+        elseif ($page_id == 20221695 && time() < 1585737000)
         {
             Mail::send('emails.instapage.20221695', ['body' => $body], function ($message) use($email) {
                 $message->from('support@valedra.com', 'Valedra');
