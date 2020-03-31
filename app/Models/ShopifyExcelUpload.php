@@ -36,7 +36,7 @@ class ShopifyExcelUpload extends Base
 
     const HAYDEN_REYNOTT = 'H&R';
 
-    const ADMIN = "is_admin";
+    const ALL_SCHOOLS = "all_schools";
 
     const PAGINATE_LIMIT = 100;
 

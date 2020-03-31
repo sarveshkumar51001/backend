@@ -20,17 +20,17 @@ class Report
         //
     ];
 
-    public static function ValidateLocation($location){
+    public static function ValidateLocation($delivery_institution, $branch){
+    	if (empty($delivery_institution) || empty($branch)) {
+    		return false;
+	    }
 
-        $user_access = ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING[$location[0]][$location[1]]['access'];
-        if(in_array(Auth::user()->email,$user_access))
-        {
-            return true;
-        }
-        return false;
+        $user_access = ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING[$delivery_institution][$branch]['access'] ?? [];
+
+    	return in_array(Auth::user()->email, $user_access);
     }
 
-    public static function getSchoolCode($delivery_institution,$branch)
+    public static function getSchoolCode($delivery_institution, $branch)
     {
         if (array_key_exists($delivery_institution, ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING)) {
             $locations = ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING[$delivery_institution];
@@ -41,12 +41,24 @@ class Report
         return " " ;
     }
 
-    public static function getBankChequeDepositData($start,$end,$location)
+	/**
+	 * @param $start
+	 * @param $end
+	 * @param $delivery_institution
+	 * @param $branch
+	 *
+	 * @return array
+	 */
+    public static function getBankChequeDepositData($start, $end, $delivery_institution = '', $branch = '')
     {
-        $Orders = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
-            ->where('delivery_institution', $location[0])
-            ->where('branch', $location[1])
-            ->get();
+        $Orders = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end]);
+
+        if ($delivery_institution != '-1') {
+	        $Orders->where('delivery_institution', $delivery_institution)
+	               ->where('branch', $branch);
+        }
+
+        $Orders = $Orders->get();
 
         $count = 1;
         $order_data = [];

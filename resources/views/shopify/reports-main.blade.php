@@ -32,6 +32,7 @@
                         <div class="input-group">
                             <select name="school-name" class="form-control" required="required">
                                 <option value="" selected disabled>Select School </option>
+                                <option value="-1" @if("-1" == old('school-name')) selected="selected" @endif>All Schools</option>
                                 @foreach (array_keys(\App\Models\ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING["Apeejay"]) as $school)
                                     <option value="{{"Apeejay"." ".$school }}" @if("Apeejay ".$school == old('school-name')) selected="selected" @endif> Apeejay {{ $school }}</option>
                                 @endforeach
