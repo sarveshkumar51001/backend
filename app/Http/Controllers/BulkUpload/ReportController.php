@@ -40,26 +40,23 @@ Class ReportController extends BaseController
 
             $date_params = getStartEndDate(request('daterange'));
             [$start_date, $end_date] = $date_params;
-            $location = !empty(request('school-name')) ? explode(' ', request('school-name'), 2) : [];
 
-            $admin = false;
-            if(head($location) == ShopifyExcelUpload::ALL_SCHOOLS){
-                $admin = true;
+	        if (request('school-name') == '-1' && is_admin()) {
+	            $delivery_institution = '-1';
+	            $branch = '-1';
+            } else {
+	            $location = explode(' ', request('school-name'), 2);
+	            $delivery_institution = $location[0] ?? "";
+	            $branch = $location[1] ?? "";
             }
 
-            if (!empty($location)) {
-                if (Report::ValidateLocation($location) || is_admin()) {
-                    if ($report_type == '1') {
-                        $data = Report::getBankChequeDepositData($start_date, $end_date, $location,$admin);
-                    }
-                } else {
-                    return response('You don\'t have access to the organization selected nor you are an admin', 404);
-                }
-            }
-            //
-            // For more reports....
-            //
-            $filename = !empty($report_type) ? sprintf("%s.xls", Report::REPORT_MAPPING[request('report-type')]['name']) : '';
+	        if(empty($delivery_institution) || empty($branch) || ($delivery_institution != '-1' && (!Report::ValidateLocation($delivery_institution, $branch) || $report_type != '1'))) {
+		        return response('Invalid data given, please check input options.', 404);
+	        }
+
+	        $data = Report::getBankChequeDepositData( $start_date, $end_date, $delivery_institution, $branch );
+
+	        $filename = !empty($report_type) ? sprintf("%s.xls", Report::REPORT_MAPPING[request('report-type')]['name']) : '';
 
             if (!empty(request('download-csv')) && !empty($data)) {
                 return Excel\Facades\Excel::download(new ReportExport($data), $filename);
