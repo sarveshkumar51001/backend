@@ -18,7 +18,6 @@ class LeadCreate
 
     private static function postToSlack(Webhook $Webhook)
     {
-        return;
         $data = WebhookDataInstapage::getFormData($Webhook->body());
         $page_id = $Webhook->body()['page_id'];
         $title = ":tada: New Lead Captured from Page - ".$Webhook->body()['page_name'];
@@ -58,6 +57,7 @@ class LeadCreate
             Mail::send('emails.instapage.20202660', ['body' => $body], function ($message) use($email) {
                 $message->from('support@valedra.com', 'Valedra');
                 $message->to($email);
+                $message->subject('Yoga at Home with Valedra');
                 $message->attach(storage_path('files/Join Us via Zoom Call - Yoga.pdf'));
             });
         }
@@ -68,6 +68,7 @@ class LeadCreate
         {
             Mail::send('emails.instapage.20221695', ['body' => $body], function ($message) use($email) {
                 $message->from('support@valedra.com', 'Valedra');
+                $message->subject('Zumba at Home with Valedra');
                 $message->to($email);
                 $message->attach(storage_path('files/Join Us via Zoom Call - Zumba.pdf'));
             });
