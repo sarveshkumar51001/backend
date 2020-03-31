@@ -25,10 +25,18 @@ class Report
     		return false;
 	    }
 
-        $user_access = ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING[$delivery_institution][$branch]['access'] ?? [];
-
-    	return in_array(Auth::user()->email, $user_access);
+        return isset(ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING[$delivery_institution][$branch]);
     }
+
+	public static function ValidateLocationAccess($delivery_institution, $branch){
+		if (empty($delivery_institution) || empty($branch)) {
+			return false;
+		}
+
+		$user_access = ShopifyExcelUpload::SCHOOL_ADDRESS_MAPPING[$delivery_institution][$branch]['access'] ?? [];
+
+		return in_array(Auth::user()->email, $user_access);
+	}
 
     public static function getSchoolCode($delivery_institution, $branch)
     {
