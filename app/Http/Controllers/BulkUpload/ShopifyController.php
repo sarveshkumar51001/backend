@@ -157,7 +157,11 @@ class ShopifyController extends BaseController
                          * Consider the payment data only if the payment is unprocessed
                          * Any update in already posted installments will be ignored
                          */
-                        if ($existingPaymentData[$index]['processed'] == 'No') {
+                        if(isset($existingPaymentData[$index])){
+                            if ($existingPaymentData[$index]['processed'] == 'No') {
+                            $existingPaymentData[$index] = $payment;
+                            }
+                        } else {
                             $existingPaymentData[$index] = $payment;
                         }
 

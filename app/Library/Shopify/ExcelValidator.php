@@ -122,8 +122,9 @@ class ExcelValidator
 
             // Existing payments array
             $existingpayments = $DatabaseRow["payments"];
+            $count = sizeof($existingpayments);
 
-            foreach ($row["payments"] as $payment_index => $payment) {
+            foreach (array_slice($row["payments"],0,$count) as $payment_index => $payment) {
 
                 if (array_diff_assoc(Arr::only($existingpayments[$payment_index], ShopifyExcelUpload::CHEQUE_DD_FIELDS), Arr::only($payment, ShopifyExcelUpload::CHEQUE_DD_FIELDS))) {
                     $is_duplicate = false;
