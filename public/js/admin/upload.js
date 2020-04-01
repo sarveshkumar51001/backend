@@ -92,6 +92,13 @@ function mark_payment_settled() {
             loader.stop();
             toastr.success('Action completed', 'Success!');
             return;
+        },
+        error: function (data) {
+            toastr.error('There are few errors', 'Error');
+            loader.stop();
+            var response = $.parseJSON(data.responseText);
+            console.log('Error: ' + response);
+
         }
     });
 }

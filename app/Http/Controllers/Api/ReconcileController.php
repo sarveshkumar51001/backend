@@ -90,7 +90,7 @@ class ReconcileController extends Controller {
         // Looping through all the transaction ids and exploding
         foreach($transaction_ids as $ids) {
 
-            if(empty($id)){
+            if(empty($ids)){
                 return response(['Invalid ID'], 422);
             }
 
@@ -99,6 +99,13 @@ class ReconcileController extends Controller {
             $payment_index = $composite_id[1];
 
             $Order = ShopifyExcelUpload::where('_id', $object_id);
+
+            //Throwing error if the user tries to alter already settled payment.
+            $Payment = new Payment(head($Order->first()->toArray()) ,$payment_index);
+            if($Payment->getRecoStatus() == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED){
+                return response('Already marked transaction cannot be altered.',403);
+            }
+
             $loggedInUser = (\Auth::user()->id ?? 0);
 
             $updates = [
