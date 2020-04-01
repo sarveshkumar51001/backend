@@ -1,4 +1,4 @@
-<p>Dear {{ $body['Full_Name'] }},</p>
+<p>Dear {{ $body['Full Name'] }},</p>
 
 <br>
 <p>We hope you are doing well.</p>
