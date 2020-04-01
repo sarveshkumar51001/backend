@@ -78,4 +78,12 @@ class ReconcileController extends Controller {
 
         return response($output, 200);
     }
+
+    public function manual_settle(Request $request)
+    {
+
+
+
+
+    }
 }

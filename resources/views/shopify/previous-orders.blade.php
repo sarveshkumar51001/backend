@@ -15,12 +15,13 @@
                             <form method="get" action="">
                                 <div class="dropdown show">
                                     <a class="btn btn-outline-primary dropdown-toggle float-right ml-3" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fa fa-download">&nbsp;</i>Export Transactions
+                                        <i class="fa fa-download">&nbsp;</i>Transactions
                                     </a>
 
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                        <a class="dropdown-item" href="{{route('orders.transactions')}}">VIEW</a>
                                         @foreach(array_merge(['all'], \App\Models\ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS) as $reco_status)
-                                            <a class="dropdown-item" onclick="download_transactions('{{$reco_status}}');" href="#">{{strtoupper($reco_status)}}</a>
+                                            <a class="dropdown-item" onclick="download_transactions('{{$reco_status}}');" href="#">{{'EXPORT '.strtoupper($reco_status)}}</a>
                                         @endforeach
                                     </div>
                                 </div>
@@ -86,7 +87,6 @@
             <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Upload History</button></a>
             @if(is_admin())
                 <a href="{{ route('bulkupload.previous_orders') }}?filter=team"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-users"> &nbsp;</i>Team Uploads</button></a>
-                <a href="{{ route('orders.transactions') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-money"></i> Transactions</button></a>
             @endif
         </div>
         <div class="clearfix mt-2"></div>

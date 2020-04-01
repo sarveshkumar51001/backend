@@ -26,12 +26,12 @@ class TransactionController extends BaseController
     public function search_transactions_by_location(Request $request)
     {
         $order_data = [];
+        $breadcrumb = ['Transactions' => ''];
 
         $rules = [
             'daterange' => 'required',
             'reco_status' => 'required'
         ];
-
         Validator::make($request->all(), $rules)->validate();
 
         [$start_date,$end_date] = GetStartEndDate(request('daterange'));
@@ -113,8 +113,12 @@ class TransactionController extends BaseController
                 }
             }
         }
-        if(empty($order_data) && is_admin()){
-            return view('transactions')->with('order_data',$order_data);
+        if(empty($order_data)){
+            return response('No data to export for the given date range selected',403);
+        }
+
+        if($request->has('view')){
+            return view('transactions',['breadcrumb' => $breadcrumb, 'order_data' => $order_data, 'param' => request()->method()]);
         }
         $this->data = $order_data;
 

@@ -66,3 +66,18 @@ function download_transactions(reco_status = '') {
     window.open(link, '_blank');
     return false;
 }
+
+var check = 0;
+/**
+ * Check uncheck all checkbox
+ */
+function toggle_all(fieldClass) {
+
+    if(check % 2 === 0) {
+        $("."+fieldClass).prop('checked', true);
+    } else {
+        $("."+fieldClass).prop('checked', false);
+    }
+
+    check = check + 1;
+}

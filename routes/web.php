@@ -74,6 +74,7 @@ Route::prefix('imagereco')->group(function() {
 
 Route::group(['prefix' => 'api/v1/', 'middleware' => ['auth']], function() {
     Route::post('reconcile', 'Api\ReconcileController@reconcile');
+    Route::post('/manual/settle','Api\ReconcileController@manual_settle');
 });
 
 Route::get('api/v1/upload/{id}', function ($id) {
