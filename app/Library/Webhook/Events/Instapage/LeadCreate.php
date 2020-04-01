@@ -14,7 +14,7 @@ class LeadCreate
     {
         self::postToSlack($Webhook);
 
-        self::sendEmail($Webhook, 1);
+        self::sendEmail($Webhook, 0);
     }
 
     private static function postToSlack(Webhook $Webhook)
@@ -72,6 +72,19 @@ class LeadCreate
                 $message->subject('Zumba at Home with Valedra');
                 $message->to($email);
                 $message->attach(storage_path('files/Join Us via Zoom Call - Zumba.pdf'));
+            });
+        }
+
+        // https://events.valedra.com/online-indian-classical-dance?utm_source=sms
+        // http://bit.ly/online-indian-classical-dance
+        elseif ($page_id == 20233330 && time() < 1585827000)
+        {
+            $email = ['ankur@valedra.com', 'bishwanath@valedra.com', 'zuhaib@valedra.com', 'rhea@valedra.com'];
+            Mail::send('emails.instapage.20233330', ['body' => $body], function ($message) use($email) {
+                $message->from('support@valedra.com', 'Valedra');
+                $message->subject('Indian Classical Dance with Valedra');
+                $message->to($email);
+                $message->attach(storage_path('files/Join Us via Zoom - Indian Classical Dance.pdf'));
             });
         }
     }
