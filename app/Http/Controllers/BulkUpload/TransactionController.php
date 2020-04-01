@@ -46,7 +46,7 @@ class TransactionController extends BaseController
         }
 
         if(isset($request['reco_status']) && !empty($request['reco_status']) && !in_array($request['reco_status'], ['all', ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT] )) {
-            $OrderORM->where('payments.reconcilation.settlement_status', $request['reco_status']);
+            $OrderORM->where('payments.reconciliation.settlement_status', $request['reco_status']);
         }
 
         $Orders = $OrderORM->get();
@@ -72,6 +72,7 @@ class TransactionController extends BaseController
             if (sizeof($Order['payments']) == 1) {
                 $Payment = new Payment(head($Order->payments) ,0);
                 $order_data[] = array_merge($data,[
+                    'Transaction ID' => $Order->_id.".0",
                     'Transaction Amount' => head($Order->payments)['amount'],
                     'Transaction Mode' => head($Order->payments)['mode_of_payment'],
                     'Reference No(PayTM/NEFT)' => head($Order->payments)['txn_reference_number_only_in_case_of_paytm_or_online'],
@@ -94,6 +95,7 @@ class TransactionController extends BaseController
                     $Payment = new Payment($payment, $index);
 
                     $order_data[]= array_merge($data,[
+                        'Transaction ID' => $Order->_id.".".$index,
                         'Transaction Amount'=> $payment['amount'],
                         'Transaction Mode'=> $payment['mode_of_payment'],
                         'Reference No(PayTM/NEFT)' => $payment['txn_reference_number_only_in_case_of_paytm_or_online'],
@@ -117,8 +119,20 @@ class TransactionController extends BaseController
             return response('No data to export for the given date range selected',403);
         }
 
+        // Filtering transactions based on the reconciliation status as sent in the request
+        $transaction_data = [];
+        if($request['reco_status'] == 'all'){
+            $transaction_data = $order_data;
+        } else {
+            foreach($order_data as $data){
+                if(strtolower($data['Reconciliation Status']) == $request['reco_status']) {
+                    $transaction_data[] = $data;
+                }
+            }
+        }
+        // Returning view when the request has view as the parameter
         if($request->has('view')){
-            return view('transactions',['breadcrumb' => $breadcrumb, 'order_data' => $order_data, 'param' => request()->method()]);
+            return view('transactions',['breadcrumb' => $breadcrumb, 'transactions' => $transaction_data]);
         }
         $this->data = $order_data;
 

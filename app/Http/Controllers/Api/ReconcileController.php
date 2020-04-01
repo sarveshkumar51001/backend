@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Imports\ReconcilationImport;
 use App\Library\Shopify\Reconciliation\File;
+use App\Library\Shopify\Reconciliation\Offline;
+use App\Library\Shopify\Reconciliation\Payment;
 use App\Library\Shopify\Reconciliation\Reconcile;
 use App\Library\Shopify\Reconciliation\Validate;
+use App\Models\ShopifyExcelUpload;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -81,9 +84,39 @@ class ReconcileController extends Controller {
 
     public function manual_settle(Request $request)
     {
+        $updates = [];
+        $transaction_ids = request('transaction_ids');
 
+        // Looping through all the transaction ids and exploding
+        foreach($transaction_ids as $ids) {
 
+            if(empty($id)){
+                return response(['Invalid ID'], 422);
+            }
 
+            $composite_id = explode('.', $ids);
+            $object_id = $composite_id[0];
+            $payment_index = $composite_id[1];
 
+            $Order = ShopifyExcelUpload::where('_id', $object_id);
+            $loggedInUser = (\Auth::user()->id ?? 0);
+
+            $updates = [
+                ShopifyExcelUpload::PaymentSettlementStatus => ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED,
+                ShopifyExcelUpload::PaymentSettlementMode => ShopifyExcelUpload::PAYMENT_SETTLEMENT_MODE_MANUAL,
+                ShopifyExcelUpload::PaymentLiquidationDate => time(),
+                ShopifyExcelUpload::PaymentSettledDate => time(),
+                ShopifyExcelUpload::PaymentSettledBy => $loggedInUser,
+                ShopifyExcelUpload::PaymentUpdatedAt => time(),
+            ];
+
+            $column_updates = [];
+            foreach ($updates as $column => $value) {
+                $key_name = sprintf("payments.%s.%s.%s", $payment_index, Payment::RECO, $column);
+                $column_updates[$key_name] = $value;
+            }
+            $Order->update($column_updates);
+        }
+        return response(['ok'], 200);
     }
 }

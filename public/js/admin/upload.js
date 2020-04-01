@@ -38,7 +38,6 @@ function get_render_template(data) {
                 if (key == 'transaction_id') {
                     title = 'Shopify Transaction ID';
                 }
-
                 if (key == 'order_update_at') {
                     title = 'Order created at';
                 } else if (key == 'installment') {
@@ -80,4 +79,19 @@ function toggle_all(fieldClass) {
     }
 
     check = check + 1;
+}
+
+function mark_payment_settled() {
+    var loader = Ladda.create(document.querySelector('#settle-button')).start();
+    var formData = $('#transaction-id-form').serializeArray();
+    $.ajax({
+        method: 'POST',
+        url: '/api/v1/manual/settle',
+        data: formData,
+        success: function(data) {
+            loader.stop();
+            toastr.success('Action completed', 'Success!');
+            return;
+        }
+    });
 }

@@ -34,7 +34,6 @@
                                 <input type="hidden" name="filter" value="{{ request('filter') }}">
                             </div>
                     </div>
-
                     <div class="col-sm-4">
                         <label><i class="fa fa-address-book" aria-hidden="true"></i> Reco Status*</label>
                         <div class="input-group">
@@ -58,12 +57,15 @@
             </div>
         </form>
         </div>
-    <button type="button" class="btn btn-success" onclick="mark_payment_settled();">Mark Settled</button>
-    @if(!empty($order_data))
+    @if(!empty($transactions))
+        <form method="post" enctype="multipart/form-data" action="#" id="transaction-id-form">
         <table class="table table-bordered table-striped table-sm datatable">
             <thead>
+
             <tr>
+                @if(has_permission(App\Library\Permission::PERMISSION_RECONCILE))
                 <th><a onclick="toggle_all('transaction_selected');"> Select Transactions</a></th>
+                @endif
                 <th>Shopify Order Name</th>
                 <th>Transaction Mode</th>
                 <th>Transaction Amount</th>
@@ -73,39 +75,43 @@
                 <th>Cheque/DD Date</th>
                 <th>Drawee Account Number</th>
                 <th>Transaction Upload Date</th>
-                <th>Reconcile Status</th>
+                <th>Reconciliation Status</th>
             </tr>
             </thead>
             <tbody>
-            <form>
-            @foreach($order_data as $order)
+            @foreach($transactions as $transaction)
                 <tr>
+                    @if(has_permission(App\Library\Permission::PERMISSION_RECONCILE))
                     <td>
-                        <form method="POST" action="{{}}" id="transaction-id-form">
-                        <input type="checkbox"  class="transaction_selected" name="transaction_ids[]" value="{{$order['Shopify Order Name']}}">
-                        </form>
+                        <input type="checkbox"  class="transaction_selected" name="transaction_ids[]" value="{{$transaction['Transaction ID']}}">
                     </td>
-                    <td><b>{{$order['Shopify Order Name']}}</b></td>
-                    <td>{{$order['Transaction Mode']}}</td>
-                    <td>{{$order['Transaction Amount']}}</td>
-                    <td>{{$order['Reference No(PayTM/NEFT)']}}</td>
-                    <td>{{$order['Cheque/DD No']}}</td>
-                    <td>{{$order['MICR Code']}}</td>
-                    <td>{{$order['Cheque/DD Date'] }}</td>
-                    <td>{{$order['Drawee Account Number']}}</td>
-                    <td>{{$order['Transaction Upload Date']}}</td>
-                    <td><span class="@if(strtolower($order['Reconciliation Status']) == \App\Models\ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT)
-                            badge badge-warning
-@elseif(strtolower($order['Reconciliation Status']) == \App\Models\ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED)
-                            badge badge-success
-@elseif(strtolower($order['Reconciliation Status']) == \App\Models\ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED)
-                            badge badge-danger
-@endif">{{ $order['Reconciliation Status']}}</span></td>
+                    @endif
+                    <td>{{$transaction['Shopify Order Name']}}</td>
+                    <td>{{$transaction['Transaction Mode']}}</td>
+                    <td>{{$transaction['Transaction Amount']}}</td>
+                    <td>{{$transaction['Reference No(PayTM/NEFT)']}}</td>
+                    <td>{{$transaction['Cheque/DD No']}}</td>
+                    <td>{{$transaction['MICR Code']}}</td>
+                    <td>{{$transaction['Cheque/DD Date']}}</td>
+                    <td>{{$transaction['Drawee Account Number']}}</td>
+                    <td>{{$transaction['Transaction Upload Date']}}</td>
+
+                    <td><span class="@if(strtolower($transaction['Reconciliation Status']) == \App\Models\ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT)
+                                                        badge badge-warning
+                            @elseif(strtolower($transaction['Reconciliation Status']) == \App\Models\ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED)
+                                                        badge badge-success
+                            @elseif(strtolower($transaction['Reconciliation Status']) == \App\Models\ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED)
+                                                        badge badge-danger
+                            @endif">{{ $transaction['Reconciliation Status']}}</span></td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
-    @elseif(empty($order_data) && isset($order_data))
+            @if(has_permission(App\Library\Permission::PERMISSION_RECONCILE))
+                <button id="settle-button" type="button" class="btn btn-success" onclick="mark_payment_settled();">Mark Settled</button>
+            @endif
+        </form>
+    @elseif(empty($transactions) && isset($transactions))
         <h3 style="color: red"><b>No data found for the given period.</b></h3>
         @endif
 @endsection
