@@ -88,41 +88,42 @@ class ReconcileController extends Controller {
         $transaction_ids = request('transaction_ids');
 
         // Looping through all the transaction ids and exploding
-        foreach($transaction_ids as $ids) {
+        if(!empty($transaction_ids)) {
+            foreach ($transaction_ids as $ids) {
+                if (empty($ids)) {
+                    return response('Invalid ID', 422);
+                }
 
-            if(empty($ids)){
-                return response(['Invalid ID'], 422);
+                $composite_id = explode('.', $ids);
+                $object_id = $composite_id[0];
+                $payment_index = $composite_id[1];
+
+                $Order = ShopifyExcelUpload::where('_id', $object_id);
+
+                //Throwing error if the user tries to alter already settled payment.
+                $Payment = new Payment($Order->first()->toArray()['payments'], $payment_index);
+                if ($Payment->getRecoStatus() == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED) {
+                    return response('Already marked transaction cannot be altered.', 403);
+                }
+
+                $loggedInUser = (\Auth::user()->id ?? 0);
+
+                $updates = [
+                    ShopifyExcelUpload::PaymentSettlementStatus => ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED,
+                    ShopifyExcelUpload::PaymentSettlementMode => ShopifyExcelUpload::PAYMENT_SETTLEMENT_MODE_MANUAL,
+                    ShopifyExcelUpload::PaymentLiquidationDate => time(),
+                    ShopifyExcelUpload::PaymentSettledDate => time(),
+                    ShopifyExcelUpload::PaymentSettledBy => $loggedInUser,
+                    ShopifyExcelUpload::PaymentUpdatedAt => time(),
+                ];
+
+                $column_updates = [];
+                foreach ($updates as $column => $value) {
+                    $key_name = sprintf("payments.%s.%s.%s", $payment_index, Payment::RECO, $column);
+                    $column_updates[$key_name] = $value;
+                }
+                $Order->update($column_updates);
             }
-
-            $composite_id = explode('.', $ids);
-            $object_id = $composite_id[0];
-            $payment_index = $composite_id[1];
-
-            $Order = ShopifyExcelUpload::where('_id', $object_id);
-
-            //Throwing error if the user tries to alter already settled payment.
-            $Payment = new Payment(head($Order->first()->toArray()['payments']) ,$payment_index);
-            if($Payment->getRecoStatus() == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED){
-                return response('Already marked transaction cannot be altered.',403);
-            }
-
-            $loggedInUser = (\Auth::user()->id ?? 0);
-
-            $updates = [
-                ShopifyExcelUpload::PaymentSettlementStatus => ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED,
-                ShopifyExcelUpload::PaymentSettlementMode => ShopifyExcelUpload::PAYMENT_SETTLEMENT_MODE_MANUAL,
-                ShopifyExcelUpload::PaymentLiquidationDate => time(),
-                ShopifyExcelUpload::PaymentSettledDate => time(),
-                ShopifyExcelUpload::PaymentSettledBy => $loggedInUser,
-                ShopifyExcelUpload::PaymentUpdatedAt => time(),
-            ];
-
-            $column_updates = [];
-            foreach ($updates as $column => $value) {
-                $key_name = sprintf("payments.%s.%s.%s", $payment_index, Payment::RECO, $column);
-                $column_updates[$key_name] = $value;
-            }
-            $Order->update($column_updates);
         }
         return response(['ok'], 200);
     }
