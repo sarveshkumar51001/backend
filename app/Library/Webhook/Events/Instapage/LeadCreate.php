@@ -79,13 +79,51 @@ class LeadCreate
         // http://bit.ly/online-indian-classical-dance
         elseif ($page_id == 20233330 && time() < 1585827000)
         {
-            $email = ['ankur@valedra.com', 'bishwanath@valedra.com', 'zuhaib@valedra.com', 'rhea@valedra.com'];
             Mail::send('emails.instapage.20233330', ['body' => $body], function ($message) use($email) {
                 $message->from('support@valedra.com', 'Valedra');
                 $message->subject('Indian Classical Dance with Valedra');
                 $message->to($email);
                 $message->attach(storage_path('files/Join Us via Zoom - Indian Classical Dance.pdf'));
             });
+        }
+
+	    // Toppr Page
+        elseif ($page_id == 20238395)
+        {
+            $codeMapping = [
+                "Apeejay School, Pitampura" => 'APJPITAMPURA',
+                "Apeejay School, Saket" => 'APEEJAYSAKET',
+                "Apeejay School, Sheikh Sarai" => 'APEEJAYSSARAI',
+                "Apeejay School, Noida" => 'APEEJAYNOIDA',
+                "Apeejay School, Faridabad" => 'APEEJAYFBD1',
+                "Apeejay Svran Global School, Faridabad" => 'APEEJAYFBD21',
+                "Apeejay School, Kharghar" => 'APEEJAYKHARGARH',
+                "Apeejay School, Nerul" => 'APEEJAYNERUL',
+                "Apeejay International School, Greater Noida" => 'APEEJAYGNOIDA',
+                "Apeejay School, Mahavir Marg" => 'APJMAHAVIRMARG',
+                "Apeejay School, Model Town" => 'APJMODELTOWN',
+                "Reynott Academy" => 'REYNOTTACADEMY',
+                "Apeejay School, Charkhi Dadri" => 'APJCHARKHIDADRI',
+                "Apeejay School, Jalandhar" => 'APEEJAYJUC',
+                "Apeejay School, Tanda Road" => 'APJTANDAROAD',
+//                "G D Goenka Public School, Vasant Kunj" => '',
+//                "Delhi Public School, R.K. Puram" => '',
+//                "Delhi Public School, Mathura Road" => '',
+//                "Modern School, Barakhamba Road" => ''
+            ];
+
+            $code = $codeMapping[$body["School"]] ?? '';
+
+            if(!empty($code)) {
+                $email = ['ankur@valedra.com', 'bishwanath@valedra.com'];
+                Mail::send('emails.instapage.20238395', ['body' => $body, 'code' => $code], function ($message) use($email) {
+                    $message->from('support@valedra.com', 'Valedra');
+                    $message->subject('Access Toppr For Free');
+                    $message->to($email);
+                    $message->attach(storage_path('files/Toppr Brochure.pdf'));
+                });
+            }
+
         }
     }
 }
