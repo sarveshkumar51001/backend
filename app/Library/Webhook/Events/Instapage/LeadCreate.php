@@ -14,7 +14,7 @@ class LeadCreate
     {
         self::postToSlack($Webhook);
 
-        self::sendEmail($Webhook, 0);
+        self::sendEmail($Webhook);
     }
 
     private static function postToSlack(Webhook $Webhook)
@@ -33,13 +33,11 @@ class LeadCreate
         }
     }
 
-    private static function sendEmail(Webhook $Webhook, $sandbox = 0) {
+    private static function sendEmail(Webhook $Webhook) {
 	    $body = $Webhook->body();
 
 	    $email = $body['Email'];
-	    if($sandbox) {
-	        $email = ['ankur@valedra.com', 'bishwanath@valedra.com', 'zuhaib@valedra.com', 'rhea@valedra.com'];
-        }
+
 	    $page_id = $body['page_id'];
 	    // events.valedra.com/online-yoga-at-home
 	    if ($page_id == 20189025)
@@ -67,28 +65,23 @@ class LeadCreate
         // http://bit.ly/zumba-at-home
         elseif ($page_id == 20221695 && time() < 1585737000)
         {
-            Mail::send('emails.instapage.20221695', ['body' => $body], function ($message) use($email) {
-                $message->from('support@valedra.com', 'Valedra');
-                $message->subject('Zumba at Home with Valedra');
-                $message->to($email);
-                $message->attach(storage_path('files/Join Us via Zoom Call - Zumba.pdf'));
-            });
+            self::mail('emails.instapage.20221695', ['body' => $body],
+                'Zumba at Home with Valedra', $email,
+                storage_path('files/Join Us via Zoom Call - Zumba.pdf'), false);
         }
 
         // https://events.valedra.com/online-indian-classical-dance?utm_source=sms
         // http://bit.ly/online-indian-classical-dance
         elseif ($page_id == 20233330 && time() < 1585827000)
         {
-            Mail::send('emails.instapage.20233330', ['body' => $body], function ($message) use($email) {
-                $message->from('support@valedra.com', 'Valedra');
-                $message->subject('Indian Classical Dance with Valedra');
-                $message->to($email);
-                $message->attach(storage_path('files/Join Us via Zoom - Indian Classical Dance.pdf'));
-            });
+            self::mail('emails.instapage.20233330', ['body' => $body],
+                'Indian Classical Dance with Valedra', $email,
+                storage_path('files/Join Us via Zoom - Indian Classical Dance.pdf'), false);
+
         }
 
-	    // Toppr Page
-        elseif ($page_id == 20238395)
+	    // https://events.valedra.com/toppr-access
+        elseif ($page_id == 20238395 && time() < 1586975399)
         {
             $codeMapping = [
                 "Apeejay School, Pitampura" => 'APJPITAMPURA',
@@ -106,24 +99,33 @@ class LeadCreate
                 "Apeejay School, Charkhi Dadri" => 'APJCHARKHIDADRI',
                 "Apeejay School, Jalandhar" => 'APEEJAYJUC',
                 "Apeejay School, Tanda Road" => 'APJTANDAROAD',
-//                "G D Goenka Public School, Vasant Kunj" => '',
-//                "Delhi Public School, R.K. Puram" => '',
-//                "Delhi Public School, Mathura Road" => '',
-//                "Modern School, Barakhamba Road" => ''
             ];
 
             $code = $codeMapping[$body["School"]] ?? '';
 
-            if(!empty($code)) {
-                $email = ['ankur@valedra.com', 'bishwanath@valedra.com'];
-                Mail::send('emails.instapage.20238395', ['body' => $body, 'code' => $code], function ($message) use($email) {
-                    $message->from('support@valedra.com', 'Valedra');
-                    $message->subject('Access Toppr For Free');
-                    $message->to($email);
-                    $message->attach(storage_path('files/Toppr Brochure.pdf'));
-                });
-            }
+            self::mail('emails.instapage.20238395', ['body' => $body, 'code' => $code],
+                'Access Toppr For Free', $email, storage_path('files/Toppr Brochure.pdf'), true);
 
         }
+
+	    // https://events.valedra.com/virtual-museum-tours
+        elseif ($page_id == 20242715 && time() < 1585996200) {
+            self::mail('emails.instapage.20242715', ['body' => $body],
+                'Virtual Museum Tour | Valedra', $email,
+                storage_path('files/Join Us via Zoom Call _ VIrtual Museum Visits.pdf'), true);
+        }
+    }
+
+    private static function mail($view, $view_data, $subject, $email, $attachment, $is_sandbox = false) {
+        if($is_sandbox) {
+            $email = ['ankur@valedra.com', 'bishwanath@valedra.com'];
+        }
+
+        Mail::send($view, $view_data, function ($message) use($email, $subject, $attachment) {
+            $message->from('support@valedra.com', 'Valedra');
+            $message->subject($subject);
+            $message->to($email);
+            $message->attach($attachment);
+        });
     }
 }
