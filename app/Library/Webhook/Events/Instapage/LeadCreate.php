@@ -104,7 +104,7 @@ class LeadCreate
             $code = $codeMapping[$body["School"]] ?? '';
 
             self::mail('emails.instapage.20238395', ['body' => $body, 'code' => $code],
-                'Access Toppr For Free', $email, storage_path('files/Toppr Brochure.pdf'), true);
+                'Access Toppr For Free', $email, storage_path('files/Toppr Brochure.pdf'), false);
 
         }
 
