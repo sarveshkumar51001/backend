@@ -112,14 +112,14 @@ class LeadCreate
         elseif ($page_id == 20242715 && time() < 1585996200) {
             self::mail('emails.instapage.20242715', ['body' => $body],
                 'Virtual Museum Tour | Valedra', $email,
-                storage_path('files/Join Us via Zoom Call _ VIrtual Museum Visits.pdf'), true);
+                storage_path('files/Join Us via Zoom Call _ VIrtual Museum Visits.pdf'), false);
         }
 
 	    // https://programs.hayrey.com/webinar-profile-building
 	    elseif ($page_id == 20250570 && time() < 1585985400) {
             self::mail('emails.instapage.20250570', ['body' => $body],
                 'Thank You for Registering | Webinar Log In Credentials', $email,
-                storage_path('files/_H&R - Join Us via Zoom GD.pdf'), true);
+                storage_path('files/_H&R - Join Us via Zoom GD.pdf'), false);
         }
     }
 
