@@ -8,12 +8,12 @@
                 <strong  id="notification-title">Add Notification</strong>
             </div>
         <div class="card-body">
-            @if(!empty($errors))
-                <div class="alert alert-danger" role="alert">
-                    @foreach($errors as $error)
+            @if($errors)
+                @foreach($errors as $error)
+                    <div class="alert alert-danger" role="alert">
                         <p class="m-0">{{ $error }}</p>
-                    @endforeach
-                </div>
+                    </div>
+                @endforeach
             @endif
             <form method="post" action="{{route('notification.create')}}" class="form-group" enctype="multipart/form-data">
                 <div class="row ml-3 mr-4">
