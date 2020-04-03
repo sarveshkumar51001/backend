@@ -2,7 +2,7 @@
 namespace App\Library\Webhook\Events\Instapage;
 
 use App\Library\Webhook\Channel;
-use Carbon\Carbon;
+use App\Models\WebhookNotification;
 use Illuminate\Support\Facades\Mail;
 use App\Library\Instapage\WebhookDataInstapage;
 use App\Models\Webhook;
@@ -34,6 +34,7 @@ class LeadCreate
     }
 
     private static function sendEmail(Webhook $Webhook, $sandbox = 0) {
+
 	    $body = $Webhook->body();
 
 	    $email = $body['Email'];
@@ -41,6 +42,9 @@ class LeadCreate
 	        $email = ['ankur@valedra.com', 'bishwanath@valedra.com', 'zuhaib@valedra.com', 'rhea@valedra.com'];
         }
 	    $page_id = $body['page_id'];
+
+
+
 	    // events.valedra.com/online-yoga-at-home
 	    if ($page_id == 20189025)
 	    {
@@ -86,6 +90,21 @@ class LeadCreate
                 $message->to($email);
                 $message->attach(storage_path('files/Join Us via Zoom - Indian Classical Dance.pdf'));
             });
+        }
+	    else {
+	        $data = WebhookNotification::where('data.page_id',$page_id)->first()->toArray();
+
+            if(!empty($data) && strtotime($data['data']['cutoff_datetime']) > time() && $data['test_mode']){
+
+                Mail::send($data['data']['template'], ['body' => $body], function ($message) use($body,$data) {
+                    $message->from('support@valedra.com', 'Valedra');
+                    $message->subject($data['data']['subject']);
+                    $message->to($body[$data['data']['to_email']]);
+                    foreach($data['data']['attachments'] as $attachment){
+                        $message->attach($attachment);
+                    }
+                });
+            }
         }
     }
 }

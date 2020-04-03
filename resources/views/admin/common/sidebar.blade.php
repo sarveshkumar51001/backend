@@ -39,6 +39,9 @@
                     <a class="nav-link" href="{{ route('revenue.reports') }}"><i class="fa fa-file"></i> Reports</a></li>
             </ul>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('notification.index') }}"><i class="fa fa-send"></i>Notifications</a>
+        </li>
         <li class="nav-title">Customer profiler</li>
         <li class="nav-item nav-dropdown">
             <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-user"></i> Customer profiler</a>
