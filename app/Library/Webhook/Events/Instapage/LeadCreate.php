@@ -86,7 +86,7 @@ class LeadCreate
             $codeMapping = [
                 "Apeejay School, Pitampura" => 'APJPITAMPURA',
                 "Apeejay School, Saket" => 'APEEJAYSAKET',
-                "Apeejay School, Sheikh Sarai" => 'APEEJAYSSARAI',
+                "Apeejay School, Sheikh Sarai" => 'APJPPARK',
                 "Apeejay School, Noida" => 'APEEJAYNOIDA',
                 "Apeejay School, Faridabad" => 'APEEJAYFBD1',
                 "Apeejay Svran Global School, Faridabad" => 'APEEJAYFBD21',
