@@ -127,7 +127,11 @@ class LeadCreate
         }
         else {
             $data = WebhookNotification::where('data.page_id',$page_id)->first()->toArray();
-            $name = $body[$data['data']['to_name']];
+            $name_field = $data['data']['to_name'];
+            $email_field = $data['data']['to_email'];
+
+            $name = isset($body[$name_field]) ? $body[$name_field] : '';
+            $email = isset($body[$email_field]) ? $body[$email_field] : "test@valedra.com";
 
             $blade = Blade::compileString($data['data']['template']);
             $view = string_view_renderer($blade, [
@@ -135,10 +139,10 @@ class LeadCreate
 
             if($data && strtotime($data['data']['cutoff_datetime']) > time() && !$data['data']['test_mode'] && $data['data']['active']){
 
-                Mail::send( [], [], function ($message) use($body,$data,$view) {
+                Mail::send( [], [], function ($message) use($email,$data,$view) {
                     $message->from('support@valedra.com', 'Valedra');
                     $message->subject($data['data']['subject']);
-                    $message->to($body[$data['data']['to_email']]);
+                    $message->to($email);
                     $message->setBody($view,'text/html');
                     foreach($data['data']['attachments'] as $attachment){
                         $message->attach($attachment);
