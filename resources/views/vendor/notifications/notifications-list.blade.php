@@ -22,7 +22,7 @@
                             <label>Source</label>
                             <select class="form-control" name="source" required="required">
                                 <option value="" selected disabled>Select Source </option>
-                                <option value="Instapage" @if("Instapage" == old('source')) selected="selected" @endif>Instapage</option>
+                                <option value="Instapage" @if("Instapage" == old('source')|| (!empty($data['source']) && 'Instapage'== $data['source'])) selected="selected" @endif>Instapage</option>
                             </select>
                                 </div>
                             </div>
@@ -31,7 +31,7 @@
                         <label>Event</label>
                         <select class="form-control" name="event" required="required">
                             <option value="" selected disabled>Select Event </option>
-                            <option value="Lead Create" @if("Lead Create" == old('event')) selected="selected" @endif>Lead Create</option>
+                            <option value="Lead Create" @if("Lead Create" == old('event')|| (!empty($data['identifier']) && 'Lead Create'== $data['identifier'])) selected="selected" @endif>Lead Create</option>
                         </select>
                     </div>
                 </div>
@@ -40,8 +40,8 @@
                             <label>Type</label>
                             <select class="form-control" name="type" required="required">
                                 <option value="" selected disabled>Select Type </option>
-                                <option value="SMS" @if("SMS" == old('type')) selected="selected" @endif>SMS</option>
-                                <option value="Email" @if("Email" == old('type')) selected="selected" @endif>Email</option>
+                                <option value="SMS" @if("SMS" == old('type') || (!empty($data['channel']) && 'SMS'== $data['channel'])) selected="selected" @endif>SMS</option>
+                                <option value="Email" @if("Email" == old('type')|| (!empty($data['channel']) && 'Email'== $data['channel'])) selected="selected" @endif>Email</option>
                             </select>
                         </div>
                     </div>
@@ -77,12 +77,12 @@
                     </div>
                 <div class="col-sm-3">
                     <label><i class="fa fa-file" aria-hidden="true"></i> Upload file</label>
-                    <input type="file" name="file" required="required" accept=".pdf" class="form-control">
+                    <input type="file" name="file" accept=".pdf" class="form-control">
                 </div>
                 <div class="col-sm-3">
                     <label for="cutoff_date">Cut Off Date</label>
                 <div class="input-group">
-                    <input type="datetime-local" id="cutoff_date" name="cutoff_date" class="form-control"></div>
+                    <input type="datetime-local" id="cutoff_date" name="cutoff_date" class="form-control"@if(!empty($data['data']['cutoff_datetime'])) value="{{ $data['data']['cutoff_datetime'] }}" @endif></div>
                 </div>
                 <div class="col-sm-2">
                     <label>Test Mode?</label>
@@ -108,6 +108,7 @@
                     <label>&nbsp;</label>
                     <div class="input-group">
                         @if(!empty($data))
+                            <input type="text" hidden name="update" value="update">
                             <button id="update-notification-btn" type="submit" class="btn btn-group-sm btn-success"><i class="fa fa-send-o"></i> Update</button>
                             <a href={{route('notification.index')}}><button type="button" class="btn btn-group-sm btn-danger"> Clear</button></a>
                         @else
@@ -122,8 +123,14 @@
         </div>
         </div>
         @endif
-        @if(!empty($notification))
-            <strong style="color: green">Notification created in the backend.</strong>
+        @if(isset($notification) && $notification == 'create')
+            <div class="alert alert-success" role="alert">
+                <p class="m-0"><strong style="color: green">Notification created in the backend.</strong></p>
+            </div>
+        @elseif(isset($notification) && $notification == 'update')
+            <div class="alert alert-success" role="alert">
+                <p class="m-0"><strong style="color: green">Notification updated in the backend.</strong></p>
+            </div>
         @endif
         <table class="table table-striped table-bordered datatable">
             <thead>

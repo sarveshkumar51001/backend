@@ -3,6 +3,7 @@ namespace App\Library\Webhook\Events\Instapage;
 
 use App\Library\Webhook\Channel;
 use App\Models\WebhookNotification;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Mail;
 use App\Library\Instapage\WebhookDataInstapage;
 use App\Models\Webhook;
@@ -126,13 +127,19 @@ class LeadCreate
         }
         else {
             $data = WebhookNotification::where('data.page_id',$page_id)->first()->toArray();
+            $name = $body[$data['data']['to_name']];
 
-            if(!empty($data) && strtotime($data['data']['cutoff_datetime']) > time() && $data['test_mode']){
+            $blade = Blade::compileString($data['data']['template']);
+            $view = string_view_renderer($blade, [
+                'first_name' => $name]);
 
-                Mail::send($data['data']['template'], ['body' => $body[$data['data']['to_name']]], function ($message) use($body,$data) {
+            if($data && strtotime($data['data']['cutoff_datetime']) > time() && !$data['data']['test_mode'] && $data['data']['active']){
+
+                Mail::send( [], [], function ($message) use($body,$data,$view) {
                     $message->from('support@valedra.com', 'Valedra');
                     $message->subject($data['data']['subject']);
                     $message->to($body[$data['data']['to_email']]);
+                    $message->setBody($view,'text/html');
                     foreach($data['data']['attachments'] as $attachment){
                         $message->attach($attachment);
                     }

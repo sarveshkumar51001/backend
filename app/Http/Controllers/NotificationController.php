@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\WebhookNotification;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\View\View;
 
 class NotificationController extends BaseController
 {
@@ -13,7 +17,7 @@ class NotificationController extends BaseController
         "source" => "required|string",
         "event" => "required|string",
         "type" => "required|string",
-        "subject" => "required",
+        "subject" => "required|string",
         "page_id" => "required|alpha_num",
         "to_name" => "required|string",
         "to_email" =>"required|string",
@@ -24,75 +28,106 @@ class NotificationController extends BaseController
     public static function getDocuments(){
         return WebhookNotification::all()->toArray();
     }
+
     public function index()
     {
         $breadcrumb = ['Notifications' => ''];
         return view('vendor.notifications.notifications-list', ['breadcrumb' => $breadcrumb,'documents'=> self::getDocuments()]);
     }
 
+    /**
+     * Function for returning single notification on request...
+     *
+     * @param $id
+     * @return Factory|View
+     */
     public function get($id)
     {
         $breadcrumb = ['Notifications' => ''];
 
-        $document = WebhookNotification::find($id)->toArray();
+        $document = WebhookNotification::find($id);
+        if(!$document){
+            return response('Notification to be edited not found in the database',403);
+        }
 
-        return view('vendor.notifications.notifications-list',['breadcrumb' => $breadcrumb,'documents'=> self::getDocuments(),'data'=>$document]);
+        return view('vendor.notifications.notifications-list',['breadcrumb' => $breadcrumb,'documents'=> self::getDocuments(),'data'=>$document->toArray()]);
     }
 
+    /**
+     * Function for creating/updating the notification as per the request...
+     *
+     * @param Request $request
+     * @return Factory|View
+     */
     public function create(Request $request)
     {
         $breadcrumb = ['Notifications' => ''];
 
         $data = $request->all();
+        $status = $real_path = '';
 
         $validator = Validator::make($data, self::$validation_rules);
         $errors = Arr::flatten(array_values($validator->getMessageBag()->toArray()));
 
-        $file = $request->file('file');
-        $originalFileName = $file->getClientOriginalName();
-        $filePath = storage_path(sprintf('uploads/%s',$data['page_id']));
-        $path = $file->move($filePath, $originalFileName);
+        // Proceeding further iff no errors found....
+        if(empty($errors)) {
 
-        $notification_doc = [
-            "identifier" => $data['event'],
-            "source" => $data['source'],
-            "data" => [
-                "page_id" => $data['page_id'],
-                "subject" => $data['subject'],
-                "to_name" => $data['to_name'],
-                "to_email" => $data['to_email'],
-                "template" => $data['email_template'],
-                "attachments" => [$path->getRealPath()],
-                "cutoff_datetime" => $data['cutoff_date'],
-                "test_mode" => isset($data['test']) ? 1 : 0,
-                "active" => isset($data['active'] ) ? 1 : 0,
-            ],
-            "channel" => $data['type']
-        ];
+            $file = $request->file('file');
 
-        $notification = WebhookNotification::create($notification_doc);
-        $data = $notification->exists() ? 'Yes': '';
+            if(!empty($file)) {
+                $originalFileName = $file->getClientOriginalName();
+                $filePath = storage_path(sprintf('uploads/%s', $data['page_id']));
+                $path = $file->move($filePath, $originalFileName);
+                $real_path = $path->getRealPath();
+            }
 
-        return view('vendor.notifications.notifications-list',['errors'=>$errors,'breadcrumb'=>$breadcrumb,'documents'=>  self::getDocuments(),'notification' => $data]);
-    }
+            $notification_doc = [
+                "identifier" => $data['event'],
+                "source" => $data['source'],
+                "data" => [
+                    "page_id" => $data['page_id'],
+                    "subject" => $data['subject'],
+                    "to_name" => $data['to_name'],
+                    "to_email" => $data['to_email'],
+                    "template" => $data['email_template'],
+                    "attachments" => !empty($real_path)? [$real_path] :'',
+                    "cutoff_datetime" => $data['cutoff_date'],
+                    "test_mode" => isset($data['test']) ? 1 : 0,
+                    "active" => isset($data['active']) ? 1 : 0,
+                ],
+                "channel" => $data['type']
+            ];
+            // If the request has update param then update the notification else create a new one...
+            if(!empty($data['update']))
+            {
+                $notification = WebhookNotification::where('data.page_id',$data['page_id']);
 
-    public function update(Request $request , $id)
-    {
+                if(!$notification->exists()) {
+                    return response([
+                        'Record not found'
+                    ], 403);
+                }
 
-        $notification = WebhookNotification::find($id);
+                $notification->update(['data.page_id'=> $data['page_id'],
+                    'data.subject' => $data['subject'],
+                    'data.to_name' => $data['to_name'],
+                    'data.to_email' => $data['to_email'],
+                    'data.template' => $data['email_template'],
+                    'data.cutoff_datetime' => $data['cutoff_date'],
+                    'data.test_mode' => isset($data['test']) ? 1 : 0,
+                    'data.active' => isset($data['active']) ? 1 : 0
+                ]);
 
-        if(!$notification instanceof WebhookNotification) {
-            return response([
-                'message' => 'Record not found'
-            ], 404);
+                if(empty($notification->first()->data['attachments'])){
+                    $notification->update(['data.attachments'=>[$real_path]]);
+                }
+                $status = "update";
+            } else {
+                $notification = WebhookNotification::create($notification_doc);
+                $status = $notification->exists() ? 'create' : '';
+            }
         }
 
-        return false;
+        return view('vendor.notifications.notifications-list',['errors'=>$errors,'breadcrumb'=>$breadcrumb,'documents'=>  self::getDocuments(),'notification' => $status]);
     }
-
-
-
-
-
-
 }
