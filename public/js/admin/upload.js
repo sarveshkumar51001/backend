@@ -94,11 +94,8 @@ function mark_payment_settled() {
             return;
         },
         error: function (data) {
-            toastr.error('There are few errors', 'Error');
+            toastr.error('Error Encountered', 'Error');
             loader.stop();
-            var response = $.parseJSON(data.responseText);
-            console.log('Error: ' + response);
-
         }
     });
 }

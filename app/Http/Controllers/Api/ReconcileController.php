@@ -91,9 +91,10 @@ class ReconcileController extends Controller {
         if(!empty($transaction_ids)) {
             foreach ($transaction_ids as $ids) {
                 if (empty($ids)) {
-                    return response('Invalid ID', 422);
+                    return response('ID not found', 422);
                 }
 
+                // Separating object id and payment index.
                 $composite_id = explode('.', $ids);
                 $object_id = $composite_id[0];
                 $payment_index = $composite_id[1];
