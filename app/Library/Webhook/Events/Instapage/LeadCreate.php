@@ -109,7 +109,7 @@ class LeadCreate
         }
 
 	    // https://events.valedra.com/virtual-museum-tours
-        elseif ($page_id == 20242715 && time() < 1586169000) {
+        elseif ($page_id == 20242715 && time() < 1586255400) {
             self::mail('emails.instapage.20242715', ['body' => $body],
                 'Virtual Museum Tour | Valedra', $email,
                 storage_path('files/Join Us via Zoom Call _ VIrtual Museum Visits.pdf'), false);
