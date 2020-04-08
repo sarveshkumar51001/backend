@@ -29,8 +29,14 @@ class NotificationController extends BaseController
         return WebhookNotification::all()->toArray();
     }
 
+    /**
+     * @return ResponseFactory|Factory|Response|View
+     */
     public function index()
     {
+        if(!is_admin()){
+            return \response('You don\'t have the access to view this page.Please check with the administrator.',403);
+        }
         $breadcrumb = ['Notifications' => ''];
         return view('vendor.notifications.notifications-list', ['breadcrumb' => $breadcrumb,'documents'=> self::getDocuments()]);
     }
@@ -44,6 +50,10 @@ class NotificationController extends BaseController
     public function get($id)
     {
         $breadcrumb = ['Notifications' => ''];
+
+        if(!is_admin()){
+            return \response('You don\'t have the access to view this page.Please check with the administrator.',403);
+        }
 
         $document = WebhookNotification::find($id);
         if(!$document){
@@ -62,6 +72,10 @@ class NotificationController extends BaseController
     public function create(Request $request)
     {
         $breadcrumb = ['Notifications' => ''];
+
+        if(!is_admin()){
+            return \response('You don\'t have the access to view this page.Please check with the administrator.',403);
+        }
 
         $data = $request->all();
         $status = $real_path = '';

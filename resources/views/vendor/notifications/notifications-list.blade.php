@@ -2,7 +2,6 @@
 
 @section('content')
     <link href="{{ URL::asset('vendors/css/codemirror.min.css') }}" rel="stylesheet">
-    @if(is_admin())
         <div class="card">
             <div class="card-header">
                 <strong  id="notification-title">Add Notification</strong>
@@ -122,7 +121,6 @@
             </form>
         </div>
         </div>
-        @endif
         @if(isset($notification) && $notification == 'create')
             <div class="alert alert-success" role="alert">
                 <p class="m-0"><strong style="color: green">Notification created in the backend.</strong></p>
