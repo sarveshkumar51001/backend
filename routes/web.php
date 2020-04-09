@@ -60,11 +60,7 @@ Route::prefix('shopify')->group(function() {
 
     });
 
-    Route::prefix('notifications')->group(function () {
-        Route::get('/', 'NotificationController@index')->name('notification.index');
-        Route::get('/get/{id}', 'NotificationController@get')->name('notification');
-        Route::post('/create', 'NotificationController@create')->name('notification.create');
-    });
+    Route::resource('notifications', 'NotificationController')->except(['show', 'destroy']);
 
     Route::get('/transactions','BulkUpload\TransactionController@index')->name('orders.transactions');
     Route::post('/get/transactions', 'BulkUpload\TransactionController@search_transactions_by_location')->name('get.transactions');

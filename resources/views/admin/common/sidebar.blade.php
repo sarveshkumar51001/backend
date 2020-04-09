@@ -41,7 +41,7 @@
         </li>
         @if(is_admin())
         <li class="nav-item">
-            <a class="nav-link" href="{{ route('notification.index') }}"><i class="fa fa-send"></i>Notifications</a>
+            <a class="nav-link" href="{{ route('notifications.index') }}"><i class="fa fa-send"></i>Notifications</a>
         </li>
         @endif
         <li class="nav-title">Customer profiler</li>
