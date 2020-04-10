@@ -67,7 +67,7 @@ Route::prefix('shopify')->group(function() {
 
 
     Route::group(['prefix' => 'pages'], function() {
-        Route::get('/leads','InstaLeadController@leads')->name('pages.leads');
+        Route::get('/leads','PageController@leads')->name('pages.leads');
         /*Route::post('/leads','InstaLeadController@leads')->name('pages.leads');*/
     });
 

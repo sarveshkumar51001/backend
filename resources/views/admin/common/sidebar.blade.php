@@ -61,9 +61,10 @@
                     </li>
                 </ul>
             </li>
+        <li class="nav-title">Pages</li>
         <li class="nav-item">
             <a class="nav-link" href="{{ URL::to('/pages/leads') }}"><i class="fa fa-sitemap"></i> Leads </a></li>
-        <li class="nav-title">Students</li>
+
         </ul>
     </nav>
 <button class="sidebar-minimizer brand-minimizer" type="button"></button>
