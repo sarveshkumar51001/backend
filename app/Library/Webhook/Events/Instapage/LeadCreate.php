@@ -108,6 +108,12 @@ class LeadCreate
 
         }
 
+	    // https://events.valedra.com/byjus-access
+        elseif ($page_id == 20261575 && time() < 1586975399) {
+            self::mail('emails.instapage.20261575', ['body' => $body],
+                'Access BYJU\'s For Free', $email, storage_path('files/BYJUS_Class_1 to 10_Brochure.pdf'), false);
+        }
+
 	    // https://events.valedra.com/virtual-museum-tours
         elseif ($page_id == 20242715 && time() < 1586255400) {
             self::mail('emails.instapage.20242715', ['body' => $body],
@@ -132,7 +138,9 @@ class LeadCreate
             $message->from('support@valedra.com', 'Valedra');
             $message->subject($subject);
             $message->to($email);
-            $message->attach($attachment);
+            if(!empty($attachment)) {
+                $message->attach($attachment);
+            }
         });
     }
 }
