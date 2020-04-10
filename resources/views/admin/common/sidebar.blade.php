@@ -50,16 +50,6 @@
             </ul>
         </li>
 
-        <li class="nav-title">Leads</li>
-        <li class="nav-item nav-dropdown">
-            <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-user"></i> Leads</a>
-            <ul class="nav-dropdown-items">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ URL::to('/instagram/leads') }}"><i class="fa fa-sitemap"></i>List</a>
-                </li>
-            </ul>
-        </li>
-
             <li class="nav-title">Image Recognitions</li>
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-search"></i> Search</a>
@@ -71,6 +61,9 @@
                     </li>
                 </ul>
             </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ URL::to('/pages/leads') }}"><i class="fa fa-sitemap"></i> Leads </a></li>
+        <li class="nav-title">Students</li>
         </ul>
     </nav>
 <button class="sidebar-minimizer brand-minimizer" type="button"></button>

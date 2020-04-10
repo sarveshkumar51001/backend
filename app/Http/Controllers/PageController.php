@@ -1,14 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use Maatwebsite\Excel;
+use App\Models\InstaPage;
 use App\Exports\InstaLeadsExport;
 use App\Library\Instapage\WebhookDataInstapage;
-use App\Models\InstaPage;
-use Maatwebsite\Excel;
 
-class InstaLeadController extends BaseController
+/**
+ * Class PageController
+ * @package App\Http\Controllers
+ */
+class PageController extends BaseController
 {
-
     public function leads()
     {
         $Pages = InstaPage::all();
@@ -41,8 +45,10 @@ class InstaLeadController extends BaseController
                 return Excel\Facades\Excel::download(new InstaLeadsExport($excel_data), $filename);
             }
         }
+
         session()->flashInput(request()->input());
-        return view('instagram-leads.leads',
+
+        return view('pages.leads',
             [  'Pages'=>$Pages,
                'data' => $LeadsData,
                'fields' => $InstaPage,

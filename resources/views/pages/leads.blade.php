@@ -5,7 +5,7 @@
         <div class="card-header">
             <i class="fa fa-file"></i>Reports
         </div>
-        <form method="get" action="{{route('instagram.leads')}}"  id="report-form">
+        <form method="get" action="{{route('pages.leads')}}"  id="report-form">
             <div class = "card-body">
                 @if (!$errors->Errors->isEmpty())
                     <div class="alert alert-danger" role="alert">

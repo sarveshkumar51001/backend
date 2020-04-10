@@ -66,9 +66,9 @@ Route::prefix('shopify')->group(function() {
     Route::get('/get/transactions','BulkUpload\TransactionController@search_transactions_by_location')->name('self.transactions');
 
 
-    Route::group(['prefix' => 'instagram'], function() {
-        Route::get('/leads','InstaLeadController@leads')->name('instagram.leads');
-        /*Route::post('/leads','InstaLeadController@leads')->name('instagram.leads');*/
+    Route::group(['prefix' => 'pages'], function() {
+        Route::get('/leads','InstaLeadController@leads')->name('pages.leads');
+        /*Route::post('/leads','InstaLeadController@leads')->name('pages.leads');*/
     });
 
 
