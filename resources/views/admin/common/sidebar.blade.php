@@ -24,6 +24,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ URL::to('/shopify/orders') }}"><i class="fa fa-sitemap"></i>Orders</a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('bulkupload.previous_orders') }}"><i class="fa fa-upload"></i>Bulk Upload</a>
                 </li>
@@ -48,6 +49,7 @@
                 </li>
             </ul>
         </li>
+
             <li class="nav-title">Image Recognitions</li>
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-search"></i> Search</a>
@@ -59,6 +61,9 @@
                     </li>
                 </ul>
             </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ URL::to('/pages/leads') }}"><i class="fa fa-sitemap"></i> Leads </a></li>
+        <li class="nav-title">Students</li>
         </ul>
     </nav>
 <button class="sidebar-minimizer brand-minimizer" type="button"></button>
