@@ -1,10 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Exports\InstaLeadsExport;
 use App\Library\Instapage\WebhookDataInstapage;
-use Illuminate\Support\Facades\Validator;
 use App\Models\InstaPage;
 use Maatwebsite\Excel;
 
@@ -14,44 +12,42 @@ class InstaLeadController extends BaseController
     public function leads()
     {
         $Pages = InstaPage::all();
-        $data = [];
+        $LeadsData = [];
+        $InstaPage = [];
         $breadcrumb = ['List' => ''];
 
-        if (\Request::isMethod('post')) {
-
-            $rules = [
-                "page_id" => "required",
-                "daterange" => "required|string"
-            ];
-
-            $validator = Validator::make(request()->all(), $rules);
-            if ($validator->fails()) {
-                return redirect()->route('revenue.reports')->withErrors($validator, 'Errors')->withInput();
-            }
+        if (\Request::isMethod('get')) {
 
             $page_id = !empty(request('page_id')) ? request('page_id') : '';
             $date_params = getStartEndDate(request('daterange'));
             [$start_date, $end_date] = $date_params;
 
-            $LeadsData = WebhookDataInstapage::getInstaPageList($start_date, $end_date,  $page_id);
-            foreach ($LeadsData as $value) {
-                $data[] = [
-                    'Full Name'=> $value['data']['body']['Full Name'],
-                    'Email'=> $value['data']['body']['Email'],
-                    'Mobile' => $value['data']['body']['Mobile'],
-                    'School' => $value['data']['body']['School']
-                ];
-            }
+            $LeadsData = WebhookDataInstapage:: getInstaPageList($start_date, $end_date,  $page_id, WebhookDataInstapage::View);
 
-            $InstaPage = InstaPage::where(InstaPage::PageId,$page_id)->first(['page_name']);
+            $InstaPage = InstaPage::where(InstaPage::PageId,$page_id)->first();
             $filename = !empty($page_id) ? sprintf("%s.xls", $InstaPage['page_name']) : '';
 
-            if (!empty(request('download-csv')) && !empty($data)) {
-                return Excel\Facades\Excel::download(new InstaLeadsExport($data), $filename);
+            if (!empty(request('download-csv'))) {
+                // data for Excel
+                $ExcelData = WebhookDataInstapage:: getInstaPageList($start_date, $end_date,  $page_id, WebhookDataInstapage::Excel);
+                $counter = 0;
+                foreach($ExcelData as $data){
+                    foreach($InstaPage['lead_fields'] as $page => $key ){
+                        $keys[] = $key;
+                        $excel_data[$counter][$key] = $data['data']['body'][$key];
+                    }
+                    $counter ++;
+                }
+                return Excel\Facades\Excel::download(new InstaLeadsExport($excel_data), $filename);
             }
-
         }
         session()->flashInput(request()->input());
-        return view('instagram-leads.leads',['Pages'=>$Pages, 'data' => $data, 'breadcrumb' => $breadcrumb,'param' => request()->method()]);
+        return view('instagram-leads.leads',
+            [  'Pages'=>$Pages,
+               'data' => $LeadsData,
+               'fields' => $InstaPage,
+               'breadcrumb' => $breadcrumb,
+               'param' => request()->method()
+            ]);
     }
 }

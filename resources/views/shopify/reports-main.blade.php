@@ -69,7 +69,7 @@
               <td>{{$doc[$key]}}</td>
                   @endforeach
               </tr>
-              @endforeach
+          @endforeach
       </tbody>
   </table>
       @elseif(empty($data) && $param == 'POST')

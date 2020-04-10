@@ -68,7 +68,7 @@ Route::prefix('shopify')->group(function() {
 
     Route::group(['prefix' => 'instagram'], function() {
         Route::get('/leads','InstaLeadController@leads')->name('instagram.leads');
-        Route::post('/leads','InstaLeadController@leads')->name('instagram.leads');
+        /*Route::post('/leads','InstaLeadController@leads')->name('instagram.leads');*/
     });
 
 
