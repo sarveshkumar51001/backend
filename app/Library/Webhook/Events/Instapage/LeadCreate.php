@@ -27,7 +27,7 @@ class LeadCreate
 
         $instapage = InstaPage::where('page_id',$page_id)->first();
 
-        if(empty($instapage)){
+        if(empty($instapage) && $Webhook['source'] == InstaPage::SourceName){
             $doc = [
                  "page_id" => $page_id,
                 "page_name" => $Webhook->body()['page_name'],
