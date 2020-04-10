@@ -111,7 +111,7 @@ class LeadCreate
 	    // https://events.valedra.com/byjus-access
         elseif ($page_id == 20261575 && time() < 1586975399) {
             self::mail('emails.instapage.20261575', ['body' => $body],
-                'Access BYJU\'s For Free', $email, '', false);
+                'Access BYJU\'s For Free', $email, storage_path('files/BYJUS_Class_1 to 10_Brochure.pdf'), false);
         }
 
 	    // https://events.valedra.com/virtual-museum-tours
