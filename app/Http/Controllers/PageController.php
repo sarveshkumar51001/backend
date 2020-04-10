@@ -38,8 +38,13 @@ class PageController extends BaseController
                 foreach($ExcelData as $data){
                     foreach($InstaPage['lead_fields'] as $page => $key ){
                         $keys[] = $key;
-                        $excel_data[$counter][$key] = $data['data']['body'][$key];
+                        if ($key == 'capture_at') {
+	                        $excel_data[$counter]['capture_at'] = date("Y-m-d H:i:s", $data['created_at']);
+                        } else {
+	                        $excel_data[$counter][$key] = $data['data']['body'][$key] ?? '';
+                        }
                     }
+
                     $counter ++;
                 }
                 return Excel\Facades\Excel::download(new InstaLeadsExport($excel_data), $filename);

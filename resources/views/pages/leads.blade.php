@@ -3,7 +3,7 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <i class="fa fa-file"></i>Reports
+            <i class="fa fa-file"></i>Leads Reports
         </div>
         <form method="get" action="{{route('pages.leads')}}"  id="report-form">
             <div class = "card-body">
@@ -16,7 +16,7 @@
                 @endif
                 <div class="row">
                     <div class="col-sm-4">
-                        <label><i class="fa fa-tag">Page</i></label>
+                        <label><i class="fa fa-tag">Select Page</i></label>
                         <div class="input-group">
                             <select name="page_id" class="form-control" required="required">
                                 <option value="" selected disabled>Select Page Name </option>
@@ -54,7 +54,11 @@
             @foreach($data as $value)
                 <tr>
                     @foreach($fields['lead_fields'] as $index => $key)
-                        <td>{{$value['data']['body'][$key]}}</td>
+                        @if($key == 'capture_at')
+                            <td>{{ date("Y-m-d H:i:s", $value['created_at']) }}</td>
+                        @else
+                            <td>{{$value['data']['body'][$key] ?? ''}}</td>
+                        @endif
                     @endforeach
                 </tr>
             @endforeach
