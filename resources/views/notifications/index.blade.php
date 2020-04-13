@@ -37,7 +37,7 @@
                             <td>{{$document['data']['page_id'] ?? ''}}</td>
                             <td>{{$document['data']['to_name'] ?? ''}}</td>
                             <td>{{$document['data']['to_email'] ?? ''}}</td>
-                            <td>{{$document['data']['cutoff_datetime'] ?? '' }}</td>
+                            <td>{{date("Y-m-d h:i:s",$document['data']['cutoff_datetime']) ?? '' }}</td>
                             <td>{{isset($document['data']['active']) && $document['data']['active'] == 1 ? 'Yes':'No'}}
                                 <p class="pull-right">
                                     <a href="{{route('notifications.edit',['id'=>$document['_id']])}}" type="button" class="fa fa-edit"></a>

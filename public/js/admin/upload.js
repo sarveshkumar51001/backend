@@ -67,30 +67,4 @@ function download_transactions(reco_status = '') {
     return false;
 }
 
-function update(id) {
 
-    // Get the form data as array
-    var data = $('#notification-form').serializeArray();
-    var url = "/notifications/" + id;
-
-    return request(url, 'PUT', data);
-}
-
-function request(url, type, data) {
-    $.ajax({
-        method: type,
-        url: url,
-        data: data,
-        success: function() {
-            location.reload();
-        },
-        error: function (data) {
-            toastr.error('There are few errors', 'Error');
-            var response = $.parseJSON(data.responseText);
-            // Add error to the field and enable them
-            $.each(response.errors, function (field, error) {
-                $("#error-" + field).removeClass('d-none').html(error);
-            })
-        }
-    });
-}

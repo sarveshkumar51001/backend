@@ -18,7 +18,12 @@
                     </div>
                 @endforeach
             @endif
-            <form method="post" action="{{route('notifications.store')}}" class="form-group" enctype="multipart/form-data" id="notification-form">
+                @if(\Illuminate\Support\Facades\Request::url() != route('notifications.create'))
+                    <form method="post" action="{{route('notifications.update',$data['_id'])}}" class="form-group" enctype="multipart/form-data" id="notification-form">
+                    <input type="hidden" name="_method" value="PUT">
+                @else
+                    <form method="post" action="{{route('notifications.store')}}" class="form-group" enctype="multipart/form-data" id="notification-form">
+                @endif
                 <div class="row">
                     <div class="col-sm-3">
                         <div class="form-group">
@@ -85,7 +90,7 @@
                     <div class="col-sm-3">
                         <label for="cutoff_date">Cut Off Date</label>
                         <div class="input-group">
-                            <input type="datetime-local" id="cutoff_date" name="cutoff_date" class="form-control"@if(!empty($data['data']['cutoff_datetime'])) value="{{ $data['data']['cutoff_datetime'] }}" @endif></div>
+                            <input type="datetime-local" id="cutoff_date" name="cutoff_date" class="form-control"@if(!empty($data['data']['cutoff_datetime'])) value="{{ date("Y-m-d h:i:s",$data['data']['cutoff_datetime'] }}" @endif></div>
                     </div>
                     <div class="col-sm-2">
                         <label>Test Mode?</label>
@@ -120,18 +125,12 @@
 
                 <div class="row">
                     <div class="col-sm-12">
-                        @if(!\Request::is('notifications/*/edit'))
-                            <button id="create-notification-btn" type="submit" class="btn btn-group-sm btn-success"><i class="fa fa-send-o"></i> Create</button>
-                        @endif
+                            <button type="submit" class="btn btn-group-sm btn-success"><i class="fa fa-send-o"></i> Save</button>
                         <a href="/notifications/create" class="btn btn-group-sm btn-danger pull-right" type="reset"><i class="fa fa-remove"></i> Clear</a>
                     </div>
                 </div>
                 {{ csrf_field() }}
             </form>
-                @if(\Request::is('notifications/*/edit'))
-                    <button id="update-notification-btn" value="{{$data['_id']}}" class="btn btn-group-sm btn-success" onclick="update(this.value)"><i class="fa fa-send-o"></i> Update</button>
-                @endif
-        </div>
     </div>
     @if(isset($notification) && $notification == 'create')
         <div class="alert alert-success" role="alert">

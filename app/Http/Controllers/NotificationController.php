@@ -84,7 +84,7 @@ class NotificationController extends BaseController
     }
 
     /**
-     * Function for creating/updating the notification as per the request...
+     * Function for creating notification as per the request...
      *
      * @param Request $request
      * @return Factory|View
@@ -138,14 +138,17 @@ class NotificationController extends BaseController
         return view('notifications.create-edit', ['errors' => $errors, 'breadcrumb' => $breadcrumb, 'notification' => 'create'])->with($this->getDefaultData());
     }
 
-    public function update(Request $request,$id)
+    /**
+     * @param $id
+     * @return ResponseFactory|Factory|Response|View
+     */
+    public function update($id)
     {
-        
         if (!is_admin()) {
             return \response('You don\'t have the access to view this page.Please check with the administrator.', 403);
         }
 
-        $data = $request->all();
+        $data = request()->all();
         $status = $real_path = '';
 
         $validator = Validator::make($data, self::$validation_rules);
@@ -154,7 +157,7 @@ class NotificationController extends BaseController
 
         if (empty($errors)) {
 
-            $file = $request->file('file');
+            $file = request()->file('file');
 
             if (!empty($file)) {
                 $originalFileName = $file->getClientOriginalName();
@@ -163,7 +166,7 @@ class NotificationController extends BaseController
                 $real_path = $path->getRealPath();
             }
 
-            $notification = WebhookNotification::where('data.page_id', $data['page_id']);
+            $notification = WebhookNotification::where('_id', $id);
 
             if (!$notification->exists()) {
                 return response([
@@ -186,7 +189,7 @@ class NotificationController extends BaseController
             }
         }
 
-        return view('notifications.create-edit', ['errors' => $errors, 'breadcrumb' => ['Notifications' => ''], 'notification' => 'update'])->with($this->getDefaultData());
+        return view('notifications.create-edit', ['errors' => $errors,'data'=>['_id'=> $id],'breadcrumb' => ['Notifications' => ''], 'notification' => 'update'])->with($this->getDefaultData());
     }
 
     private function getDefaultData() {
