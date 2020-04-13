@@ -392,11 +392,6 @@ class ShopifyExcelUpload extends Base
         ]
     ];
 
-    const ADMIN_EMAIL_LIST = [
-        'ankur@valedra.com',
-        'bishwanath@valedra.com'
-    ];
-
     /**
      * Function returns school/institute location based on the delivery institution and branch provided. If the
      * delivery institution exists in the school address mapping then fetch the location corresponding to the branch

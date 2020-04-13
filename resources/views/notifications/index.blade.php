@@ -15,6 +15,11 @@
                     </div>
                 @endforeach
             @endif
+            @if(session('notification-message'))
+                    <div class="alert alert-success" role="alert">
+                        <p class="m-0">{{ session('notification-message')  }}</p>
+                    </div>
+            @endif
 
             @if(!empty($data))
                 <table class="table table-striped table-bordered datatable">
@@ -26,7 +31,7 @@
                         <th>To Name</th>
                         <th>To Mail</th>
                         <th>Cut off Date</th>
-                        <th>Active</th>
+                        <th>Status</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -37,8 +42,19 @@
                             <td>{{$document['data']['page_id'] ?? ''}}</td>
                             <td>{{$document['data']['to_name'] ?? ''}}</td>
                             <td>{{$document['data']['to_email'] ?? ''}}</td>
-                            <td>{{date("Y-m-d h:i:s",$document['data']['cutoff_datetime']) ?? '' }}</td>
-                            <td>{{isset($document['data']['active']) && $document['data']['active'] == 1 ? 'Yes':'No'}}
+                            <td>{{date("d-m-Y g:i:s A",$document['data']['cutoff_datetime']) ?? 0 }}
+                                @if($document['data']['cutoff_datetime'] < time())
+                                    <span class="badge badge-warning">Deactivated</span>
+                                @endif
+                            </td>
+                            <td>@if(isset($document['data']['active']) && $document['data']['active'] == 1)
+                                    <span class="badge badge-success">Active</span>
+                                @else
+                                    <span class="badge badge-danger">InActive</span>
+                                @endif
+                                @if(isset($document['data']['test_mode']) && $document['data']['test_mode'] == 1)
+                                    <span class="badge badge-warning">Sandbox</span>
+                                @endif
                                 <p class="pull-right">
                                     <a href="{{route('notifications.edit',['id'=>$document['_id']])}}" type="button" class="fa fa-edit"></a>
                                 </p></td>

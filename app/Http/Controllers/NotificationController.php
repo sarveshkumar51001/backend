@@ -59,6 +59,11 @@ class NotificationController extends BaseController
         return view('notifications.create-edit')->with($this->getDefaultData());
     }
 
+    public function show($id)
+    {
+        return redirect(route('notifications.index'));
+    }
+
     /**
      * Function for returning single notification on request...
      *
@@ -67,7 +72,10 @@ class NotificationController extends BaseController
      */
     public function edit($id)
     {
-        $breadcrumb = ['Notifications' => ''];
+        $breadcrumb = [
+            'Notifications' => route('notifications.index'),
+            'Update Notifications' => ''
+        ];
 
         if (!is_admin()) {
             return \response('You don\'t have the access to view this page.Please check with the administrator.', 403);
@@ -91,7 +99,10 @@ class NotificationController extends BaseController
      */
     public function store(Request $request)
     {
-        $breadcrumb = ['Notifications' => ''];
+        $breadcrumb = [
+            'Notifications' => route('notifications.index'),
+            'Create Notifications' => ''
+        ];
 
         if (!is_admin()) {
             return \response('You don\'t have the access to view this page.Please check with the administrator.', 403);
@@ -133,6 +144,9 @@ class NotificationController extends BaseController
             ];
             // If the request has update param then update the notification else create a new one...
             WebhookNotification::create($notification_doc);
+            $request->session()->flash('notification-message', 'Notification was successfully created!');
+
+            return redirect()->route('notifications.index');
             }
 
         return view('notifications.create-edit', ['errors' => $errors, 'breadcrumb' => $breadcrumb, 'notification' => 'create'])->with($this->getDefaultData());
@@ -174,12 +188,16 @@ class NotificationController extends BaseController
                 ], 403);
             }
 
-            $notification->update(['data.page_id' => $data['page_id'],
+            $notification->update([
+                "identifier" => $data['event'],
+                "source" => $data['source'],
+                "channel" => $data['type'],
+                'data.page_id' => $data['page_id'],
                 'data.subject' => $data['subject'],
                 'data.to_name' => $data['to_name'],
                 'data.to_email' => $data['to_email'],
                 'data.template' => $data['email_template'],
-                'data.cutoff_datetime' => $data['cutoff_date'],
+                'data.cutoff_datetime' => strtotime($data['cutoff_date']),
                 'data.test_mode' => isset($data['test']) ? 1 : 0,
                 'data.active' => isset($data['active']) ? 1 : 0
             ]);
@@ -187,6 +205,10 @@ class NotificationController extends BaseController
             if (empty($notification->first()->data['attachments'])) {
                 $notification->update(['data.attachments' => [$real_path]]);
             }
+
+            \request()->session()->flash('notification-message', 'Notification was successfully updated!');
+
+            return redirect()->route('notifications.index');
         }
 
         return view('notifications.create-edit', ['errors' => $errors,'data'=>['_id'=> $id],'breadcrumb' => ['Notifications' => ''], 'notification' => 'update'])->with($this->getDefaultData());

@@ -4,7 +4,7 @@
     <link href="{{ URL::asset('vendors/css/codemirror.min.css') }}" rel="stylesheet">
     <div class="card">
         <div class="card-header">
-            @if(\Request::is('notifications/*/edit'))
+            @if(\Illuminate\Support\Facades\Route::current()->getName() != 'notifications.create')
                 <strong  id="notification-title">Edit Email Notification</strong>
             @else
                 <strong  id="notification-title">Add Email Notification</strong>
@@ -18,7 +18,7 @@
                     </div>
                 @endforeach
             @endif
-                @if(\Illuminate\Support\Facades\Request::url() != route('notifications.create'))
+                @if(\Illuminate\Support\Facades\Route::current()->getName() != 'notifications.create')
                     <form method="post" action="{{route('notifications.update',$data['_id'])}}" class="form-group" enctype="multipart/form-data" id="notification-form">
                     <input type="hidden" name="_method" value="PUT">
                 @else
@@ -90,13 +90,13 @@
                     <div class="col-sm-3">
                         <label for="cutoff_date">Cut Off Date</label>
                         <div class="input-group">
-                            <input type="datetime-local" id="cutoff_date" name="cutoff_date" class="form-control"@if(!empty($data['data']['cutoff_datetime'])) value="{{ date("Y-m-d h:i:s",$data['data']['cutoff_datetime'] }}" @endif></div>
+                            <input type="datetime-local" id="cutoff_date" name="cutoff_date" class="form-control" @if(!empty($data['data']['cutoff_datetime'])) value="{{ date("Y-m-d\TH:i:s",$data['data']['cutoff_datetime']) }}" @endif></div>
                     </div>
                     <div class="col-sm-2">
                         <label>Test Mode?</label>
                         <div class="input-group">
                             <label class="switch switch-icon switch-pill switch-success">
-                                <input type="checkbox" class="switch-input" name="test" id="test" @if(request('test') == 'on') checked @endif>
+                                <input type="checkbox" class="switch-input" name="test" id="test" @if(!empty($data['data']['test_mode']) && $data['data']['test_mode'] == 1) checked @endif>
                                 <span class="switch-label" data-on="" data-off=""></span>
                                 <span class="switch-handle"></span>
                             </label>
@@ -106,7 +106,7 @@
                         <label>Active?</label>
                         <div class="input-group">
                             <label class="switch switch-icon switch-pill switch-success">
-                                <input type="checkbox" class="switch-input" name="active" id="active" @if(request('active') == 'on') checked @endif>
+                                <input type="checkbox" class="switch-input" name="active" id="active" @if(!empty($data['data']['active']) && $data['data']['active'] == 1) checked @endif>
                                 <span class="switch-label" data-on="" data-off=""></span>
                                 <span class="switch-handle"></span>
                             </label>
@@ -126,22 +126,14 @@
                 <div class="row">
                     <div class="col-sm-12">
                             <button type="submit" class="btn btn-group-sm btn-success"><i class="fa fa-send-o"></i> Save</button>
-                        <a href="/notifications/create" class="btn btn-group-sm btn-danger pull-right" type="reset"><i class="fa fa-remove"></i> Clear</a>
+{{--                            <button type="reset" class="btn btn-group-sm btn-danger pull-right"><i class="fa fa-remove"></i> Reset</button>--}}
                     </div>
                 </div>
                 {{ csrf_field() }}
             </form>
     </div>
-    @if(isset($notification) && $notification == 'create')
-        <div class="alert alert-success" role="alert">
-            <p class="m-0"><strong style="color: green">Notification created in the backend.</strong></p>
-        </div>
-    @elseif(isset($notification) && $notification == 'update')
-        <div class="alert alert-success" role="alert">
-            <p class="m-0"><strong style="color: green">Notification updated in the backend.</strong></p>
-        </div>
-    @endif
 
+    </div>
 @endsection
 @section('footer-js')
     <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>

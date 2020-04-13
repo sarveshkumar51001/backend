@@ -2,7 +2,6 @@
 namespace App\Library\Webhook\Events\Instapage;
 
 use App\Library\Webhook\Channel;
-use App\Models\ShopifyExcelUpload;
 use App\Models\WebhookNotification;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Mail;
@@ -137,16 +136,20 @@ class LeadCreate
             $page_data = $data['data'];
             $email_field = $page_data['to_email'];
 
-            $email = isset($body[$email_field]) ? $body[$email_field] : "test@valedra.com";
+            if(!isset($body[$email_field])) {
+                throw new \Exception("Email field not found");
+            }
+            $email = $body[$email_field];
 
             $blade = Blade::compileString($page_data['template']);
             $view = string_view_renderer($blade, [
-                'body' => $body]);
+                'body' => $body
+            ]);
 
             if($data && $page_data['cutoff_datetime'] > time() && $page_data['active']){
 
                 if($page_data['test_mode']) {
-                    $email = ShopifyExcelUpload::ADMIN_EMAIL_LIST;
+                    $email = WebhookNotification::ADMIN_EMAIL_LIST;
                 }
 
                 Mail::send( [], [], function ($message) use($email,$page_data,$view) {
