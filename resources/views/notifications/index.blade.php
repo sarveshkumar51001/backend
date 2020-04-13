@@ -16,17 +16,6 @@
                 @endforeach
             @endif
 
-
-            @if(isset($notification) && $notification == 'create')
-                <div class="alert alert-success" role="alert">
-                    <p class="m-0"><strong style="color: green">Notification created in the backend.</strong></p>
-                </div>
-            @elseif(isset($notification) && $notification == 'update')
-                <div class="alert alert-success" role="alert">
-                    <p class="m-0"><strong style="color: green">Notification updated in the backend.</strong></p>
-                </div>
-            @endif
-
             @if(!empty($data))
                 <table class="table table-striped table-bordered datatable">
                     <thead>
@@ -45,10 +34,10 @@
                         <tr>
                             <td>{{$document['source']}}</td>
                             <td>{{$document['identifier']}}</td>
-                            <td>{{isset($document['data']['page_id']) ? $document['data']['page_id'] : ''}}</td>
-                            <td>{{isset($document['data']['to_name']) ? $document['data']['to_name']: ''}}</td>
-                            <td>{{isset($document['data']['to_email']) ?$document['data']['to_email']:''}}</td>
-                            <td>{{isset($document['data']['cutoff_datetime']) ? $document['data']['cutoff_datetime']:'' }}</td>
+                            <td>{{$document['data']['page_id'] ?? ''}}</td>
+                            <td>{{$document['data']['to_name'] ?? ''}}</td>
+                            <td>{{$document['data']['to_email'] ?? ''}}</td>
+                            <td>{{$document['data']['cutoff_datetime'] ?? '' }}</td>
                             <td>{{isset($document['data']['active']) && $document['data']['active'] == 1 ? 'Yes':'No'}}
                                 <p class="pull-right">
                                     <a href="{{route('notifications.edit',['id'=>$document['_id']])}}" type="button" class="fa fa-edit"></a>

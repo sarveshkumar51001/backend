@@ -4,7 +4,11 @@
     <link href="{{ URL::asset('vendors/css/codemirror.min.css') }}" rel="stylesheet">
     <div class="card">
         <div class="card-header">
-            <strong  id="notification-title">Add Email Notification</strong>
+            @if(\Request::is('notifications/*/edit'))
+                <strong  id="notification-title">Edit Email Notification</strong>
+            @else
+                <strong  id="notification-title">Add Email Notification</strong>
+            @endif
         </div>
         <div class="card-body">
             @if($errors)
@@ -14,7 +18,7 @@
                     </div>
                 @endforeach
             @endif
-            <form method="post" action="{{route('notifications.store')}}" class="form-group" enctype="multipart/form-data">
+            <form method="post" action="{{route('notifications.store')}}" class="form-group" enctype="multipart/form-data" id="notification-form">
                 <div class="row">
                     <div class="col-sm-3">
                         <div class="form-group">
@@ -41,10 +45,10 @@
                     <div class="col-sm-3">
                         <div class="form-group">
                             <label>Type</label>
-                            <select class="form-control" name="channel" required="required">
+                            <select class="form-control" name="type" required="required">
                                 <option value="" selected disabled>Select Type </option>
                                 @foreach($channels as $channel)
-                                    <option value="{{ $channel }}" @if(old('event') == $channel || (!empty($data['channel']) && $data['channel'] == $channel)) selected @endif>{{ \Illuminate\Support\Str::title($channel) }}</option>
+                                    <option value="{{ $channel }}" @if(old('type') == $channel || (!empty($data['channel']) && $data['channel'] == $channel)) selected @endif>{{ \Illuminate\Support\Str::title($channel) }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -116,12 +120,17 @@
 
                 <div class="row">
                     <div class="col-sm-12">
-                            <button id="update-notification-btn" type="submit" class="btn btn-group-sm btn-success"><i class="fa fa-send-o"></i> Update</button>
-                            <button class="btn btn-group-sm btn-danger pull-right" type="reset"><i class="fa fa-remove"></i> Clear</button>
+                        @if(!\Request::is('notifications/*/edit'))
+                            <button id="create-notification-btn" type="submit" class="btn btn-group-sm btn-success"><i class="fa fa-send-o"></i> Create</button>
+                        @endif
+                        <a href="/notifications/create" class="btn btn-group-sm btn-danger pull-right" type="reset"><i class="fa fa-remove"></i> Clear</a>
                     </div>
                 </div>
                 {{ csrf_field() }}
             </form>
+                @if(\Request::is('notifications/*/edit'))
+                    <button id="update-notification-btn" value="{{$data['_id']}}" class="btn btn-group-sm btn-success" onclick="update(this.value)"><i class="fa fa-send-o"></i> Update</button>
+                @endif
         </div>
     </div>
     @if(isset($notification) && $notification == 'create')

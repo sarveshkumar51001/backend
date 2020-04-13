@@ -2,6 +2,7 @@
 namespace App\Library\Webhook\Events\Instapage;
 
 use App\Library\Webhook\Channel;
+use App\Models\ShopifyExcelUpload;
 use App\Models\WebhookNotification;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Mail;
@@ -112,6 +113,12 @@ class LeadCreate
 
         }
 
+	    // https://events.valedra.com/byjus-access
+        elseif ($page_id == 20261575 && time() < 1586975399) {
+            self::mail('emails.instapage.20261575', ['body' => $body],
+                'Access BYJU\'s For Free', $email, storage_path('files/BYJUS_Class_1 to 10_Brochure.pdf'), false);
+        }
+
 	    // https://events.valedra.com/virtual-museum-tours
         elseif ($page_id == 20242715 && time() < 1586255400) {
             self::mail('emails.instapage.20242715', ['body' => $body],
@@ -127,25 +134,30 @@ class LeadCreate
         }
         else {
             $data = WebhookNotification::where('data.page_id',$page_id)->first()->toArray();
-            $name_field = $data['data']['to_name'];
-            $email_field = $data['data']['to_email'];
+            $page_data = $data['data'];
+            $email_field = $page_data['to_email'];
 
-            $name = isset($body[$name_field]) ? $body[$name_field] : '';
             $email = isset($body[$email_field]) ? $body[$email_field] : "test@valedra.com";
 
-            $blade = Blade::compileString($data['data']['template']);
+            $blade = Blade::compileString($page_data['template']);
             $view = string_view_renderer($blade, [
-                'first_name' => $name]);
+                'body' => $body]);
 
-            if($data && strtotime($data['data']['cutoff_datetime']) > time() && !$data['data']['test_mode'] && $data['data']['active']){
+            if($data && $page_data['cutoff_datetime'] > time() && $page_data['active']){
 
-                Mail::send( [], [], function ($message) use($email,$data,$view) {
+                if($page_data['test_mode']) {
+                    $email = ShopifyExcelUpload::ADMIN_EMAIL_LIST;
+                }
+
+                Mail::send( [], [], function ($message) use($email,$page_data,$view) {
                     $message->from('support@valedra.com', 'Valedra');
-                    $message->subject($data['data']['subject']);
+                    $message->subject($page_data['subject']);
                     $message->to($email);
                     $message->setBody($view,'text/html');
-                    foreach($data['data']['attachments'] as $attachment){
-                        $message->attach($attachment);
+                    if(!empty($page_data['attachments'])) {
+                        foreach ($page_data['attachments'] as $attachment) {
+                            $message->attach($attachment);
+                        }
                     }
                 });
             }
@@ -161,7 +173,9 @@ class LeadCreate
             $message->from('support@valedra.com', 'Valedra');
             $message->subject($subject);
             $message->to($email);
-            $message->attach($attachment);
+            if(!empty($attachment)) {
+                $message->attach($attachment);
+            }
         });
     }
 }

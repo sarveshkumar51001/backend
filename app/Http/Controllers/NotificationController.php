@@ -51,7 +51,7 @@ class NotificationController extends BaseController
         $data = WebhookNotification::paginate(20);
 
         $breadcrumb = ['Notifications' => ''];
-        return view('notifications.index', ['breadcrumb' => $breadcrumb, 'data' => $data]);
+        return view('notifications.index', ['breadcrumb' => $breadcrumb, 'data' => $data])->with($this->getDefaultData());
     }
 
     public function create()
@@ -65,7 +65,7 @@ class NotificationController extends BaseController
      * @param $id
      * @return Factory|View
      */
-    public function get($id)
+    public function edit($id)
     {
         $breadcrumb = ['Notifications' => ''];
 
@@ -74,11 +74,13 @@ class NotificationController extends BaseController
         }
 
         $document = WebhookNotification::find($id);
+
         if (!$document) {
             return response('Notification to be edited not found in the database', 403);
         }
 
-        return view('vendor.notifications.notifications-list', ['breadcrumb' => $breadcrumb, 'documents' => self::getDocuments(), 'data' => $document->toArray()]);
+        return view('notifications.create-edit', ['breadcrumb' => $breadcrumb, 'data' => $document->toArray()])->with($this->getDefaultData());
+
     }
 
     /**
@@ -123,43 +125,68 @@ class NotificationController extends BaseController
                     "to_email" => $data['to_email'],
                     "template" => $data['email_template'],
                     "attachments" => !empty($real_path) ? [$real_path] : '',
-                    "cutoff_datetime" => $data['cutoff_date'],
+                    "cutoff_datetime" => strtotime($data['cutoff_date']),
                     "test_mode" => isset($data['test']) ? 1 : 0,
                     "active" => isset($data['active']) ? 1 : 0,
                 ],
                 "channel" => $data['type']
             ];
             // If the request has update param then update the notification else create a new one...
-            if (!empty($data['update'])) {
-                $notification = WebhookNotification::where('data.page_id', $data['page_id']);
+            WebhookNotification::create($notification_doc);
+            }
 
-                if (!$notification->exists()) {
-                    return response([
-                        'Record not found'
-                    ], 403);
-                }
+        return view('notifications.create-edit', ['errors' => $errors, 'breadcrumb' => $breadcrumb, 'notification' => 'create'])->with($this->getDefaultData());
+    }
 
-                $notification->update(['data.page_id' => $data['page_id'],
-                    'data.subject' => $data['subject'],
-                    'data.to_name' => $data['to_name'],
-                    'data.to_email' => $data['to_email'],
-                    'data.template' => $data['email_template'],
-                    'data.cutoff_datetime' => $data['cutoff_date'],
-                    'data.test_mode' => isset($data['test']) ? 1 : 0,
-                    'data.active' => isset($data['active']) ? 1 : 0
-                ]);
+    public function update(Request $request,$id)
+    {
+        
+        if (!is_admin()) {
+            return \response('You don\'t have the access to view this page.Please check with the administrator.', 403);
+        }
 
-                if (empty($notification->first()->data['attachments'])) {
-                    $notification->update(['data.attachments' => [$real_path]]);
-                }
-                $status = "update";
-            } else {
-                $notification = WebhookNotification::create($notification_doc);
-                $status = $notification->exists() ? 'create' : '';
+        $data = $request->all();
+        $status = $real_path = '';
+
+        $validator = Validator::make($data, self::$validation_rules);
+        $errors = Arr::flatten(array_values($validator->getMessageBag()->toArray()));
+
+
+        if (empty($errors)) {
+
+            $file = $request->file('file');
+
+            if (!empty($file)) {
+                $originalFileName = $file->getClientOriginalName();
+                $filePath = storage_path(sprintf('uploads/%s', $data['page_id']));
+                $path = $file->move($filePath, $originalFileName);
+                $real_path = $path->getRealPath();
+            }
+
+            $notification = WebhookNotification::where('data.page_id', $data['page_id']);
+
+            if (!$notification->exists()) {
+                return response([
+                    'Record not found'
+                ], 403);
+            }
+
+            $notification->update(['data.page_id' => $data['page_id'],
+                'data.subject' => $data['subject'],
+                'data.to_name' => $data['to_name'],
+                'data.to_email' => $data['to_email'],
+                'data.template' => $data['email_template'],
+                'data.cutoff_datetime' => $data['cutoff_date'],
+                'data.test_mode' => isset($data['test']) ? 1 : 0,
+                'data.active' => isset($data['active']) ? 1 : 0
+            ]);
+
+            if (empty($notification->first()->data['attachments'])) {
+                $notification->update(['data.attachments' => [$real_path]]);
             }
         }
 
-        return view('vendor.notifications.notifications-list', ['errors' => $errors, 'breadcrumb' => $breadcrumb, 'documents' => self::getDocuments(), 'notification' => $status]);
+        return view('notifications.create-edit', ['errors' => $errors, 'breadcrumb' => ['Notifications' => ''], 'notification' => 'update'])->with($this->getDefaultData());
     }
 
     private function getDefaultData() {
