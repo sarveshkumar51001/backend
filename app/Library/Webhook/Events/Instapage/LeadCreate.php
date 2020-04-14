@@ -132,7 +132,13 @@ class LeadCreate
                 storage_path('files/_H&R - Join Us via Zoom GD.pdf'), false);
         }
         else {
-            $data = WebhookNotification::where('data.page_id', (string) $page_id)->first()->toArray();
+            $WebhookNotification = WebhookNotification::where('data.page_id', (string) $page_id)->first();
+
+            if(! $WebhookNotification) {
+                return;
+            }
+            $data = $WebhookNotification->toArray();
+
             $page_data = $data['data'];
             $email_field = $page_data['to_email'];
 
