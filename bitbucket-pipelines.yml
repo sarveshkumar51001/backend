@@ -8,5 +8,4 @@ pipelines:
             variables:
               SSH_USER: 'ubuntu'
               SERVER: 'backend.valedra.com'
-              SSH_KEY: $MY_SSH_KEY
               COMMAND: 'echo $HOSTNAME'
