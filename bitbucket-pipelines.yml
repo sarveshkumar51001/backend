@@ -1,0 +1,11 @@
+pipelines:
+  default:
+    - step:
+        script:
+          name: 'Deployment'
+          trigger: manual
+            - pipe: atlassian/ssh-run:0.2.4
+              variables:
+                SSH_USER: 'ubuntu'
+                SERVER: 'backend.valedra.com'
+                COMMAND: 'echo $HOSTNAME'
