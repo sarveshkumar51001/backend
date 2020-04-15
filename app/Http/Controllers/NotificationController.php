@@ -121,7 +121,7 @@ class NotificationController extends BaseController
 
             if (!empty($file)) {
                 $originalFileName = $file->getClientOriginalName();
-                $filePath = storage_path(sprintf('uploads/%s', $data['page_id']));
+                $filePath = storage_path('files/');
                 $path = $file->move($filePath, $originalFileName);
                 $real_path = $path->getRealPath();
             }
