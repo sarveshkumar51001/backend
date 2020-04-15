@@ -95,7 +95,7 @@ class NotificationController extends BaseController
      * Function for creating notification as per the request...
      *
      * @param Request $request
-     * @return Factory|View
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -144,17 +144,18 @@ class NotificationController extends BaseController
             ];
             // If the request has update param then update the notification else create a new one...
             WebhookNotification::create($notification_doc);
+
             $request->session()->flash('notification-message', 'Notification was successfully created!');
 
             return redirect()->route('notifications.index');
-            }
+        }
 
-        return view('notifications.create-edit', ['errors' => $errors, 'breadcrumb' => $breadcrumb, 'notification' => 'create'])->with($this->getDefaultData());
+        return redirect()->back()->withInput($request->all())->withErrors($errors)->with('breadcrumb',$breadcrumb)->with($this->getDefaultData());
     }
 
     /**
      * @param $id
-     * @return ResponseFactory|Factory|Response|View
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update($id)
     {
@@ -205,13 +206,12 @@ class NotificationController extends BaseController
             if (empty($notification->first()->data['attachments'])) {
                 $notification->update(['data.attachments' => [$real_path]]);
             }
-
             \request()->session()->flash('notification-message', 'Notification was successfully updated!');
 
             return redirect()->route('notifications.index');
         }
 
-        return view('notifications.create-edit', ['errors' => $errors,'data'=>['_id'=> $id],'breadcrumb' => ['Notifications' => ''], 'notification' => 'update'])->with($this->getDefaultData());
+        return redirect()->back()->withInput(request()->all())->withErrors($errors)->with('breadcrumb',['Notifications' => ''])->with($this->getDefaultData())->with('data',['_id'=> $id]);
     }
 
     private function getDefaultData() {
