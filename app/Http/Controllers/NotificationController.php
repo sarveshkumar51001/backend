@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\WebhookNotification;
+use Carbon\Carbon;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
@@ -136,7 +137,7 @@ class NotificationController extends BaseController
                     "to_email" => $data['to_email'],
                     "template" => $data['email_template'],
                     "attachments" => !empty($real_path) ? [$real_path] : '',
-                    "cutoff_datetime" => strtotime($data['cutoff_date']),
+                    "cutoff_datetime" => Carbon::createFromFormat('d/m/Y h:i A',$data['cutoff_date'])->timestamp,
                     "test_mode" => isset($data['test']) ? 1 : 0,
                     "active" => isset($data['active']) ? 1 : 0,
                 ],
@@ -198,7 +199,7 @@ class NotificationController extends BaseController
                 'data.to_name' => $data['to_name'],
                 'data.to_email' => $data['to_email'],
                 'data.template' => $data['email_template'],
-                'data.cutoff_datetime' => strtotime($data['cutoff_date']),
+                'data.cutoff_datetime' => Carbon::createFromFormat('d/m/Y h:i A',$data['cutoff_date'])->timestamp,
                 'data.test_mode' => isset($data['test']) ? 1 : 0,
                 'data.active' => isset($data['active']) ? 1 : 0
             ]);

@@ -42,7 +42,7 @@
                             <td>{{$document['data']['page_id'] ?? ''}}</td>
                             <td>{{$document['data']['to_name'] ?? ''}}</td>
                             <td>{{$document['data']['to_email'] ?? ''}}</td>
-                            <td>{{date("d-m-Y g:i:s A",$document['data']['cutoff_datetime']) ?? 0 }}
+                            <td>{{date('d/m/Y h:i A',$document['data']['cutoff_datetime']) ?? 0 }}
                                 @if($document['data']['cutoff_datetime'] < time())
                                     <span class="badge badge-warning">Deactivated</span>
                                 @endif

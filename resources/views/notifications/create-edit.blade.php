@@ -1,7 +1,6 @@
 @extends('admin.app')
 
 @section('content')
-    <link href="{{ URL::asset('vendors/css/codemirror.min.css') }}" rel="stylesheet">
     <div class="card">
         <div class="card-header">
             @if(\Illuminate\Support\Facades\Route::current()->getName() != 'notifications.create')
@@ -91,7 +90,8 @@
                     <div class="col-sm-3">
                         <label for="cutoff_date">Cut Off Date</label>
                         <div class="input-group">
-                            <input type="datetime-local" id="cutoff_date" name="cutoff_date" class="form-control" @if(!empty($data['data']['cutoff_datetime'])) value="{{ date("Y-m-d\TH:i:s",$data['data']['cutoff_datetime']) }}" @else value="{{ old('cutoff_date') }}" @endif></div>
+                            <input id="cutoff_date" type='text' name="cutoff_date" class="form-control" @if(!empty($data['data']['cutoff_datetime'])) value="{{ date('d/m/Y h:i A',$data['data']['cutoff_datetime']) }}" @else value="{{ old('cutoff_date') }}" @endif>
+                        </div>
                     </div>
                     <div class="col-sm-2">
                         <label>Test Mode?</label>
@@ -119,32 +119,44 @@
                     <div class="col-sm-12">
                         <div class="card">
                             <div class="card-header">Email Template</div>
-                            <textarea name="email_template" id="codemirror">
+                            <textarea name="email_template" id="editor1">
                                 @if(!empty($data['data']['template']))
                                     {{$data['data']['template']}}
                                 @else
                                     {{old('email_template')}}
                                 @endif
                             </textarea>
+
                         </div>
                     </div>
                 </div>
-
+                {{ csrf_field() }}
                 <div class="row">
                     <div class="col-sm-12">
                             <button type="submit" class="btn btn-group-sm btn-success"><i class="fa fa-send-o"></i> Save</button>
 {{--                            <button type="reset" class="btn btn-group-sm btn-danger pull-right"><i class="fa fa-remove"></i> Reset</button>--}}
                     </div>
                 </div>
-                {{ csrf_field() }}
+
             </form>
             </div>
+        </div>
         @endsection
-        @section('footer-js')
-            <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
+@section('footer-js')
+    <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
     <script src="{{ URL::asset('vendors/js/spin.min.js') }}"></script>
     <script src="{{ URL::asset('vendors/js/ladda.min.js') }}"></script>
-    <script src="{{ URL::asset('vendors/js/codemirror.min.js') }}"></script>
-    <script src="{{ URL::asset('js/views/code-editor.js') }}"></script>
+    <script src="https://cdn.ckeditor.com/4.9.2/standard/ckeditor.js"></script>
     <script src="{{ URL::asset('js/admin/upload.js') }}"></script>
+    <script>
+        CKEDITOR.replace('editor1');
+
+        $('#cutoff_date').daterangepicker({
+            singleDatePicker:true,
+            timePicker: true,
+            locale: {
+                format: 'DD/MM/YYYY hh:mm A'
+            }
+        });
+    </script>
 @endsection
