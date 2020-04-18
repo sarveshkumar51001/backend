@@ -4,6 +4,8 @@ namespace App\Library\Webhook\Events\Instapage;
 use App\Library\Webhook\Channel;
 use App\Models\InstaPage;
 use Carbon\Carbon;
+use App\Models\WebhookNotification;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Mail;
 use App\Library\Instapage\WebhookDataInstapage;
 use App\Models\Webhook;
@@ -54,12 +56,17 @@ class LeadCreate
         }
     }
 
+
     private static function sendEmail(Webhook $Webhook) {
+
 	    $body = $Webhook->body();
 
 	    $email = $body['Email'];
 
 	    $page_id = $body['page_id'];
+
+
+
 	    // events.valedra.com/online-yoga-at-home
 	    if ($page_id == 20189025)
 	    {
@@ -93,14 +100,12 @@ class LeadCreate
 
         // https://events.valedra.com/online-indian-classical-dance?utm_source=sms
         // http://bit.ly/online-indian-classical-dance
-        elseif ($page_id == 20233330 && time() < 1585827000)
-        {
+        elseif ($page_id == 20233330 && time() < 1585827000) {
             self::mail('emails.instapage.20233330', ['body' => $body],
                 'Indian Classical Dance with Valedra', $email,
                 storage_path('files/Join Us via Zoom - Indian Classical Dance.pdf'), false);
 
         }
-
 	    // https://events.valedra.com/toppr-access
         elseif ($page_id == 20238395 && time() < 1586975399)
         {
@@ -147,6 +152,46 @@ class LeadCreate
             self::mail('emails.instapage.20250570', ['body' => $body],
                 'Thank You for Registering | Webinar Log In Credentials', $email,
                 storage_path('files/_H&R - Join Us via Zoom GD.pdf'), false);
+        }
+        else {
+            $WebhookNotification = WebhookNotification::where('data.page_id', (string) $page_id)->first();
+
+            if(! $WebhookNotification) {
+                return;
+            }
+            $data = $WebhookNotification->toArray();
+
+            $page_data = $data['data'];
+            $email_field = $page_data['to_email'];
+
+            if(!isset($body[$email_field])) {
+                throw new \Exception("Email field not found");
+            }
+            $email = $body[$email_field];
+
+            $blade = Blade::compileString($page_data['template']);
+            $view = string_view_renderer($blade, [
+                'body' => $body
+            ]);
+
+            if($data && $page_data['cutoff_datetime'] > time() && $page_data['active']){
+
+                if($page_data['test_mode']) {
+                    $email = WebhookNotification::ADMIN_EMAIL_LIST;
+                }
+
+                Mail::send( [], [], function ($message) use($email,$page_data,$view) {
+                    $message->from('support@valedra.com', 'Valedra');
+                    $message->subject($page_data['subject']);
+                    $message->to($email);
+                    $message->setBody($view,'text/html');
+                    if(!empty($page_data['attachments'])) {
+                        foreach ($page_data['attachments'] as $attachment) {
+                            $message->attach($attachment);
+                        }
+                    }
+                });
+            }
         }
     }
 
