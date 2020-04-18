@@ -101,6 +101,10 @@ class ReconcileController extends Controller {
 
                 $Order = ShopifyExcelUpload::where('_id', $object_id);
 
+                if(empty($Order->first())){
+                    return [];
+                }
+
                 //Throwing error if the user tries to alter already settled payment.
                 $Payment = new Payment($Order->first()->toArray()['payments'], $payment_index);
                 if ($Payment->getRecoStatus() == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED) {
