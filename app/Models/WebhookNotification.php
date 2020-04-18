@@ -18,4 +18,6 @@ class WebhookNotification extends Base
         'ankur@valedra.com',
         'bishwanath@valedra.com'
     ];
+
+    const CUTOFF_DATE_FORMAT = 'd/m/Y h:i A';
 }

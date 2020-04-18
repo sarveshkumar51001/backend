@@ -137,7 +137,7 @@ class NotificationController extends BaseController
                     "to_email" => $data['to_email'],
                     "template" => $data['email_template'],
                     "attachments" => !empty($real_path) ? [$real_path] : '',
-                    "cutoff_datetime" => Carbon::createFromFormat('d/m/Y h:i A',$data['cutoff_date'])->timestamp,
+                    "cutoff_datetime" => Carbon::createFromFormat(WebhookNotification::CUTOFF_DATE_FORMAT,$data['cutoff_date'])->timestamp,
                     "test_mode" => isset($data['test']) ? 1 : 0,
                     "active" => isset($data['active']) ? 1 : 0,
                 ],
@@ -177,7 +177,7 @@ class NotificationController extends BaseController
 
             if (!empty($file)) {
                 $originalFileName = $file->getClientOriginalName();
-                $filePath = storage_path(sprintf('uploads/%s', $data['page_id']));
+                $filePath = storage_path('files/');
                 $path = $file->move($filePath, $originalFileName);
                 $real_path = $path->getRealPath();
             }
@@ -199,7 +199,7 @@ class NotificationController extends BaseController
                 'data.to_name' => $data['to_name'],
                 'data.to_email' => $data['to_email'],
                 'data.template' => $data['email_template'],
-                'data.cutoff_datetime' => Carbon::createFromFormat('d/m/Y h:i A',$data['cutoff_date'])->timestamp,
+                'data.cutoff_datetime' => Carbon::createFromFormat(WebhookNotification::CUTOFF_DATE_FORMAT,$data['cutoff_date'])->timestamp,
                 'data.test_mode' => isset($data['test']) ? 1 : 0,
                 'data.active' => isset($data['active']) ? 1 : 0
             ]);
