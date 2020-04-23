@@ -5,6 +5,11 @@
         <div class="card-header">
             <i class="fa fa-file"></i>Leads Reports
         </div>
+        @if(request('page_id') && empty($data->total()))
+            <div class="alert alert-danger" style="text-align: center">
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> No data found for the specified filter
+            </div>
+        @endif
         <form method="get" action="{{route('pages.leads')}}"  id="report-form">
             <div class = "card-body">
                 @if (!$errors->Errors->isEmpty())
@@ -16,9 +21,9 @@
                 @endif
                 <div class="row">
                     <div class="col-sm-4">
-                        <label><i class="fa fa-tag">Select Page</i></label>
+                        <label><i class="fa fa-tag"></i> Select Page</label>
                         <div class="input-group">
-                            <select name="page_id" class="form-control" required="required">
+                            <select name="page_id" class="form-control select2" required="required">
                                 <option value="" selected disabled>Select Page Name </option>
                                 @foreach($Pages as $Page)
                                     <option value="{{ $Page['page_id'] }}" @if($Page['page_id'] == old('page_id')) selected = "selected" @endif> {{ $Page['page_name'] }}</option>
@@ -27,7 +32,7 @@
                         </div>
                     </div>
                     <div class="col-sm-4">
-                        <label><i class="fa fa-calendar"> Period</i></label>
+                        <label><i class="fa fa-calendar"></i> Period</label>
                         <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
                     </div>
                 </div>
@@ -39,7 +44,7 @@
             {{ csrf_field() }}
         </form>
     </div>
-    @if(!empty($data))
+    @if(request('page_id') && !empty($data->total()))
         <table class="table table-bordered table-striped table-sm datatable">
             <thead>
             <tr>
@@ -54,8 +59,8 @@
             @foreach($data as $value)
                 <tr>
                     @foreach($fields['lead_fields'] as $index => $key)
-                        @if($key == 'capture_at')
-                            <td>{{ date("Y-m-d H:i:s", $value['created_at']) }}</td>
+                        @if($key == 'Captured At')
+                            <td>{{ date("d-M-y H:i:s", $value['created_at']) }}</td>
                         @else
                             <td>{{$value['data']['body'][$key] ?? ''}}</td>
                         @endif
@@ -67,7 +72,5 @@
         <div class="row pull-right mr-4">
             {!! $data->appends(request()->query())->render() !!}
         </div>
-    @elseif(empty($data) && $param == 'get')
-     <h3 style="color: red"><b>No data found for the given period.</b></h3>
     @endif
 @endsection
