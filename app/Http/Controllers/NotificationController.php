@@ -37,6 +37,7 @@ class NotificationController extends BaseController
         "to_name" => "required|string",
         "to_email" => "required|string",
         "cutoff_date" => "required",
+        "email_template" => "required",
         "file" => "max:3072"
     ];
 
@@ -45,9 +46,6 @@ class NotificationController extends BaseController
      */
     public function index()
     {
-        if (!is_admin()) {
-            return \response('You don\'t have the access to view this page.Please check with the administrator.', 403);
-        }
 
         $data = WebhookNotification::paginate(20);
 
@@ -82,14 +80,10 @@ class NotificationController extends BaseController
             'Update Notification' => ''
         ];
 
-        if (!is_admin()) {
-            return \response('You don\'t have the access to view this page.Please check with the administrator.', 403);
-        }
-
         $document = WebhookNotification::find($id);
 
         if (!$document) {
-            return response('Notification to be edited not found in the database', 403);
+            return abort(404, 'Notification to be edited not found in the database');
         }
 
         return view('notifications.create-edit', ['breadcrumb' => $breadcrumb, 'data' => $document->toArray()])->with($this->getDefaultData());
@@ -109,53 +103,47 @@ class NotificationController extends BaseController
             'Create Notifications' => ''
         ];
 
-        if (!is_admin()) {
-            return \response('You don\'t have the access to view this page.Please check with the administrator.', 403);
-        }
-
         $data = $request->all();
         $status = $real_path = '';
 
         $validator = Validator::make($data, self::$validation_rules);
-        $errors = Arr::flatten(array_values($validator->getMessageBag()->toArray()));
-
-        // Proceeding further iff no errors found....
-        if (empty($errors)) {
-
-            $file = $request->file('file');
-
-            if (!empty($file)) {
-                $originalFileName = $file->getClientOriginalName();
-                $filePath = storage_path('files/');
-                $path = $file->move($filePath, $originalFileName);
-                $real_path = $path->getRealPath();
-            }
-
-            $notification_doc = [
-                "identifier" => $data['event'],
-                "source" => $data['source'],
-                "data" => [
-                    "page_id" => $data['page_id'],
-                    "subject" => $data['subject'],
-                    "to_name" => $data['to_name'],
-                    "to_email" => $data['to_email'],
-                    "template" => $data['email_template'],
-                    "attachments" => !empty($real_path) ? [$real_path] : '',
-                    "cutoff_datetime" => Carbon::createFromFormat(WebhookNotification::CUTOFF_DATE_FORMAT,$data['cutoff_date'])->timestamp,
-                    "test_mode" => isset($data['test']) ? 1 : 0,
-                    "active" => isset($data['active']) ? 1 : 0,
-                ],
-                "channel" => $data['type']
-            ];
-            // If the request has update param then update the notification else create a new one...
-            WebhookNotification::create($notification_doc);
-
-            $request->session()->flash('notification-message', 'Notification was successfully created!');
-
-            return redirect()->route('notifications.index');
+        if($errors = Arr::flatten(array_values($validator->getMessageBag()->toArray()))) {
+            return redirect()->back()->withInput($request->all())->withErrors($errors)->with('breadcrumb',$breadcrumb)->with($this->getDefaultData());
         }
 
-        return redirect()->back()->withInput($request->all())->withErrors($errors)->with('breadcrumb',$breadcrumb)->with($this->getDefaultData());
+        // Proceeding further iff no errors found....
+        $file = $request->file('file');
+
+        if (!empty($file)) {
+            $originalFileName = $file->getClientOriginalName();
+            $filePath = storage_path('files/');
+            $path = $file->move($filePath, $originalFileName);
+            $real_path = $path->getRealPath();
+        }
+
+        $notification_doc = [
+            "identifier" => $data['event'],
+            "source" => $data['source'],
+            "data" => [
+                "page_id" => $data['page_id'],
+                "subject" => $data['subject'],
+                "to_name" => $data['to_name'],
+                "to_email" => $data['to_email'],
+                "template" => $data['email_template'],
+                "attachments" => !empty($real_path) ? [$real_path] : '',
+                "cutoff_datetime" => Carbon::createFromFormat(WebhookNotification::CUTOFF_DATE_FORMAT,$data['cutoff_date'])->timestamp,
+                "test_mode" => isset($data['test']) ? 1 : 0,
+                "active" => isset($data['active']) ? 1 : 0,
+            ],
+            "channel" => $data['type']
+        ];
+        // If the request has update param then update the notification else create a new one...
+        WebhookNotification::create($notification_doc);
+
+        $request->session()->flash('notification-message', 'Notification was successfully created!');
+
+        return redirect()->route('notifications.index');
+
     }
 
     /**
@@ -164,59 +152,49 @@ class NotificationController extends BaseController
      */
     public function update($id)
     {
-        if (!is_admin()) {
-            return \response('You don\'t have the access to view this page.Please check with the administrator.', 403);
-        }
 
         $data = request()->all();
         $status = $real_path = '';
 
         $validator = Validator::make($data, self::$validation_rules);
-        $errors = Arr::flatten(array_values($validator->getMessageBag()->toArray()));
-
-
-        if (empty($errors)) {
-
-            $file = request()->file('file');
-
-            if (!empty($file)) {
-                $originalFileName = $file->getClientOriginalName();
-                $filePath = storage_path('files/');
-                $path = $file->move($filePath, $originalFileName);
-                $real_path = $path->getRealPath();
-            }
-
-            $notification = WebhookNotification::where('_id', $id);
-
-            if (!$notification->exists()) {
-                return response([
-                    'Record not found'
-                ], 403);
-            }
-
-            $notification->update([
-                "identifier" => $data['event'],
-                "source" => $data['source'],
-                "channel" => $data['type'],
-                'data.page_id' => $data['page_id'],
-                'data.subject' => $data['subject'],
-                'data.to_name' => $data['to_name'],
-                'data.to_email' => $data['to_email'],
-                'data.template' => $data['email_template'],
-                'data.cutoff_datetime' => Carbon::createFromFormat(WebhookNotification::CUTOFF_DATE_FORMAT,$data['cutoff_date'])->timestamp,
-                'data.test_mode' => isset($data['test']) ? 1 : 0,
-                'data.active' => isset($data['active']) ? 1 : 0
-            ]);
-
-            if (empty($notification->first()->data['attachments'])) {
-                $notification->update(['data.attachments' => [$real_path]]);
-            }
-            \request()->session()->flash('notification-message', 'Notification was successfully updated!');
-
-            return redirect()->route('notifications.index');
+        if($errors = Arr::flatten(array_values($validator->getMessageBag()->toArray()))) {
+            return redirect()->back()->withInput(request()->all())->withErrors($errors)->with('breadcrumb',['Notifications' => ''])->with($this->getDefaultData())->with('data',['_id'=> $id]);
         }
 
-        return redirect()->back()->withInput(request()->all())->withErrors($errors)->with('breadcrumb',['Notifications' => ''])->with($this->getDefaultData())->with('data',['_id'=> $id]);
+        $file = request()->file('file');
+
+        $notification = WebhookNotification::where('_id', $id);
+
+        if (!$notification->exists()) {
+            return abort(404, 'Record not found');
+        }
+
+        $notification->update([
+            "identifier" => $data['event'],
+            "source" => $data['source'],
+            "channel" => $data['type'],
+            'data.page_id' => $data['page_id'],
+            'data.subject' => $data['subject'],
+            'data.to_name' => $data['to_name'],
+            'data.to_email' => $data['to_email'],
+            'data.template' => $data['email_template'],
+            'data.cutoff_datetime' => Carbon::createFromFormat(WebhookNotification::CUTOFF_DATE_FORMAT,$data['cutoff_date'])->timestamp,
+            'data.test_mode' => isset($data['test']) ? 1 : 0,
+            'data.active' => isset($data['active']) ? 1 : 0
+        ]);
+
+        if (!empty($file)) {
+            $originalFileName = $file->getClientOriginalName();
+            $filePath = storage_path('files/');
+            $path = $file->move($filePath, $originalFileName);
+            $real_path = $path->getRealPath();
+
+            $notification->update(['data.attachments' => [$real_path]]);
+        }
+
+        \request()->session()->flash('notification-message', 'Notification was successfully updated!');
+
+        return redirect()->route('notifications.index');
     }
 
     private function getDefaultData() {
