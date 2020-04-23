@@ -25,10 +25,10 @@ class LeadCreate
 
     private static function saveToCollection(Webhook $Webhook)
     {
-        $page_id = $Webhook->body()['page_id'];
+        $page_id = (string) $Webhook->body()['page_id'];
 
         $doc = [
-            "page_id" => (string) $page_id,
+            "page_id" => $page_id,
             "page_name" => $Webhook->body()['page_name'],
             "page_url" => $Webhook->body()['page_url'],
             "lead_fields" => array_merge(array_keys(WebhookDataInstapage::getFormData($Webhook->body())), ['Captured At'])
