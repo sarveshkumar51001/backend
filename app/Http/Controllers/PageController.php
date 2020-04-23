@@ -26,7 +26,7 @@ class PageController extends BaseController
             [$start_date, $end_date] = $date_params;
 
             $LeadsData = WebhookDataInstapage::getInstaPageList($start_date, $end_date, $page_id,WebhookDataInstapage::View);
-            $InstaPage = InstaPage::where(InstaPage::PageId,$page_id)->first();
+            $InstaPage = InstaPage::where(InstaPage::PageId,(string) $page_id)->first();
             $filename = !empty($page_id) ? sprintf("%s.xls", $InstaPage['page_name']) : '';
             // When excel is requested
             if (! empty(request('download-csv'))) {
