@@ -27,17 +27,18 @@ class LeadCreate
     {
         $page_id = $Webhook->body()['page_id'];
 
-        $instapage = InstaPage::where('page_id',$page_id)->first();
+        $doc = [
+            "page_id" => $page_id,
+            "page_name" => $Webhook->body()['page_name'],
+            "page_url" => $Webhook->body()['page_url'],
+            "lead_fields" => array_keys(WebhookDataInstapage::getFormData($Webhook->body()))
+        ];
 
-        if(empty($instapage) && $Webhook['source'] == InstaPage::SourceName){
-            $doc = [
-                 "page_id" => $page_id,
-                "page_name" => $Webhook->body()['page_name'],
-                "page_url" => $Webhook->body()['page_url'],
-                "lead_fields" => array_keys(WebhookDataInstapage::getFormData($Webhook->body()))
-            ];
-            InstaPage::create($doc);
-        }
+        // Updates already existing Page
+        InstaPage::updateOrCreate(
+            ['page_id' => $page_id],
+            $doc
+        );
     }
 
     private static function postToSlack(Webhook $Webhook)
