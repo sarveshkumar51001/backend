@@ -27,7 +27,7 @@ class WebhookDataInstapage
 
     public static function getFormData(array $data)
     {
-        $data = array_keys(Arr::except($data, self::INSTA_METAFIELDS));
+        $data = Arr::except($data, self::INSTA_METAFIELDS);
         return $data;
     }
 

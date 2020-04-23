@@ -13,7 +13,7 @@ class InstaPage extends Base
     const PageId = 'page_id';
     const PageName = 'page_name';
     const PageUrl = 'page_url';
-    const LeadFileds ='lead_fields';
+    const LeadFields ='lead_fields';
     const SourceName = 'instapage';
 
 }
