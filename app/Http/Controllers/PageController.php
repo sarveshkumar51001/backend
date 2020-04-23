@@ -26,21 +26,21 @@ class PageController extends BaseController
             $date_params = getStartEndDate(request('daterange'));
             [$start_date, $end_date] = $date_params;
 
-            $LeadsData = WebhookDataInstapage:: getInstaPageList($start_date, $end_date,  $page_id, WebhookDataInstapage::View);
-
+            $LeadsData = WebhookDataInstapage::getInstaPageList($start_date, $end_date, $page_id,WebhookDataInstapage::View);
             $InstaPage = InstaPage::where(InstaPage::PageId,$page_id)->first();
             $filename = !empty($page_id) ? sprintf("%s.xls", $InstaPage['page_name']) : '';
 
+            // When excel is requested
             if (!empty(request('download-csv'))) {
                 $excel_data = [];
                 // data for Excel
-                $ExcelData = WebhookDataInstapage:: getInstaPageList($start_date, $end_date, $page_id, WebhookDataInstapage::Excel);
+                $ExcelData = WebhookDataInstapage::getInstaPageList($start_date, $end_date, $page_id, WebhookDataInstapage::Excel);
                 $counter = 0;
                 foreach ($ExcelData as $data) {
                     foreach ($InstaPage['lead_fields'] as $page => $key) {
                         $keys[] = $key;
-                        if ($key == 'capture_at') {
-                            $excel_data[$counter]['capture_at'] = date("Y-m-d H:i:s", $data['created_at']);
+                        if ($key == 'Captured At') {
+                            $excel_data[$counter]['Captured At'] = date("d-M-Y H:i:s", $data['created_at']);
                         } else {
                             $excel_data[$counter][$key] = $data['data']['body'][$key] ?? '';
                         }

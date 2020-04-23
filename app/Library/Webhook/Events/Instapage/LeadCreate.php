@@ -31,7 +31,7 @@ class LeadCreate
             "page_id" => $page_id,
             "page_name" => $Webhook->body()['page_name'],
             "page_url" => $Webhook->body()['page_url'],
-            "lead_fields" => array_keys(WebhookDataInstapage::getFormData($Webhook->body()))
+            "lead_fields" => array_merge(array_keys(WebhookDataInstapage::getFormData($Webhook->body())), ['Captured At'])
         ];
 
         // Updates already existing Page

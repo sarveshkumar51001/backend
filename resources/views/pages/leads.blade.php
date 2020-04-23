@@ -21,7 +21,7 @@
                     <div class="col-sm-4">
                         <label><i class="fa fa-tag">Select Page</i></label>
                         <div class="input-group">
-                            <select name="page_id" class="form-control" required="required">
+                            <select name="page_id" class="form-control select2" required="required">
                                 <option value="" selected disabled>Select Page Name </option>
                                 @foreach($Pages as $Page)
                                     <option value="{{ $Page['page_id'] }}" @if($Page['page_id'] == old('page_id')) selected = "selected" @endif> {{ $Page['page_name'] }}</option>
@@ -57,8 +57,8 @@
             @foreach($data as $value)
                 <tr>
                     @foreach($fields['lead_fields'] as $index => $key)
-                        @if($key == 'capture_at')
-                            <td>{{ date("Y-m-d H:i:s", $value['created_at']) }}</td>
+                        @if($key == 'Captured At')
+                            <td>{{ date("d-M-y H:i:s", $value['created_at']) }}</td>
                         @else
                             <td>{{$value['data']['body'][$key] ?? ''}}</td>
                         @endif
