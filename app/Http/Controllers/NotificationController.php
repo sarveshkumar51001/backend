@@ -47,7 +47,7 @@ class NotificationController extends BaseController
     public function index()
     {
 
-        $data = WebhookNotification::paginate(20);
+        $data = WebhookNotification::whereIn('source', NotificationController::SOURCES)->paginate(20);
 
         $breadcrumb = ['Notifications' => ''];
         return view('notifications.index', ['breadcrumb' => $breadcrumb, 'data' => $data])->with($this->getDefaultData());
