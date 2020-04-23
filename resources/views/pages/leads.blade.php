@@ -5,6 +5,9 @@
         <div class="card-header">
             <i class="fa fa-file"></i>Leads Reports
         </div>
+        @if($ExcelData && request('download-csv'))
+            <h4 style="color: red"><b>No data found for excel export</b></h4>
+        @endif
         <form method="get" action="{{route('pages.leads')}}"  id="report-form">
             <div class = "card-body">
                 @if (!$errors->Errors->isEmpty())
