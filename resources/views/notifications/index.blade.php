@@ -42,9 +42,9 @@
                             <td>{{$document['data']['page_id'] ?? ''}}</td>
                             <td>{{$document['data']['to_name'] ?? ''}}</td>
                             <td>{{$document['data']['to_email'] ?? ''}}</td>
-                            <td>{{date("d-m-Y g:i:s A",$document['data']['cutoff_datetime']) ?? 0 }}
+                            <td>{{date(\App\Models\WebhookNotification::CUTOFF_DATE_FORMAT,$document['data']['cutoff_datetime']) ?? 0 }}
                                 @if($document['data']['cutoff_datetime'] < time())
-                                    <span class="badge badge-warning">Deactivated</span>
+                                    <span class="badge badge-warning">Expired</span>
                                 @endif
                             </td>
                             <td>@if(isset($document['data']['active']) && $document['data']['active'] == 1)
