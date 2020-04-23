@@ -57,7 +57,11 @@ class NotificationController extends BaseController
 
     public function create()
     {
-        return view('notifications.create-edit')->with($this->getDefaultData());
+        $breadcrumb = [
+            'Notifications' => route('notifications.index'),
+            'Create Notification' => ''
+        ];
+        return view('notifications.create-edit' , ['breadcrumb' => $breadcrumb])->with($this->getDefaultData());
     }
 
     public function show($id)
@@ -75,7 +79,7 @@ class NotificationController extends BaseController
     {
         $breadcrumb = [
             'Notifications' => route('notifications.index'),
-            'Update Notifications' => ''
+            'Update Notification' => ''
         ];
 
         if (!is_admin()) {
