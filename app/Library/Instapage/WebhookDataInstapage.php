@@ -1,6 +1,7 @@
 <?php
 namespace App\Library\Instapage;
 use App\Models\Webhook;
+use Illuminate\Support\Arr;
 
 class WebhookDataInstapage
 {
@@ -26,7 +27,7 @@ class WebhookDataInstapage
 
     public static function getFormData(array $data)
     {
-        $data = array_except($data, self::INSTA_METAFIELDS);
+        $data = Arr::except($data, self::INSTA_METAFIELDS);
         return $data;
     }
 
