@@ -32,7 +32,8 @@ class PageController extends BaseController
             if (! empty(request('download-csv'))) {
                 $excel_data = [];
                 // data for Excel
-                if($ExcelData = WebhookDataInstapage::getInstaPageList($start_date, $end_date, $page_id, WebhookDataInstapage::Excel)) {
+                $ExcelData = WebhookDataInstapage::getInstaPageList($start_date, $end_date, $page_id, WebhookDataInstapage::Excel);
+                if($ExcelData->count() > 0) {
                     $counter = 0;
                     foreach ($ExcelData as $data) {
                         foreach ($InstaPage['lead_fields'] as $page => $key) {
