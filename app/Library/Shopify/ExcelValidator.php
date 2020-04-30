@@ -437,10 +437,11 @@ class ExcelValidator
             if (!empty($reynott_errors) && empty($this->errors['rows'][$this->row_no])) {
                 $this->errors['rows'][$this->row_no] = [];
             }
+            // If row error is not empty merge the reynott errors and row errors else set reynott error to row error...
             if (!empty($this->errors['rows'][$this->row_no])) {
-                $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no], $reynott_errors);
+                $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no],$reynott_errors);
             } else{
-                $this->errors['rows'][$this->row_no] = [];
+                $this->errors['rows'][$this->row_no] = $reynott_errors;
             }
         }
     }

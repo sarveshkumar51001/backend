@@ -194,7 +194,7 @@ class ReynottAcademyTest extends TestCase
 
         $ExcelValidator = new ExcelValidator(TestCaseData::Generate_Raw_Excel($excel_data));
         $ExcelValidator->ValidateFieldValues($ExcelValidator->FileFormattedData[0]);
-        $this->assertEmpty($ExcelValidator->get_errors());
+        $this->assertEmpty(head($ExcelValidator->get_errors()['rows']));
     }
 
 }
