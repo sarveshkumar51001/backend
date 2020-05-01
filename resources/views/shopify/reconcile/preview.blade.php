@@ -53,10 +53,10 @@
             <div class="col-lg-3">
                 <div class="card">
                     <div class="card-body">
-                        <div class="text-value-lg text-success font-weight-bold">{{ $metrics['total_settled_rows_count']/$metrics['total_rows_count'] * 100}}% ({{$metrics['total_settled_rows_count']}})</div>
+                        <div class="text-value-lg text-success font-weight-bold">{{ round(($metrics['total_settled_rows_count']/$metrics['total_rows_count'] * 100),2) }}% ({{$metrics['total_settled_rows_count']}})</div>
                         <div class="text-muted text-uppercase font-weight-bold small">Reconcileable Transactions</div>
                         <div class="progress progress-xs my-2">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $metrics['total_settled_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['file_settleable_amount']/$metrics['file_amount'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $metrics['total_settled_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['total_settled_rows_count']/$metrics['total_rows_count'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
                         </div><div class="text-value-lg font-weight-bold text-success">₹ {{amount_inr_format($metrics['file_settleable_amount'])}}</div>
                     </div>
                 </div>
@@ -65,10 +65,10 @@
             <div class="col-lg-3">
                 <div class="card">
                     <div class="card-body">
-                        <div class="text-value-lg text-primary font-weight-bold">{{ $metrics['already_settled_rows_count']/$metrics['total_rows_count'] * 100}}% ({{$metrics['already_settled_rows_count']}})</div>
+                        <div class="text-value-lg text-primary font-weight-bold">{{ round(($metrics['already_settled_rows_count']/$metrics['total_rows_count'] * 100),2) }}% ({{$metrics['already_settled_rows_count']}})</div>
                         <div class="text-muted text-uppercase font-weight-bold small">Already Settled Transactions</div>
                         <div class="progress progress-xs my-2">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $metrics['already_settled_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['file_settleable_amount']/$metrics['file_amount'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $metrics['already_settled_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['already_settled_rows_count']/$metrics['total_rows_count'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
                         </div><div class="text-value-lg font-weight-bold text-primary">₹ {{amount_inr_format($metrics['already_settled_amount'])}}</div>
                     </div>
                 </div>
@@ -77,10 +77,10 @@
             <div class="col-lg-3">
                 <div class="card">
                     <div class="card-body">
-                        <div class="text-value-lg text-danger font-weight-bold">{{ $metrics['failed_rows_count']/$metrics['total_rows_count'] * 100}}% ({{$metrics['failed_rows_count']}})</div>
+                        <div class="text-value-lg text-danger font-weight-bold">{{ round(($metrics['failed_rows_count']/$metrics['total_rows_count'] * 100),2) }}% ({{$metrics['failed_rows_count']}})</div>
                         <div class="text-muted text-uppercase font-weight-bold small">Failed Transactions</div>
                         <div class="progress progress-xs my-2">
-                            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $metrics['failed_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['file_settleable_amount']/$metrics['file_amount'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $metrics['failed_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['failed_rows_count']/$metrics['total_rows_count'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
                         </div><div class="text-value-lg font-weight-bold text-danger">₹ {{amount_inr_format($metrics['failed_amount'])}}</div>
                     </div>
                 </div>
@@ -89,10 +89,10 @@
             <div class="col-lg-3">
                 <div class="card">
                     <div class="card-body">
-                        <div class="text-value-lg text-warning font-weight-bold">{{ $metrics['not_found_rows_count']/$metrics['total_rows_count'] * 100}}% ({{$metrics['not_found_rows_count']}})</div>
+                        <div class="text-value-lg text-warning font-weight-bold">{{ round(($metrics['not_found_rows_count']/$metrics['total_rows_count'] * 100),2) }}% ({{$metrics['not_found_rows_count']}})</div>
                         <div class="text-muted text-uppercase font-weight-bold small">Not Found Transactions</div>
                         <div class="progress progress-xs my-2">
-                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $metrics['not_found_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['file_settleable_amount']/$metrics['file_amount'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $metrics['not_found_rows_count']/$metrics['total_rows_count'] * 100}}%" aria-valuenow="{{ $metrics['not_found_rows_count']/$metrics['total_rows_count'] * 100}}" aria-valuemin="0" aria-valuemax="100"></div>
                         </div><div class="text-value-lg font-weight-bold text-warning">₹ {{amount_inr_format($metrics['not_found_amount'])}}</div>
                     </div>
                 </div>

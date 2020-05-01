@@ -66,3 +66,5 @@ function download_transactions(reco_status = '') {
     window.open(link, '_blank');
     return false;
 }
+
+

@@ -18,7 +18,7 @@
                                 <div class="form-group">
                                     <label>Statement source</label>
                                     <select class="form-control" name="source" required>
-                                        <option value="0">Select...</option>
+                                        <option value="">Select...</option>
                                         @foreach(\App\Library\Shopify\Reconciliation\File::$sourceTitles as $code => $title)
                                             <option value="{{$code}}">{{$title}}</option>
                                         @endforeach
