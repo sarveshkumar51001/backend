@@ -36,6 +36,8 @@ class ShopifyExcelUpload extends Base
 
     const HAYDEN_REYNOTT = 'H&R';
 
+    const ALL_SCHOOLS = "all_schools";
+
     const PAGINATE_LIMIT = 100;
 
     const MODE_CASH = 1;
@@ -84,6 +86,32 @@ class ShopifyExcelUpload extends Base
         'pdc_to_be_collected'
     ];
 
+    const PaymentSettlementStatus = 'settlement_status';
+    const PaymentSettlementMode = 'settlement_mode';
+    const PaymentReturnedDate = 'return_date';
+    const PaymentReturnedBy = 'return_by';
+    const PaymentUpdatedAt = 'order_update_at';
+    const PaymentLiquidationDate = 'liquidation_date';
+    const PaymentSettledDate = 'settled_date';
+    const PaymentSettledBy = 'settled_by';
+    const PaymentDepositDate = 'deposit_date';
+    const PaymentAmount = 'amount';
+    const PaymentProcessed = 'processed';
+
+
+    const PAYMENT_SETTLEMENT_STATUS_RETURNED = 'returned';
+    const PAYMENT_SETTLEMENT_STATUS_SETTLED = 'settled';
+    const PAYMENT_SETTLEMENT_STATUS_DEFAULT = 'pending';
+
+    const PAYMENT_RECONCILIATION_STATUS = [
+        self::PAYMENT_SETTLEMENT_STATUS_DEFAULT,
+        self::PAYMENT_SETTLEMENT_STATUS_SETTLED,
+        self::PAYMENT_SETTLEMENT_STATUS_RETURNED
+    ];
+
+    const PAYMENT_SETTLEMENT_MODE_BANK = 'bank';
+    const PAYMENT_SETTLEMENT_MODE_MANUAL = 'manual';
+
     public static $modesTitle = [
         self::MODE_CASH => 'Cash',
         self::MODE_CHEQUE => 'Cheque',
@@ -99,179 +127,267 @@ class ShopifyExcelUpload extends Base
         return array_values(self::$modesTitle);
     }
 
+    public function getOrder() {
+        return $this->shopify_order_name ?? $this->order_id;
+    }
+
     const SCHOOL_ADDRESS_MAPPING = [
         "Apeejay" => [
             "Sheikh Sarai" => [
+                "code" => "VALSS",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110017",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Sheikh Sarai, Phase 1, New Delhi-110017',
+                'access' => ['vibha.sang@valedra.com']
             ],
             "Sheikh Sarai International" => [
+                "code" => "VALSSI",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110017",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => '',
+                'access' => ''
             ],
             "Pitampura" => [
+                "code" => "VALPIT",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110034",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Pitampura, Plot No10, road No:42, Sainik Vihar,Pitampura, Delhi-110034',
+                'access' => ['neha.oberoi@valedra.com']
             ],
             "Saket" => [
+                "code" => "VALSKT",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110017",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay school Saket, J block  Saket, New Delhi-110017',
+                'access' => ['sarthak@valedra.com']
             ],
             "Noida" => [
+                "code" => "VALNVD",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201301",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Sector 16, A Noida-201301',
+                'access' => ['ritika.sinha@valedra.com','milana@valedra.com']
             ],
             "Nerul" => [
+                "code" => "VALNRL",
                 "city" => "Mumbai",
                 "state" => "Maharashtra",
                 "pincode" => "400706",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Sector XV, Nerul, Navi Mumbai-400706',
+                'access' => ['jyoti@valedra.com']
             ],
             "Kharghar" => [
+                "code" => "VALKHG",
                 "city" => "Mumbai",
                 "state" => "Maharashtra",
                 "pincode" => "410210",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School, Sector 21, Kharghar, Navi Mumbai-410210',
+                'access' => ['tulika@valedra.com']
             ],
             "Faridabad 15" => [
+                "code" => "VALFBD",
                 "city" => "Faridabad",
                 "state" => "Haryana",
                 "pincode" => "121007",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Sector 15 Faridabad. NCR,121007.',
+                'access' => ['sunil@valedra.com']
             ],
             "Faridabad 21D" => [
+                "code" => "VALSVG",
                 "city" => "Faridabad",
                 "state" => "Haryana",
                 "pincode" => "121012",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School , Sector 21 D, Faridabad, NCR 121007',
+                'access' => ['sunil@valedra.com']
             ],
             "Charkhi Dadri" => [
+                "code" => "VALCKD",
                 "city" => "Charkhi Dadri",
                 "state" => "Haryana",
                 "pincode" => "127306",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => '',
+                'access' => ''
             ],
             "Mahavir Marg" => [
+                "code" => "VALMM",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144001",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay School Bhagwan Mahavir Marg Mahavir Margr, Jalandhar-144001',
+                'access' => ['neeraj@valedra.com']
             ],
             "Rama Mandi" => [
+                "code" => "VALRM",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144023",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => '',
+                'access' => ['neeraj@valedra.com']
             ],
             "Tanda Road" => [
+                "code" => "VALTR",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144001",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => '',
+                'access' => ['neeraj@valedra.com']
             ],
             "Model Town" => [
+                "code" => "VALMT",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144003",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => '',
+                'access' => ['neeraj@valedra.com']
             ],
             "Greater Noida" => [
+                "code" => "VALAIS",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201306",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => 'Apeejay International School 1, Institutional Area, Gamma Sector,Surajpur Kansa Road, PO Tughalpur,Greater Noida-201308',
+                'access' => ''
             ],
             "Greater Kailash" => [
+                "code" => "VALGK",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110048",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => '',
+                'access' => ''
             ],
             "ACFA Mahavir Marg" => [
+                "code" => "",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144001",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => '',
+                'access' => ''
             ],
             "AIMTC Rama Mandi" => [
+                "code" => "",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144023",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => '',
+                'access' => ''
             ],
             "AID New Delhi" => [
+                "code" => "",
                 "city" => "New Delhi",
                 "state" => "New Delhi",
                 "pincode" => "110062",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => '',
+                'access' => ''
             ],
             "AIMC Dwarka" => [
+                "code" => "",
                 "city" => "New Delhi",
                 "state" => "New Delhi",
                 "pincode" => "110077",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => '',
+                'access' => ''
             ],
             "ASM Dwarka" => [
+                "code" => "",
                 "city" => "New Delhi",
                 "state" => "New Delhi",
                 "pincode" => "110077",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => '',
+                'access' => ''
             ],
             "AITCS Greater Noida" => [
+                "code" => "",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201308",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => '',
+                'access' => ''
             ],
             "AITSM Greater Noida" => [
+                "code" => "",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201308",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => '',
+                'access' => ''
             ],
             "AITSAP Greater Noida" => [
+                "code" => "",
                 "city" => "Noida",
                 "state" => "UP",
                 "pincode" => "201308",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => '',
+                'access' => ''
             ],
             "SPGC Charkhi Dadri" => [
+                "code" => "",
                 "city" => "Charkhi Dadri",
                 "state" => "Haryana",
                 "pincode" => "127306",
-                "is_higher_education" => true
+                "is_higher_education" => true,
+                "address" => '',
+                'access' => ''
             ]
         ],
         "Reynott" => [
             "Reynott Academy Jalandhar" => [
+                "code" => "",
                 "city" => "Jalandhar",
                 "state" => "Punjab",
                 "pincode" => "144003",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => '',
+                'access' => ''
             ]
         ],
         "H&R" => [
             "Plot 23 Gurgaon" => [
+                "code" => "",
                 "city" => "Gurugram",
                 "state" => "Haryana",
                 "pincode" => "122003",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => '',
+                'access' => ''
             ],
             "Dwarka" => [
+                "code" => "",
                 "city" => "Delhi",
                 "state" => "Delhi",
                 "pincode" => "110037",
-                "is_higher_education" => false
+                "is_higher_education" => false,
+                "address" => '',
+                'access' => ''
             ]
         ]
     ];
