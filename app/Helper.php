@@ -1,5 +1,6 @@
 <?php
 
+
 function get_product_price($productID) {
 	$Product = \App\Models\Product::where('product_id', $productID)->first();
 
@@ -141,4 +142,69 @@ function GetStartEndDate($date_range){
         }
     }
     return [$start_date,$end_date];
+}
+
+function GroupByKey($Data,$key)
+{
+    $groupedData = [];
+    foreach ($Data as $data) {
+        if(!array_key_exists($key,$data)){
+            return [];
+        }
+        $groupedData[$data[$key]][] = $data;
+    }
+    return array_values($groupedData);
+}
+
+function is_admin() {
+	$userPermission = !empty(\Auth::user()->permissions) ? \Auth::user()->permissions : [];
+    if(in_array(\App\Library\Permission::PERMISSION_ADMIN, $userPermission)) {
+        return true;
+    }
+    return false;
+}
+
+function has_permission($permission) {
+
+    if(is_admin()) {
+        return true;
+    }
+
+	$userPermission = !empty(\Auth::user()->permissions) ? \Auth::user()->permissions : [];
+    if(in_array($permission, $userPermission)) {
+        return true;
+    }
+
+    return false;
+}
+function paginate_array($request,$data,$limit)
+{
+    $currentPage = Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+    $currentPage = 2;
+    $collection = collect($data);
+    $perPage = $limit;
+
+    $currentPageItems = $collection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
+    $paginatedItems = new Illuminate\Pagination\LengthAwarePaginator($currentPageItems, count($collection), $perPage);
+    $paginatedItems->setPath($request->url());
+
+    return $paginatedItems;
+}
+function string_view_renderer($__php, $__data)
+{
+    $__data['__env'] = app(\Illuminate\View\Factory::class);
+    $obLevel = ob_get_level();
+    ob_start();
+    extract($__data, EXTR_SKIP);
+
+    try {
+        eval('?' . '>' . $__php);
+    } catch (Exception $e) {
+        while (ob_get_level() > $obLevel) ob_end_clean();
+        throw $e;
+    } catch (Throwable $e) {
+        while (ob_get_level() > $obLevel) ob_end_clean();
+        throw new Symfony\Component\Debug\Exception\FatalThrowableError($e);
+    }
+    return ob_get_clean();
 }
