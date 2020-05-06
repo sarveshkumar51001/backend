@@ -36,7 +36,7 @@ Route::prefix('shopify')->group(function() {
         Route::get('/preview', function () {
             return redirect()->route('bulkupload.upload');
         });
-        Route::get('/post-dated-payments','BulkUpload\ShopifyController@post_dated_payments')->name('bulkupload.post_dated_payments');
+        Route::get('/installments','BulkUpload\ShopifyController@installments')->name('bulkupload.installments');
         Route::get('/previous/uploads', 'BulkUpload\ShopifyController@previous_uploads')->name('bulkupload.previous_uploads');
         Route::get('/previous/orders', 'BulkUpload\ShopifyController@previous_orders')->name('bulkupload.previous_orders');
         Route::get('/previous/file_download/{id}', 'BulkUpload\ShopifyController@download_previous')->name('bulkupload.download_previous');
