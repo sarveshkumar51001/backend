@@ -47,9 +47,9 @@
                 @foreach($collection_data as $payments)
 
                     @if(\Carbon\Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT,$payments['expected_date'])->timestamp < time())
-                        <tr style="background-color:#fa8c9d">
+                        <tr style="background-color:#cc3300">
                     @elseif(\Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::createFromFormat(\App\Models\ShopifyExcelUpload::DATE_FORMAT, $payments['expected_date']), false) <= 7)
-                        <tr style="background-color:#f7ef81">
+                        <tr style="background-color:#ffcc00">
                     @else
                         <tr>
                             @endif
