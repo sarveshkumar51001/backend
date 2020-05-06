@@ -387,6 +387,11 @@ class ShopifyController extends BaseController
         $date_params = GetDateRange(request('search_daterange'));
         [$start,$end] = $date_params;
 
+        if(empty($start) && empty($end)){
+            $Post_Payments = [];
+            return view('shopify.installments')->with('collection_data',$Post_Payments);
+        }
+
     	$Post_Dated_Payments = DB::post_dated_payments()->get()->toArray();
 
     	foreach($Post_Dated_Payments as $Payments){
