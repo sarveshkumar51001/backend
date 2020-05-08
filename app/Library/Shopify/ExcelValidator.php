@@ -424,7 +424,7 @@ class ExcelValidator
 
         // Fetching location for the delivery institution and branch
         $location = ShopifyExcelUpload::getLocation($data['delivery_institution'], $data['branch']);
-        if (! $location) {
+        if (!$location) {
             $this->errors['rows'][$this->row_no][] = Errors::LOCATION_ERROR;
             return;
         }
@@ -433,15 +433,14 @@ class ExcelValidator
 
             $reynott_errors = self::ValidateReynottData($data);
 
-            // If no error recorded till this stage, initialize the row errors....
-            if (!empty($reynott_errors) && empty($this->errors['rows'][$this->row_no])) {
-                $this->errors['rows'][$this->row_no] = [];
-            }
-            // If row error is not empty merge the reynott errors and row errors else set reynott error to row error...
-            if (!empty($this->errors['rows'][$this->row_no])) {
-                $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no],$reynott_errors);
-            } else{
-                $this->errors['rows'][$this->row_no] = $reynott_errors;
+            // Enter iff reynott errors is not empty....
+            if (!empty($reynott_errors)) {
+                // If row error is not empty merge the reynott errors and row errors else set reynott error to row error...
+                if (!empty($this->errors['rows'][$this->row_no])) {
+                    $this->errors['rows'][$this->row_no] = array_merge($this->errors['rows'][$this->row_no], $reynott_errors);
+                } else {
+                    $this->errors['rows'][$this->row_no] = $reynott_errors;
+                }
             }
         }
     }
