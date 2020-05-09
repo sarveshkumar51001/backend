@@ -2,6 +2,8 @@
 namespace App\Library\Webhook\Events\Instapage;
 
 use App\Library\Webhook\Channel;
+use App\Models\InstaPage;
+use Carbon\Carbon;
 use App\Models\WebhookNotification;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Mail;
@@ -16,6 +18,27 @@ class LeadCreate
         self::postToSlack($Webhook);
 
         self::sendEmail($Webhook);
+
+        self::saveToCollection($Webhook);
+    }
+
+
+    private static function saveToCollection(Webhook $Webhook)
+    {
+        $page_id = (string) $Webhook->body()['page_id'];
+
+        $doc = [
+            "page_id" => $page_id,
+            "page_name" => $Webhook->body()['page_name'],
+            "page_url" => $Webhook->body()['page_url'],
+            "lead_fields" => array_merge(array_keys(WebhookDataInstapage::getFormData($Webhook->body())), ['Captured At'])
+        ];
+
+        // Updates already existing Page
+        InstaPage::updateOrCreate(
+            ['page_id' => $page_id],
+            $doc
+        );
     }
 
     private static function postToSlack(Webhook $Webhook)

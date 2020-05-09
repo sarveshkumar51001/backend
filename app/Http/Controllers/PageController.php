@@ -20,45 +20,44 @@ class PageController extends BaseController
         $InstaPage = [];
         $breadcrumb = ['List' => ''];
 
-        if (\Request::isMethod('get')) {
-
-            $page_id = !empty(request('page_id')) ? request('page_id') : '';
+        $page_id = request('page_id');
+        if (!empty($page_id)) {
             $date_params = getStartEndDate(request('daterange'));
             [$start_date, $end_date] = $date_params;
 
-            $LeadsData = WebhookDataInstapage:: getInstaPageList($start_date, $end_date,  $page_id, WebhookDataInstapage::View);
-
-            $InstaPage = InstaPage::where(InstaPage::PageId,$page_id)->first();
+            $LeadsData = WebhookDataInstapage::getInstaPageList($start_date, $end_date, $page_id,WebhookDataInstapage::View);
+            $InstaPage = InstaPage::where(InstaPage::PageId,(string) $page_id)->first();
             $filename = !empty($page_id) ? sprintf("%s.xls", $InstaPage['page_name']) : '';
-
-            if (!empty(request('download-csv'))) {
+            // When excel is requested
+            if (! empty(request('download-csv'))) {
+                $excel_data = [];
                 // data for Excel
-                $ExcelData = WebhookDataInstapage:: getInstaPageList($start_date, $end_date,  $page_id, WebhookDataInstapage::Excel);
-                $counter = 0;
-                foreach($ExcelData as $data){
-                    foreach($InstaPage['lead_fields'] as $page => $key ){
-                        $keys[] = $key;
-                        if ($key == 'capture_at') {
-	                        $excel_data[$counter]['capture_at'] = date("Y-m-d H:i:s", $data['created_at']);
-                        } else {
-	                        $excel_data[$counter][$key] = $data['data']['body'][$key] ?? '';
+                $ExcelData = WebhookDataInstapage::getInstaPageList($start_date, $end_date, $page_id, WebhookDataInstapage::Excel);
+                if($ExcelData->count() > 0) {
+                    $counter = 0;
+                    foreach ($ExcelData as $data) {
+                        foreach ($InstaPage['lead_fields'] as $page => $key) {
+                            $keys[] = $key;
+                            if ($key == 'Captured At') {
+                                $excel_data[$counter]['Captured At'] = date("d-M-Y H:i:s", $data['created_at']);
+                            } else {
+                                $excel_data[$counter][$key] = $data['data']['body'][$key] ?? '';
+                            }
                         }
+                        $counter++;
                     }
-
-                    $counter ++;
+                    return Excel\Facades\Excel::download(new InstaLeadsExport($excel_data), $filename);
                 }
-                return Excel\Facades\Excel::download(new InstaLeadsExport($excel_data), $filename);
             }
         }
 
         session()->flashInput(request()->input());
 
-        return view('pages.leads',
-            [  'Pages'=>$Pages,
-               'data' => $LeadsData,
-               'fields' => $InstaPage,
-               'breadcrumb' => $breadcrumb,
-               'param' => request()->method()
-            ]);
+        return view('pages.leads', [
+            'Pages'=> $Pages,
+            'data' => $LeadsData,
+            'fields' => $InstaPage,
+            'breadcrumb' => $breadcrumb,
+        ]);
     }
 }
