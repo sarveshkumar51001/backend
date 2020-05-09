@@ -11,28 +11,11 @@
                             <h4 class="card-title mb-0">Collection</h4>
                             <div class="small text-muted">{{ request('daterange') ?? 'Today' }}</div>
                         </div>
-                        <div class="col-sm-7">
+                    </div>
                             <form method="get" action="">
-                                <div class="dropdown show">
-                                    <a class="btn btn-outline-primary dropdown-toggle float-right ml-3" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fa fa-download">&nbsp;</i>Export Transactions
-                                    </a>
-
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                        @foreach(array_merge(['all'], \App\Models\ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS) as $reco_status)
-                                            <a class="dropdown-item" onclick="download_transactions('{{$reco_status}}');" href="#">{{strtoupper($reco_status)}}</a>
-                                        @endforeach
-                                    </div>
-                                </div>
-                                &nbsp;
-                                <button type="submit" class="btn btn-outline-primary float-right">View</button>
-                                <fieldset class="form-group float-lg-left">
-                                    <div class="input-group float-lg-left" style="width:700px;">
-                                        <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
-                                        <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
-                                        <input type="hidden" name="filter" value="{{ request('filter') }}">
+                                <div class="row">
+                                <div class="col-sm-3">
                                         @if(!empty($accessible_users))
-                                                <label>Filter By: User</label>
                                                 <select class="form-control" name="filter_user">
                                                     <option value="" selected disabled>Select User </option>
                                                     @foreach($accessible_users as $user)
@@ -41,7 +24,29 @@
                                                 </select>
                                         @endif
                                     </div>
-                                </fieldset>
+                                    <div class="col-sm-4">
+                                        <div class="input-group pull-left" style="width:300px">
+                                            <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
+                                            <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}" required>
+                                            <input type="hidden" name="filter" value="{{ request('filter') }}">
+                                        </div>
+                                    </div>
+                                <div class="col-sm-2">
+                                    <button type="submit" class="btn btn-outline-primary pull-right">View</button>
+                                </div>
+                                    <div class="col-sm-2 pull right">
+                                    <div class="dropdown show">
+                                        <a class="btn btn-outline-primary dropdown-toggle float-right ml-3" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-download">&nbsp;</i>Export Transactions
+                                        </a>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                            @foreach(array_merge(['all'], \App\Models\ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS) as $reco_status)
+                                                <a class="dropdown-item" onclick="download_transactions('{{$reco_status}}');" href="#">{{strtoupper($reco_status)}}</a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -71,8 +76,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
     <div class="row">
     @foreach($revenue_data as $location => $data)
             <div class="col-lg-3">

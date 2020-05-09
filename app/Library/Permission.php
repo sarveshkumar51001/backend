@@ -74,6 +74,7 @@ class Permission {
             }
             return $uploaded_by['name'];
         }
+        return '';
     }
 
 }

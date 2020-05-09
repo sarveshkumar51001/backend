@@ -306,15 +306,17 @@ class ShopifyController extends BaseController
                     ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
                     ->appends(request()->query());
             } elseif (!empty($accessible_users)){
-                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
-                    ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
-                    ->appends(request()->query());
-
                 if(!empty(\request('filter_user'))){
-                    $mongodb_records->where('uploaded_by',\request('filter_user'));
+                    $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
+                        ->where('uploaded_by',\request('filter_user'))
+                        ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
+                        ->appends(request()->query());
                 } else {
-                    $mongodb_records->where('uploaded_by', $accessible_users)
-                    ->where('tag',$teams);
+                    $mongodb_records =ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
+                        ->orWhereIn('tag',$teams)
+                        ->whereIn('uploaded_by',$accessible_users)
+                        ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
+                        ->appends(request()->query());
                 }
             } else {
                 $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
@@ -391,5 +393,3 @@ class ShopifyController extends BaseController
         return view('admin.404')->with('breadcrumb', $breadcrumb);
     }
 }
-
-
