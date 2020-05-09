@@ -144,20 +144,6 @@ function GetStartEndDate($date_range){
     return [$start_date,$end_date];
 }
 
-function GetDateRange($date_range){
-
-    $start_date = start_of_the_day(date('d/m/Y'));
-    $end_date = end_of_day(date('d/m/Y'));
-    if ($date_range) {
-        $range = explode(' - ', $date_range, 2);
-        if (count($range) == 2) {
-            $start_date = \Carbon\Carbon::createFromFormat('d/m/Y',$range[0])->startOfDay()->timestamp;
-            $end_date = \Carbon\Carbon::createFromFormat('d/m/Y',$range[1])->endOfDay()->timestamp;
-        }
-    }
-    return [$start_date,$end_date];
-}
-
 function GroupByKey($Data,$key)
 {
     $groupedData = [];
