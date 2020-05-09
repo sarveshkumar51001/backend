@@ -379,33 +379,29 @@ class ShopifyController extends BaseController
         return view('admin.404')->with('breadcrumb', $breadcrumb);
     }
 
-    public function installments(Request $request){
+    public function installments(Request $request) {
 
         $Post_Payment_Data = [];
         $post_payment = [];
 
-        $date_params = GetDateRange(request('search_daterange'));
-        [$start,$end] = $date_params;
-
-        if(empty($start) && empty($end)){
-            $Post_Payments = [];
-            return view('shopify.installments')->with('collection_data',$Post_Payments);
+        $start = 0;
+        $end = time();
+        if(!empty(request('daterange'))) {
+            [$start,$end] = GetStartEndDate(request('daterange'));
         }
 
-    	$Post_Dated_Payments = DB::post_dated_payments()->get()->toArray();
+    	$Post_Dated_Payments = DB::post_dated_payments()->where('uploaded_by', Auth::id())->get()->toArray();
 
-    	foreach($Post_Dated_Payments as $Payments){
+    	foreach($Post_Dated_Payments as $Payments) {
 
 			$payment_array = $Payments['payments'];
 
 			$post_payment_keys = array_keys(array_column($payment_array, 'is_pdc_payment'), true);
-
 			foreach($post_payment_keys as $payment_key){
 
-			    $time = Carbon::createFromFormat('d/m/Y',$payment_array[$payment_key]['chequedd_date'])->timestamp;
+                $chequedd_timestamp = Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment_array[$payment_key]['chequedd_date'])->timestamp;
 
-			    if($time >= $start && $time <=$end) {
-
+                if($chequedd_timestamp >= $start && $chequedd_timestamp <= $end) {
                     $post_payment['order_id'] = $Payments['order_id'];
                     $post_payment['file_id'] = $Payments['file_id'];
                     $post_payment['activity'] = $Payments['activity'];
@@ -421,7 +417,6 @@ class ShopifyController extends BaseController
                 }
 			}
     	}
-
     	$Post_Payments = self::paginate_array($request, $Post_Payment_Data);
     	return view('shopify.installments')->with('collection_data',$Post_Payments);
 
@@ -432,6 +427,11 @@ class ShopifyController extends BaseController
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $collection = collect($data);
         $limit = ShopifyExcelUpload::PAGINATE_LIMIT;
+
+        // Sort by expected date
+        $collection = $collection->sortBy(function ($data) {
+            return Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['expected_date'])->timestamp;
+        });
 
         $currentPageItems = $collection->slice(($currentPage * $limit) - $limit, $limit)->all();
         $paginatedItems= new LengthAwarePaginator($currentPageItems , count($collection), $limit);
