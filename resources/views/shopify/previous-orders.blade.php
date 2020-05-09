@@ -27,10 +27,19 @@
                                 &nbsp;
                                 <button type="submit" class="btn btn-outline-primary float-right">View</button>
                                 <fieldset class="form-group float-lg-left">
-                                    <div class="input-group float-lg-left" style="width:300px;">
+                                    <div class="input-group float-lg-left" style="width:700px;">
                                         <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
                                         <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
                                         <input type="hidden" name="filter" value="{{ request('filter') }}">
+                                        @if(!empty($accessible_users))
+                                                <label>Filter By: User</label>
+                                                <select class="form-control" name="filter_user">
+                                                    <option value="" selected disabled>Select User </option>
+                                                    @foreach($accessible_users as $user)
+                                                        <option value="{{ $user }}" @if( old('filter_user') == $user) selected @endif>{{ \App\User::where('_id',$user)->first()['name'] }}</option>
+                                                    @endforeach
+                                                </select>
+                                        @endif
                                     </div>
                                 </fieldset>
                             </form>
@@ -113,6 +122,8 @@
                                                 <text style="color:red">{{ $row['errors']['message'] }}</text>
                                             @endif
                                         </td>
+                                        @elseif($key == 'uploaded_by')
+                                        <td><b>{{\App\Library\Permission::order_owner($row)}}</b></td>
                                     @else
                                         <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "><span class="
 

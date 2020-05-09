@@ -6,6 +6,7 @@ ini_set('precision', 20); // Fix for long integer converting to exponential numb
 
 use App\Http\Controllers\BaseController;
 use App\Library\Collection\Collection;
+use App\Library\Permission;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Auth;
@@ -295,16 +296,31 @@ class ShopifyController extends BaseController
     {
         $revenue_data = $this->location_wise_collection();
 
+        [$accessible_users,$teams] = Permission::has_access_to_users_teams();
+
         $date_params = GetStartEndDate(request('daterange'));
         [$start,$end] = $date_params;
-
         if ($start && $end) {
             if (request('filter') == 'team' && is_admin()) {
-                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
+                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
+                    ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
+                    ->appends(request()->query());
+            } elseif (!empty($accessible_users)){
+                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
+                    ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
+                    ->appends(request()->query());
+
+                if(!empty(\request('filter_user'))){
+                    $mongodb_records->where('uploaded_by',\request('filter_user'));
+                } else {
+                    $mongodb_records->where('uploaded_by', $accessible_users)
+                    ->where('tag',$teams);
+                }
             } else {
                 $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
                     ->whereBetween('payments.upload_date', [$start, $end])
-                    ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
+                    ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
+                    ->appends(request()->query());
             }
         } else {
             $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
@@ -359,7 +375,8 @@ class ShopifyController extends BaseController
             ->with('records_array', $mongodb_records)
             ->with('breadcrumb', $breadcrumb)
             ->with('metadata', $modeWiseData)
-            ->with('revenue_data',$revenue_data);
+            ->with('revenue_data',$revenue_data)
+            ->with('accessible_users',$accessible_users);
     }
 
     public function download_previous($id)

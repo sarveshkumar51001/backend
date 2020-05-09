@@ -60,6 +60,7 @@ class Excel
 
 	public static $headerViewMap = [
 		'order_id' => 'Shopify Order',
+        'uploaded_by' => 'Owner',
 		'job_status' => 'Job Status',
 		'upload_date' => 'Upload Date',
 		'date_of_enrollment' => 'Date of enrollment',
@@ -85,7 +86,7 @@ class Excel
 		'final_fee_incl_gst' => 'Final fee (incl GST)',
 		'payments' => 'Payments',
 		'errors' => 'Errors/Messages',
-		'file_id' => "File ID"
+		'file_id' => "File ID",
 	];
 
 	const DATE_FIELDS = [
