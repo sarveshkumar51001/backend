@@ -403,14 +403,23 @@ class ShopifyController extends BaseController
         $Post_Payment_Data = [];
         $post_payment = [];
 
+        [$accessible_users,$teams] = Permission::has_access_to_users_teams();
+
         $start = 0;
         $end = time();
         if(!empty(request('daterange'))) {
             [$start,$end] = GetStartEndDate(request('daterange'));
         }
 
-    	$Post_Dated_Payments = DB::post_dated_payments()->where('uploaded_by', Auth::id())->get()->toArray();
-
+        if(!empty($accessible_users)){
+            if(!empty(request('filter_user'))){
+                $Post_Dated_Payments = DB::post_dated_payments()->where('uploaded_by',request('filter_user'))->get()->toArray();
+            } else{
+            $Post_Dated_Payments = DB::post_dated_payments()->whereIn('uploaded_by',$accessible_users)->get()->toArray();
+            }
+        } else {
+            $Post_Dated_Payments = DB::post_dated_payments()->where('uploaded_by', Auth::id())->get()->toArray();
+        }
     	foreach($Post_Dated_Payments as $Payments) {
 
 			$payment_array = $Payments['payments'];
@@ -431,13 +440,15 @@ class ShopifyController extends BaseController
                     $post_payment['delivery_location'] = $Payments['delivery_institution'] . ' , ' . $Payments['branch'];
                     $post_payment['expected_date'] = $payment_array[$payment_key]['chequedd_date'];
                     $post_payment['expected_amount'] = $payment_array[$payment_key]['amount'];
+                    $post_payment['owner'] = Permission::order_owner($Payments);
 
                     $Post_Payment_Data[] = $post_payment;
                 }
 			}
     	}
     	$Post_Payments = self::paginate_array($request, $Post_Payment_Data);
-    	return view('shopify.installments')->with('collection_data',$Post_Payments);
+    	return view('shopify.installments')->with('collection_data',$Post_Payments)
+            ->with('users',$accessible_users);
 
     }
 

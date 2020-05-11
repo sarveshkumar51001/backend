@@ -53,7 +53,9 @@ class Permission {
     /**
      * Function for getting the owner and the person who uploaded the order.
      * Function checks for the user who uploaded the order and if found, checks whether there
-     * is any owner associated with it. If yes, it checks whether the owner and orde
+     * is any owner associated with it. If yes, it checks whether the owner and uploaded by field is matched
+     * then return the name of the uploaded by person if not returns the name of the owner and uploaded by person
+     * concatenated.
      * @param $row
      * @return string
      */
