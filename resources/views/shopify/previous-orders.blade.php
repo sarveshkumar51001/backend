@@ -89,6 +89,9 @@
                 <a href="{{ route('bulkupload.previous_orders') }}?filter=team"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-users"> &nbsp;</i>Team Uploads</button></a>
                 <a href="{{ route('orders.transactions') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-money"></i> Transactions</button></a>
             @endif
+            @if(has_permission(\App\Library\Permission::TRANSACTIONS_VIEW))
+                <a href="{{ route('orders.transactions') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-money"></i> Transactions</button></a>
+            @endif
         </div>
         <div class="clearfix mt-2"></div>
         <div class="card">
