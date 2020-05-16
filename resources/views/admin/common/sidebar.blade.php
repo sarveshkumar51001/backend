@@ -1,7 +1,9 @@
 <nav class="sidebar-nav">
     <ul class="nav">
         <li class="nav-item">
-            <a class="nav-link" href="{{ URL::to('/') }}"><i class="icon-speedometer"></i> Dashboard </a></li>
+            <a class="nav-link" href="{{ URL::to('/') }}"><i class="icon-speedometer"></i> Dashboard </a>
+        </li>
+        @if(0)
         <li class="nav-title">Students</li>
         <li class="nav-item nav-dropdown">
         <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-university"></i> Students </a>
@@ -11,10 +13,14 @@
                 </li>
             </ul>
         </li>
+        @endif
         <li class="nav-title">Shopify</li>
         <li class="nav-item nav-dropdown">
             <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-database"></i> Shopify</a>
             <ul class="nav-dropdown-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ URL::to('/students/search') }}"><i class="fa fa-search"></i>Student Search</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ URL::to('/shopify/products') }}"><i class="fa fa-shopping-cart"></i>Products</a>
                 </li>
@@ -45,6 +51,7 @@
             <a class="nav-link" href="{{ route('notifications.index') }}"><i class="fa fa-send"></i>Notifications</a>
         </li>
         @endif
+        @if(0)
         <li class="nav-title">Customer profiler</li>
         <li class="nav-item nav-dropdown">
             <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-user"></i> Customer profiler</a>
@@ -55,21 +62,30 @@
             </ul>
         </li>
 
-            <li class="nav-title">Image Recognitions</li>
-            <li class="nav-item nav-dropdown">
-                <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-search"></i> Search</a>
-                <ul class="nav-dropdown-items">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('imagereco.list-all-people') }}"><i class="fa fa-search"></i>List People</a>
-                        <a class="nav-link" href="{{ route('imagereco.search-by-image') }}"><i class="fa fa-search"></i>By image</a>
-                        <a class="nav-link" href="{{ route('imagereco.search-by-name') }}"><i class="fa fa-search"></i>By Name</a>
-                    </li>
-                </ul>
-            </li>
+        <li class="nav-title">Image Recognitions</li>
+        <li class="nav-item nav-dropdown">
+            <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-search"></i> Search</a>
+            <ul class="nav-dropdown-items">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('imagereco.list-all-people') }}"><i class="fa fa-search"></i>List People</a>
+                    <a class="nav-link" href="{{ route('imagereco.search-by-image') }}"><i class="fa fa-search"></i>By image</a>
+                    <a class="nav-link" href="{{ route('imagereco.search-by-name') }}"><i class="fa fa-search"></i>By Name</a>
+                </li>
+            </ul>
+        </li>
+        @endif
         <li class="nav-title">Pages</li>
         <li class="nav-item">
-            <a class="nav-link" href="{{ URL::to('/pages/leads') }}"><i class="fa fa-sitemap"></i> Leads </a></li>
+            <a class="nav-link" href="{{ URL::to('/pages/leads') }}"><i class="fa fa-sitemap"></i> Leads </a>
+        </li>
 
+        @if(\Module::has('Online'))
+
+        <li class="nav-title"> Online</li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ URL::to('/online/activities') }}"><i class="fa fa-globe"></i> Activities </a>
+        </li>
+        @endif
         </ul>
     </nav>
 <button class="sidebar-minimizer brand-minimizer" type="button"></button>
