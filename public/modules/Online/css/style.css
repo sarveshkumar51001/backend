@@ -160,7 +160,7 @@ ol {
 	color: #fff;
 }
 
-.bg-gradient,
+/*.bg-gradient,
 .bd-text .bd-tag-share .s-share a:hover,
 .bh-text .play-btn,
 .schedule-table-tab .nav-tabs .nav-item .nav-link.active,
@@ -169,11 +169,10 @@ ol {
 .price-item .price-btn:hover,
 .price-item .pi-price,
 .price-item .tr-tag,
-.schedule-tab .nav-tabs .nav-item .nav-link.active,
-.site-btn {
+.schedule-tab .nav-tabs .nav-item .nav-link.active{
 	background-image: -o-linear-gradient(330deg, #ee8425 0%, #f9488b 100%), -o-linear-gradient(330deg, #ee8425 0%, #f9488b 100%);
 	background-image: linear-gradient(120deg, #ee8425 0%, #f9488b 100%), linear-gradient(120deg, #ee8425 0%, #f9488b 100%);
-}
+}*/
 
 /* buttons */
 
@@ -197,6 +196,7 @@ ol {
 	border: none;
 	padding: 10px 40px 12px;
 	border-radius: 5px;
+    background-color: #2B3E78;
 }
 
 /* Preloder */
