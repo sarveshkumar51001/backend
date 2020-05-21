@@ -91,6 +91,9 @@
         <li class="nav-item">
             <a class="nav-link" href="{{ URL::to('/online/products') }}"><i class="fa fa-product-hunt"></i> Products </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ URL::to('/online/sessions') }}"><i class="fa fa-server"></i> Sessions </a>
+        </li>
         </ul>
         </li>
         @endif
