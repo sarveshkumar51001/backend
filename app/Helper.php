@@ -208,3 +208,14 @@ function string_view_renderer($__php, $__data)
     }
     return ob_get_clean();
 }
+
+function GetStartEndTime($time_range)
+{
+    $time_data = [];
+    $time_range = explode(' - ', $time_range, 2);
+    if(!empty($time_range)) {
+        $time_data['start'] = date("H:i", strtotime($time_range[0]));
+        $time_data['end'] = date("H:i", strtotime($time_range[1]));
+    }
+    return $time_data;
+}

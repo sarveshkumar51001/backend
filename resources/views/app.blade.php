@@ -40,7 +40,10 @@
     <link href="{{ URL::asset('vendors/css/ladda-themeless.min.css') }}" rel="stylesheet">
     <link href="{{ URL::asset('vendors/css/spinkit.min.css') }}" rel="stylesheet">
     <link href="{{ URL::asset('vendors/css/toastr.min.css') }}" rel="stylesheet">
+    <link href="{{ URL::asset('css/style.css') }}" rel="stylesheet">
+    @yield("style")
 </head>
+
 
 <!-- BODY options, add following classes to body to change options
 

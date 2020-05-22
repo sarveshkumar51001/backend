@@ -80,22 +80,23 @@
         </li>
 
         @if(\Module::has('Online'))
-            <li class="nav-title"> Online</li>
+
+        <li class="nav-title"> Online</li>
             <li class="nav-item nav-dropdown">
                 <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-upload"></i> Online</a>
                 <ul class="nav-dropdown-items">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ URL::to('/online/activities') }}"><i class="fa fa-bookmark-o"></i> Activities </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ URL::to('/online/products') }}"><i class="fa fa-product-hunt"></i> Products </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ URL::to('/online/sessions') }}"><i class="fa fa-server"></i> Sessions </a>
-                    </li>
-                </ul>
-            </li>
-        @endif
+        <li class="nav-item">
+            <a class="nav-link" href="{{ URL::to('/online/activities') }}"><i class="fa fa-bookmark-o"></i> Activities </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ URL::to('/online/products') }}"><i class="fa fa-product-hunt"></i> Products </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ URL::to('/online/sessions') }}"><i class="fa fa-server"></i> Sessions </a>
+        </li>
         </ul>
+        </li>
+        @endif
+    </ul>
     </nav>
 <button class="sidebar-minimizer brand-minimizer" type="button"></button>
