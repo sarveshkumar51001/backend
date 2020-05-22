@@ -69,6 +69,7 @@
                                     <th>Price</th>
                                     <th>Stock</th>
                     				<th>Status</th>
+                    				<th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -86,6 +87,7 @@
                                                 <td>{{$variant['price']}}</td>
                                                 <td class="font-weight-bold">@if($variant['inventory_quantity'] > 0 || empty($variant['inventory_management'])) <p class="text-success">In Stock</p> @else  <p class="text-danger">Out of Stock</p>@endif</td>
                                                 <td>@if($product['published_at'] != null) <p class="text-success">Enabled</p> @else <p class="text-danger">Disabled</p> @endif</td>
+                                                <td><a target="_blank" href="/online/products/move/{{$variant['id']}}">Move To Online</a></td>
                                             @endforeach
                                         </tr>
                                 @else
@@ -100,6 +102,7 @@
                                         <td>{{$variant['price']}}</td>
                                        <td class="font-weight-bold">@if($variant['inventory_quantity'] > 0 || empty($variant['inventory_management'])) <p class="text-success">In Stock</p> @else  <p class="text-danger">Out of Stock</p> @endif</td>
                 						<td class="font-weight-bold">@if($product['published_at'] != null) <p class="text-success">Enabled</p> @else <p class="text-danger">Disabled</p> @endif</td>
+                                            <td><a target="_blank" href="/online/products/move/{{$variant['id']}}">Move To Online</a></td>
                                         </tr>
                                     @endforeach
                                     @endif

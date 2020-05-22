@@ -219,3 +219,16 @@ function GetStartEndTime($time_range)
     }
     return $time_data;
 }
+
+function get_act_title($id) {
+    return \Modules\Online\Models\Activities::find($id)['name'];
+}
+
+function get_title($items, $column = 'name') {
+    $title = '';
+    foreach ($items as $item) {
+        $title = "<li>".$item[$column]."</li>";
+    }
+
+    return $title;
+}
