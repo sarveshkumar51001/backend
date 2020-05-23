@@ -214,8 +214,8 @@ function GetStartEndTime($time_range)
     $time_data = [];
     $time_range = explode(' - ', $time_range, 2);
     if(!empty($time_range)) {
-        $time_data['start'] = date("H:i", strtotime($time_range[0]));
-        $time_data['end'] = date("H:i", strtotime($time_range[1]));
+        $time_data['start'] = date("H:i A", strtotime($time_range[0]));
+        $time_data['end'] = date("H:i A", strtotime($time_range[1]));
     }
     return $time_data;
 }
@@ -231,4 +231,10 @@ function get_title($items, $column = 'name') {
     }
 
     return $title;
+}
+
+function rename_multidimensional_array_key($old_key,$new_key,$array){
+
+    $json_string = json_decode(str_replace([$old_key],[$new_key],json_encode($array)));
+    return json_decode(json_encode($json_string), true);
 }
