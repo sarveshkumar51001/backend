@@ -94,6 +94,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ URL::to('/online/sessions') }}"><i class="fa fa-clock-o"></i> Sessions </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ URL::to('/online/upload') }}"><i class="fa fa-upload"></i> Upload </a>
+                    </li>
                 </ul>
             </li>
         @endif
