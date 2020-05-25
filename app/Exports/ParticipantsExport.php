@@ -6,7 +6,7 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class TransactionsExport implements FromCollection, WithHeadings
+class ParticipantsExport implements FromCollection, WithHeadings
 {
     private $data;
     use Exportable;
@@ -24,33 +24,13 @@ class TransactionsExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'Date of Enrollment',
-            'Shopify Activity ID',
-            'Delivery Institution',
-            'Location',
-            'School Name',
-            'Student Name',
             'Activity Name',
-            'Student Enrollment No',
-            'Class',
-            'Parent Name',
-            'Activity Fee',
-            'Scholarship/Discount',
-            'Transaction Amount',
-            'Transaction Mode',
-            'Reference No(PayTM/NEFT)',
-            'Cheque/DD No',
-            'MICR Code',
-            'Cheque/DD Date',
-            'Drawee Name',
-            'Drawee Account Number',
-            'Bank Name',
-            'Transaction Upload Date',
-            'Payment Type',
-            'Shopify Order Name',
-            'Parent Order Name',
-            'Uploaded By',
-            'Reconciliation Status'
-        ];
+            'Session Name',
+            'Session Date',
+            'Session Slot',
+            'Student Name',
+            'Student Phone',
+            'Student Email'
+            ];
     }
 }
