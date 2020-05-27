@@ -89,7 +89,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ URL::to('/online/orders?filter=new') }}"><i class="fa fa-list"></i> Orders </a>
+                        <a class="nav-link" href="{{ URL::to('/online/orders') }}"><i class="fa fa-list"></i> Orders </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ URL::to('/online/sessions') }}"><i class="fa fa-clock-o"></i> Sessions </a>

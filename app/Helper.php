@@ -238,3 +238,13 @@ function rename_multidimensional_array_key($old_key,$new_key,$array){
     $json_string = json_decode(str_replace([$old_key],[$new_key],json_encode($array)));
     return json_decode(json_encode($json_string), true);
 }
+
+function get_slot_title($session, $showCount = false) {
+    return $session['session_name'] . " / " . $session['start_time'] . " - " . $session['end_time'] .
+        ($showCount ? ' / ' . ($session['max_participant_count'] - $session['participant_count']) . " Seats Left" : "");
+}
+
+function get_order_title($order) {
+    return $order['order_no'] . " / " . $order['variant_name'] . " / " . $order['amount'] . " / " . ($order['customer_details']['name'] ?? "") . " / " . ($order['customer_details']['class'] ?? "") . " / ".
+        ($order['customer_details']['school'] ?? "");
+}
