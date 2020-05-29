@@ -1,4 +1,5 @@
 function addDetails() {
+    $("#save-btn-details").hide();
     var order_id = $('#order_id').val();
     var data = $('#add-details-form').serializeArray();
     $.ajax({
@@ -9,11 +10,12 @@ function addDetails() {
             if(result == 1)
             {
                 $("#success").html("Details Updated Successfully !").css("color", "Green").delay(5000).fadeOut('slow');
-
+                window.location.href = "/frontend/session/details";
             }
 
         },
         error: function (data) {
+            $("#save-btn-details").show();
             var response = $.parseJSON(data.responseText);
             // Add error to the field and enable them
             $.each(response.errors, function (field, error) {
