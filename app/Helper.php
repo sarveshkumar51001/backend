@@ -208,3 +208,43 @@ function string_view_renderer($__php, $__data)
     }
     return ob_get_clean();
 }
+
+function GetStartEndTime($time_range)
+{
+    $time_data = [];
+    $time_range = explode(' - ', $time_range, 2);
+    if(!empty($time_range)) {
+        $time_data['start'] = date("H:i A", strtotime($time_range[0]));
+        $time_data['end'] = date("H:i A", strtotime($time_range[1]));
+    }
+    return $time_data;
+}
+
+function get_act_title($id) {
+    return \Modules\Online\Models\Activities::find($id)['name'];
+}
+
+function get_title($items, $column = 'name') {
+    $title = '';
+    foreach ($items as $item) {
+        $title = "<li>".$item[$column]."</li>";
+    }
+
+    return $title;
+}
+
+function rename_multidimensional_array_key($old_key,$new_key,$array){
+
+    $json_string = json_decode(str_replace([$old_key],[$new_key],json_encode($array)));
+    return json_decode(json_encode($json_string), true);
+}
+
+function get_slot_title($session, $showCount = false) {
+    return $session['session_name'] . " / " . $session['start_time'] . " - " . $session['end_time'] .
+        ($showCount ? ' / ' . ($session['max_participant_count'] - $session['participant_count']) . " Seats Left" : "");
+}
+
+function get_order_title($order) {
+    return $order['order_no'] . " / " . $order['variant_name'] . " / " . $order['amount'] . " / " . ($order['customer_details']['name'] ?? "") . " / " . ($order['customer_details']['class'] ?? "") . " / ".
+        ($order['customer_details']['school'] ?? "");
+}

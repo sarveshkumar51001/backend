@@ -42,6 +42,7 @@
     <link href="{{ URL::asset('vendors/css/toastr.min.css') }}" rel="stylesheet">
 </head>
 
+
 <!-- BODY options, add following classes to body to change options
 
 // Header options
@@ -71,7 +72,7 @@
 -->
 
 {{--<body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">--}}
-<body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden pace-done sidebar-minimized brand-minimized">
+<body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden pace-done brand-minimized">
 
 <!-- Header -->
 <header class="app-header navbar">
