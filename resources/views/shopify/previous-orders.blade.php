@@ -86,11 +86,11 @@
             <a href="{{ route('bulkupload.upload') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-plus"> &nbsp;</i>New Upload</button></a>
             <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Upload History</button></a>
             @if(is_admin())
+                <a href="{{ route('bulkupload.installments') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Installments</button></a>
                 <a href="{{ route('bulkupload.previous_orders') }}?filter=team"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-users"> &nbsp;</i>Team Uploads</button></a>
             @endif
         </div>
         <div class="clearfix mt-2"></div>
-
         <div class="card">
             <div class="card-body">
             @if(count($records_array) == 0)
@@ -175,6 +175,8 @@
     <script src="{{ URL::asset('vendors/js/ladda.min.js') }}"></script>
     <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
     <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
+    <script src="{{ URL::asset('js/admin/upload.js') }}"></script>
+    <script src="{{ URL::asset('public/css/custom.css') }}"></script>
     <script src="{{ URL::asset('js/admin/upload.js?v=1.0') }}"></script>
     <script>
         _Payload.headers = {!! json_encode(\App\Library\Shopify\Excel::$headerMap)  !!};
