@@ -18,3 +18,5 @@ yarn-error.log
 .env
 .phpunit.result.cache
 composer.lock
+/Modules
+!/Modules/index.html
