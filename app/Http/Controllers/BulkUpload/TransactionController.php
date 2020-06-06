@@ -63,22 +63,19 @@ class TransactionController extends BaseController
             $OrderORM->whereIn('shopify_activity_id',$request['activity_list']);
         }
 
-        if (isset($request['location']) && !empty($request['location'])) {
-            if($request['location'] == 'All'){
-                $OrderORM->whereBetween('payments.upload_date',[$start_date,$end_date]);
-            } else{
-            $OrderORM->where('student_school_location', $request['location'])
-                ->whereBetween('payments.upload_date', [$start_date, $end_date]);
+        if (!empty($request['location'])) {
+            if($request['location'] != 'All') {
+                $OrderORM->where('student_school_location', $request['location']);
             }
         } else {
-            $OrderORM->where('uploaded_by', Auth::user()->id)
-                ->whereBetween('payments.upload_date', [$start_date, $end_date]);
+            $OrderORM->where('uploaded_by', Auth::user()->id);
         }
 
-        if(isset($request['reco_status']) && !empty($request['reco_status']) && !in_array($request['reco_status'], ['all', ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT] )) {
+        if(!empty($request['reco_status']) && !in_array($request['reco_status'], ['all', ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT] )) {
             $OrderORM->where('payments.reconcilation.settlement_status', $request['reco_status']);
         }
 
+        $OrderORM->whereBetween('payments.upload_date',[$start_date,$end_date]);
         $Orders = $OrderORM->get();
 
         foreach ($Orders as $Order) {
