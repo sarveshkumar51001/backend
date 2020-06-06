@@ -30,7 +30,7 @@ class TransactionController extends BaseController
     }
 
     public function GetUniqueProducts(){
-        return array_keys(ShopifyExcelUpload::all()->groupBy('shopify_activity_id')->toArray());
+        return ShopifyExcelUpload::groupBy('shopify_activity_id')->pluck('shopify_activity_id')->toArray();
     }
 
     public function search_transactions_by_location(Request $request)
