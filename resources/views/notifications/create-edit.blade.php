@@ -90,7 +90,7 @@
                     <div class="col-sm-3">
                         <label for="cutoff_date">Cut Off Date</label>
                         <div class="input-group">
-                            <input id="cutoff_date" type='text' name="cutoff_date" class="form-control" value="{{ old('cutoff_date', date('d/m/Y h:i A',$data['data']['cutoff_datetime'] ?? timestamp())) }}">
+                            <input id="cutoff_date" type='text' name="cutoff_date" class="form-control" value="{{ old('cutoff_date', date('d/m/Y h:i A',$data['data']['cutoff_datetime'] ?? time())) }}">
                         </div>
                     </div>
                     <div class="col-sm-2">
