@@ -15,8 +15,10 @@ class ValidHeaderAndDuplicateRowTest extends TestCase
 
     private function generate_raw_excel($rows)
     {
-        $headers = array_keys($rows[0]);
-
+        $headers = [];
+        if(!empty($rows)) {
+            $headers = array_keys($rows[0]);
+        }
         return (new \App\Library\Shopify\Excel($headers, $rows, [
             'upload_date' => '27/11/2019',
             'uploaded_by' => "5d1214cbafd58641b5532f82",
@@ -40,18 +42,18 @@ class ValidHeaderAndDuplicateRowTest extends TestCase
     }
 
     // Test case should assert False if the file headers are invalid
-    public function testHasAllValidHeadersShouldFail()
-    {
-        // Unsettled a key and replacing it with a incorrect one for test case execution.
-        $data = TestCaseData::DATA;
-        unset($data['date_of_enrollment']);
-        $data['enrollment_date'] = "";
-        $excel_data = array($data);
-
-        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
-        $this->assertFalse($ExcelValidator->HasAllValidHeaders());
-
-    }
+//    public function testHasAllValidHeadersShouldFail()
+//    {
+//        // Unsettled a key and replacing it with a incorrect one for test case execution.
+//        $data = TestCaseData::DATA;
+//        unset($data['date_of_enrollment']);
+//        $data['enrollment_date'] = "";
+//        $excel_data = array($data);
+//
+//        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+//        $this->assertFalse($ExcelValidator->HasAllValidHeaders());
+//
+//    }
 
     // Test case should assert true if row is found to be duplicate
     public function testHasDuplicateRowPass()
@@ -146,6 +148,46 @@ class ValidHeaderAndDuplicateRowTest extends TestCase
             $error = head(head(array_values($ExcelValidator->get_errors()['rows'])));
         }
         $this->assertTrue($error == sprintf(Errors::FIELD_UPDATED_ERROR, implode($fields_updated, ",")));
+
+    }
+
+    public function testInValidHeaderShouldFail()
+    {
+        $data = TestCaseData::DATA;
+        unset($data['date_of_enrollment']);
+        $data['enrollment_date'] = "";
+        $excel_data = array($data);
+
+        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator->Validate();
+        $error = ($ExcelValidator->get_errors()['incorrect_headers']);
+
+        $this->assertTrue($error== Errors::INCORRECT_HEADER_ERROR);
+
+    }
+
+    public function testEmptyFileShouldFail()
+    {
+        $excel_data = [];
+        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator->Validate();
+        $error = ($ExcelValidator->get_errors()['sheet']['empty_file']);
+
+        $this->assertTrue($error == Errors::EMPTY_FILE_ERROR);
+
+    }
+
+    public function testHasPriorityErrorShouldFail()
+    {
+        $data = TestCaseData::DATA;
+        $data['date_of_enrollment'] = "";
+        $excel_data = array($data);
+
+        $ExcelValidator = new ExcelValidator($this->generate_raw_excel($excel_data));
+        $ExcelValidator->Validate();
+        $error = ($ExcelValidator->get_errors());
+        logger($error);
+
 
     }
 }

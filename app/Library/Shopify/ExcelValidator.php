@@ -454,6 +454,7 @@ class ExcelValidator
     }
 
     /**
+     * @codeCoverageIgnore
      * @deprecated Not to be used
      * @todo Remove in next release
      * @param array $data
