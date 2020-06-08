@@ -16,7 +16,7 @@ class Permission {
 
     const TEAM_REYNOTT = 'team-reynott';
 
-    const TEAM_HAYDEN_REYNOTT = 'team-h&r';
+    const TEAM_HAYDEN_REYNOTT = 'team-hnr';
 
     const TEAM_ADMIN = 'team-admin';
 
@@ -28,7 +28,7 @@ class Permission {
     public static function has_access_to_users_teams(){
 
         // Getting permissions of the logged in user
-        $permissions = !empty(\Auth::user()->permissions) ? \Auth::user()->permissions : [];
+        $permissions = \Auth::user()->permissions ?? [];
 
         // Filtering team related permission
         $team_permissions = Arr::where($permissions, function ($value, $key) {
