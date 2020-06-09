@@ -59,7 +59,7 @@
         </div>
     @if(!empty($transactions))
         <form method="post" enctype="multipart/form-data" action="#" id="transaction-id-form">
-        <table class="table table-bordered table-striped table-sm datatable">
+        <table class="table table-bordered table-striped table-sm datatable table-responsive">
             <thead>
 
             <tr>
@@ -71,7 +71,6 @@
                 <th>Transaction Amount</th>
                 <th>Reference No(PayTM/NEFT)</th>
                 <th>Cheque/DD No</th>
-                <th>MICR Code</th>
                 <th>Cheque/DD Date</th>
                 <th>Drawee Account Number</th>
                 <th>Transaction Upload Date</th>
@@ -81,17 +80,18 @@
             <tbody>
             @foreach($transactions as $transaction)
                 <tr>
-                    @if(has_permission(App\Library\Permission::PERMISSION_RECONCILE))
+                    @if(has_permission(App\Library\Permission::PERMISSION_RECONCILE) && strtolower($transaction['Reconciliation Status']) == \App\Models\ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT)
                     <td>
                         <input type="checkbox"  class="transaction_selected" name="transaction_ids[]" value="{{$transaction['Transaction ID']}}">
                     </td>
+                       @else
+                           <td></td>
                     @endif
                     <td>{{$transaction['Shopify Order Name']}}</td>
                     <td>{{$transaction['Transaction Mode']}}</td>
                     <td>{{$transaction['Transaction Amount']}}</td>
                     <td>{{$transaction['Reference No(PayTM/NEFT)']}}</td>
                     <td>{{$transaction['Cheque/DD No']}}</td>
-                    <td>{{$transaction['MICR Code']}}</td>
                     <td>{{$transaction['Cheque/DD Date']}}</td>
                     <td>{{$transaction['Drawee Account Number']}}</td>
                     <td>{{$transaction['Transaction Upload Date']}}</td>
@@ -108,7 +108,7 @@
             </tbody>
         </table>
             @if(has_permission(App\Library\Permission::PERMISSION_RECONCILE))
-                <button id="settle-button" type="button" class="btn btn-success" onclick="mark_payment_settled();">Mark Settled</button>
+                <button id="settle-button" type="button" class="btn btn-success" onclick="mark_settled_confirm();">Mark Settled</button>
             @endif
         </form>
     @elseif(empty($transactions) && isset($transactions))

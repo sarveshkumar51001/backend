@@ -81,21 +81,49 @@ function toggle_all(fieldClass) {
     check = check + 1;
 }
 
-function mark_payment_settled() {
-    var loader = Ladda.create(document.querySelector('#settle-button')).start();
+function mark_settled_confirm() {
+    $('#settle-button').popover({
+        html: true,
+        title: 'Are you sure?',
+        content: '<p>This will mark the transaction settled/returned.' +
+            ' <p id="mark-settled-message-error" class="alert alert-danger" style="display: none;"></p>' +
+            ' <p id="mark-settled-message-success" class="alert alert-success" style="display: none;">Action completed!</p>' +
+            '<button id="mark-settled-btn-yes" class="btn btn-success mr-2 btn-ladda-progress" data-style="expand-right" onclick="mark_payment_settled(200);" >Settled</button>' +
+            '<button id="mark-returned-btn-yes" class="btn btn-danger mr-2 btn-ladda-progress" data-style="expand-right" onclick="mark_payment_settled(400);" >Returned</button>' +
+            '<button id="mark-settled-btn-no" class="btn btn-secondary" onclick="mark_settled_no()">No</button>',
+        template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
+    }).popover('show');
+
+}
+
+function mark_settled_no() {
+    $('#settle-button').popover('hide');
+}
+function mark_payment_settled(type) {
+    var action = '';
+
+    if(type === 200) {
+        action = 'settle';
+    } else if(type === 400) {
+        action = 'return';
+    }
+    if(action === '') {
+        return;
+    }
     var formData = $('#transaction-id-form').serializeArray();
+    formData.push({name: 'action', value: action});
+
     $.ajax({
         method: 'POST',
         url: '/api/v1/manual/settle',
         data: formData,
         success: function(data) {
-            loader.stop();
+            $('#settle-button').popover('hide');
             toastr.success('Action completed', 'Success!');
             return;
         },
         error: function (data) {
             toastr.error('Error Encountered', 'Error');
-            loader.stop();
         }
     });
 }

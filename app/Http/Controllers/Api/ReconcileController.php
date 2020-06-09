@@ -90,9 +90,9 @@ class ReconcileController extends Controller {
         // Looping through all the transaction ids and exploding
         if(!empty($transaction_ids)) {
             foreach ($transaction_ids as $ids) {
-                if (empty($ids)) {
-                    return response('ID not found', 422);
-                }
+//                if (empty($ids)) {
+//                    return response('ID not found', 422);
+//                }
 
                 // Separating object id and payment index.
                 $composite_id = explode('.', $ids);
@@ -107,23 +107,28 @@ class ReconcileController extends Controller {
 
                 //Throwing error if the user tries to alter already settled payment.
                 $Payment = new Payment($Order->first()->toArray()['payments'], $payment_index);
-                if ($Payment->getRecoStatus() == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED) {
+                if ($Payment->getRecoStatus() == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED ||
+                    $Payment->getRecoStatus() == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED) {
                     return response('Already marked transaction cannot be altered.', 403);
                 }
 
                 $loggedInUser = (\Auth::user()->id ?? 0);
 
                 $updates = [
-                    ShopifyExcelUpload::PaymentSettlementStatus => ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED,
                     ShopifyExcelUpload::PaymentSettlementMode => ShopifyExcelUpload::PAYMENT_SETTLEMENT_MODE_MANUAL,
                     ShopifyExcelUpload::PaymentLiquidationDate => time(),
                     ShopifyExcelUpload::PaymentSettledDate => time(),
                     ShopifyExcelUpload::PaymentSettledBy => $loggedInUser,
                     ShopifyExcelUpload::PaymentUpdatedAt => time(),
                 ];
+                if(request('action') == 'settle') {
+                    $doc_updates = array_merge($updates,[ShopifyExcelUpload::PaymentSettlementStatus => ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED]);
+                } else{
+                    $doc_updates = array_merge($updates,[ShopifyExcelUpload::PaymentSettlementStatus => ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED]);
+                }
 
                 $column_updates = [];
-                foreach ($updates as $column => $value) {
+                foreach ($doc_updates as $column => $value) {
                     $key_name = sprintf("payments.%s.%s.%s", $payment_index, Payment::RECO, $column);
                     $column_updates[$key_name] = $value;
                 }
