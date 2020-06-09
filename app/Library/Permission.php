@@ -35,19 +35,20 @@ class Permission {
                 return preg_match("/team/", $value);
             });
 
-        // If team admin is found in team permissions then get all the teams accessible to the admin
-        // and users associated with all those teams.
-        if(in_array(Permission::TEAM_ADMIN,$team_permissions)){
-            $accessible_teams = array_diff($team_permissions,[Permission::TEAM_ADMIN]);
-            $Users = [];
-            foreach ($accessible_teams as $team) {
-                $users = User::where('permissions',$team)->get(['_id'])->toArray();
-                $Users[] = $users;
+        $accessible_teams = $accessible_users = [];
+
+            // If team admin is found in team permissions then get all the teams accessible to the admin
+            // and users associated with all those teams.
+            if (in_array(Permission::TEAM_ADMIN, $team_permissions)) {
+                $accessible_teams = array_diff($team_permissions, [Permission::TEAM_ADMIN]);
+                $Users = [];
+                foreach ($accessible_teams as $team) {
+                    $users = User::where('permissions', $team)->get(['_id'])->toArray();
+                    $Users[] = $users;
+                }
+                $accessible_users = array_diff(array_unique(Arr::flatten($Users)), [\Auth::user()->id]);
             }
-            $accessible_users = array_diff(array_unique(Arr::flatten($Users)),[\Auth::user()->id]);
-            return [$accessible_users,$accessible_teams];
-        }
-        return [];
+        return [$accessible_users, $accessible_teams];
     }
 
     /**
