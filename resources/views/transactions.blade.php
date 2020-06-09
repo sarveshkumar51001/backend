@@ -5,6 +5,11 @@
         <div class="card-header">
             <i class="icon-list"></i>Transactions
         </div>
+        @if(session('message'))
+            <div class="alert alert-info" role="alert">
+                <p class="m-0">{{ session('message')  }}</p>
+            </div>
+        @endif
         <form method="POST" action="{{ route('get.transactions') }}" enctype="multipart/form-data" onsubmit="form_submit()">
             {{ csrf_field() }}
             <div class = "card-body">
@@ -45,9 +50,6 @@
                         </div>
                     </div>
                 </div>
-                    @php
-                        logger(old('activity_list'));
-                    @endphp
                 <div class="row">
                     <div class="form-group col-sm-4">
                         <label><i class="fa fa-product-hunt" aria-hidden="true"></i> Activity</label>
@@ -55,7 +57,7 @@
                             <select id="js-example-basic-multiple" class="form-control" name="activity_list[]" multiple="multiple" style="width:100%">
 
                                 @foreach($products as $product)
-                                    <option value="{{$product}}" @if(!empty(old('activity_list')) && in_array($product, old('activity_list'))) selected @endif>{{$product}}</option>
+                                    <option value="{{$product}}" @if(!empty(request('activity_list')) && in_array($product, request('activity_list'))) selected @endif>{{$product}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -64,7 +66,7 @@
                         <label> Include Unpaid Installment?</label>
                         <div class="form-group input-group">
                             <label class="switch switch-icon switch-pill switch-success">
-                                <input type="checkbox" class="switch-input" name="unpaid_active" id="active" @if(old('unpaid_active') == 'on') checked @endif>
+                                <input type="checkbox" class="switch-input" name="unpaid_active" id="active" @if(request('unpaid_active') == 'on') checked @endif>
                                 <span class="switch-label" data-on="" data-off=""></span>
                                 <span class="switch-handle"></span>
                             </label>
@@ -73,16 +75,12 @@
                     <div class="form-group col-sm-2">
                         <div class="input-group">
                             <button id="file-download-btn" type="submit" class="btn btn-primary"><i class="fa fa-download"></i> &nbsp;Export All Transactions</button>
+                            <a href="/transactions" id="close-button" class="btn btn-danger"><i class="fa fa-close"></i> &nbsp;Clear</a>
                         </div>
                     </div>
                 </div>
             </div>
         </form>
-    @if(empty($order_data) && isset($order_data))
-        <div class="alert alert-warning text-center">
-            <h4><b>No data found for the selected criteria.</b></h4>
-        </div>
-    @endif
 @endsection
 
 @section('footer-js')
@@ -92,9 +90,6 @@
     <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
     <script src="{{ URL::asset('js/admin/upload.js') }}"></script>
     <script src="{{ URL::asset('vendors/js/select2.min.js') }}"></script>
-    <script>
-        _Payload.headers = {!! json_encode(\App\Library\Shopify\Excel::$headerMap)  !!};
-    </script>
     <script>
         $(document).ready(function() {
             $('#js-example-basic-multiple').select2({

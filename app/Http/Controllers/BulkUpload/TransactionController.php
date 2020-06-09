@@ -123,6 +123,10 @@ class TransactionController extends BaseController
 
                     $Payment = new Payment($payment, $index);
 
+                    // If include unpaid installment toggle is OFF and payment is not processed then skip the payment
+                    if($exclude_unpaid && !$Payment->isProcessed()){
+                        continue;
+                    }
                     $order_data[]= array_merge($data,[
                         'Transaction Amount'=> $payment['amount'],
                         'Transaction Mode'=> $payment['mode_of_payment'],
@@ -144,17 +148,10 @@ class TransactionController extends BaseController
                 }
             }
         }
-        // If include unpaid installment toggle is OFF, filter the array and show only the payments
-        // where payment status is Paid.
-        if($exclude_unpaid){
-            $order_data = Arr::where($order_data,function ($payment, $key) {
-                return $payment['Payment Status'] == 'Paid';
-            });
-        }
 
         if(empty($order_data)){
-            return view('transactions')->with('order_data',$order_data)
-                ->with('products',$this->GetUniqueProducts());
+            $request->session()->flash('message', 'No data found for the selected filters!');
+            return view('transactions')->with('products',$this->GetUniqueProducts());
         }
 
       return Excel\Facades\Excel::download(new TransactionsExport($order_data),'transactions.xlsx');
