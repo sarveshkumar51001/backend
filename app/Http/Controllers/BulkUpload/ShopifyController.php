@@ -15,10 +15,15 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Library\Shopify\ExcelValidator;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use App\Library\Shopify\DB;
+use PHPExcel;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Input;
 use Exception\PHPExcel_Exception;
 use App\Imports\ShopifyOrdersImport;
 use Maatwebsite\Excel\HeadingRowImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
+
 
 class ShopifyController extends BaseController
 {
@@ -251,7 +256,7 @@ class ShopifyController extends BaseController
     {
         $breadcrumb = ['Shopify' => route('bulkupload.previous_orders'), 'Previous uploads' => ''];
 
-        $Uploads = Upload::where('user_id', Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->get();
+        $Uploads = Upload::where('user_id', Auth::user()->id)->where('status', 'success')->orderBy('created_at', 'desc')->paginate(ShopifyExcelUpload::PAGINATE_LIMIT);
 
         return view('shopify.past-files-upload')->with('files', $Uploads)->with('breadcrumb', $breadcrumb);
     }
@@ -377,6 +382,67 @@ class ShopifyController extends BaseController
 
         return view('admin.404')->with('breadcrumb', $breadcrumb);
     }
-}
 
+    public function installments(Request $request) {
+
+        $Post_Payment_Data = [];
+        $post_payment = [];
+
+        $start = 0;
+        $end = time();
+        if(!empty(request('daterange'))) {
+            [$start,$end] = GetStartEndDate(request('daterange'));
+        }
+
+    	$Post_Dated_Payments = DB::post_dated_payments()->where('uploaded_by', Auth::id())->get()->toArray();
+
+    	foreach($Post_Dated_Payments as $Payments) {
+
+			$payment_array = $Payments['payments'];
+
+			$post_payment_keys = array_keys(array_column($payment_array, 'is_pdc_payment'), true);
+			foreach($post_payment_keys as $payment_key){
+
+                $chequedd_timestamp = Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $payment_array[$payment_key]['chequedd_date'])->timestamp;
+
+                if($chequedd_timestamp >= $start && $chequedd_timestamp <= $end) {
+                    $post_payment['order_id'] = $Payments['order_id'];
+                    $post_payment['file_id'] = $Payments['file_id'];
+                    $post_payment['activity'] = $Payments['activity'];
+                    $post_payment['activity_id'] = $Payments['shopify_activity_id'];
+                    $post_payment['school_enrollment_no'] = $Payments['school_enrollment_no'];
+                    $post_payment['student_name'] = $Payments['student_first_name'] . " " . $Payments['student_last_name'];
+                    $post_payment['student_school'] = $Payments['school_name'] . ' , ' . $Payments['student_school_location'];
+                    $post_payment['delivery_location'] = $Payments['delivery_institution'] . ' , ' . $Payments['branch'];
+                    $post_payment['expected_date'] = $payment_array[$payment_key]['chequedd_date'];
+                    $post_payment['expected_amount'] = $payment_array[$payment_key]['amount'];
+
+                    $Post_Payment_Data[] = $post_payment;
+                }
+			}
+    	}
+    	$Post_Payments = self::paginate_array($request, $Post_Payment_Data);
+    	return view('shopify.installments')->with('collection_data',$Post_Payments);
+
+    }
+
+    public function paginate_array( Request $request,$data){
+
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $collection = collect($data);
+        $limit = ShopifyExcelUpload::PAGINATE_LIMIT;
+
+        // Sort by expected date
+        $collection = $collection->sortBy(function ($data) {
+            return Carbon::createFromFormat(ShopifyExcelUpload::DATE_FORMAT, $data['expected_date'])->timestamp;
+        });
+
+        $currentPageItems = $collection->slice(($currentPage * $limit) - $limit, $limit)->all();
+        $paginatedItems= new LengthAwarePaginator($currentPageItems , count($collection), $limit);
+        $paginatedItems->setPath($request->url());
+
+        return $paginatedItems;
+
+    }
+}
 
