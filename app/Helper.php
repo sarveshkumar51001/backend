@@ -1,5 +1,6 @@
 <?php
 
+
 function get_product_price($productID) {
 	$Product = \App\Models\Product::where('product_id', $productID)->first();
 
@@ -153,4 +154,97 @@ function GroupByKey($Data,$key)
         $groupedData[$data[$key]][] = $data;
     }
     return array_values($groupedData);
+}
+
+function is_admin() {
+	$userPermission = !empty(\Auth::user()->permissions) ? \Auth::user()->permissions : [];
+    if(in_array(\App\Library\Permission::PERMISSION_ADMIN, $userPermission)) {
+        return true;
+    }
+    return false;
+}
+
+function has_permission($permission) {
+
+    if(is_admin()) {
+        return true;
+    }
+
+	$userPermission = !empty(\Auth::user()->permissions) ? \Auth::user()->permissions : [];
+    if(in_array($permission, $userPermission)) {
+        return true;
+    }
+
+    return false;
+}
+function paginate_array($request,$data,$limit)
+{
+    $currentPage = Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+    $currentPage = 2;
+    $collection = collect($data);
+    $perPage = $limit;
+
+    $currentPageItems = $collection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
+    $paginatedItems = new Illuminate\Pagination\LengthAwarePaginator($currentPageItems, count($collection), $perPage);
+    $paginatedItems->setPath($request->url());
+
+    return $paginatedItems;
+}
+function string_view_renderer($__php, $__data)
+{
+    $__data['__env'] = app(\Illuminate\View\Factory::class);
+    $obLevel = ob_get_level();
+    ob_start();
+    extract($__data, EXTR_SKIP);
+
+    try {
+        eval('?' . '>' . $__php);
+    } catch (Exception $e) {
+        while (ob_get_level() > $obLevel) ob_end_clean();
+        throw $e;
+    } catch (Throwable $e) {
+        while (ob_get_level() > $obLevel) ob_end_clean();
+        throw new Symfony\Component\Debug\Exception\FatalThrowableError($e);
+    }
+    return ob_get_clean();
+}
+
+function GetStartEndTime($time_range)
+{
+    $time_data = [];
+    $time_range = explode(' - ', $time_range, 2);
+    if(!empty($time_range)) {
+        $time_data['start'] = date("H:i A", strtotime($time_range[0]));
+        $time_data['end'] = date("H:i A", strtotime($time_range[1]));
+    }
+    return $time_data;
+}
+
+function get_act_title($id) {
+    return \Modules\Online\Models\Activities::find($id)['name'];
+}
+
+function get_title($items, $column = 'name') {
+    $title = '';
+    foreach ($items as $item) {
+        $title = "<li>".$item[$column]."</li>";
+    }
+
+    return $title;
+}
+
+function rename_multidimensional_array_key($old_key,$new_key,$array){
+
+    $json_string = json_decode(str_replace([$old_key],[$new_key],json_encode($array)));
+    return json_decode(json_encode($json_string), true);
+}
+
+function get_slot_title($session, $showCount = false) {
+    return $session['session_name'] . " / " . $session['start_time'] . " - " . $session['end_time'] .
+        ($showCount ? ' / ' . ($session['max_participant_count'] - $session['participant_count']) . " Seats Left" : "");
+}
+
+function get_order_title($order) {
+    return $order['order_no'] . " / " . $order['variant_name'] . " / " . $order['amount'] . " / " . ($order['customer_details']['name'] ?? "") . " / " . ($order['customer_details']['class'] ?? "") . " / ".
+        ($order['customer_details']['school'] ?? "");
 }

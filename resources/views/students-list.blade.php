@@ -57,7 +57,7 @@
             <div class="col-sm-4">
                 <label><i class="fa fa-university" aria-hidden="true"></i> School*</label>
             <div class="input-group">
-                <select name="school-name" class="form-control" required="required">
+                <select name="school-name" class="form-control select2" required="required">
                 <option selected="selected" value="">Select School </option>
                 @foreach (App\Models\ShopifyExcelUpload::getBranchNames() as $school)
                     <option value="{{ $school }}" @if($school == old('school-name')) selected @endif> Apeejay {{ $school }}</option>
@@ -74,7 +74,7 @@
             <div class="col-sm-4">
                 <label><i class="fas fa-school" aria-hidden="true"></i> Class*</label>
                 <div class="input-group">
-                    <select name="class" class="form-control" required="required">
+                    <select name="class" class="form-control select2" required="required">
                         <option selected="selected" value="">Select Class </option>
                         @php $class_list = array_unique(array_merge(App\Models\Student::CLASS_LIST,App\Models\Student::HIGHER_CLASS_LIST,App\Models\Student::REYNOTT_CLASS_LIST,App\Models\Student::REYNOTT_DROPPER_CLASS_LIST,App\Models\Student::HAYDEN_REYNOTT_CLASS_LIST))@endphp
                     @foreach ($class_list as $class)
@@ -88,7 +88,7 @@
                 <div class="col-sm-4">
             <label><i aria-hidden="true"></i> Section</label>
                     <div class="input-group">
-                            <select name="section" class="form-control">
+                            <select name="section" class="form-control select2">
                             <option selected="selected" value="">Select Section </option>
                                 @php $section_list = array_unique(array_merge(App\Models\Student::SECTION_LIST,App\Models\Student::HIGHER_SECTION_LIST,App\Models\Student::REYNOTT_SECTION_LIST,App\Models\Student::REYNOTT_DROPPER_SECTION_LIST,[App\Models\ShopifyExcelUpload::HAYDEN_REYNOTT]))@endphp
                                 @foreach($section_list as $section)

@@ -24,7 +24,7 @@ class StudentController extends BaseController
                 'school-name' => 'required|string',
                 'student-name' => 'required|string|min:3|max:100',
 	            'class' => ["required",Rule::in(array_merge(Student::CLASS_LIST,Student::HIGHER_CLASS_LIST,Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST,Student::HAYDEN_REYNOTT_CLASS_LIST))],
-                'section' => Rule::in(array_merge(Student::SECTION_LIST,Student::HIGHER_SECTION_LIST,Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST,[ShopifyExcelUpload::HAYDEN_REYNOTT]))
+//                'section' => Rule::in(array_merge(Student::SECTION_LIST,Student::HIGHER_SECTION_LIST,Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST,[ShopifyExcelUpload::HAYDEN_REYNOTT]))
             ];
 
 		$validator = Validator::make($request->all(), $rules);
@@ -45,7 +45,7 @@ class StudentController extends BaseController
 		$section = $request['section'];
 		$student_name = $request['student-name'];
 
-		$students = Student::where(Student::SCHOOL,$school_name)->where(function($query) use ($student_name)
+		$students = Student::where(Student::LOCATION,$school_name)->where(function($query) use ($student_name)
             {
                 $query->where(Student::STUDENT_FIRST_NAME, 'like', "%{$student_name}%")
                       ->orWhere(Student::STUDENT_LAST_NAME, 'like', "%{$student_name}%");
