@@ -5,6 +5,7 @@ use App\Library\Shopify\WebhookDataShopify;
 use App\Library\Webhook\Channel;
 use App\Models\Webhook;
 use App\Models\Order;
+use Modules\Online\Library\Product;
 
 class OrderCreate
 {
@@ -14,9 +15,13 @@ class OrderCreate
         $domain_store = $Webhook->headers('x-shopify-shop-domain', null);
         $order_data = $Webhook->body();
         $order_data['domain_store'] = $domain_store;
-        Order::create($order_data);
+        $Order = Order::create($order_data);
 
         self::postToSlack($Webhook);
+
+        if(method_exists('Modules\Online\Library\Product', 'pushOrdertoOnline')) {
+            Product::pushOrdertoOnline($Order);
+        }
     }
 
     private static function postToSlack(Webhook $Webhook)
