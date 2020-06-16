@@ -14,12 +14,12 @@
 
         <div class="col">
         @if(!empty($url))
-            <h4 class="alert-success"><b>Redirecting you to the Shopify Checkout page...</b></h4>
+            <h4 class="alert-success"><b>Redirecting you to the Checkout page...</b></h4>
                 <meta http-equiv="refresh" content="0; url = {{$url}}" />
         @else
             <h4 class="alert-danger"><b>Please select at least one subject in order to purchase the olympiad.</b></h4>
             <h5 class="alert-info" style="text-align: center">Redirecting you back to the form...</h5>
-                <h6 style="text-align: center">If not redirected <a href="javascript:history.back()">Click Here</a></h6>
+            <h6 style="text-align: center">If not redirected <a href="https://apeejay.formstack.com/forms/reynott_orange_olympiad">Click Here</a></h6>
             <script type="application/javascript">
                 setTimeout(function() { history.back(); }, 3000);
             </script>
