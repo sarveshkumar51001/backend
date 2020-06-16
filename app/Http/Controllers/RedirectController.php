@@ -12,9 +12,9 @@ class RedirectController
     {
         $data = request()->all();
         $quant1 = $quant2 = 0;
-        $redirect_url = "";
+        $base_url = $redirect_url = $quant2_string = $quant1_string = "";
 
-        if(!empty($data)) {
+        if (!empty($data)) {
             foreach (array_values($data) as $value) {
                 if (Str::contains($value, 'Book & Tests')) {
                     $quant1 += 1;
@@ -27,13 +27,37 @@ class RedirectController
             $variant_test_book = 32809609101398;
             $variant_test = 32809609134166;
 
-            $base_url = "https://valedra.myshopify.com/cart/" . $variant_test_book . ':' . $quant1 . ',' . $variant_test . ':' . $quant2;
-            $param1 = "?checkout[email]=" . $data['email'] . '&checkout[shipping_address][first_name]=' . $data['fathers_name-first'];
-            $param2 = "&checkout[shipping_address][last_name]=" . $data['fathers_name-last'] . "&checkout[shipping_address][address1]=" . $data['address-address'];
-            $param3 = "&checkout[shipping_address][city]=" . $data['address-city'] . "&checkout[shipping_address][state]=" . $data['address-state'] . "&checkout[shipping_address][zip]=" . $data['address-zip'];
 
-            $redirect_url = $base_url . $param1 . $param2 . $param3;
+            $url = "https://valedra.myshopify.com/cart/";
+
+            if ($quant1 == 0 & $quant2 == 0) {
+                $redirect_url = "";
+            } else {
+                if ($quant1 >0 & $quant2 >0){
+                    $base_url = $url.$variant_test_book.':'.$quant1.','.$variant_test.':'.$quant2;
+                } else {
+                    if ($quant1 > 0) {
+                        $base_url = $url . $variant_test_book . ':' . $quant1;
+                    }elseif ($quant2 > 0) {
+                        $base_url = $url . $variant_test . ':' . $quant2;
+                    }
+                }
+
+            $query_data = [
+                'checkout[email]' => $data['email'],
+                'checkout[shipping_address][first_name]' => $data['fathers_name-first'],
+                'checkout[shipping_address][last_name]' => $data['fathers_name-last'],
+                'checkout[shipping_address][address1]' => $data['address-address'],
+                'checkout[shipping_address][city]' => $data['address-city'],
+                'checkout[shipping_address][state]' => $data['address-state'],
+                'checkout[shipping_address][zip]' => $data['address-zip'],
+                'checkout[shipping_address][phone]' => $data['mobile_number']
+            ];
+
+            $query_params = '?'.http_build_query($query_data);
+            $redirect_url = $base_url.$query_params;
         }
+    }
 
         return view('shopify-checkout-redirect')->with('url',$redirect_url);
     }
