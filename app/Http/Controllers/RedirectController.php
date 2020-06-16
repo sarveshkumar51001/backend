@@ -30,10 +30,10 @@ class RedirectController
 
             $url = "https://valedra.myshopify.com/cart/";
 
-            if ($quant1 == 0 & $quant2 == 0) {
+            if ($quant1 == 0 && $quant2 == 0) {
                 $redirect_url = "";
             } else {
-                if ($quant1 >0 & $quant2 >0){
+                if ($quant1 >0 && $quant2 >0){
                     $base_url = $url.$variant_test_book.':'.$quant1.','.$variant_test.':'.$quant2;
                 } else {
                     if ($quant1 > 0) {
