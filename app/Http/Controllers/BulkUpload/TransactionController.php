@@ -59,7 +59,7 @@ class TransactionController extends BaseController
 
         $OrderORM = ShopifyExcelUpload::orderBy('_id');
 
-        if(isset($request['activity_list']) && !empty($request['activity_list'])){
+        if(isset($request['activity_list']) && !empty($request['activity_list']) && !in_array('All',$request['activity_list'])){
             $OrderORM->whereIn('shopify_activity_id',$request['activity_list']);
         }
 

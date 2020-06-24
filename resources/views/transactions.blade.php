@@ -56,7 +56,7 @@
                         <div class="form-group input-group">
                             <select id="js-example-basic-multiple" class="form-control" name="activity_list[]" multiple="multiple" style="width:100%">
 
-                                @foreach($products as $product)
+                                @foreach(array_merge(['All'],$products) as $product)
                                     <option value="{{$product}}" @if(!empty(request('activity_list')) && in_array($product, request('activity_list'))) selected @endif>{{$product}}</option>
                                 @endforeach
                             </select>
