@@ -62,9 +62,9 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-4">
-                        <label> Include Unpaid Installment?</label>
-                        <div class="form-group input-group">
+                    <div class="form-group col-sm-4">
+                        <label><i class="fa fa-info-circle" aria-hidden="true"></i> Include Unpaid Installment?</label>
+                        <div class="form-group input-group"style="position: absolute;top: 40%;left: 25%">
                             <label class="switch switch-icon switch-pill switch-success">
                                 <input type="checkbox" class="switch-input" name="unpaid_active" id="active" @if(request('unpaid_active') == 'on') checked @endif>
                                 <span class="switch-label" data-on="" data-off=""></span>
@@ -72,9 +72,9 @@
                             </label>
                         </div>
                     </div>
-                    <div class="form-group col-sm-2">
+                    <div class="form-group col-sm-2" style="padding-top: 20px">
                         <div class="input-group">
-                            <button id="file-download-btn" type="submit" class="btn btn-primary"><i class="fa fa-download"></i> &nbsp;Export All Transactions</button>
+                            <button id="file-download-btn" type="submit" class="btn btn-primary"><i class="fa fa-download"></i> &nbsp;Export Transactions</button>
                             <a href="/transactions" id="close-button" class="btn btn-danger"><i class="fa fa-close"></i> &nbsp;Clear</a>
                         </div>
                     </div>
