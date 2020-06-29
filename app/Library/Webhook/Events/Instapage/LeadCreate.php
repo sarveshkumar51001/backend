@@ -184,7 +184,7 @@ class LeadCreate
                 // $page_id = 20633953 https://school.apeejay.edu/session-registration
                 $from = [
                     "email" => $page_id == 20633953 ? 'admissions@academy.apeejay.edu' : 'support@valedra.com',
-                    "name" => $page_id == 20633953 ? 'Apeejay' : 'Valedra'
+                    "name" => $page_id == 20633953 ? 'Apeejay Academy' : 'Valedra'
                 ];
 
                 Mail::send( [], [], function ($message) use($email,$page_data,$view,$from) {
