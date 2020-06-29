@@ -44,14 +44,14 @@ class RedirectController
                 }
 
             $query_data = [
-                'checkout[email]' => $data['email'],
-                'checkout[shipping_address][first_name]' => $data['fathers_name-first'],
-                'checkout[shipping_address][last_name]' => $data['fathers_name-last'],
-                'checkout[shipping_address][address1]' => $data['address-address'],
-                'checkout[shipping_address][city]' => $data['address-city'],
-                'checkout[shipping_address][state]' => $data['address-state'],
-                'checkout[shipping_address][zip]' => $data['address-zip'],
-                'checkout[shipping_address][phone]' => $data['mobile_number']
+                'checkout[email]' => $data['email'] ?? '',
+                'checkout[shipping_address][first_name]' => $data['mothers_name-first'] ?? '',
+                'checkout[shipping_address][last_name]' => $data['mothers_name-last'] ?? '',
+                'checkout[shipping_address][address1]' => $data['address-address'] ?? '',
+                'checkout[shipping_address][city]' => $data['address-city'] ?? '',
+                'checkout[shipping_address][state]' => $data['address-state'] ?? '',
+                'checkout[shipping_address][zip]' => $data['address-zip'] ?? '',
+                'checkout[shipping_address][phone]' => $data['mobile_number'] ?? ''
             ];
 
             $query_params = '?'.http_build_query($query_data);
