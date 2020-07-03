@@ -42,8 +42,15 @@
                     @endforeach
                     </tbody>
                 </table>
+                <div class="row pull-right mr-4">
+                    {!! $files->render() !!}
+                </div>
             </div>
         </div>
 
     </div>
+@endsection
+
+@section('footer-js')
+<script src="{{ URL::asset('public/css/custom.css') }}"></script>
 @endsection
