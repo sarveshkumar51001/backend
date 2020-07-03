@@ -181,8 +181,15 @@ class LeadCreate
                     $email = WebhookNotification::ADMIN_EMAIL_LIST;
                 }
 
-                Mail::send( [], [], function ($message) use($email,$page_data,$view) {
-                    $message->from('support@valedra.com', 'Valedra');
+                // $page_id = 20633953 https://school.apeejay.edu/session-registration
+                // $page_id = 20649291 https://school.apeejay.edu/parent-registration
+                $from = [
+                    "email" => in_array($page_id, [20633953, 20649291]) ? 'admissions@academy.apeejay.edu' : 'support@valedra.com',
+                    "name" => in_array($page_id, [20633953, 20649291]) ? 'Apeejay Academy' : 'Valedra'
+                ];
+
+                Mail::send( [], [], function ($message) use($email,$page_data,$view,$from) {
+                    $message->from($from['email'], $from['name']);
                     $message->subject($page_data['subject']);
                     $message->to($email);
                     $message->setBody($view,'text/html');
