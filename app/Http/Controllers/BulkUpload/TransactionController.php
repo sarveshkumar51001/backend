@@ -4,6 +4,7 @@ namespace App\Http\Controllers\BulkUpload;
 
 use App\Exports\TransactionsExport;
 use App\Http\Controllers\BaseController;
+use App\Library\Permission;
 use App\Library\Shopify\Reconciliation\Payment;
 use App\Models\ShopifyExcelUpload;
 use App\User;
@@ -19,13 +20,22 @@ class TransactionController extends BaseController
 
     public function index()
     {
+        if(!has_permission(Permission::PERMISSION_RECONCILE)) {
+            return abort('403');
+        }
+
         $breadcrumb = ['Transactions' => ''];
         return view('transactions', ['breadcrumb' => $breadcrumb]);
     }
 
     public function search_transactions_by_location(Request $request)
     {
-        $order_data = [];
+        if(!has_permission(Permission::PERMISSION_RECONCILE)) {
+            return abort('403');
+        }
+
+        $transaction_data = $transactions = [];
+        $breadcrumb = ['Transactions' => ''];
 
         $rules = [
             'daterange' => 'required',
@@ -46,7 +56,7 @@ class TransactionController extends BaseController
         }
 
         if(isset($request['reco_status']) && !empty($request['reco_status']) && !in_array($request['reco_status'], ['all', ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT] )) {
-            $OrderORM->where('payments.reconcilation.settlement_status', $request['reco_status']);
+            $OrderORM->where('payments.reconciliation.settlement_status', $request['reco_status']);
         }
 
         $Orders = $OrderORM->get();
@@ -71,7 +81,8 @@ class TransactionController extends BaseController
 
             if (sizeof($Order['payments']) == 1) {
                 $Payment = new Payment(head($Order->payments) ,0);
-                $order_data[] = array_merge($data,[
+                $transaction_data[] = array_merge($data,[
+                    'Transaction ID' => $Order->_id.".0",
                     'Transaction Amount' => head($Order->payments)['amount'],
                     'Transaction Mode' => head($Order->payments)['mode_of_payment'],
                     'Reference No(PayTM/NEFT)' => head($Order->payments)['txn_reference_number_only_in_case_of_paytm_or_online'],
@@ -93,7 +104,8 @@ class TransactionController extends BaseController
 
                     $Payment = new Payment($payment, $index);
 
-                    $order_data[]= array_merge($data,[
+                    $transaction_data[]= array_merge($data,[
+                        'Transaction ID' => $Order->_id.".".$index,
                         'Transaction Amount'=> $payment['amount'],
                         'Transaction Mode'=> $payment['mode_of_payment'],
                         'Reference No(PayTM/NEFT)' => $payment['txn_reference_number_only_in_case_of_paytm_or_online'],
@@ -113,11 +125,27 @@ class TransactionController extends BaseController
                 }
             }
         }
-        if(empty($order_data) && is_admin()){
-            return view('transactions')->with('order_data',$order_data);
+        if(empty($transaction_data)){
+            $request->session()->flash('message','No data found for the selected filters!');
+            return view('transactions');
         }
-        $this->data = $order_data;
 
-      return Excel\Facades\Excel::download(new TransactionsExport($this->data),'transactions.xlsx');
+        // Filtering transactions based on the reconciliation status as sent in the request
+        if($request['reco_status'] != 'all'){
+            foreach($transaction_data as $data) {
+                if (strtolower($data['Reconciliation Status']) == $request['reco_status']) {
+                    $transactions[] = $data;
+                }
+            }
+        }else{
+            $transactions = $transaction_data;
+        }
+
+        // Returning view when the request has view as the parameter
+        if($request->has('view')) {
+            return view('transactions', ['breadcrumb' => $breadcrumb, 'transactions' => $transactions]);
+        }
+
+      return Excel\Facades\Excel::download(new TransactionsExport($transactions),'transactions.xlsx');
     }
 }

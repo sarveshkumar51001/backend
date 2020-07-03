@@ -56,6 +56,7 @@ class ReconcileController extends BaseController
         /* @var ISource $sourceClass */
         $sourceClass = Reconcile::GetSourceClass($data['source']);
         $columns  = $sourceClass::GetColumnTitles();
+        $result = $metadata = [];
 
         if(empty($errors)) {
             $Reconcile = Reconcile::Instance($File, Reconcile::MODE_SANDBOX);
