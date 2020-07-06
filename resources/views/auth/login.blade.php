@@ -16,9 +16,9 @@
 	<link rel="icon" href="{{ URL::asset('img/favicon.ico') }}" type="image/x-icon">
     <style>
         body {
-            background-image: url("https://picsum.photos/1920/1080"); 
+            background-image: url("https://picsum.photos/1920/1080");
         }
-    </style
+    </style>
 </head>
 <body class="app flex-row align-items-center  pace-done"><div class="pace  pace-inactive"><div class="pace-progress" data-progress-text="100%" data-progress="99" style="transform: translate3d(100%, 0px, 0px);">
         <div class="pace-progress-inner"></div>
