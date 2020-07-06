@@ -15,6 +15,7 @@ Route::get('/', 'HomeController@index')->name('home');
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/redirect', 'SocialAuthGoogleController@redirect');
 Route::get('/callback', 'SocialAuthGoogleController@callback');
+Route::get('shopify/reynott/olympiad','RedirectController@reynott_link');
 
 Route::prefix('shopify')->group(function() {
     Route::get('/orders', 'OrderController@index');
@@ -58,7 +59,6 @@ Route::prefix('shopify')->group(function() {
         Route::fallback(function () {
             return redirect()->route('search.students');
         });
-
     });
 
     Route::resource('notifications', 'NotificationController')->except(['destroy'])->middleware('permission:admin');;

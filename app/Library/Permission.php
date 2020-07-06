@@ -12,6 +12,8 @@ class Permission {
 
     const PERMISSION_BULKUPLOAD = 'bulkupload';
 
+    const TRANSACTIONS_VIEW = 'transactions.view';
+
     const TEAM_VALEDRA = 'team-valedra';
 
     const TEAM_REYNOTT = 'team-reynott';
@@ -79,5 +81,4 @@ class Permission {
         }
         return '';
     }
-
 }
