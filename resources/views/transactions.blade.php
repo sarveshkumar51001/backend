@@ -54,17 +54,16 @@
                     <div class="form-group col-sm-4">
                         <label><i class="fa fa-product-hunt" aria-hidden="true"></i> Activity</label>
                         <div class="form-group input-group">
-                            <select id="js-example-basic-multiple" class="form-control" name="activity_list[]" multiple="multiple" style="width:100%">
-
+                            <select id="js-example-basic-multiple" class="form-control" name="activity_list[]" multiple="multiple" required="required">
                                 @foreach(array_merge(['All'],$products) as $product)
                                     <option value="{{$product}}" @if(!empty(request('activity_list')) && in_array($product, request('activity_list'))) selected @endif>{{$product}}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
-                    <div class="form-group col-sm-4">
-                        <label><i class="fa fa-info-circle" aria-hidden="true"></i> Include Unpaid Installment?</label>
-                        <div class="form-group input-group"style="position: absolute;top: 40%;left: 25%">
+                    <div class="form-group col-sm-4 align-self-center">
+                        <div class="form-group input-group">
+                            <label><i class="fa fa-info-circle" aria-hidden="true"></i> Include Pending Installments?</label>&nbsp;
                             <label class="switch switch-icon switch-pill switch-success">
                                 <input type="checkbox" class="switch-input" name="unpaid_active" id="active" @if(request('unpaid_active') == 'on') checked @endif>
                                 <span class="switch-label" data-on="" data-off=""></span>

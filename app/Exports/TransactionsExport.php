@@ -48,10 +48,9 @@ class TransactionsExport implements FromCollection, WithHeadings
             'Transaction Upload Date',
             'Payment Type',
             'Shopify Order Name',
-            'Parent Order Name',
             'Uploaded By',
-            'Reconciliation Status',
-            'Payment Status'
+            'Payment Status',
+            'Reconciliation Status'
         ];
     }
 }

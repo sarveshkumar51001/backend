@@ -41,8 +41,10 @@ class TransactionController extends BaseController
         $order_data = [];
 
         $rules = [
+            'location' => 'required',
             'daterange' => 'required',
-            'reco_status' => 'required'
+            'reco_status' => 'required',
+            'activity_list' => 'required'
         ];
 
         Validator::make($request->all(), $rules)->validate();
@@ -59,7 +61,7 @@ class TransactionController extends BaseController
 
         $OrderORM = ShopifyExcelUpload::orderBy('_id');
 
-        if(isset($request['activity_list']) && !empty($request['activity_list']) && !in_array('All',$request['activity_list'])){
+        if(!empty($request['activity_list']) && !in_array('All',$request['activity_list'])) {
             $OrderORM->whereIn('shopify_activity_id',$request['activity_list']);
         }
 
@@ -90,7 +92,7 @@ class TransactionController extends BaseController
                 'Student Name' => $Order->student_first_name . " " . $Order->student_last_name,
                 'Activity Name' => $Order->activity,
                 'Student Enrollment No' => $Order->school_enrollment_no,
-                'Class' => $Order->class.$Order->section,
+                'Class' => $Order->class . "-" . $Order->section,
                 'Parent Name' => $Order->parent_first_name . " " . $Order->parent_last_name,
                 'Activity Fee' => $Order->activity_fee,
                 'Scholarship/Discount' => $Order->scholarship_discount
@@ -110,21 +112,20 @@ class TransactionController extends BaseController
                         'Drawee Name' => head($Order->payments)['drawee_name'],
                         'Drawee Account Number' => head($Order->payments)['drawee_account_number'],
                         'Bank Name' => head($Order->payments)['bank_name'],
-                        'Transaction Upload Date' => Carbon::createFromTimestamp(head($Order->payments)['upload_date'])->toDateString(),
+                        'Transaction Upload Date' => Carbon::createFromTimestamp(head($Order->payments)['upload_date'])->format(ShopifyExcelUpload::DATE_FORMAT),
                         'Payment Type' => "Full Payment",
                         'Shopify Order Name' => isset($Order->shopify_order_name) ? $Order->shopify_order_name : Null,
-                        'Parent Order Name' => Null,
                         'Uploaded By' => !empty($User) ? $User['name'] : Null,
+                        'Payment Status' => 'Paid',
                         'Reconciliation Status' => strtoupper($Payment->getRecoStatus()),
-                        'Payment Status' => $Payment->isProcessed() ? 'Paid':'Unpaid'
                     ]);
             }else{
                 foreach ($Order->payments as $index => $payment) {
 
                     $Payment = new Payment($payment, $index);
 
-                    // If include unpaid installment toggle is OFF and payment is not processed then skip the payment
-                    if($exclude_unpaid && !$Payment->isProcessed()){
+                    // If include unpaid installment toggle is OFF and payment is PDC then skip the payment
+                    if($exclude_unpaid && $payment['is_pdc_payment']) {
                         continue;
                     }
                     $order_data[]= array_merge($data,[
@@ -137,13 +138,12 @@ class TransactionController extends BaseController
                         'Drawee Name' => $payment['drawee_name'],
                         'Drawee Account Number' => $payment['drawee_account_number'],
                         'Bank Name' => $payment['bank_name'],
-                        'Transaction Upload Date' => Carbon::createFromTimestamp($payment['upload_date'])->toDateString(),
+                        'Transaction Upload Date' => Carbon::createFromTimestamp($payment['upload_date'])->format(ShopifyExcelUpload::DATE_FORMAT),
                         'Payment Type' => $payment['installment'] == 1 ? 'Registration/Booking Fee':'Installment'." ".$payment['installment'],
                         'Shopify Order Name' => isset($Order->shopify_order_name) ? $Order->shopify_order_name : Null,
-                        'Parent Order Name' => isset($Order->shopify_order_name) ? $Order->shopify_order_name : Null,
                         'Uploaded By' => !empty($User) ? $User['name'] : Null,
+                        'Payment Status' => !empty($payment['is_pdc_payment']) && $payment['is_pdc_payment'] ? 'Unpaid' : 'Paid',
                         'Reconciliation Status' => strtoupper($Payment->getRecoStatus()),
-                        'Payment Status' => $Payment->isProcessed() ? 'Paid':'Unpaid'
                     ]);
                 }
             }
