@@ -9,6 +9,7 @@ use App\Library\Collection\Collection;
 use App\Library\Permission;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
+use App\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Jobs\ShopifyOrderCreation;
@@ -258,7 +259,7 @@ class ShopifyController extends BaseController
         return view('shopify.past-files-upload')->with('files', $Uploads)->with('breadcrumb', $breadcrumb);
     }
 
-    public function location_wise_collection()
+    public function location_wise_collection(array $users)
     {
         $start = Carbon::today()->startOfDay();
         $end = Carbon::today()->endOfDay();
@@ -269,13 +270,13 @@ class ShopifyController extends BaseController
                 $end = Carbon::createFromFormat('m/d/Y',$range[1]);
             }
         }
-        $users = is_admin() ? [Auth::user()->email] : [];
+        $users_email = User::findMany($users)->pluck('email')->all();
 
         $Collection = new Collection();
 
         $data =  $Collection->setStart($start)
             ->setEnd($end)
-            ->setUsers($users)
+            ->setUsers($users_email)
             ->setIsPDC(false)
             ->setBreakBy('branch')
             ->Get()
@@ -299,38 +300,42 @@ class ShopifyController extends BaseController
 
     public function previous_orders()
     {
-        $revenue_data = $this->location_wise_collection();
+        $filtered_users = [];
 
         [$accessible_users,$teams] = Permission::has_access_to_users_teams();
 
         $date_params = GetStartEndDate(request('daterange'));
         [$start,$end] = $date_params;
         if ($start && $end) {
-            if (request('filter') == 'team' && is_admin()) {
-                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
-                    ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
-                    ->appends(request()->query());
-            } elseif (!empty($accessible_users)){
-                if(!empty(\request('filter_user'))){
+            if (!empty($accessible_users)){
+                if(!empty(\request('filter_user')) && \request('filter_user') != -1){
                     $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
                         ->where('uploaded_by',\request('filter_user'))
                         ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
                         ->appends(request()->query());
+                    $filtered_users[] = \request('filter_user');
                 } else {
                     $mongodb_records =ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
                         ->orWhereIn('tag',$teams)
                         ->whereIn('uploaded_by',$accessible_users)
                         ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
                         ->appends(request()->query());
+                    $filtered_users = $accessible_users;
                 }
+            } elseif (request('filter') == 'team' && is_admin()) {
+                $mongodb_records = ShopifyExcelUpload::whereBetween('payments.upload_date', [$start, $end])
+                    ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
+                    ->appends(request()->query());
             } else {
                 $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)
                     ->whereBetween('payments.upload_date', [$start, $end])
                     ->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)
                     ->appends(request()->query());
+                $filtered_users[] = Auth::user()->id;
             }
         } else {
             $mongodb_records = ShopifyExcelUpload::where('uploaded_by', Auth::user()->id)->paginate(ShopifyExcelUpload::PAGINATE_LIMIT)->appends(request()->query());
+            $filtered_users[] = Auth::user()->id;
         }
 
         $modeWiseData = [];
@@ -377,6 +382,7 @@ class ShopifyController extends BaseController
 
         $breadcrumb = ['Shopify' => route('bulkupload.upload'), 'Previous orders' => ''];
 
+        $revenue_data = $this->location_wise_collection($filtered_users);
 
         return view('shopify.previous-orders')
             ->with('records_array', $mongodb_records)
@@ -430,7 +436,8 @@ class ShopifyController extends BaseController
                     $post_payment['delivery_location'] = $Payments['delivery_institution'] . ' , ' . $Payments['branch'];
                     $post_payment['expected_date'] = $payment_array[$payment_key]['chequedd_date'];
                     $post_payment['expected_amount'] = $payment_array[$payment_key]['amount'];
-                    $post_payment['owner'] = Permission::order_owner($Payments);
+                    $post_payment['owner'] = Permission::order_owner($Payments)['name'] ?? '';
+                    $post_payment['uploaded_by'] = User::find($Payments['uploaded_by'])['name'] ?? '';
 
                     $Post_Payment_Data[] = $post_payment;
                 }

@@ -22,6 +22,11 @@ class Permission {
 
     const TEAM_ADMIN = 'team-admin';
 
+    const TEAM_TITLES = [
+        self::TEAM_VALEDRA => "Valedra",
+        self::TEAM_HAYDEN_REYNOTT => "Hayden & Reynott",
+        self::TEAM_REYNOTT => "Reynott",
+    ];
 
     /**
      * Function fetches the users which are accessible by the team admin
@@ -32,23 +37,28 @@ class Permission {
         // Getting permissions of the logged in user
         $permissions = \Auth::user()->permissions ?? [];
 
-        // Filtering team related permission
-        $team_permissions = Arr::where($permissions, function ($value, $key) {
-                return preg_match("/team/", $value);
+        if(is_admin()) {
+            $team_permissions = array_keys(self::TEAM_TITLES);
+        } else {
+            // Filtering team related permission
+            $team_permissions = Arr::where($permissions, function ($value, $key) {
+                return preg_match("/team-/", $value);
             });
+        }
+
 
         $accessible_teams = $accessible_users = [];
 
             // If team admin is found in team permissions then get all the teams accessible to the admin
             // and users associated with all those teams.
-            if (in_array(Permission::TEAM_ADMIN, $team_permissions)) {
+            if (in_array(Permission::TEAM_ADMIN, $team_permissions) || is_admin()) {
                 $accessible_teams = array_diff($team_permissions, [Permission::TEAM_ADMIN]);
                 $Users = [];
                 foreach ($accessible_teams as $team) {
                     $users = User::where('permissions', $team)->get(['_id'])->toArray();
                     $Users[] = $users;
                 }
-                $accessible_users = array_diff(array_unique(Arr::flatten($Users)), [\Auth::user()->id]);
+                $accessible_users = array_unique(array_merge(Arr::flatten($Users), [\Auth::user()->id]));
             }
         return [$accessible_users, $accessible_teams];
     }
@@ -67,17 +77,12 @@ class Permission {
         $uploaded_by = User::where('_id',$row['uploaded_by'])->first();
 
         if(!empty($uploaded_by)) {
-            if(isset($row['owner'])){
-                if($row['owner'] == $row['uploaded_by']){
-                    return $uploaded_by['name'];
-                } else {
-                    $owner = User::where('_id', $row['owner'])->first();
-                    if ($owner) {
-                        return sprintf("%s (Uploaded By - %s)", $owner['name'], $uploaded_by['name']);
-                    }
+            if(!empty($row['owner']) && $row['owner'] != $row['uploaded_by']) {
+                if($owner = User::where('_id', $row['owner'])->first()) {
+                    return $owner;
                 }
             }
-            return $uploaded_by['name'];
+            return $uploaded_by;
         }
         return '';
     }

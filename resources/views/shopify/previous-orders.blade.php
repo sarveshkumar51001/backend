@@ -6,37 +6,34 @@
         <div class="row">
             <div class="card col-sm-12">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-sm-5">
-                            <h4 class="card-title mb-0">Collection</h4>
-                            <div class="small text-muted">{{ request('daterange') ?? 'Today' }}</div>
-                        </div>
-                    </div>
-                            <form method="get" action="">
-                                <div class="row">
-                                <div class="col-sm-3">
-                                        @if(!empty($accessible_users))
-                                                <select class="form-control" name="filter_user">
-                                                    <option value="" selected disabled>Select User </option>
-                                                    @foreach($accessible_users as $user)
-                                                        <option value="{{ $user }}" @if( old('filter_user') == $user) selected @endif>{{ \App\User::where('_id',$user)->first()['name'] }}</option>
-                                                    @endforeach
-                                                </select>
-                                        @endif
-                                    </div>
-                                    <div class="col-sm-4">
-                                        <div class="input-group pull-left" style="width:300px">
-                                            <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
-                                            <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}" required>
-                                            <input type="hidden" name="filter" value="{{ request('filter') }}">
-                                        </div>
-                                    </div>
-                                <div class="col-sm-2">
-                                    <button type="submit" class="btn btn-outline-primary pull-right">View</button>
+                    <form method="get" action="">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h4 class="card-title mb-0">Collection</h4>
+                                <div class="small text-muted">{{ request('daterange') ?? 'Today' }}</div>
+                            </div>
+                            <div class="col-sm-3">
+                                @if(!empty($accessible_users))
+                                    <select class="form-control select2" name="filter_user">
+                                        <option value="" selected disabled>Select User </option>
+                                        <option value="-1" @if( old('filter_user') == -1 || request('filter_user') == -1) selected @endif>All </option>
+                                        @foreach($accessible_users as $user)
+                                            <option value="{{ $user }}" @if( old('filter_user') == $user || request('filter_user') == $user) selected @endif>{{ \App\User::where('_id',$user)->first()['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="input-group pull-left" style="width:300px">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
+                                    <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}" required>
+                                    <input type="hidden" name="filter" value="{{ request('filter') }}">
                                 </div>
-                                    <div class="col-sm-2 pull right">
-                                    <div class="dropdown show">
-                                        <a class="btn btn-outline-primary dropdown-toggle float-right ml-3" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            </div>
+                            <div class="col-sm-3 pull right">
+                                    <button type="submit" class="btn btn-outline-primary d-inline">View</button>
+                                    <div class="dropdown show d-inline">
+                                        <a class="btn btn-outline-primary dropdown-toggle ml-1" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa fa-download">&nbsp;</i>Export Transactions
                                         </a>
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
@@ -46,11 +43,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                </div>
-                            </form>
                         </div>
-                    </div>
-                    <hr class="m-0">
+                    </form>
+                    <hr class="mb-0"/>
                     <div class="row">
                         @php $total = $total_txn = 0 @endphp
                         @foreach(\App\Models\ShopifyExcelUpload::$modesTitle as $id => $title)
@@ -75,6 +70,8 @@
                         </div>
                     </div>
                 </div>
+                </div>
+    </div>
             </div>
     <div class="row">
     @foreach($revenue_data as $location => $data)
@@ -96,8 +93,8 @@
         <div class="row pull-right m-2">
             <a href="{{ route('bulkupload.upload') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-plus"> &nbsp;</i>New Upload</button></a>
             <a href="{{ route('bulkupload.previous_uploads') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Upload History</button></a>
+            <a href="{{ route('bulkupload.installments') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Installments</button></a>
             @if(is_admin())
-                <a href="{{ route('bulkupload.installments') }}"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-list"> &nbsp;</i>Installments</button></a>
                 <a href="{{ route('bulkupload.previous_orders') }}?filter=team"><button type="button" class="btn btn-outline-success btn-sm ml-2"><i class="fa fa-users"> &nbsp;</i>Team Uploads</button></a>
             @endif
             @if(has_permission(\App\Library\Permission::TRANSACTIONS_VIEW))
@@ -128,7 +125,7 @@
                                             @endif
                                         </td>
                                         @elseif($key == 'uploaded_by')
-                                        <td><b>{{\App\Library\Permission::order_owner($row)}}</b></td>
+                                        <td title="Uploaded By: {{ \App\User::where('_id',$row['uploaded_by'])->first()['name']  }}">{{\App\Library\Permission::order_owner($row)['name']}}</td>
                                     @else
                                         <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "><span class="
 
