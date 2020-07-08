@@ -49,7 +49,11 @@ class Reconcile
             || $File->GetSourceClass() == Source\PaytmApp::class
             || $File->GetSourceClass() == Source\Razorpay::class) {
             $Instance = new Online($File, $mode);
-        } else {
+        }
+        else if($File->GetSourceClass() == Source\Manual::class) {
+            $Instance = new Manual($File, $mode);
+        }
+        else {
 	        $Instance = new Offline($File, $mode);
         }
 

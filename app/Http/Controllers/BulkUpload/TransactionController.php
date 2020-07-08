@@ -82,7 +82,7 @@ class TransactionController extends BaseController
             if (sizeof($Order['payments']) == 1) {
                 $Payment = new Payment(head($Order->payments) ,0);
                 $transaction_data[] = array_merge($data,[
-                    'Transaction ID' => $Order->_id.".0",
+                    'Transaction ID' => head($Order->payments)['transaction_id'],
                     'Transaction Amount' => head($Order->payments)['amount'],
                     'Transaction Mode' => head($Order->payments)['mode_of_payment'],
                     'Reference No(PayTM/NEFT)' => head($Order->payments)['txn_reference_number_only_in_case_of_paytm_or_online'],
@@ -105,7 +105,7 @@ class TransactionController extends BaseController
                     $Payment = new Payment($payment, $index);
 
                     $transaction_data[]= array_merge($data,[
-                        'Transaction ID' => $Order->_id.".".$index,
+                        'Transaction ID' => head($Order->payments)['transaction_id'],
                         'Transaction Amount'=> $payment['amount'],
                         'Transaction Mode'=> $payment['mode_of_payment'],
                         'Reference No(PayTM/NEFT)' => $payment['txn_reference_number_only_in_case_of_paytm_or_online'],

@@ -6,6 +6,10 @@ class Manual extends Base {
 
     const SOURCE_CODE = 2;
 
+    public static $columns = [
+        'transaction_id', 'remarks', 'reconciliation_status'
+    ];
+
     public function GetTransactionRemark(): string {
         return $this->row['remarks'] ?? '';
     }
@@ -15,7 +19,7 @@ class Manual extends Base {
     }
 
     public function GetTransactionID(): string {
-        return $this->row['transaction_id'] ?? '';
+            return $this->row['transaction_id'] ?? '';
     }
 
     public function IsValid(): bool {
