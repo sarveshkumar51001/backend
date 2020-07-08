@@ -32,44 +32,90 @@ class Manual extends Base
 
         /* @var ISource $Source */
         $Source = new $sourceClass($data);
-
-        // Get Transaction Id
-        $transaction_id = $Source->GetTransactionID();
-
-        $Order = ShopifyExcelUpload::where('payments.transaction_id', (int) $transaction_id);
-
         $loggedInUser = (\Auth::user()->id ?? 0);
 
-        $updates = [
-            ShopifyExcelUpload::PaymentSettlementStatus => ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED,
-            ShopifyExcelUpload::PaymentSettlementMode => ShopifyExcelUpload::PAYMENT_SETTLEMENT_MODE_MANUAL,
-            ShopifyExcelUpload::PaymentSettledDate => time(),
-            ShopifyExcelUpload::PaymentSettledBy => $loggedInUser,
-            ShopifyExcelUpload::PaymentUpdatedAt => time(),
-            ShopifyExcelUpload::PaymentRemarks => $Source->GetTransactionRemark(),
-        ];
+        // Get Order by transaction id
+        $Order = ShopifyExcelUpload::where('payments.transaction_id', (int) $Source->GetTransactionID());
+        if(!is_null($Order->first()) && count($Order->first()->toArray())) {
+            $payment_match_count = 0;
+            foreach ($Order->first()->toArray()['payments'] as $index => $payment)
+            {
+                if( isset($payment['transaction_id'])
+                    && $payment['transaction_id'] == $Source->GetTransactionID()
+                    && $payment['amount'] == $Source->GetModeAmount()
+                ) {
+                    $payment_match_count++;
+                    if ($payment_match_count > 1)
+                        break;
+                    $Payment = new Payment($payment, $index);
+                }
+            }
 
-        if(strtolower($Source->GetReconciliationStatus()) == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED) {
-            $updates[ShopifyExcelUpload::PaymentSettlementStatus] =  ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED;
-            $this->metadata[self::SETTLED_TRANSACTIONS_COUNT] += 1;
+            if($payment_match_count == 0) {
+                $this->errors[] = $data = array_merge($data, ['error' => 'No Payment Match - Reconcile File(' . $Source->GetStudentID() . '). Transaction ID : [' . $Payment->getTransactionID() .']',
+                    'reco_status' => 400]);
+                return $data;
+            } else if ($payment_match_count > 1) {
+                $this->errors[] = $data = array_merge($data, ['error' => 'Multiple Payment Match - Reconcile File(' . $Source->GetStudentID() . ').Transaction ID : [' . $Payment->getTransactionID() .']',
+                    'reco_status' => 400]);
+                return $data;
+            }
+
+            if(!$Payment->isProcessed()) {
+                $this->errors[] = $data = array_merge($data, ['error' => 'Transaction is not yet processed. Transaction ID : [' . $Payment->getTransactionID() .']',
+                    'reco_status' => 400]);
+            }
+
+            // Make sure the mode amount matches against the stored amount
+            if($Payment->getAmount() != $Source->GetModeAmount()) {
+                $this->metadata[self::FAILED_ROWS_COUNT] += 1;
+                $this->metadata[self::FAILED_AMOUNT] += $Source->GetModeAmount();
+                $this->errors[] = $data = array_merge($data, ['error' => 'Amount mismatch - System Amount(' . $Payment->getAmount() . ') Reconcile File(' . $Source->GetModeAmount() . ') .Transaction ID : [' . $Payment->getTransactionID() .']',
+                    'reco_status' => 400]);
+                return $data;
+            }
+
+            if($Payment->isReconciled()) {
+                $this->metadata[self::ALREADY_SETTLED_ROWS_COUNT] += 1;
+                $this->metadata[self::FAILED_AMOUNT] += $Source->GetModeAmount();
+                $this->errors[] = $data = array_merge($data, ['error' => 'Transaction is already settled with status [' . $Payment->getRecoStatus() .'] . Transaction ID : [' . $Payment->getTransactionID() .']', 'reco_status' => 409]);
+                return $data;
+            }
+
+            $updates = [
+                ShopifyExcelUpload::PaymentSettlementStatus => ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED,
+                ShopifyExcelUpload::PaymentSettlementMode => ShopifyExcelUpload::PAYMENT_SETTLEMENT_MODE_MANUAL,
+                ShopifyExcelUpload::PaymentSettledDate => time(),
+                ShopifyExcelUpload::PaymentSettledBy => $loggedInUser,
+                ShopifyExcelUpload::PaymentUpdatedAt => time(),
+                ShopifyExcelUpload::PaymentRemarks => $Source->GetTransactionRemark(),
+            ];
+            if(strtolower($Source->GetReconciliationStatus()) == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED) {
+                $updates[ShopifyExcelUpload::PaymentSettlementStatus] =  ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED;
+            }
+            if(strtolower($Source->GetReconciliationStatus()) == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED) {
+                $updates[ShopifyExcelUpload::PaymentSettlementStatus] =  ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED;
+                $this->metadata[self::RETURNED_ROWS_COUNT] += 1;
+            }
+            $column_updates = [];
+            foreach ($updates as $column => $value) {
+                $key_name = sprintf("payments.%s.%s.%s", $Payment->getIndex(), Payment::RECO, $column);
+                $column_updates[$key_name] = $value;
+            }
+
+            $Order->update($column_updates);
+            // Update the settled count by 1
+            $data['reco_status'] = 200;
+            $this->metadata[self::SETTLED_ROWS_COUNT] += 1;
+            $this->metadata[self::FILE_SETTLEABLE_AMOUNT] += $Source->GetModeAmount();
+            $this->success[] = $data;
         }
         else {
-            $updates[ShopifyExcelUpload::PaymentSettlementStatus] =  ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED;
-            $this->metadata[self::RETURNED_ROWS_COUNT] += 1;
+            $data['reco_status'] = 404; // Not found
+            $data['error'] = 'Transaction not found'; // Not found
+            $this->metadata[self::NOT_FOUND_ROWS_COUNT] += 1;
         }
 
-        $column_updates = [];
-        foreach ($Order->first()->toArray()['payments'] as $index => $payment)
-        {
-            if(isset($payment['transaction_id']) && $payment['transaction_id'] == $transaction_id) {
-
-                foreach ($updates as $column => $value) {
-                    $key_name = sprintf("payments.%s.%s.%s", $index,Payment::RECO, $column);
-                    $column_updates[$key_name] = $value;
-                }
-                $Order->update($column_updates);
-            }
-        }
-        //return $Order;
+        return $data;
     }
 }
