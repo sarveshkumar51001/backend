@@ -8,7 +8,7 @@ use App\Library\Reconcile\Source\ISource;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
-
+use Carbon\Carbon;
 /**
  * Reconcile offline class for bank related payment reconcile
  */
@@ -32,17 +32,16 @@ class Manual extends Base
 
         /* @var ISource $Source */
         $Source = new $sourceClass($data);
-        $loggedInUser = (\Auth::user()->id ?? 0);
 
         // Get Order by transaction id
         $Order = ShopifyExcelUpload::where('payments.transaction_id', (int) $Source->GetTransactionID());
         if(!is_null($Order->first()) && count($Order->first()->toArray())) {
+
             $payment_match_count = 0;
             foreach ($Order->first()->toArray()['payments'] as $index => $payment)
             {
                 if( isset($payment['transaction_id'])
                     && $payment['transaction_id'] == $Source->GetTransactionID()
-                    && $payment['amount'] == $Source->GetModeAmount()
                 ) {
                     $payment_match_count++;
                     if ($payment_match_count > 1)
@@ -52,13 +51,20 @@ class Manual extends Base
             }
 
             if($payment_match_count == 0) {
-                $this->errors[] = $data = array_merge($data, ['error' => 'No Payment Match - Reconcile File(' . $Source->GetStudentID() . '). Transaction ID : [' . $Payment->getTransactionID() .']',
+                $this->errors[] = $data = array_merge($data, ['error' => 'No Payment Match - Reconcile File(' . $Source->GetStudentID() . ')',
                     'reco_status' => 400]);
                 return $data;
-            } else if ($payment_match_count > 1) {
-                $this->errors[] = $data = array_merge($data, ['error' => 'Multiple Payment Match - Reconcile File(' . $Source->GetStudentID() . ').Transaction ID : [' . $Payment->getTransactionID() .']',
+            }
+
+            else if ($payment_match_count > 1) {
+                $this->errors[] = $data = array_merge($data, ['error' => 'Multiple Payment Match - Reconcile File(' . $Source->GetStudentID() . ')',
                     'reco_status' => 400]);
                 return $data;
+            }
+
+            if( !in_array( $Source->GetReconciliationStatus(), array( ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS[0], ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS[0]))) {
+                $this->errors[] = $data = array_merge($data, ['error' => 'Status does not match. Transaction ID : [' . $Payment->getTransactionID() .']',
+                    'reco_status' => 400]);
             }
 
             if(!$Payment->isProcessed()) {
@@ -66,7 +72,11 @@ class Manual extends Base
                     'reco_status' => 400]);
             }
 
-            // Make sure the mode amount matches against the stored amount
+            if((Carbon::parse($Source->GetModeDate())->timestamp) > (Carbon::now()->timestamp)) {
+                $this->errors[] = $data = array_merge($data, ['error' => 'Cheque date is invalid : [' . $Payment->getTransactionID() .']',
+                    'reco_status' => 400]);
+            }
+
             if($Payment->getAmount() != $Source->GetModeAmount()) {
                 $this->metadata[self::FAILED_ROWS_COUNT] += 1;
                 $this->metadata[self::FAILED_AMOUNT] += $Source->GetModeAmount();
@@ -82,6 +92,8 @@ class Manual extends Base
                 return $data;
             }
 
+            $loggedInUser = (\Auth::user()->id ?? 0);
+
             $updates = [
                 ShopifyExcelUpload::PaymentSettlementStatus => ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED,
                 ShopifyExcelUpload::PaymentSettlementMode => ShopifyExcelUpload::PAYMENT_SETTLEMENT_MODE_MANUAL,
@@ -90,13 +102,16 @@ class Manual extends Base
                 ShopifyExcelUpload::PaymentUpdatedAt => time(),
                 ShopifyExcelUpload::PaymentRemarks => $Source->GetTransactionRemark(),
             ];
+
             if(strtolower($Source->GetReconciliationStatus()) == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED) {
                 $updates[ShopifyExcelUpload::PaymentSettlementStatus] =  ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED;
             }
+
             if(strtolower($Source->GetReconciliationStatus()) == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED) {
                 $updates[ShopifyExcelUpload::PaymentSettlementStatus] =  ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED;
                 $this->metadata[self::RETURNED_ROWS_COUNT] += 1;
             }
+
             $column_updates = [];
             foreach ($updates as $column => $value) {
                 $key_name = sprintf("payments.%s.%s.%s", $Payment->getIndex(), Payment::RECO, $column);
@@ -104,7 +119,6 @@ class Manual extends Base
             }
 
             $Order->update($column_updates);
-            // Update the settled count by 1
             $data['reco_status'] = 200;
             $this->metadata[self::SETTLED_ROWS_COUNT] += 1;
             $this->metadata[self::FILE_SETTLEABLE_AMOUNT] += $Source->GetModeAmount();

@@ -7,7 +7,7 @@ class Manual extends Base {
     const SOURCE_CODE = 2;
 
     public static $columns = [
-        'transaction_id', 'remarks', 'reconciliation_status', 'transaction_amount'
+        'transaction_id', 'remarks', 'reconciliation_status', 'transaction_amount' , 'chequedd_date'
     ];
 
     public function GetTransactionRemark(): string {
@@ -20,6 +20,10 @@ class Manual extends Base {
 
     public function GetModeAmount(): string {
         return $this->row['transaction_amount'];
+    }
+
+    public function GetModeDate(): string {
+        return !empty($this->row['chequedd_date']) ? date('d/m/Y', strtotime($this->row['chequedd_date'])) : '';
     }
 
     public function GetTransactionID(): string {
