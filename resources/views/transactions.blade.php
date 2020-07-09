@@ -5,7 +5,13 @@
         <div class="card-header">
             <i class="icon-list"></i>Transactions
         </div>
-        <form method="POST" action="{{ route('get.transactions') }}" enctype="multipart/form-data" onsubmit="form_submit()" id="transaction-form">
+        @if(session('message'))
+            <div class="alert alert-info" role="alert">
+                <p class="m-0">{{ session('message')  }}</p>
+            </div>
+        @endif
+        <form method="POST" action="{{ route('get.transactions') }}" enctype="multipart/form-data" onsubmit="form_submit()">
+            {{ csrf_field() }}
             <div class = "card-body">
                 @foreach($errors->all() as $key => $value)
                     <div class="alert alert-danger">
@@ -13,32 +19,29 @@
                     </div>
                 @endforeach
                 <div class="row">
-                    @if(is_admin())
-                        <div class="col-sm-4">
+                    <div class="form-group col-sm-4">
                         <label><i class="fa fa-address-book" aria-hidden="true"></i> Location*</label>
-                            <div class="input-group">
-                                <select name="location" class="form-control" required="required">
-                                    <option selected="selected" value="">Location </option>
-                                    @foreach (App\Models\ShopifyExcelUpload::getBranchNames() as $school)
-                                        <option value="{{ $school }}" @if($school == old('location') || $school == request('location')) selected @endif> {{ $school }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        <div class="input-group">
+                            <select name="location" class="form-control select2" required="required">
+                                <option selected="selected" value="">Location </option>
+                                @foreach (array_merge(['All'],App\Models\ShopifyExcelUpload::getBranchNames()) as $school)
+                                    <option value="{{ $school }}" @if($school == old('location') || $school == request('location')) selected @endif> {{ $school }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    @endif
                     <div class="col-sm-4">
                         <label><i class="fa fa-calendar" aria-hidden="true"></i> Txn DateRange*</label>
-                            <div class="input-group" style="width:300px;">
-                                <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
-                                <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
-                                <input type="hidden" name="filter" value="{{ request('filter') }}">
-                            </div>
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
+                            <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
+                            <input type="hidden" name="filter" value="{{ request('filter') }}">
+                        </div>
                     </div>
-
                     <div class="col-sm-4">
                         <label><i class="fa fa-address-book" aria-hidden="true"></i> Reco Status*</label>
-                        <div class="input-group">
-                            <select name="reco_status" class="form-control" required="required">
+                        <div class="form-group input-group">
+                            <select name="reco_status" class="form-control select2" required="required">
                                 <option selected="selected" value="">Select </option>
                                 @foreach(array_merge(['all'], \App\Models\ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS) as $reco_status)
                                     <option value="{{$reco_status}}" @if($reco_status == old('reco_status') || $reco_status == request('reco_status')) selected @endif>{{strtoupper($reco_status)}}</option>
@@ -46,63 +49,53 @@
                             </select>
                         </div>
                     </div>
-                    {{ csrf_field() }}
-                    <div class="col-sm-4">
-                        <label>&nbsp;</label>
-                <div class="input-group">
-                    <button type="submit" form="transaction-form" class="btn btn-lg btn-primary mr-3" name="view" value="view">View</button>
-                    <button id="file-download-btn" type="submit" class="btn btn-primary"><i class="fa fa-download"></i> &nbsp;Export Transactions</button>
                 </div>
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label><i class="fa fa-product-hunt" aria-hidden="true"></i> Activity</label>
+                        <div class="form-group input-group">
+                            <select id="js-example-basic-multiple" class="form-control" name="activity_list[]" multiple="multiple" required="required">
+                                @foreach(array_merge(['All'],$products) as $product)
+                                    <option value="{{$product}}" @if(!empty(request('activity_list')) && in_array($product, request('activity_list'))) selected @endif>{{$product}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4 align-self-center">
+                        <div class="form-group input-group">
+                            <label><i class="fa fa-info-circle" aria-hidden="true"></i> Include Pending Installments?</label>&nbsp;
+                            <label class="switch switch-icon switch-pill switch-success">
+                                <input type="checkbox" class="switch-input" name="unpaid_active" id="active" @if(request('unpaid_active') == 'on') checked @endif>
+                                <span class="switch-label" data-on="ï€Œ" data-off="ï€"></span>
+                                <span class="switch-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2" style="padding-top: 20px">
+                        <div class="input-group">
+                            <button id="file-download-btn" type="submit" class="btn btn-primary"><i class="fa fa-download"></i> &nbsp;Export Transactions</button>
+                            <a href="/transactions" id="close-button" class="btn btn-danger"><i class="fa fa-close"></i> &nbsp;Clear</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </form>
-        </div>
-    @if(!empty($transactions))
-        <table class="table table-bordered table-sm table-responsive">
-            <thead>
-                <tr>
-                    <th>Shopify Order Name</th>
-                    <th>Transaction Mode</th>
-                    <th>Transaction Amount</th>
-                    <th>Reference No(PayTM/NEFT)</th>
-                    <th>Cheque/DD No</th>
-                    <th>Cheque/DD Date</th>
-                    <th>Drawee Account Number</th>
-                    <th>Transaction Upload Date</th>
-                    <th>Reconciliation Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($transactions as $transaction)
-                    <tr>
-                        <td>{{$transaction['Shopify Order Name']}}</td>
-                        <td>{{$transaction['Transaction Mode']}}</td>
-                        <td>{{$transaction['Transaction Amount']}}</td>
-                        <td>{{$transaction['Reference No(PayTM/NEFT)']}}</td>
-                        <td>{{$transaction['Cheque/DD No']}}</td>
-                        <td>{{$transaction['Cheque/DD Date']}}</td>
-                        <td>{{$transaction['Drawee Account Number']}}</td>
-                        <td>{{$transaction['Transaction Upload Date']}}</td>
-                        <td><span class="@if(strtolower($transaction['Reconciliation Status']) == \App\Models\ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT)
-                                                        badge badge-warning
-                                        @elseif(strtolower($transaction['Reconciliation Status']) == \App\Models\ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED)
-                                                                    badge badge-success
-                                        @elseif(strtolower($transaction['Reconciliation Status']) == \App\Models\ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED)
-                                                                    badge badge-danger
-                                        @endif">{{ $transaction['Reconciliation Status']}}</span>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @endif
-@endsection
+        @endsection
 
-@section('footer-js')
-    <script src="{{ URL::asset('vendors/js/spin.min.js') }}"></script>
-    <script src="{{ URL::asset('vendors/js/ladda.min.js') }}"></script>
-    <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
-    <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
-    <script src="{{ URL::asset('js/admin/upload.js') }}"></script>
+        @section('footer-js')
+            <script src="{{ URL::asset('vendors/js/spin.min.js') }}"></script>
+            <script src="{{ URL::asset('vendors/js/ladda.min.js') }}"></script>
+            <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
+            <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
+            <script src="{{ URL::asset('js/admin/upload.js') }}"></script>
+            <script src="{{ URL::asset('vendors/js/select2.min.js') }}"></script>
+            <script>
+                $(document).ready(function() {
+                    $('#js-example-basic-multiple').select2({
+                        theme:'bootstrap',
+                        placeholder: 'Select activity',
+                        maximumSelectionLength: 5
+                    });
+                });
+            </script>
 @endsection

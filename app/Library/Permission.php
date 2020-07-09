@@ -8,4 +8,6 @@ class Permission {
     const PERMISSION_ADMIN = 'admin';
 
     const PERMISSION_BULKUPLOAD = 'bulkupload';
+
+    const TRANSACTIONS_VIEW = 'transactions.view';
 }

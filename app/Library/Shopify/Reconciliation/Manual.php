@@ -62,19 +62,23 @@ class Manual extends Base
                 return $data;
             }
 
-            if( !in_array( $Source->GetReconciliationStatus(), array( ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS[0], ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS[0]))) {
+            if( !in_array( $Source->GetReconciliationStatus(), [ ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS[1],
+                ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS[2] ])) {
                 $this->errors[] = $data = array_merge($data, ['error' => 'Status does not match. Transaction ID : [' . $Payment->getTransactionID() .']',
                     'reco_status' => 400]);
+                return $data;
             }
 
             if(!$Payment->isProcessed()) {
                 $this->errors[] = $data = array_merge($data, ['error' => 'Transaction is not yet processed. Transaction ID : [' . $Payment->getTransactionID() .']',
                     'reco_status' => 400]);
+                return $data;
             }
 
             if((Carbon::parse($Source->GetModeDate())->timestamp) > (Carbon::now()->timestamp)) {
                 $this->errors[] = $data = array_merge($data, ['error' => 'Cheque date is invalid : [' . $Payment->getTransactionID() .']',
                     'reco_status' => 400]);
+                return $data;
             }
 
             if($Payment->getAmount() != $Source->GetModeAmount()) {
@@ -92,33 +96,32 @@ class Manual extends Base
                 return $data;
             }
 
-            $loggedInUser = (\Auth::user()->id ?? 0);
+            if(!$this->IsSandbox()) {
+                $loggedInUser = (\Auth::user()->id ?? 0);
+                $updates = [
+                    ShopifyExcelUpload::PaymentSettlementMode => ShopifyExcelUpload::PAYMENT_SETTLEMENT_MODE_MANUAL,
+                    ShopifyExcelUpload::PaymentSettledDate => time(),
+                    ShopifyExcelUpload::PaymentSettledBy => $loggedInUser,
+                    ShopifyExcelUpload::PaymentUpdatedAt => time(),
+                    ShopifyExcelUpload::PaymentRemarks => $Source->GetTransactionRemark(),
+                ];
 
-            $updates = [
-                ShopifyExcelUpload::PaymentSettlementStatus => ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED,
-                ShopifyExcelUpload::PaymentSettlementMode => ShopifyExcelUpload::PAYMENT_SETTLEMENT_MODE_MANUAL,
-                ShopifyExcelUpload::PaymentSettledDate => time(),
-                ShopifyExcelUpload::PaymentSettledBy => $loggedInUser,
-                ShopifyExcelUpload::PaymentUpdatedAt => time(),
-                ShopifyExcelUpload::PaymentRemarks => $Source->GetTransactionRemark(),
-            ];
+                if(strtolower($Source->GetReconciliationStatus()) == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED) {
+                    $updates[ShopifyExcelUpload::PaymentSettlementStatus] =  ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED;
+                }
 
-            if(strtolower($Source->GetReconciliationStatus()) == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED) {
-                $updates[ShopifyExcelUpload::PaymentSettlementStatus] =  ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED;
+                if(strtolower($Source->GetReconciliationStatus()) == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED) {
+                    $updates[ShopifyExcelUpload::PaymentSettlementStatus] =  ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED;
+                    $this->metadata[self::RETURNED_ROWS_COUNT] += 1;
+                }
+                $column_updates = [];
+                foreach ($updates as $column => $value) {
+                    $key_name = sprintf("payments.%s.%s.%s", $Payment->getIndex(), Payment::RECO, $column);
+                    $column_updates[$key_name] = $value;
+                }
+                $Order->update($column_updates);
             }
 
-            if(strtolower($Source->GetReconciliationStatus()) == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED) {
-                $updates[ShopifyExcelUpload::PaymentSettlementStatus] =  ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED;
-                $this->metadata[self::RETURNED_ROWS_COUNT] += 1;
-            }
-
-            $column_updates = [];
-            foreach ($updates as $column => $value) {
-                $key_name = sprintf("payments.%s.%s.%s", $Payment->getIndex(), Payment::RECO, $column);
-                $column_updates[$key_name] = $value;
-            }
-
-            $Order->update($column_updates);
             $data['reco_status'] = 200;
             $this->metadata[self::SETTLED_ROWS_COUNT] += 1;
             $this->metadata[self::FILE_SETTLEABLE_AMOUNT] += $Source->GetModeAmount();
@@ -129,7 +132,6 @@ class Manual extends Base
             $data['error'] = 'Transaction not found'; // Not found
             $this->metadata[self::NOT_FOUND_ROWS_COUNT] += 1;
         }
-
         return $data;
     }
 }
