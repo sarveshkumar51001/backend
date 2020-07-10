@@ -51,7 +51,8 @@ class TransactionsExport implements FromCollection, WithHeadings
             'Shopify Order Name',
             'Uploaded By',
             'Payment Status',
-            'Reconciliation Status'
+            'Reconciliation Status',
+            'Remarks'
         ];
     }
 }

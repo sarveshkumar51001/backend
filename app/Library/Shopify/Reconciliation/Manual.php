@@ -76,7 +76,7 @@ class Manual extends Base
             }
 
             if((Carbon::parse($Source->GetModeDate())->timestamp) > (Carbon::now()->timestamp)) {
-                $this->errors[] = $data = array_merge($data, ['error' => 'Cheque date is invalid : [' . $Payment->getTransactionID() .']',
+                $this->errors[] = $data = array_merge($data, ['error' => 'Cheque date is invalid. Transaction ID : [' . $Payment->getTransactionID() .']',
                     'reco_status' => 400]);
                 return $data;
             }
