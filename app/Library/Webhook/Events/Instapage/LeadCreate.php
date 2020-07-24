@@ -170,7 +170,7 @@ class LeadCreate
             }
             $email = $body[$email_field];
 
-            $blade = Blade::compileString($page_data['template']);
+            $blade = Blade::compileString(html_entity_decode($page_data['template'], ENT_QUOTES, 'UTF-8'));
             $view = string_view_renderer($blade, [
                 'body' => $body
             ]);
