@@ -18,6 +18,10 @@ class WebhookNotification extends Base
         'ankur@valedra.com',
         'bishwanath@valedra.com'
     ];
+    public static $sending_data = [
+        'support@valedra.com' => "Valedra",
+        'admissions@academy.apeejay.edu' => "Appejay",
+    ];
 
     const CUTOFF_DATE_FORMAT = 'd/m/Y h:i A';
 }

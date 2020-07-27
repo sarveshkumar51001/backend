@@ -3,7 +3,6 @@ namespace App\Library\Webhook\Events\Instapage;
 
 use App\Library\Webhook\Channel;
 use App\Models\InstaPage;
-use Carbon\Carbon;
 use App\Models\WebhookNotification;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Mail;
@@ -60,25 +59,25 @@ class LeadCreate
 
     private static function sendEmail(Webhook $Webhook) {
 
-	    $body = $Webhook->body();
+        $body = $Webhook->body();
 
-	    $email = $body['Email'];
+        $email = $body['Email'];
 
-	    $page_id = $body['page_id'];
+        $page_id = $body['page_id'];
 
 
 
-	    // events.valedra.com/online-yoga-at-home
-	    if ($page_id == 20189025)
-	    {
+        // events.valedra.com/online-yoga-at-home
+        if ($page_id == 20189025)
+        {
 //	    	Mail::send('emails.instapage.20189025', $body, function ($message, $body, $email) {
 //			    $message->from('support@valedra.com', 'Valedra');
 //			    $message->to($email);
 //			    $message->attach(storage_path('files/Join Us via Zoom Call.pdf'));
 //		    });
-	    }
+        }
 
-	    // https://events.valedra.com/online-yoga
+        // https://events.valedra.com/online-yoga
         // http://bit.ly/yoga-online-at-home
         elseif ($page_id == 20202660 && time() < 1585708200)
         {
@@ -107,7 +106,7 @@ class LeadCreate
                 storage_path('files/Join Us via Zoom - Indian Classical Dance.pdf'), false);
 
         }
-	    // https://events.valedra.com/toppr-access
+        // https://events.valedra.com/toppr-access
         elseif ($page_id == 20238395 && time() < 1586975399)
         {
             $codeMapping = [
@@ -135,21 +134,21 @@ class LeadCreate
 
         }
 
-	    // https://events.valedra.com/byjus-access
+        // https://events.valedra.com/byjus-access
         elseif ($page_id == 20261575 && time() < 1586975399) {
             self::mail('emails.instapage.20261575', ['body' => $body],
                 'Access BYJU\'s For Free', $email, storage_path('files/BYJUS_Class_1 to 10_Brochure.pdf'), false);
         }
 
-	    // https://events.valedra.com/virtual-museum-tours
+        // https://events.valedra.com/virtual-museum-tours
         elseif ($page_id == 20242715 && time() < 1586255400) {
             self::mail('emails.instapage.20242715', ['body' => $body],
                 'Virtual Museum Tour | Valedra', $email,
                 storage_path('files/Join Us via Zoom Call _ VIrtual Museum Visits.pdf'), false);
         }
 
-	    // https://programs.hayrey.com/webinar-profile-building
-	    elseif ($page_id == 20250570 && time() < 1585985400) {
+        // https://programs.hayrey.com/webinar-profile-building
+        elseif ($page_id == 20250570 && time() < 1585985400) {
             self::mail('emails.instapage.20250570', ['body' => $body],
                 'Thank You for Registering | Webinar Log In Credentials', $email,
                 storage_path('files/_H&R - Join Us via Zoom GD.pdf'), false);
@@ -164,6 +163,8 @@ class LeadCreate
 
             $page_data = $data['data'];
             $email_field = $page_data['to_email'];
+            $sending_from = $page_data['sending_from'] ?? 'support@valedra.com';
+            $sending_name = WebhookNotification::$sending_data[$sending_from] ?? 'Valedra';
 
             if(!isset($body[$email_field])) {
                 throw new \Exception("Email field not found");
@@ -180,12 +181,11 @@ class LeadCreate
                 if($page_data['test_mode']) {
                     $email = WebhookNotification::ADMIN_EMAIL_LIST;
                 }
-
                 // $page_id = 20633953 https://school.apeejay.edu/session-registration
                 // $page_id = 20649291 https://school.apeejay.edu/parent-registration
                 $from = [
-                    "email" => in_array($page_id, [20633953, 20649291]) ? 'admissions@academy.apeejay.edu' : 'support@valedra.com',
-                    "name" => in_array($page_id, [20633953, 20649291]) ? 'Apeejay Academy' : 'Valedra'
+                    "email" => in_array($page_id, [20633953, 20649291]) ? 'admissions@academy.apeejay.edu' : $sending_from,
+                    "name" => in_array($page_id, [20633953, 20649291]) ? 'Apeejay Academy' : $sending_name
                 ];
 
                 Mail::send( [], [], function ($message) use($email,$page_data,$view,$from) {
@@ -200,6 +200,7 @@ class LeadCreate
                     }
                 });
             }
+
         }
     }
 

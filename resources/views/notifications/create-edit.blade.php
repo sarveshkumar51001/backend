@@ -82,10 +82,26 @@
                             <input id="subject" autocomplete="off" name="subject" maxlength="50" type="text" class="form-control" value="{{old('subject', $data['data']['subject'] ?? '')}}">
                         </div>
                     </div>
-
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label>Sending From</label>
+                            <select class="form-control" name="sending_from" required="required">
+                                <option value="" selected disabled>Select Sending from </option>
+                                @foreach(\App\Models\WebhookNotification::$sending_data as $key => $value)
+                                    <option value="{{$key}}" @if(old('sending_from', $data['data']['sending_from'] ?? '') == $key) selected @endif>
+                                        {{ $value .' - '. $key }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                     <div class="col-sm-3">
                         <label><i class="fa fa-file" aria-hidden="true"></i> Upload file</label>
                         <input type="file" name="file" accept=".pdf" class="form-control">
+                        @if(!empty($data['data']['attachments']))
+                            @php $file_name =basename($data['data']['attachments'][0]); @endphp
+                            Upload file : <a href="{!! $data['data']['attachments'][0] !!}" download>{{$file_name}}</a>
+                        @endif
                     </div>
                     <div class="col-sm-3">
                         <label for="cutoff_date">Cut Off Date</label>

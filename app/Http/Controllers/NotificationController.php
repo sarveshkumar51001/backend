@@ -82,10 +82,10 @@ class NotificationController extends BaseController
 
         $document = WebhookNotification::find($id);
 
+
         if (!$document) {
             return abort(404, 'Notification to be edited not found in the database');
         }
-
         return view('notifications.create-edit', ['breadcrumb' => $breadcrumb, 'data' => $document->toArray()])->with($this->getDefaultData());
 
     }
@@ -129,6 +129,7 @@ class NotificationController extends BaseController
                 "subject" => $data['subject'],
                 "to_name" => $data['to_name'],
                 "to_email" => $data['to_email'],
+                "sending_from" => $data['sending_from'],
                 "template" => $data['email_template'],
                 "attachments" => !empty($real_path) ? [$real_path] : '',
                 "cutoff_datetime" => Carbon::createFromFormat(WebhookNotification::CUTOFF_DATE_FORMAT,$data['cutoff_date'])->timestamp,
@@ -177,6 +178,7 @@ class NotificationController extends BaseController
             'data.subject' => $data['subject'],
             'data.to_name' => $data['to_name'],
             'data.to_email' => $data['to_email'],
+            "data.sending_from" => $data['sending_from'],
             'data.template' => $data['email_template'],
             'data.cutoff_datetime' => Carbon::createFromFormat(WebhookNotification::CUTOFF_DATE_FORMAT,$data['cutoff_date'])->timestamp,
             'data.test_mode' => isset($data['test']) ? 1 : 0,
