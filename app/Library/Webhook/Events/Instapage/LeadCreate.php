@@ -112,19 +112,4 @@ class LeadCreate
             });
         }
     }
-
-    private static function mail($view, $view_data, $subject, $email, $attachment, $is_sandbox = false) {
-        if($is_sandbox) {
-            $email = ['ankur@valedra.com', 'bishwanath@valedra.com'];
-        }
-
-        Mail::send($view, $view_data, function ($message) use($email, $subject, $attachment) {
-            $message->from('support@valedra.com', 'Valedra');
-            $message->subject($subject);
-            $message->to($email);
-            if(!empty($attachment)) {
-                $message->attach($attachment);
-            }
-        });
-    }
 }
