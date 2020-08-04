@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
@@ -205,5 +206,27 @@ class NotificationController extends BaseController
             'events' => self::EVENTS,
             'channels' => self::CHANNELS,
         ];
+    }
+
+    public function download_file($WebhookNotificationId) {
+        $WebhookNotification = WebhookNotification::find($WebhookNotificationId);
+
+        if(! $WebhookNotification) {
+            abort(404);
+        }
+
+        if (!empty($WebhookNotification['data']['attachments'])) {
+            $attachments = $WebhookNotification['data']['attachments'];
+            if(count($attachments) > 1) {
+                abort(404, "More than one file exists for notification");
+            }
+
+            $attachment = head($attachments);
+            if(File::exists($attachment)) {
+                return response()->download($attachment);
+            }
+        }
+
+        abort(404);
     }
 }

@@ -100,7 +100,7 @@
                         <input type="file" name="file" accept=".pdf" class="form-control">
                         @if(!empty($data['data']['attachments']))
                             @php $file_name =basename($data['data']['attachments'][0]); @endphp
-                            Upload file : <a href="{!! $data['data']['attachments'][0] !!}" download>{{$file_name}}</a>
+                            Uploaded file : <a href="{!! route("notifications.download", ["id" => $data['_id']]) !!}" target="_blank">Download {{$file_name}}</a>
                         @endif
                     </div>
                     <div class="col-sm-3">
