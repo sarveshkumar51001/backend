@@ -62,6 +62,7 @@ Route::prefix('shopify')->group(function() {
     });
 
     Route::resource('notifications', 'NotificationController')->except(['destroy'])->middleware('permission:admin');;
+    Route::get('notifications/download/{id}', 'NotificationController@download_file')->name('notifications.download')->middleware('permission:admin');
 
     Route::get('/transactions','BulkUpload\TransactionController@index')->name('orders.transactions');
     Route::post('/get/transactions', 'BulkUpload\TransactionController@search_transactions_by_location')->name('get.transactions');

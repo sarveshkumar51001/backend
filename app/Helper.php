@@ -248,3 +248,42 @@ function get_order_title($order) {
     return $order['order_no'] . " / " . $order['variant_name'] . " / " . $order['amount'] . " / " . ($order['customer_details']['name'] ?? "") . " / " . ($order['customer_details']['class'] ?? "") . " / ".
         ($order['customer_details']['school'] ?? "");
 }
+
+/**
+ * @param array $columns
+ * @param array $rows
+ * @param string $filename
+ */
+function export(array $columns, array $rows, string $filename) {
+    if(empty($filename)) {
+        $filename = "Report".date('d-m-y').".csv";
+    }
+
+    $headers = [
+        "Content-type" => "text/csv",
+        "Content-Disposition" => "attachment; filename=".$filename,
+        "Pragma" => "no-cache",
+        "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+        "Expires" => "0"
+    ];
+
+    $callback = function() use ($rows, $columns) {
+        $file = fopen('php://output', 'w');
+        fputcsv($file, $columns);
+
+        foreach($rows as $row) {
+            $data = [];
+            foreach ($columns as $column) {
+                $data[] = $row[strtolower(str_replace(' ', '_', $column))] ?? 0;;
+            }
+
+            fputcsv($file, $data);
+        }
+
+        fclose($file);
+    };
+
+    response()->stream($callback, 200, $headers)->send();
+
+    exit(0);
+}
