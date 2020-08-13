@@ -39,7 +39,6 @@ class Validate
                 $errors[] = sprintf("Empty data for required fields");
             }
         }
-
         return $errors;
     }
 }

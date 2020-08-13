@@ -165,13 +165,12 @@ function is_admin() {
 }
 
 function has_permission($permission) {
-
     if(is_admin()) {
         return true;
     }
 
 	$userPermission = !empty(\Auth::user()->permissions) ? \Auth::user()->permissions : [];
-    if(in_array($permission, $userPermission)) {
+    if(in_array(strtolower($permission), $userPermission)) {
         return true;
     }
 

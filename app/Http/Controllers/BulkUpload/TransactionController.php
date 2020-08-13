@@ -102,33 +102,38 @@ class TransactionController extends BaseController
 
                 $Payment = new Payment(head($Order->payments) ,0);
 
-                    $order_data[] = array_merge($data, [
-                        'Transaction Amount' => head($Order->payments)['amount'],
-                        'Transaction Mode' => head($Order->payments)['mode_of_payment'],
-                        'Reference No(PayTM/NEFT)' => head($Order->payments)['txn_reference_number_only_in_case_of_paytm_or_online'],
-                        'Cheque/DD No' => head($Order->payments)['chequedd_no'],
-                        'MICR Code' => head($Order->payments)['micr_code'],
-                        'Cheque/DD Date' => head($Order->payments)['chequedd_date'],
-                        'Drawee Name' => head($Order->payments)['drawee_name'],
-                        'Drawee Account Number' => head($Order->payments)['drawee_account_number'],
-                        'Bank Name' => head($Order->payments)['bank_name'],
-                        'Transaction Upload Date' => Carbon::createFromTimestamp(head($Order->payments)['upload_date'])->format(ShopifyExcelUpload::DATE_FORMAT),
-                        'Payment Type' => "Full Payment",
-                        'Shopify Order Name' => isset($Order->shopify_order_name) ? $Order->shopify_order_name : Null,
-                        'Uploaded By' => !empty($User) ? $User['name'] : Null,
-                        'Payment Status' => 'Paid',
-                        'Reconciliation Status' => strtoupper($Payment->getRecoStatus()),
-                    ]);
+                $order_data[] = array_merge($data, [
+                    'Transaction ID' => "'". head($Order->payments)['transaction_id'],
+                    'Transaction Amount' => head($Order->payments)['amount'],
+                    'Transaction Mode' => head($Order->payments)['mode_of_payment'],
+                    'Reference No(PayTM/NEFT)' => head($Order->payments)['txn_reference_number_only_in_case_of_paytm_or_online'],
+                    'Cheque/DD No' => head($Order->payments)['chequedd_no'],
+                    'MICR Code' => head($Order->payments)['micr_code'],
+                    'Cheque/DD Date' => head($Order->payments)['chequedd_date'],
+                    'Drawee Name' => head($Order->payments)['drawee_name'],
+                    'Drawee Account Number' => head($Order->payments)['drawee_account_number'],
+                    'Bank Name' => head($Order->payments)['bank_name'],
+                    'Transaction Upload Date' => Carbon::createFromTimestamp(head($Order->payments)['upload_date'])->format(ShopifyExcelUpload::DATE_FORMAT),
+                    'Payment Type' => "Full Payment",
+                    'Shopify Order Name' => isset($Order->shopify_order_name) ? $Order->shopify_order_name : Null,
+                    'Uploaded By' => !empty($User) ? $User['name'] : Null,
+                    'Payment Status' => 'Paid',
+                    'Reconciliation Status' => strtoupper($Payment->getRecoStatus()),
+                ]);
             }else{
                 foreach ($Order->payments as $index => $payment) {
 
                     $Payment = new Payment($payment, $index);
 
+                    $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date'])
+                        && Carbon::createFromFormat('d/m/Y', $payment['chequedd_date'])->timestamp > $end_date);
+
                     // If include unpaid installment toggle is OFF and payment is PDC then skip the payment
-                    if($exclude_unpaid && $payment['is_pdc_payment']) {
+                    if($isPdc && $exclude_unpaid) {
                         continue;
                     }
                     $order_data[]= array_merge($data,[
+                        'Transaction ID' => "'".head($Order->payments)['transaction_id'],
                         'Transaction Amount'=> $payment['amount'],
                         'Transaction Mode'=> $payment['mode_of_payment'],
                         'Reference No(PayTM/NEFT)' => $payment['txn_reference_number_only_in_case_of_paytm_or_online'],
@@ -153,7 +158,6 @@ class TransactionController extends BaseController
             $request->session()->flash('message', 'No data found for the selected filters!');
             return view('transactions')->with('products',$this->GetUniqueProducts());
         }
-
-      return Excel\Facades\Excel::download(new TransactionsExport($order_data),'transactions.xlsx');
+        return Excel\Facades\Excel::download(new TransactionsExport($order_data),'transactions.csv');
     }
 }

@@ -20,6 +20,11 @@ class ReconcileStatement extends Base
     const ImportedAt            = 'imported_at';
     const ImportedBy            = 'imported_by';
 
+    public static $sourceList = [
+        1 => 'IDFC Bank',
+        2 => 'Manual Import'
+     ];
+
     /**
      * The attributes that should be mutated to dates.
      *

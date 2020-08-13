@@ -34,7 +34,7 @@ class Reconcile
      * @param int $mode
      * @param int $orgID
      *
-     * @return Offline|Online
+     * @return Offline
      *
      * @throws \Exception
      */
@@ -43,12 +43,8 @@ class Reconcile
             throw new \Exception('Invalid mode given');
         }
 
-        $Instance = null;
-        if ($File->GetSourceClass() == Source\PayU::class
-            || $File->GetSourceClass() == Source\PaytmGateway::class
-            || $File->GetSourceClass() == Source\PaytmApp::class
-            || $File->GetSourceClass() == Source\Razorpay::class) {
-            $Instance = new Online($File, $mode);
+        if($File->GetSourceClass() == Source\Manual::class) {
+            $Instance = new Manual($File, $mode);
         } else {
 	        $Instance = new Offline($File, $mode);
         }

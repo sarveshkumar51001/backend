@@ -37,6 +37,10 @@ class Payment {
         return $this->payment[self::RECO][ShopifyExcelUpload::PaymentSettlementStatus] ?? ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT;
     }
 
+    public function getTransactionID() {
+        return $this->payment[ShopifyExcelUpload::PaymentTransactionID];
+    }
+
     public function getAmount() {
         return $this->payment[ShopifyExcelUpload::PaymentAmount];
     }

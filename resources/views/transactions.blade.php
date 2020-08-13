@@ -21,22 +21,22 @@
                 <div class="row">
                     <div class="form-group col-sm-4">
                         <label><i class="fa fa-address-book" aria-hidden="true"></i> Location*</label>
-                            <div class="input-group">
-                                <select name="location" class="form-control select2" required="required">
-                                    <option selected="selected" value="">Location </option>
-                                    @foreach (array_merge(['All'],App\Models\ShopifyExcelUpload::getBranchNames()) as $school)
-                                        <option value="{{ $school }}" @if($school == old('location') || $school == request('location')) selected @endif> {{ $school }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        <div class="input-group">
+                            <select name="location" class="form-control select2" required="required">
+                                <option selected="selected" value="">Location </option>
+                                @foreach (array_merge(['All'],App\Models\ShopifyExcelUpload::getBranchNames()) as $school)
+                                    <option value="{{ $school }}" @if($school == old('location') || $school == request('location')) selected @endif> {{ $school }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     <div class="col-sm-4">
                         <label><i class="fa fa-calendar" aria-hidden="true"></i> Txn DateRange*</label>
-                            <div class="form-group input-group">
-                                <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
-                                <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
-                                <input type="hidden" name="filter" value="{{ request('filter') }}">
-                            </div>
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
+                            <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}">
+                            <input type="hidden" name="filter" value="{{ request('filter') }}">
+                        </div>
                     </div>
                     <div class="col-sm-4">
                         <label><i class="fa fa-address-book" aria-hidden="true"></i> Reco Status*</label>
@@ -66,7 +66,7 @@
                             <label><i class="fa fa-info-circle" aria-hidden="true"></i> Include Pending Installments?</label>&nbsp;
                             <label class="switch switch-icon switch-pill switch-success">
                                 <input type="checkbox" class="switch-input" name="unpaid_active" id="active" @if(request('unpaid_active') == 'on') checked @endif>
-                                <span class="switch-label" data-on="" data-off=""></span>
+                                <span class="switch-label" data-on="ï€Œ" data-off="ï€"></span>
                                 <span class="switch-handle"></span>
                             </label>
                         </div>
@@ -80,22 +80,22 @@
                 </div>
             </div>
         </form>
-@endsection
+        @endsection
 
-@section('footer-js')
-    <script src="{{ URL::asset('vendors/js/spin.min.js') }}"></script>
-    <script src="{{ URL::asset('vendors/js/ladda.min.js') }}"></script>
-    <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
-    <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
-    <script src="{{ URL::asset('js/admin/upload.js') }}"></script>
-    <script src="{{ URL::asset('vendors/js/select2.min.js') }}"></script>
-    <script>
-        $(document).ready(function() {
-            $('#js-example-basic-multiple').select2({
-                theme:'bootstrap',
-                placeholder: 'Select activity',
-                maximumSelectionLength: 5
-            });
-        });
-    </script>
+        @section('footer-js')
+            <script src="{{ URL::asset('vendors/js/spin.min.js') }}"></script>
+            <script src="{{ URL::asset('vendors/js/ladda.min.js') }}"></script>
+            <script src="{{ URL::asset('js/views/loading-buttons.js') }}"></script>
+            <script src="{{ URL::asset('js/admin/custom.js') }}"></script>
+            <script src="{{ URL::asset('js/admin/upload.js') }}"></script>
+            <script src="{{ URL::asset('vendors/js/select2.min.js') }}"></script>
+            <script>
+                $(document).ready(function() {
+                    $('#js-example-basic-multiple').select2({
+                        theme:'bootstrap',
+                        placeholder: 'Select activity',
+                        maximumSelectionLength: 5
+                    });
+                });
+            </script>
 @endsection

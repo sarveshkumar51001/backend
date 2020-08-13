@@ -97,6 +97,8 @@ class ShopifyExcelUpload extends Base
     const PaymentDepositDate = 'deposit_date';
     const PaymentAmount = 'amount';
     const PaymentProcessed = 'processed';
+    const PaymentRemarks = 'remarks';
+    const PaymentTransactionID = 'transaction_id';
 
 
     const PAYMENT_SETTLEMENT_STATUS_RETURNED = 'returned';

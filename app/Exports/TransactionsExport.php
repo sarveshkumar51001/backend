@@ -36,6 +36,7 @@ class TransactionsExport implements FromCollection, WithHeadings
             'Parent Name',
             'Activity Fee',
             'Scholarship/Discount',
+            'Transaction ID',
             'Transaction Amount',
             'Transaction Mode',
             'Reference No(PayTM/NEFT)',
@@ -50,7 +51,8 @@ class TransactionsExport implements FromCollection, WithHeadings
             'Shopify Order Name',
             'Uploaded By',
             'Payment Status',
-            'Reconciliation Status'
+            'Reconciliation Status',
+            'Remarks'
         ];
     }
 }

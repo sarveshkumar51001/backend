@@ -379,10 +379,12 @@ class ShopifyController extends BaseController
         return view('admin.404')->with('breadcrumb', $breadcrumb);
     }
 
-    public function installments(Request $request) {
-
+    public function installments(Request $request)
+    {
         $Post_Payment_Data = [];
         $post_payment = [];
+
+        $breadcrumb = ['Shopify' => '/shopify/bulkupload/previous/orders', 'Upcoming Installments' => ''];
 
         $start = 0;
         $end = time();
@@ -390,9 +392,12 @@ class ShopifyController extends BaseController
             [$start,$end] = GetStartEndDate(request('daterange'));
         }
 
-    	$Post_Dated_Payments = DB::post_dated_payments()->where('uploaded_by', Auth::id())->get()->toArray();
+    	$Post_Dated_Payments = DB::post_dated_payments();
+        if(!is_admin()) {
+            $Post_Dated_Payments->where('uploaded_by', Auth::id());
+        }
 
-    	foreach($Post_Dated_Payments as $Payments) {
+    	foreach($Post_Dated_Payments->get()->toArray() as $Payments) {
 
 			$payment_array = $Payments['payments'];
 
@@ -418,12 +423,11 @@ class ShopifyController extends BaseController
 			}
     	}
     	$Post_Payments = self::paginate_array($request, $Post_Payment_Data);
-    	return view('shopify.installments')->with('collection_data',$Post_Payments);
+    	return view('shopify.installments')->with('collection_data',$Post_Payments)->with('breadcrumb', $breadcrumb);
 
     }
 
-    public function paginate_array( Request $request,$data){
-
+    public function paginate_array( Request $request,$data) {
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $collection = collect($data);
         $limit = ShopifyExcelUpload::PAGINATE_LIMIT;
@@ -438,7 +442,6 @@ class ShopifyController extends BaseController
         $paginatedItems->setPath($request->url());
 
         return $paginatedItems;
-
     }
 }
 

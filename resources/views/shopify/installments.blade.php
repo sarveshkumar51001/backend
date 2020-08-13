@@ -15,7 +15,8 @@
                                 <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}" required>
                             </div>
                         </div>
-                        <div class="col-sm-1 pull-right">
+                        <div class="pull-right">
+                            <a href="{{ url()->current() }}" style="height:40px" type="submit" class="btn btn-danger pull-right" name="view">Clear</a>
                             <button style="height:40px" type="submit" class="btn btn-primary pull-right" name="view">View</button>
                         </div>
                     </div>

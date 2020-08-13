@@ -217,7 +217,7 @@ class DB
     }
 
     public static function post_dated_payments(){
-    	$post_dated_payments = ShopifyExcelUpload::where('payments.is_pdc_payment',true);
+    	$post_dated_payments = ShopifyExcelUpload::where('payments.is_pdc_payment', true);
 
     	return $post_dated_payments;
     }

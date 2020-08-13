@@ -3,6 +3,7 @@
 namespace App\Library\Shopify\Reconciliation;
 
 use App\Library\Shopify\Reconciliation\Source\IDFC;
+use App\Library\Shopify\Reconciliation\Source\Manual;
 
 /**
  * Class File
@@ -24,10 +25,12 @@ class File
      */
     public static $source = [
         IDFC::SOURCE_CODE => IDFC::class,
+        Manual::SOURCE_CODE => Manual::class
     ];
 
     public static $sourceTitles = [
 	    IDFC::SOURCE_CODE => 'Bank - IDFC',
+        Manual::SOURCE_CODE => 'Manual Reconciliation'
     ];
 
     /**
