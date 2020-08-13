@@ -125,8 +125,11 @@ class TransactionController extends BaseController
 
                     $Payment = new Payment($payment, $index);
 
+                    $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date'])
+                        && Carbon::createFromFormat('d/m/Y', $payment['chequedd_date'])->timestamp > $end_date);
+
                     // If include unpaid installment toggle is OFF and payment is PDC then skip the payment
-                    if($exclude_unpaid && $payment['is_pdc_payment']) {
+                    if($isPdc && $exclude_unpaid) {
                         continue;
                     }
                     $order_data[]= array_merge($data,[
