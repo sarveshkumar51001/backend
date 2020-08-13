@@ -32,6 +32,7 @@ class Manual extends Base
 
         /* @var ISource $Source */
         $Source = new $sourceClass($data);
+        $this->metadata[self::FILE_AMOUNT] += $Source->GetModeAmount();
 
         // Get Order by transaction id
         $Order = ShopifyExcelUpload::where('payments.transaction_id', (int) $Source->GetTransactionID());
@@ -66,18 +67,24 @@ class Manual extends Base
                 ShopifyExcelUpload::PAYMENT_RECONCILIATION_STATUS[2] ])) {
                 $this->errors[] = $data = array_merge($data, ['error' => 'Status does not match. Transaction ID : [' . $Payment->getTransactionID() .']',
                     'reco_status' => 400]);
+                $this->metadata[self::FAILED_ROWS_COUNT] += 1;
+                $this->metadata[self::FAILED_AMOUNT] += $Source->GetModeAmount();
                 return $data;
             }
 
             if(!$Payment->isProcessed()) {
                 $this->errors[] = $data = array_merge($data, ['error' => 'Transaction is not yet processed. Transaction ID : [' . $Payment->getTransactionID() .']',
                     'reco_status' => 400]);
+                $this->metadata[self::FAILED_ROWS_COUNT] += 1;
+                $this->metadata[self::FAILED_AMOUNT] += $Source->GetModeAmount();
                 return $data;
             }
 
             if((Carbon::parse($Source->GetModeDate())->timestamp) > (Carbon::now()->timestamp)) {
                 $this->errors[] = $data = array_merge($data, ['error' => 'Cheque date is invalid. Transaction ID : [' . $Payment->getTransactionID() .']',
                     'reco_status' => 400]);
+                $this->metadata[self::FAILED_ROWS_COUNT] += 1;
+                $this->metadata[self::FAILED_AMOUNT] += $Source->GetModeAmount();
                 return $data;
             }
 
@@ -91,7 +98,7 @@ class Manual extends Base
 
             if($Payment->isReconciled()) {
                 $this->metadata[self::ALREADY_SETTLED_ROWS_COUNT] += 1;
-                $this->metadata[self::FAILED_AMOUNT] += $Source->GetModeAmount();
+                $this->metadata[self::ALREADY_SETTLED_AMOUNT] += $Source->GetModeAmount();
                 $this->errors[] = $data = array_merge($data, ['error' => 'Transaction is already settled with status [' . $Payment->getRecoStatus() .'] . Transaction ID : [' . $Payment->getTransactionID() .']', 'reco_status' => 409]);
                 return $data;
             }
@@ -131,6 +138,7 @@ class Manual extends Base
             $data['reco_status'] = 404; // Not found
             $data['error'] = 'Transaction not found'; // Not found
             $this->metadata[self::NOT_FOUND_ROWS_COUNT] += 1;
+            $this->metadata[self::NOT_FOUND_AMOUNT] += $Source->GetModeAmount();
         }
         return $data;
     }
