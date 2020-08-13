@@ -156,6 +156,6 @@ class TransactionController extends BaseController
             return view('transactions')->with('products',$this->GetUniqueProducts());
         }
 
-        return Excel\Facades\Excel::download(new TransactionsExport($order_data),'transactions.xlsx');
+        return Excel\Facades\Excel::download(new TransactionsExport($order_data),'transactions.csv');
     }
 }

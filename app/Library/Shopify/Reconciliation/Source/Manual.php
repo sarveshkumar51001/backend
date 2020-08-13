@@ -23,7 +23,7 @@ class Manual extends Base {
     }
 
     public function GetModeDate(): string {
-        return !empty($this->row['chequedd_date']) ? date('d/m/Y', strtotime($this->row['chequedd_date'])) : '';
+        return !empty($this->row['chequedd_date']) ? date('m/d/Y', strtotime($this->row['chequedd_date'])) : '';
     }
 
     public function GetTransactionID(): string {

@@ -55,7 +55,7 @@
                                     <form method="GET" action="{{ route('home') }}">
                                         <div class="form-group input-group">
                                             <span class="input-group-addon"><i class="fa fa-calendar"> Daterange</i></span>
-                                            <input id="txn_range" name="daterange" class="form-control date-picker" type="text">
+                                            <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{request('daterange')}}">
                                             <button  class="btn btn-success" style="margin-top: 0px;" type="submit">Submit</button>
                                         </div>
                                     </form>
