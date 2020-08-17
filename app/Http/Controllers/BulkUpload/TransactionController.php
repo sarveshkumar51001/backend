@@ -74,7 +74,12 @@ class TransactionController extends BaseController
         }
 
         if(!empty($request['reco_status']) && !in_array($request['reco_status'], ['all', ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT] )) {
-            $OrderORM->where('payments.reconcilation.settlement_status', $request['reco_status']);
+            $OrderORM->where('payments.reconciliation.settlement_status', $request['reco_status']);
+        }
+
+        if(!empty($request['reco_status']) && ( $request['reco_status'] == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT)) {
+
+            $OrderORM->where('payments.reconciliation.settlement_status', 'exists', false);
         }
 
         $OrderORM->whereBetween('payments.upload_date',[$start_date,$end_date]);
@@ -119,9 +124,18 @@ class TransactionController extends BaseController
                     'Uploaded By' => !empty($User) ? $User['name'] : Null,
                     'Payment Status' => 'Paid',
                     'Reconciliation Status' => strtoupper($Payment->getRecoStatus()),
+                    'Remarks' => $Payment->getRemarks(),
                 ]);
             }else{
                 foreach ($Order->payments as $index => $payment) {
+
+                    if ($request['reco_status'] == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_RETURNED
+                        || $request['reco_status'] == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_SETTLED)
+                    {
+                        if (!isset($payment['reconciliation']['settlement_status'])) {
+                            continue;
+                        }
+                    }
 
                     $Payment = new Payment($payment, $index);
 
@@ -149,6 +163,7 @@ class TransactionController extends BaseController
                         'Uploaded By' => !empty($User) ? $User['name'] : Null,
                         'Payment Status' => !empty($payment['is_pdc_payment']) && $payment['is_pdc_payment'] ? 'Unpaid' : 'Paid',
                         'Reconciliation Status' => strtoupper($Payment->getRecoStatus()),
+                        'Remarks' => $Payment->getRemarks(),
                     ]);
                 }
             }
