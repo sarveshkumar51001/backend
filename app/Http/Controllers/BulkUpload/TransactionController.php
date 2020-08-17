@@ -73,14 +73,10 @@ class TransactionController extends BaseController
             $OrderORM->where('uploaded_by', Auth::user()->id);
         }
 
-        if(!empty($request['reco_status']) && !in_array($request['reco_status'], ['all', ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT] )) {
+        $isOnlyPending = ($request['reco_status'] == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT);
+        /*if(!empty($request['reco_status']) && !in_array($request['reco_status'], ['all', ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT] )) {
             $OrderORM->where('payments.reconciliation.settlement_status', $request['reco_status']);
-        }
-
-        if(!empty($request['reco_status']) && ( $request['reco_status'] == ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT)) {
-
-            $OrderORM->where('payments.reconciliation.settlement_status', 'exists', false);
-        }
+        }*/
 
         $OrderORM->whereBetween('payments.upload_date',[$start_date,$end_date]);
         $Orders = $OrderORM->get();
@@ -106,6 +102,18 @@ class TransactionController extends BaseController
             if (sizeof($Order['payments']) == 1) {
 
                 $Payment = new Payment(head($Order->payments) ,0);
+
+                $isPdc = ($Order['payments'][0]['is_pdc_payment'] == true && !empty($Order['payments'][0]['chequedd_date'])
+                    && Carbon::createFromFormat('d/m/Y', $Order['payments'][0]['chequedd_date'])->timestamp > $end_date);
+
+                // If include unpaid installment toggle is OFF and payment is PDC then skip the payment
+                if($isPdc && $exclude_unpaid) {
+                    continue;
+                }
+
+                if($isOnlyPending && isset($Order['payments'][0]['reconciliation']['settlement_status'])) {
+                    continue;
+                }
 
                 $order_data[] = array_merge($data, [
                     'Transaction ID' => "'". (head($Order->payments)['transaction_id'] ?? ''),
@@ -146,6 +154,11 @@ class TransactionController extends BaseController
                     if($isPdc && $exclude_unpaid) {
                         continue;
                     }
+
+                    if($isOnlyPending && isset($payment['reconciliation']['settlement_status'])) {
+                        continue;
+                    }
+
                     $order_data[]= array_merge($data,[
                         'Transaction ID' => "'".(head($Order->payments)['transaction_id'] ?? ''),
                         'Transaction Amount'=> $payment['amount'],
