@@ -78,8 +78,10 @@ class ReconcileController extends BaseController
                     $Payment = new Payment($payment);
 
                     $amount = $Payment->getAmount();
-                    $reco_data['all']['amount'] += $amount;
-                    $reco_data['all']['count'] += 1;
+                    if(!$isPdc) {
+                        $reco_data['all']['amount'] += $amount;
+                        $reco_data['all']['count'] += 1;
+                    }
                     if ($isPdc) {
                         $reco_data['all']['pdc_count'] += 1;
                         $reco_data['all']['pdc_amount'] += $amount;

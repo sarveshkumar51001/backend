@@ -19,7 +19,7 @@
                     </div>
                 @endforeach
                 <div class="row">
-                    <div class="form-group col-sm-4">
+                    <div class="form-group col-sm-3">
                         <label><i class="fa fa-address-book" aria-hidden="true"></i> Location*</label>
                         <div class="input-group">
                             <select name="location" class="form-control select2" required="required">
@@ -30,7 +30,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <label><i class="fa fa-calendar" aria-hidden="true"></i> Txn DateRange*</label>
                         <div class="form-group input-group">
                             <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
@@ -38,7 +38,18 @@
                             <input type="hidden" name="filter" value="{{ request('filter') }}">
                         </div>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
+                        <label><i class="fa fa-address-book" aria-hidden="true"></i> Payment Status*</label>
+                        <div class="form-group input-group">
+                            <select name="payment_status" class="form-control select2" required="required">
+                                <option selected="selected" value="">Select </option>
+                                @foreach(array_merge(['all'], \App\Models\ShopifyExcelUpload::REPORT_STATUS) as $report_status)
+                                    <option value="{{$report_status}}" @if($report_status == old('reco_status') || $report_status == request('reco_status')) selected @endif>{{strtoupper($report_status)}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
                         <label><i class="fa fa-address-book" aria-hidden="true"></i> Reco Status*</label>
                         <div class="form-group input-group">
                             <select name="reco_status" class="form-control select2" required="required">

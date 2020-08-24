@@ -111,6 +111,13 @@ class ShopifyExcelUpload extends Base
         self::PAYMENT_SETTLEMENT_STATUS_RETURNED
     ];
 
+    const REPORT_STATUS_PAID = 'paid';
+    const REPORT_STATUS_UNPAID = 'unpaid';
+    const REPORT_STATUS = [
+        self::REPORT_STATUS_PAID,
+        self::REPORT_STATUS_UNPAID,
+    ];
+
     const PAYMENT_SETTLEMENT_MODE_BANK = 'bank';
     const PAYMENT_SETTLEMENT_MODE_MANUAL = 'manual';
 
