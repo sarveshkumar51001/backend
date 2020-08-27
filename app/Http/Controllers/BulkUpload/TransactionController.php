@@ -99,6 +99,11 @@ class TransactionController extends BaseController
                 'Scholarship/Discount' => $Order->scholarship_discount
             ];
 
+            if( $request['payment_status'] == ShopifyExcelUpload::REPORT_STATUS_UNPAID
+                && sizeof($Order['payments']) == 1) {
+                continue;
+            }
+
             if (sizeof($Order['payments']) == 1) {
 
                 $Payment = new Payment(head($Order->payments) ,0);
@@ -156,6 +161,13 @@ class TransactionController extends BaseController
                     }
 
                     if($isOnlyPending && isset($payment['reconciliation']['settlement_status'])) {
+                        continue;
+                    }
+
+                    if( ($request['payment_status'] == ShopifyExcelUpload::REPORT_STATUS_PAID
+                            && $payment['is_pdc_payment']==true) ||
+                        ($request['payment_status'] == ShopifyExcelUpload::REPORT_STATUS_UNPAID
+                            && $payment['is_pdc_payment']==false)) {
                         continue;
                     }
 
