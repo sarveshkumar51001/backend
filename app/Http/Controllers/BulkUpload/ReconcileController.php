@@ -81,26 +81,24 @@ class ReconcileController extends BaseController
                     if(!$isPdc) {
                         $reco_data['all']['amount'] += $amount;
                         $reco_data['all']['count'] += 1;
+                        if ($Payment->isSettled()) {
+                            $reco_data['settled']['amount'] += $Payment->getAmount();
+                            $reco_data['settled']['count'] += 1;
+                        } elseif ($Payment->isReturned()) {
+                            $reco_data['returned']['amount'] += $Payment->getAmount();
+                            $reco_data['returned']['count'] += 1;
+                        } else {
+                            $reco_data['pending']['amount'] += $Payment->getAmount();
+                            $reco_data['pending']['count'] += 1;
+                        }
                     }
                     if ($isPdc) {
                         $reco_data['all']['pdc_count'] += 1;
                         $reco_data['all']['pdc_amount'] += $amount;
                     }
-
-                    if ($Payment->isSettled()) {
-                        $reco_data['settled']['amount'] += $Payment->getAmount();
-                        $reco_data['settled']['count'] += 1;
-                    } elseif ($Payment->isReturned()) {
-                        $reco_data['returned']['amount'] += $Payment->getAmount();
-                        $reco_data['returned']['count'] += 1;
-                    } else {
-                        $reco_data['pending']['amount'] += $Payment->getAmount();
-                        $reco_data['pending']['count'] += 1;
-                    }
                 }
             }
         }
-
         $ReconcileStatement = ReconcileStatement::select('status', 'source', 'imported_at', 'imported_by', 'meta_data')
             ->where('status', 1)
             ->orderBy('imported_at', 'desc')->paginate(50);
