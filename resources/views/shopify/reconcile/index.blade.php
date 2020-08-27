@@ -33,14 +33,14 @@
                             <div class="col-6">
                                 <div class="callout callout-info b-t-1 b-r-1 b-b-1">
                                     <small class="text-muted">TOTAL TRANSACTIONS</small><br>
-                                    <strong class="h4">{{$reco_data['all']['count']}}</strong>
+                                    <strong class="h4">{{$reco_data['all']['count']}} <span class="h6 text-muted">PAID</span></strong>
                                     @if(!empty($reco_data['all']['pdc_count']))<strong class="h4"> / {{$reco_data['all']['pdc_count']}} <span class="h6 text-muted">PDC</span></strong>@endif
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="callout callout-bordered b-t-1 b-r-1 b-b-1">
                                     <small class="text-muted">TRANSACTION AMOUNT</small><br>
-                                    <strong class="h4">₹ {{amount_inr_format($reco_data['all']['amount'])}}</strong>
+                                    <strong class="h4">₹ {{amount_inr_format($reco_data['all']['amount'])}} <span class="h6 text-muted">PAID</span></strong>
                                     @if(!empty($reco_data['all']['pdc_amount']))<strong class="h4"> / {{amount_inr_format($reco_data['all']['pdc_amount'])}} <span class=" h6 text-muted">PDC</span></strong>@endif
                                 </div>
                             </div>
