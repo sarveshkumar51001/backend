@@ -162,9 +162,14 @@ class ShopifyController extends BaseController
                          * Consider the payment data only if the payment is unprocessed
                          * Any update in already posted installments will be ignored
                          */
-                        if ($existingPaymentData[$index]['processed'] == 'No') {
+                        if(!empty($existingPaymentData[$index])) {
+                            if ($existingPaymentData[$index]['processed'] == 'No') {
+                                $existingPaymentData[$index] = $payment;
+                            }
+                        } else {
                             $existingPaymentData[$index] = $payment;
                         }
+
 
                         // Set PDC Payment Status to false if payment is received and vice versa.
                         if (!empty($existingPaymentData[$index]['mode_of_payment'])) {
