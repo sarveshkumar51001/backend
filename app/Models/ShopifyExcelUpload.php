@@ -381,7 +381,7 @@ class ShopifyExcelUpload extends Base
             ]
         ],
         "H&R" => [
-            "Plot 23 Gurugram" => [
+            "Plot 23 Gurgaon" => [
                 "code" => "",
                 "city" => "Gurugram",
                 "state" => "Haryana",
