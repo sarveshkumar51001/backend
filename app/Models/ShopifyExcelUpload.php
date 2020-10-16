@@ -76,6 +76,7 @@ class ShopifyExcelUpload extends Base
     ];
 
     const METADATA_FIELDS = [
+        'sno',
         'file_id',
         'job_status',
         'order_id',
@@ -380,7 +381,7 @@ class ShopifyExcelUpload extends Base
             ]
         ],
         "H&R" => [
-            "Plot 23 Gurgaon" => [
+            "Plot 23 Gurugram" => [
                 "code" => "",
                 "city" => "Gurugram",
                 "state" => "Haryana",

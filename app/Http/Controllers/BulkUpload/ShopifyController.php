@@ -8,6 +8,7 @@ use App\Http\Controllers\BaseController;
 use App\Library\Collection\Collection;
 use App\Models\ShopifyExcelUpload;
 use App\Models\Upload;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Jobs\ShopifyOrderCreation;
@@ -89,8 +90,8 @@ class ShopifyController extends BaseController
 
         // Loading the excel file
         try {
-            $rows = array_first(Excel::toArray(new ShopifyOrdersImport(), $path->getRealPath()));
-            $headers = array_keys(array_first($rows));
+            $rows = Arr::first(Excel::toArray(new ShopifyOrdersImport(), $path->getRealPath()));
+            $headers = array_keys(Arr::first($rows));
         } catch (\Exception $e) {
             return back()->withErrors(['The uploaded file seems invalid. Please download the latest sample file.']);
         }
