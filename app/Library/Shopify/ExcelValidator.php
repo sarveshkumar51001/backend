@@ -128,7 +128,11 @@ class ExcelValidator
                 // Checking if installment already exists or not.
                 // This happens when user increases number of installments
                 if(!empty($existingpayments[$payment_index])) {
-                    if (array_diff_assoc(Arr::only($existingpayments[$payment_index], ShopifyExcelUpload::CHEQUE_DD_FIELDS), Arr::only($payment, ShopifyExcelUpload::CHEQUE_DD_FIELDS))) {
+                    $payment_fields = array_merge(ShopifyExcelUpload::CHEQUE_DD_FIELDS,
+                        ShopifyExcelUpload::ONLINE_FIELDS,
+                        ['mode_of_payment']
+                    );
+                    if (array_diff_assoc(Arr::only($existingpayments[$payment_index], $payment_fields), Arr::only($payment, $payment_fields))) {
                         $is_duplicate = false;
                         if ($existingpayments[$payment_index]['processed'] == 'Yes') {
                             $this->errors['rows'][$this->row_no][] = sprintf(Errors::PROCESSED_INSTALLMENT_ERROR, $payment_index + 1);
