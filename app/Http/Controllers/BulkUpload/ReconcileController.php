@@ -35,7 +35,8 @@ class ReconcileController extends BaseController
             $OrderORM = ShopifyExcelUpload::orderBy('_id', 'DESC');
             if (!empty(request('daterange'))) {
                 [$start_date, $end_date] = GetStartEndDate(request('daterange'));
-                $OrderORM->whereBetween('payments.upload_date', [$start_date, $end_date]);
+                $end_date = 0;
+                $OrderORM->where('payments.upload_date' ,'>', $start_date);
                 $range = request('daterange');
             } else {
                 if (\Carbon\Carbon::now()->format('n') >= 4) {
