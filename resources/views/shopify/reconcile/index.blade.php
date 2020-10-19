@@ -33,7 +33,7 @@
                             <div class="col-6">
                                 <div class="callout callout-info b-t-1 b-r-1 b-b-1">
                                     <small class="text-muted">TOTAL TRANSACTIONS</small><br>
-                                    <strong class="h5">₹{{$reco_data['total']['count']}} - <span class="h6 text-muted">TOTAL</span> | </strong>
+                                    <strong class="h5">{{$reco_data['total']['count']}} - <span class="h6 text-muted">TOTAL</span> | </strong>
                                     <strong class="h5">{{$reco_data['all']['count']}} - <span class="h6 text-muted">COLLECTED</span> |</strong>
                                     @if(!empty($reco_data['all']['pdc_count']))<strong class="h5">{{$reco_data['all']['pdc_count']}} - <span class="h6 text-muted">TO BE COLLECTED</span></strong> @endif
                                 </div>
