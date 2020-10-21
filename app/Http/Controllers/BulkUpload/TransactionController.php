@@ -108,8 +108,10 @@ class TransactionController extends BaseController
 
                 $Payment = new Payment(head($Order->payments) ,0);
 
-                $isPdc = ($Order['payments'][0]['is_pdc_payment'] == true && !empty($Order['payments'][0]['chequedd_date'])
-                    && Carbon::createFromFormat('d/m/Y', $Order['payments'][0]['chequedd_date'])->timestamp > $end_date);
+                $isPdc = (!empty($Order['payments'][0]['is_pdc_payment']) &&
+                    $Order['payments'][0]['is_pdc_payment'] == true &&
+                    !empty($Order['payments'][0]['chequedd_date']) &&
+                    Carbon::createFromFormat('d/m/Y', $Order['payments'][0]['chequedd_date'])->timestamp > $end_date);
 
                 // If include unpaid installment toggle is OFF and payment is PDC then skip the payment
                 if($isPdc && $exclude_unpaid) {
@@ -152,8 +154,10 @@ class TransactionController extends BaseController
 
                     $Payment = new Payment($payment, $index);
 
-                    $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date'])
-                        && Carbon::createFromFormat('d/m/Y', $payment['chequedd_date'])->timestamp > $end_date);
+                    $isPdc = (!empty($payment['is_pdc_payment']) &&
+                        $payment['is_pdc_payment'] == true &&
+                        !empty($payment['chequedd_date']) &&
+                        Carbon::createFromFormat('d/m/Y', $payment['chequedd_date'])->timestamp > $end_date);
 
                     // If include unpaid installment toggle is OFF and payment is PDC then skip the payment
                     if($isPdc && $exclude_unpaid) {
