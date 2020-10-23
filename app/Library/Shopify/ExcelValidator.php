@@ -282,6 +282,7 @@ class ExcelValidator
 
             $DatabaseRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)->where('shopify_activity_id', $activity_id)
                 ->where('school_enrollment_no', $std_enroll_no)
+                ->where('is_canceled', '<>', true)
                 ->first();
 
             if (! empty($DatabaseRow)) {
