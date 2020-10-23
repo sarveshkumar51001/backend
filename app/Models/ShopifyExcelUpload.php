@@ -38,6 +38,10 @@ class ShopifyExcelUpload extends Base
 
     const JOB_STATUS_FAILED = 'failed';
 
+    const JOB_STATUS_DROPOUT = 'dropout';
+
+    const JOB_STATUS_REFUNDED = 'refunded';
+
     const REYNOTT = 'Reynott';
 
     const HAYDEN_REYNOTT = 'H&R';

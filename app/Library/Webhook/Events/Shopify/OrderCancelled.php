@@ -25,6 +25,7 @@ class OrderCancelled
         $refunds = $data['refunds'] ?? [];
         $refund_transactions = $refunds['transactions'] ?? [];
 
+        $is_refunded = false;
         // If no refund was initiated then dropout student
         if(empty($refund_transactions)) {
             // Parsing payments in reverse order
@@ -36,6 +37,10 @@ class OrderCancelled
                     continue;
                 }
 
+                if($Payment->getRefundedAmount() > 0) {
+                    $is_refunded = true;
+                }
+
                 // Cancelling unprocessed payment
                 $Payments[$reverse_index][ShopifyExcelUpload::PaymentIsCanceled] = true;
             }
@@ -43,7 +48,7 @@ class OrderCancelled
             $document->update([
                 'is_canceled' => true,
                 'payments' => $Payments,
-                'job_status' => "dropout",
+                'job_status' => $is_refunded ? "refunded" : "dropout",
             ]);
         }
     }
