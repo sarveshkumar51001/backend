@@ -3,8 +3,10 @@ namespace App\Library\Webhook\Events\Shopify;
 
 use App\Library\Shopify\WebhookDataShopify;
 use App\Library\Webhook\Channel;
+use App\Models\ShopifyExcelUpload;
 use App\Models\Webhook;
 use App\Models\Order;
+use Carbon\Carbon;
 
 class OrderUpdate
 {
@@ -22,6 +24,27 @@ class OrderUpdate
         }
 
         self::postToSlack($Webhook);
+        self::add_notes_to_shopify_upload($new_order_data);
+    }
+
+    private static function add_notes_to_shopify_upload($data) {
+        // Fetch the document associated with the order id, retrieved from the refund webhook;
+        $document = ShopifyExcelUpload::where('order_id', $data['id'])->firstOrFail();
+
+        if(!empty($data['note'])) {
+            $order_notes = $document['order_notes'] ?? [];
+            $order_notes[] = [
+                "type" => "Note",
+                "reason" => $data['note'],
+                "added_on" => !empty($data['updated_at']) ? Carbon::parse($data['updated_at'])->timestamp : ''
+            ];
+
+            $document->update([
+                'order_notes' => array_filter($order_notes),
+            ]);
+        }
+
+
     }
 
     private static function postToSlack(Webhook $Webhook)

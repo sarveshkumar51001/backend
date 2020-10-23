@@ -9,16 +9,16 @@
                         <div class="col-sm-4">
                             <h5 class="card-title mb-0">View Installments by Expected Date</h5>
                         </div>
-                        <div class="col-sm-7">
-                            <div class="input-group pull-right" style="width: 300px">
+                        <div class="col-sm-8">
+                            <div class="input-group pull-right" style="max-width: 500px">
                                 <span class="input-group-addon"><i class="fa fa-calendar"> Period</i></span>
                                 <input id="txn_range" name="daterange" class="form-control date-picker" type="text" value="{{ request('daterange') }}" required>
+                                <a href="{{ url()->current() }}" style="height:40px" type="submit" class="btn btn-danger ml-2" name="view">Clear</a>
+                                <button style="height:40px" type="submit" class="btn btn-primary ml-1" name="view">View</button>
                             </div>
+
                         </div>
-                        <div class="pull-right">
-                            <a href="{{ url()->current() }}" style="height:40px" type="submit" class="btn btn-danger pull-right" name="view">Clear</a>
-                            <button style="height:40px" type="submit" class="btn btn-primary pull-right" name="view">View</button>
-                        </div>
+
                     </div>
                 </form>
                 <hr />

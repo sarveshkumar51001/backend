@@ -1,6 +1,8 @@
 <?php
 namespace App\Models;
 
+use Carbon\Carbon;
+
 class ShopifyExcelUpload extends Base
 {
 
@@ -31,6 +33,8 @@ class ShopifyExcelUpload extends Base
     const JOB_STATUS_PENDING = 'pending';
 
     const JOB_STATUS_COMPLETED = 'completed';
+
+    const JOB_STATUS_PARTIAL = 'partially_paid';
 
     const JOB_STATUS_FAILED = 'failed';
 
@@ -100,6 +104,10 @@ class ShopifyExcelUpload extends Base
     const PaymentProcessed = 'processed';
     const PaymentRemarks = 'remarks';
     const PaymentTransactionID = 'transaction_id';
+    const PaymentRefundAmount = 'refund_amount';
+    const PaymentRefundDate = 'refund_date';
+    const PaymentIsCanceled = 'is_canceled';
+    const PaymentStatus = 'status';
 
 
     const PAYMENT_SETTLEMENT_STATUS_RETURNED = 'returned';
@@ -434,6 +442,21 @@ class ShopifyExcelUpload extends Base
         return array_merge(array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]),array_keys(self::SCHOOL_ADDRESS_MAPPING['Reynott']),array_keys(self::SCHOOL_ADDRESS_MAPPING["H&R"]));
     }
 
+    public static function getOrderNotes($notes) {
+        $data = '';
+        foreach ($notes as $note) {
+            $final_note = '';
+            foreach ($note as $key => $value) {
+                if($key == "added_on") {
+                    $final_note .= "$key:" . Carbon::createFromTimestamp($value)->format(self::DATE_FORMAT) . " | ";
+                } else {
+                    $final_note .= "$key:$value | ";
+                }
+            }
+            $data .= "$final_note || ";
+        }
+        return $data;
+    }
 }
 
 
