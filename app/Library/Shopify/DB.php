@@ -128,9 +128,10 @@ class DB
 			}
 		}
 
-		if ($allProcessed) {
-			$Document->update(['job_status' => ShopifyExcelUpload::JOB_STATUS_COMPLETED, 'errors' => '']);
-		}
+        $Document->update([
+            'job_status' => $allProcessed ? ShopifyExcelUpload::JOB_STATUS_COMPLETED : ShopifyExcelUpload::JOB_STATUS_PARTIAL,
+            'errors' => ''
+        ]);
 
 		return $Document;
 	}

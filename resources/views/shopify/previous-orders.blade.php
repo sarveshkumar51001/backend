@@ -118,18 +118,18 @@
                                     @else
                                         <td class="@if(!empty($errored_data[$row['sno']][$key])) alert-danger @endif "><span class="
 
-                                        @if($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_PENDING)
+                                        @if($key == 'job_status' && in_array($row[$key], [\App\Models\ShopifyExcelUpload::JOB_STATUS_PENDING,\App\Models\ShopifyExcelUpload::JOB_STATUS_PARTIAL]))
                                                     badge badge-warning
                                         @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_COMPLETED)
                                                     badge badge-success
                                         @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_FAILED)
                                                     badge badge-danger
+                                        @elseif($key == 'job_status' && $row['refunded_amount'] > 0)
+                                                badge {{ $row['refunded_amount'] == $row['final_fee_incl_gst'] ? "badge-secondary" : "badge-dark" }}
                                         @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_DROPOUT)
-                                            badge badge-primary
-                                        @elseif($key == 'job_status' && $row[$key] == \App\Models\ShopifyExcelUpload::JOB_STATUS_REFUNDED)
-                                            badge badge-dark
+                                                badge badge-primary
                                         @endif
-                                        ">
+                                        " @if($key == 'job_status' && $row['refunded_amount'] > 0)  title="Refunded Amount: Rs. {{$row['refunded_amount']}}" @endif >
                                             @if($key == 'order_id')
                                             <div>
                                                 <strong onclick="render_upload_details('{{$row['_id']}}');" class="text-muted aside-menu-toggler" style="cursor: pointer"><a title="Payment Details"><i class="fa fa-money fa-2x"></i></a>&nbsp; </strong>
@@ -141,6 +141,8 @@
                                                             <a target="_blank" href="https://{{ env('SHOPIFY_STORE') }}/admin/orders/{{$row[$key]}}" title="View Order on Shopify">View <i class="fa fa-external-link"></i></a>
                                                         @endif
                                                     @endif
+                                            @elseif($key == 'job_status' && $row['refunded_amount'] > 0)
+                                                {{ $row['refunded_amount'] == $row['final_fee_incl_gst'] ? "refunded" : "partial refund" }}
                                             @else
                                                 {{ $row[$key] }}
                                             @endif
