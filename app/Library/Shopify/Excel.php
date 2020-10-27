@@ -3,6 +3,7 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use App\Models\ExternalCustomer;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class Excel
@@ -109,7 +110,7 @@ class Excel
 	public function Format() {
 		// Trim white spaces
 		array_walk($this->rawHeader, 'trim');
-
+		
 		$this->rawData = array_map(function($row) {
 			$data = [];
 			foreach ($row as $key => $value) {
@@ -183,8 +184,108 @@ class Excel
 				$this->formattedData[] = array_merge($data, $this->append);
 			}
 		}
-
+		
 		$this->FormatInstallments();
+		
+		$this->populateEnrollmentIDForExternals();
+	}
+
+	/**
+	 * Prepare the enrollmentID as per required format for external user
+	 * HEY20-00002, REY20-000001, VAL20-000001
+	 */
+	private function populateEnrollmentIDForExternals(){
+
+		foreach($this->formattedData as &$data) {
+
+			//Checking if external/internal
+			if( strtolower($data['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER) {
+
+				//Check the "email_id" or "phone number" are present in "external_customers" collection
+				$customer = ExternalCustomer::where(ExternalCustomer::PHONE, $data['mobile_number'])
+				->orWhere(ExternalCustomer::EMAIL, $data['email_id'])
+				->get();
+				
+				//If not present in collection then create new external customer ID
+				if(count($customer) == 0) {
+
+					//Assigning external enrollment Id for new welcome external cutomer.
+					$data['school_enrollment_no'] = $this->createExternalEnrollmentID(strtolower($data['delivery_institution']), $data['date_of_enrollment']);
+
+					$newCustomer = new ExternalCustomer();
+
+					$newCustomer->email_id = $data['email_id'];
+					$newCustomer->phone = $data['mobile_number'];
+					$newCustomer->parent_first_name = $data['parent_first_name'];
+					$newCustomer->parent_last_name = $data['parent_last_name'];
+					$newCustomer->source_code = $data['delivery_institution'];
+					$newCustomer->school_enrollment_no = $data['school_enrollment_no'];
+
+					$student_list = [];
+					$student['student_first_name'] = $data['student_first_name'];
+					$student['student_last_name'] = $data['student_last_name'];
+					$student['class'] = $data['class'];
+					$student['section'] = $data['section'];
+					$student['school_name'] = $data['school_name'];
+					$student['school_location'] = $data['student_school_location'];
+
+					$student_list[] = $student;
+					$newCustomer->students = $student_list;
+
+					$newCustomer->save();
+				}
+
+				// If only one entry present in collection
+				else if(count($customer) == 1){
+					//dd($customer);
+
+					$previousCustomer = ExternalCustomer::find( $customer[0]['_id']);
+					//dd($previousCustomer);
+					$data['school_enrollment_no'] = $previousCustomer['school_enrollment_no'];
+					
+					$createStudentNode = true;
+					foreach($previousCustomer['students'] as $student) {
+
+						// Checking same first name student is exist or not
+						if(strtolower($student['student_first_name']) == strtolower($data['student_first_name'])) {
+							$createStudentNode = false;
+							break;
+						}
+					}
+
+					// True => Add another student node, False => Nothing
+					if($createStudentNode){
+
+						$newStudent['student_first_name'] = $data['student_first_name'];
+						$newStudent['student_last_name'] = $data['student_last_name'];
+						$newStudent['class'] = $data['class'];
+						$newStudent['section'] = $data['section'];
+						$newStudent['school_name'] = $data['school_name'];
+						$newStudent['school_location'] = $data['student_school_location'];
+
+						$previousCustomer->push('students', $newStudent);
+						$previousCustomer->save();
+					}
+					
+				}
+				else{					
+					//error more than two records are found
+				}
+			}
+		}
+	}
+
+	/*
+	 * Creating external enrollment Id for new welcome external cutomer.
+	 */
+	private function createExternalEnrollmentID($delivery_institution, $date_of_enrollment) {
+		if($delivery_institution == 'h&r') {
+			return 'HEY'.substr($date_of_enrollment, -4).'-'.str_pad(0, 5, '0', STR_PAD_LEFT);
+		}
+		else if($delivery_institution == 'reynott') {
+			return 'REY'.substr($date_of_enrollment, -4).'-'.str_pad(1, 5, '0', STR_PAD_LEFT);
+		}
+		return 'VAL'.substr($date_of_enrollment, -4).'-'.str_pad(2, 5, '0', STR_PAD_LEFT);
 	}
 
 	/**
