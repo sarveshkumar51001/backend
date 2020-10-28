@@ -3,6 +3,7 @@
 namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
+use App\Models\ExternalCustomer;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class Excel
@@ -185,6 +186,127 @@ class Excel
 		}
 
 		$this->FormatInstallments();
+
+		$this->populateEnrollmentIDForExternals();
+	}
+
+	/**
+	 * Prepare the enrollmentID as per required format for external user
+	 * HEY20-00002, REY20-000001, VAL20-000001
+	 */
+	private function populateEnrollmentIDForExternals()
+    {
+		foreach($this->formattedData as &$data) {
+
+			//Checking if external/internal
+			if( strtolower($data['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER) {
+
+                // Check the "email_id" or "phone number" are present in "external_customers" collection
+                $ORM = ExternalCustomer::select();
+                if (!empty($data['mobile_number'])) {
+                    $ORM->where(ExternalCustomer::PHONE, $data['mobile_number']);
+                }
+
+                if (!empty($data['email_id'])) {
+                    if (!empty($data['mobile_number'])) {
+                        $ORM->orWhere(ExternalCustomer::EMAIL, $data['email_id']);
+                    } else {
+                        $ORM->where(ExternalCustomer::EMAIL, $data['email_id']);
+                    }
+                }
+
+				// Check the "email_id" or "phone number" are present in "external_customers" collection
+				$customer = $ORM->first();
+
+				// If not present in collection then create new external customer ID
+				if(!$customer instanceof ExternalCustomer)
+				{
+					// Assigning external enrollment Id for new welcome external customer.
+					$data['school_enrollment_no'] = $this->createExternalEnrollmentID($data['delivery_institution'], $data['date_of_enrollment']);
+				}
+				else
+				{
+                    // Otherwise we have customer present in collection
+                    $data['school_enrollment_no'] = $customer['school_enrollment_no'];
+				}
+			}
+		}
+	}
+
+	public static function upsertExternalCustomer($data) {
+        //Checking if external/internal
+        if(strtolower($data['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER) {
+
+            // Check the "email_id" or "phone number" are present in "external_customers" collection
+            $customer = ExternalCustomer::where('school_enrollment_no')->first();
+
+            //If not present in collection then create new external customer ID
+            if(!$customer instanceof ExternalCustomer) {
+
+                // Assigning external enrollment Id for new welcome external customer.
+                $newCustomer = new ExternalCustomer();
+                $newCustomer->email_id = $data['email_id'];
+                $newCustomer->phone = $data['mobile_number'];
+                $newCustomer->parent_first_name = $data['parent_first_name'];
+                $newCustomer->parent_last_name = $data['parent_last_name'];
+                $newCustomer->source_code = $data['delivery_institution'];
+                $newCustomer->school_enrollment_no = $data['school_enrollment_no'];
+
+                $student_list = [];
+                $student['student_first_name'] = $data['student_first_name'];
+                $student['student_last_name'] = $data['student_last_name'];
+                $student['class'] = $data['class'];
+                $student['section'] = $data['section'];
+                $student['school_name'] = $data['school_name'];
+                $student['school_location'] = $data['student_school_location'];
+
+                $student_list[] = $student;
+                $newCustomer->students = $student_list;
+
+                $newCustomer->save();
+            }
+
+            // Otherwise we have customer present in collection
+            else {
+                $createStudentNode = true;
+                foreach($customer['students'] as $student) {
+                    // Checking same first name student is exist or not
+                    if(strtolower($student['student_first_name']) == strtolower($data['student_first_name'])) {
+                        $createStudentNode = false;
+                        break;
+                    }
+                }
+
+                // True => Add another student node, False => Nothing
+                if($createStudentNode){
+                    $newStudent['student_first_name'] = $data['student_first_name'];
+                    $newStudent['student_last_name'] = $data['student_last_name'];
+                    $newStudent['class'] = $data['class'];
+                    $newStudent['section'] = $data['section'];
+                    $newStudent['school_name'] = $data['school_name'];
+                    $newStudent['school_location'] = $data['student_school_location'];
+
+                    $customer->push('students', $newStudent);
+                    $customer->save();
+                }
+            }
+        }
+    }
+
+	/*
+	 * Creating external enrollment Id for new welcome external cutomer.
+	 */
+	public static function createExternalEnrollmentID($delivery_institution, $date_of_enrollment) {
+		$Id = ExternalCustomer::where('source_code', $delivery_institution)->count();
+
+		if(strtolower($delivery_institution) == 'h&r') {
+			return 'HEY'.substr($date_of_enrollment, -2).'-'.str_pad(++$Id, 5, '0', STR_PAD_LEFT);
+		}
+		else if(strtolower($delivery_institution) == 'reynott') {
+			return 'REY'.substr($date_of_enrollment, -2).'-'.str_pad(++$Id, 5, '0', STR_PAD_LEFT);
+		}
+
+		return 'VAL'.substr($date_of_enrollment, -2).'-'.str_pad(++$Id, 5, '0', STR_PAD_LEFT);
 	}
 
 	/**
