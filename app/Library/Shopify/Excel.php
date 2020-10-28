@@ -238,7 +238,7 @@ class Excel
         if(strtolower($data['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER) {
 
             // Check the "email_id" or "phone number" are present in "external_customers" collection
-            $customer = ExternalCustomer::where('school_enrollment_no')->first();
+            $customer = ExternalCustomer::where('school_enrollment_no', $data['school_enrollment_no'])->first();
 
             //If not present in collection then create new external customer ID
             if(!$customer instanceof ExternalCustomer) {
