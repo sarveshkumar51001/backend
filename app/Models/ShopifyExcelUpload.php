@@ -399,7 +399,18 @@ class ShopifyExcelUpload extends Base
                 "address" => '',
                 'access' => ''
             ]
-        ]
+        ],
+        "Valedra" => [
+            "Plot 26 Gurgaon" => [
+                "code" => "",
+                "city" => "Gurugram",
+                "state" => "Haryana",
+                "pincode" => "122003",
+                "is_higher_education" => false,
+                "address" => '',
+                'access' => ''
+            ]
+        ],
     ];
 
     /**
@@ -431,7 +442,7 @@ class ShopifyExcelUpload extends Base
      * @return array
      */
     public static function getBranchNames() {
-        return array_merge(array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]),array_keys(self::SCHOOL_ADDRESS_MAPPING['Reynott']),array_keys(self::SCHOOL_ADDRESS_MAPPING["H&R"]));
+        return array_merge(array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]),array_keys(self::SCHOOL_ADDRESS_MAPPING['Reynott']),array_keys(self::SCHOOL_ADDRESS_MAPPING["H&R"]),array_keys(self::SCHOOL_ADDRESS_MAPPING['Valedra']));
     }
 
 }
