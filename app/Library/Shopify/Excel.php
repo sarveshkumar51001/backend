@@ -210,7 +210,7 @@ class Excel
 				if(count($customer) == 0) {
 
 					//Assigning external enrollment Id for new welcome external cutomer.
-					$data['school_enrollment_no'] = $this->createExternalEnrollmentID(strtolower($data['delivery_institution']), $data['date_of_enrollment']);
+					$data['school_enrollment_no'] = $this->createExternalEnrollmentID($data['delivery_institution'], $data['date_of_enrollment']);
 
 					$newCustomer = new ExternalCustomer();
 
@@ -266,10 +266,6 @@ class Excel
 						$previousCustomer->push('students', $newStudent);
 						$previousCustomer->save();
 					}
-					
-				}
-				else{					
-					//error more than two records are found
 				}
 			}
 		}
@@ -279,13 +275,15 @@ class Excel
 	 * Creating external enrollment Id for new welcome external cutomer.
 	 */
 	private function createExternalEnrollmentID($delivery_institution, $date_of_enrollment) {
-		if($delivery_institution == 'h&r') {
-			return 'HEY'.substr($date_of_enrollment, -4).'-'.str_pad(0, 5, '0', STR_PAD_LEFT);
+		$Id = ExternalCustomer::where('source_code', $delivery_institution)->count();
+
+		if(strtolower($delivery_institution) == 'h&r') {
+			return 'HEY'.substr($date_of_enrollment, -4).'-'.str_pad(++$Id, 5, '0', STR_PAD_LEFT);
 		}
-		else if($delivery_institution == 'reynott') {
-			return 'REY'.substr($date_of_enrollment, -4).'-'.str_pad(1, 5, '0', STR_PAD_LEFT);
+		else if(strtolower($delivery_institution) == 'reynott') {
+			return 'REY'.substr($date_of_enrollment, -4).'-'.str_pad(++$Id, 5, '0', STR_PAD_LEFT);
 		}
-		return 'VAL'.substr($date_of_enrollment, -4).'-'.str_pad(2, 5, '0', STR_PAD_LEFT);
+		return 'VAL'.substr($date_of_enrollment, -4).'-'.str_pad(++$Id, 5, '0', STR_PAD_LEFT);
 	}
 
 	/**
