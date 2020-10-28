@@ -38,6 +38,7 @@ class TransactionsExport implements FromCollection, WithHeadings
             'Scholarship/Discount',
             'Transaction ID',
             'Transaction Amount',
+            'Refund Amount',
             'Transaction Mode',
             'Reference No(PayTM/NEFT)',
             'Cheque/DD No',
@@ -47,12 +48,14 @@ class TransactionsExport implements FromCollection, WithHeadings
             'Drawee Account Number',
             'Bank Name',
             'Transaction Upload Date',
+            'Transaction Cancel Date',
             'Payment Type',
             'Shopify Order Name',
             'Uploaded By',
             'Payment Status',
             'Reconciliation Status',
-            'Remarks'
+            'Remarks',
+            'Order Notes'
         ];
     }
 }

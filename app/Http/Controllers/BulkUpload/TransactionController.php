@@ -125,6 +125,7 @@ class TransactionController extends BaseController
                 $order_data[] = array_merge($data, [
                     'Transaction ID' => "'". (head($Order->payments)['transaction_id'] ?? ''),
                     'Transaction Amount' => head($Order->payments)['amount'],
+                    'Refund Amount' => $Payment->getRefundedAmount(),
                     'Transaction Mode' => head($Order->payments)['mode_of_payment'],
                     'Reference No(PayTM/NEFT)' => head($Order->payments)['txn_reference_number_only_in_case_of_paytm_or_online'],
                     'Cheque/DD No' => head($Order->payments)['chequedd_no'],
@@ -134,12 +135,14 @@ class TransactionController extends BaseController
                     'Drawee Account Number' => head($Order->payments)['drawee_account_number'],
                     'Bank Name' => head($Order->payments)['bank_name'],
                     'Transaction Upload Date' => Carbon::createFromTimestamp(head($Order->payments)['upload_date'])->format(ShopifyExcelUpload::DATE_FORMAT),
+                    'Transaction Cancel Date' => $Payment->getRefundDate(),
                     'Payment Type' => "Full Payment",
                     'Shopify Order Name' => isset($Order->shopify_order_name) ? $Order->shopify_order_name : Null,
                     'Uploaded By' => !empty($User) ? $User['name'] : Null,
-                    'Payment Status' => 'Paid',
+                    'Payment Status' => $Payment->getStatus(),
                     'Reconciliation Status' => strtoupper($Payment->getRecoStatus()),
                     'Remarks' => $Payment->getRemarks(),
+                    'Order Notes' => (!empty($Order['order_notes'])) ? ShopifyExcelUpload::getOrderNotes($Order['order_notes']) : '',
                 ]);
             }else{
                 foreach ($Order->payments as $index => $payment) {
@@ -178,6 +181,7 @@ class TransactionController extends BaseController
                     $order_data[]= array_merge($data,[
                         'Transaction ID' => "'".($payment['transaction_id'] ?? ''),
                         'Transaction Amount'=> $payment['amount'],
+                        'Refund Amount' => $Payment->getRefundedAmount(),
                         'Transaction Mode'=> $payment['mode_of_payment'],
                         'Reference No(PayTM/NEFT)' => $payment['txn_reference_number_only_in_case_of_paytm_or_online'],
                         'Cheque/DD No' => $payment['chequedd_no'],
@@ -187,12 +191,14 @@ class TransactionController extends BaseController
                         'Drawee Account Number' => $payment['drawee_account_number'],
                         'Bank Name' => $payment['bank_name'],
                         'Transaction Upload Date' => Carbon::createFromTimestamp($payment['upload_date'])->format(ShopifyExcelUpload::DATE_FORMAT),
+                        'Transaction Cancel Date' => $Payment->getRefundDate(),
                         'Payment Type' => $payment['installment'] == 1 ? 'Registration/Booking Fee':'Installment'." ".$payment['installment'],
                         'Shopify Order Name' => isset($Order->shopify_order_name) ? $Order->shopify_order_name : Null,
                         'Uploaded By' => !empty($User) ? $User['name'] : Null,
-                        'Payment Status' => !empty($payment['is_pdc_payment']) && $payment['is_pdc_payment'] ? 'Unpaid' : 'Paid',
+                        'Payment Status' => $Payment->getStatus(),
                         'Reconciliation Status' => strtoupper($Payment->getRecoStatus()),
                         'Remarks' => $Payment->getRemarks(),
+                        'Order Notes' => (!empty($Order['order_notes'])) ? ShopifyExcelUpload::getOrderNotes($Order['order_notes']) : '',
                     ]);
                 }
             }

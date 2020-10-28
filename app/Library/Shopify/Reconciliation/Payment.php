@@ -2,6 +2,7 @@
 namespace App\Library\Shopify\Reconciliation;
 
 use App\Models\ShopifyExcelUpload;
+use Carbon\Carbon;
 
 class Payment {
 
@@ -55,5 +56,53 @@ class Payment {
 
     public function getIndex() {
         return $this->index;
+    }
+
+    public function getRefundedAmount() {
+        return $this->payment[ShopifyExcelUpload::PaymentRefundAmount] ?? 0;
+    }
+
+    public function getRefundDate() {
+        if(!empty($this->payment[ShopifyExcelUpload::PaymentRefundDate])) {
+            return Carbon::createFromTimestamp($this->payment[ShopifyExcelUpload::PaymentRefundDate])->format(ShopifyExcelUpload::DATE_FORMAT);
+        }
+        return '';
+    }
+
+    public function isRefunded() {
+        return ($this->getAmount() == $this->getRefundedAmount());
+    }
+
+    public function isPartialRefunded() {
+        return ($this->getRefundedAmount() < $this->getAmount());
+    }
+
+    public function AvailableToRefund() {
+        return ($this->getAmount() - $this->getRefundedAmount());
+    }
+
+    public function isCancelled() {
+        return $this->payment[ShopifyExcelUpload::PaymentIsCanceled] ?? false;
+    }
+
+    public function getStatus() {
+        $status = '';
+        if($this->isProcessed()) {
+            if($this->getRefundedAmount() == 0) {
+                $status = 'Paid';
+            } elseif($this->getRefundedAmount() < $this->getAmount()) {
+                $status = 'Partial Refund';
+            } else {
+                $status = 'Full Refund';
+            }
+        } else {
+            if($this->isCancelled()) {
+                $status = 'Drop Out';
+            } else {
+                $status = 'UnPaid';
+            }
+        }
+
+        return $status;
     }
 }
