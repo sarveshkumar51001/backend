@@ -59,8 +59,6 @@ class TransactionController extends BaseController
 
         [$start_date,$end_date] = GetStartEndDate(request('daterange'));
 
-        $end_date = 0;
-
         $OrderORM = ShopifyExcelUpload::orderBy('_id');
 
         if(!empty($request['activity_list']) && !in_array('All',$request['activity_list'])) {
@@ -79,8 +77,8 @@ class TransactionController extends BaseController
         /*if(!empty($request['reco_status']) && !in_array($request['reco_status'], ['all', ShopifyExcelUpload::PAYMENT_SETTLEMENT_STATUS_DEFAULT] )) {
             $OrderORM->where('payments.reconciliation.settlement_status', $request['reco_status']);
         }*/
-        
-        $OrderORM->where('payments.upload_date' ,'>', $start_date);
+
+        $OrderORM->whereBetween('payments.upload_date',[$start_date,$end_date]);
         $Orders = $OrderORM->get();
 
         foreach ($Orders as $Order) {
