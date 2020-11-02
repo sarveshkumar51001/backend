@@ -77,10 +77,8 @@ class ReconcileController extends BaseController
 
             foreach ($Orders as $Order) {
                 foreach ($Order['payments'] as $payment) {
-                    $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date'])
-                        && Carbon::createFromFormat('d/m/Y', $payment['chequedd_date'])->timestamp > $end_date);
+                    $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date']));
                     $Payment = new Payment($payment);
-
                     $amount = $Payment->getAmount();
                     if(!$isPdc) {
                         $reco_data['all']['amount'] += $amount;
