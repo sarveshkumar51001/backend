@@ -187,7 +187,7 @@ class Excel
 
 		$this->FormatInstallments();
 
-		$this->populateEnrollmentIDForExternals();
+		//$this->populateEnrollmentIDForExternals();
 	}
 
 	/**

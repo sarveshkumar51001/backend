@@ -135,7 +135,7 @@ class ShopifyController extends BaseController
             foreach ($formattedData as $valid_row) {
 
                 // Now first create the external customer or update in students, if applicable
-                \App\Library\Shopify\Excel::upsertExternalCustomer($valid_row);
+                //\App\Library\Shopify\Excel::upsertExternalCustomer($valid_row);
 
                 // Get the primary combination to lookup in database
                 $date_enroll = $valid_row['date_of_enrollment'];
