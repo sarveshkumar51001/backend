@@ -77,7 +77,8 @@ class ReconcileController extends BaseController
 
             foreach ($Orders as $Order) {
                 foreach ($Order['payments'] as $payment) {
-                    $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date']));
+                    $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date'])
+                        && (empty($payment['is_canceled']) || !$payment['is_canceled']));
                     $Payment = new Payment($payment);
                     $amount = $Payment->getAmount();
                     if(!$isPdc) {
