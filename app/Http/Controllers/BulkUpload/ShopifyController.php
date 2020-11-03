@@ -133,6 +133,10 @@ class ShopifyController extends BaseController
             # Inserting data to MongoDB after validation
             $upsertList = [];
             foreach ($formattedData as $valid_row) {
+
+                // Now first create the external customer or update in students, if applicable
+                //\App\Library\Shopify\Excel::upsertExternalCustomer($valid_row);
+
                 // Get the primary combination to lookup in database
                 $date_enroll = $valid_row['date_of_enrollment'];
                 $activity_id = $valid_row['shopify_activity_id'];
@@ -143,6 +147,7 @@ class ShopifyController extends BaseController
                 $OrderRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)
                     ->where('shopify_activity_id', $activity_id)
                     ->where('school_enrollment_no', $std_enroll_no)
+                    ->where('is_canceled', '<>', true)
                     ->first();
 
                 if (empty($OrderRow)) {

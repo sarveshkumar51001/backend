@@ -1,6 +1,8 @@
 <?php
 namespace App\Models;
 
+use Carbon\Carbon;
+
 class ShopifyExcelUpload extends Base
 {
 
@@ -32,7 +34,13 @@ class ShopifyExcelUpload extends Base
 
     const JOB_STATUS_COMPLETED = 'completed';
 
+    const JOB_STATUS_PARTIAL = 'partially_paid';
+
     const JOB_STATUS_FAILED = 'failed';
+
+    const JOB_STATUS_DROPOUT = 'dropout';
+
+    const JOB_STATUS_REFUNDED = 'refunded';
 
     const REYNOTT = 'Reynott';
 
@@ -100,6 +108,10 @@ class ShopifyExcelUpload extends Base
     const PaymentProcessed = 'processed';
     const PaymentRemarks = 'remarks';
     const PaymentTransactionID = 'transaction_id';
+    const PaymentRefundAmount = 'refund_amount';
+    const PaymentRefundDate = 'refund_date';
+    const PaymentIsCanceled = 'is_canceled';
+    const PaymentStatus = 'status';
 
 
     const PAYMENT_SETTLEMENT_STATUS_RETURNED = 'returned';
@@ -399,7 +411,18 @@ class ShopifyExcelUpload extends Base
                 "address" => '',
                 'access' => ''
             ]
-        ]
+        ],
+        "Valedra" => [
+            "Plot 26 Gurgaon" => [
+                "code" => "",
+                "city" => "Gurugram",
+                "state" => "Haryana",
+                "pincode" => "122003",
+                "is_higher_education" => false,
+                "address" => '',
+                'access' => ''
+            ]
+        ],
     ];
 
     /**
@@ -431,9 +454,24 @@ class ShopifyExcelUpload extends Base
      * @return array
      */
     public static function getBranchNames() {
-        return array_merge(array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]),array_keys(self::SCHOOL_ADDRESS_MAPPING['Reynott']),array_keys(self::SCHOOL_ADDRESS_MAPPING["H&R"]));
+        return array_merge(array_keys(self::SCHOOL_ADDRESS_MAPPING["Apeejay"]),array_keys(self::SCHOOL_ADDRESS_MAPPING['Reynott']),array_keys(self::SCHOOL_ADDRESS_MAPPING["H&R"]),array_keys(self::SCHOOL_ADDRESS_MAPPING['Valedra']));
     }
 
+    public static function getOrderNotes($notes) {
+        $data = '';
+        foreach ($notes as $note) {
+            $final_note = '';
+            foreach ($note as $key => $value) {
+                if($key == "added_on") {
+                    $final_note .= "$key:" . Carbon::createFromTimestamp($value)->format(self::DATE_FORMAT) . " | ";
+                } else {
+                    $final_note .= "$key:$value | ";
+                }
+            }
+            $data .= "$final_note || ";
+        }
+        return $data;
+    }
 }
 
 

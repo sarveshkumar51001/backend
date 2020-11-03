@@ -101,6 +101,7 @@ class ExcelValidator
 
         $DatabaseRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)->where('shopify_activity_id', $activity_id)
             ->where('school_enrollment_no', $std_enroll_no)
+            ->where('is_canceled', '<>', true)
             ->first();
 
         if (! empty($DatabaseRow)) {
@@ -171,7 +172,11 @@ class ExcelValidator
             "student_school_location" => "required|string",
             "student_first_name" => "required",
             "activity" => "required",
-            "school_enrollment_no" => "required|string|min:4",
+            "school_enrollment_no" => "required|string|min:4",/* [
+                Rule::requiredIf(strtolower($data['external_internal']) == ShopifyExcelUpload::INTERNAL_ORDER),
+                "string",
+                "min:4"
+            ], */
             "class" => [
                 "required",
                 Rule::in(array_merge(Student::CLASS_LIST,Student::HIGHER_CLASS_LIST,Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST,Student::HAYDEN_REYNOTT_CLASS_LIST))],
@@ -281,6 +286,7 @@ class ExcelValidator
 
             $DatabaseRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)->where('shopify_activity_id', $activity_id)
                 ->where('school_enrollment_no', $std_enroll_no)
+                ->where('is_canceled', '<>', true)
                 ->first();
 
             if (! empty($DatabaseRow)) {

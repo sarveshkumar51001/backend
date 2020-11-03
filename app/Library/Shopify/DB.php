@@ -128,9 +128,10 @@ class DB
 			}
 		}
 
-		if ($allProcessed) {
-			$Document->update(['job_status' => ShopifyExcelUpload::JOB_STATUS_COMPLETED, 'errors' => '']);
-		}
+        $Document->update([
+            'job_status' => $allProcessed ? ShopifyExcelUpload::JOB_STATUS_COMPLETED : ShopifyExcelUpload::JOB_STATUS_PARTIAL,
+            'errors' => ''
+        ]);
 
 		return $Document;
 	}
@@ -232,7 +233,8 @@ class DB
     }
 
     public static function check_if_already_used($cheque_no, $micr_code = 0, $account_no = 0,$payment_index, $activity_id, $enrollment_date, $enrollment_no) {
-		$ORM = ShopifyExcelUpload::where('payments.chequedd_no', $cheque_no);
+		$ORM = ShopifyExcelUpload::where('payments.chequedd_no', $cheque_no)
+                            ->where('is_canceled', '<>', true);
 
 		if (!empty($micr_code)) {
 			$ORM->where('payments.micr_code', $micr_code);
