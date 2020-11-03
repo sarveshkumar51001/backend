@@ -28,22 +28,67 @@
                         </div>
                     </div>
                     @if($reco_data['all']['count'] > 0)
-
                         <div class="row">
                             <div class="col-6">
-                                <div class="callout callout-info b-t-1 b-r-1 b-b-1">
-                                    <small class="text-muted">TOTAL TRANSACTIONS</small><br>
-                                    <strong class="h4">{{$reco_data['all']['count']}} <span class="h6 text-muted">PAID</span></strong>
-                                    @if(!empty($reco_data['all']['pdc_count']))<strong class="h4"> / {{$reco_data['all']['pdc_count']}} <span class="h6 text-muted">PDC</span></strong>@endif
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="callout callout-info b-t-1 b-r-1 b-b-1" style="margin-bottom:.4rem !important;text-align: center;">
+                                            <small class="text-muted">TOTAL TRANSACTIONS</small><br>
+                                            <strong class="h5">{{$reco_data['total']['count']}}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-0">
+                                    <div class="col-md-6" style="padding-right: 0px;">
+                                        <div class="callout callout-info b-t-1 b-r-1 b-b-1" style="margin-top:.2rem;text-align: center;">
+                                            <small class="text-muted">COLLECTED</small><br>
+                                            <strong class="h5">{{$reco_data['all']['count']}}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="callout callout-info b-t-1 b-r-1 b-b-1" style="margin-top:.2rem;text-align: center;">
+                                            <small class="text-muted">TO BE COLLECTED</small><br>
+                                            @if(!empty($reco_data['all']['pdc_count']))<strong class="h5">{{$reco_data['all']['pdc_count']}}</strong> @else 0 @endif
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
                             <div class="col-6">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="callout callout-info b-t-1 b-r-1 b-b-1" style="margin-bottom:.4rem !important;text-align: center;">
+                                            <small class="text-muted">TOTAL TRANSACTION AMOUNT</small><br>
+                                            <strong class="h5">₹{{$reco_data['total']['amount']}}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-0">
+                                    <div class="col-md-6" style="padding-right: 0px;">
+                                        <div class="callout callout-info b-t-1 b-r-1 b-b-1" style="margin-top:.2rem; text-align: center;">
+                                            <small class="text-muted">COLLECTED</small><br>
+                                            <strong class="h5">₹{{$reco_data['all']['amount']}}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="callout callout-info b-t-1 b-r-1 b-b-1" style="margin-top:.2rem; text-align: center;">
+                                            <small class="text-muted">TO BE COLLECTED</small><br>
+                                            @if(!empty($reco_data['all']['pdc_amount']))<strong class="h5">{{$reco_data['all']['pdc_amount']}}</strong> @else 0 @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            {{--<div class="col-6">
                                 <div class="callout callout-bordered b-t-1 b-r-1 b-b-1">
                                     <small class="text-muted">TRANSACTION AMOUNT</small><br>
-                                    <strong class="h4">₹ {{amount_inr_format($reco_data['all']['amount'])}} <span class="h6 text-muted">PAID</span></strong>
-                                    @if(!empty($reco_data['all']['pdc_amount']))<strong class="h4"> / {{amount_inr_format($reco_data['all']['pdc_amount'])}} <span class=" h6 text-muted">PDC</span></strong>@endif
+                                    <strong class="h5">₹{{$reco_data['total']['amount']}} - <span class="h6 text-muted">TOTAL</span> | </strong>
+                                    <strong class="h5">₹{{$reco_data['all']['amount']}} - <span class="h6 text-muted">COLLECTED</span> |</strong>
+                                    @if(!empty($reco_data['all']['pdc_amount']))<strong class="h5">₹{{$reco_data['all']['pdc_amount']}} - <span class="h6 text-muted">TO BE COLLECTED</span></strong> @endif
                                 </div>
-                            </div>
+                            </div>--}}
                         </div>
                         <div class="row">
                             @php

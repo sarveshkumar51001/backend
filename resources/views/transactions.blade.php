@@ -72,7 +72,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group col-sm-4 align-self-center">
+                    {{--<div class="form-group col-sm-4 align-self-center">
                         <div class="form-group input-group">
                             <label><i class="fa fa-info-circle" aria-hidden="true"></i> Include Pending Installments?</label>&nbsp;
                             <label class="switch switch-icon switch-pill switch-success">
@@ -81,7 +81,7 @@
                                 <span class="switch-handle"></span>
                             </label>
                         </div>
-                    </div>
+                    </div>--}}
                     <div class="form-group col-sm-2" style="padding-top: 20px">
                         <div class="input-group">
                             <button id="file-download-btn" type="submit" class="btn btn-primary"><i class="fa fa-download"></i> &nbsp;Export Transactions</button>

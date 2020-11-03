@@ -45,8 +45,8 @@ class ReconcileController extends BaseController
                 }
                 $range = Carbon::parse('01-04-' . $year)->format('m/d/Y') . " - " . Carbon::parse(Carbon::now())->format('m/d/Y');
                 $start_date = Carbon::parse('01-04-' . $year)->timestamp;
-                $end_date = Carbon::parse(Carbon::now()->format('d-m-Y'))->timestamp;
-                $OrderORM->whereBetween('payments.upload_date', [$start_date, $end_date]);
+                $end_date = 0;
+                $OrderORM->where('payments.upload_date' ,'>', $start_date);
             }
 
             $Orders = $OrderORM->get();
@@ -69,14 +69,17 @@ class ReconcileController extends BaseController
                     'amount' => 0,
                     'count' => 0
                 ],
+                'total' => [
+                    'amount' => 0,
+                    'count' => 0
+                ],
             ];
 
             foreach ($Orders as $Order) {
                 foreach ($Order['payments'] as $payment) {
                     $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date'])
-                        && Carbon::createFromFormat('d/m/Y', $payment['chequedd_date'])->timestamp > $end_date);
+                        && (empty($payment['is_canceled']) || !$payment['is_canceled']));
                     $Payment = new Payment($payment);
-
                     $amount = $Payment->getAmount();
                     if(!$isPdc) {
                         $reco_data['all']['amount'] += $amount;
@@ -96,6 +99,8 @@ class ReconcileController extends BaseController
                         $reco_data['all']['pdc_count'] += 1;
                         $reco_data['all']['pdc_amount'] += $amount;
                     }
+                    $reco_data['total']['amount'] += $amount;
+                    $reco_data['total']['count'] += 1;
                 }
             }
         }

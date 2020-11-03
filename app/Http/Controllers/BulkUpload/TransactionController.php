@@ -52,9 +52,10 @@ class TransactionController extends BaseController
         // As per the form, unpaid installments are initially excluded from the output data
         // hence exclude_unpaid is set to be true, if the unpaid installments included toggle is
         // ON exclude_unpaid is false and the unpaid installments will be included in the data.
-        $exclude_unpaid = true;
-        if($request['unpaid_active'] == 'on'){
-            $exclude_unpaid = false;
+
+        $exclude_unpaid = false;
+        if($request['payment_status'] == 'paid'){
+            $exclude_unpaid = true;
         }
 
         [$start_date,$end_date] = GetStartEndDate(request('daterange'));
@@ -108,10 +109,7 @@ class TransactionController extends BaseController
 
                 $Payment = new Payment(head($Order->payments) ,0);
 
-                $isPdc = (!empty($Order['payments'][0]['is_pdc_payment']) &&
-                    $Order['payments'][0]['is_pdc_payment'] == true &&
-                    !empty($Order['payments'][0]['chequedd_date']) &&
-                    Carbon::createFromFormat('d/m/Y', $Order['payments'][0]['chequedd_date'])->timestamp > $end_date);
+                $isPdc = ($Order['payments'][0]['is_pdc_payment'] == true && !empty($Order['payments'][0]['chequedd_date']));
 
                 // If include unpaid installment toggle is OFF and payment is PDC then skip the payment
                 if($isPdc && $exclude_unpaid) {
@@ -157,10 +155,7 @@ class TransactionController extends BaseController
 
                     $Payment = new Payment($payment, $index);
 
-                    $isPdc = (!empty($payment['is_pdc_payment']) &&
-                        $payment['is_pdc_payment'] == true &&
-                        !empty($payment['chequedd_date']) &&
-                        Carbon::createFromFormat('d/m/Y', $payment['chequedd_date'])->timestamp > $end_date);
+                    $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date']));
 
                     // If include unpaid installment toggle is OFF and payment is PDC then skip the payment
                     if($isPdc && $exclude_unpaid) {
