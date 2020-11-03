@@ -77,8 +77,13 @@ class ReconcileController extends BaseController
 
             foreach ($Orders as $Order) {
                 foreach ($Order['payments'] as $payment) {
-                    $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date'])
-                        && (empty($payment['is_canceled']) || !$payment['is_canceled']));
+                    $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date']));
+
+                    // Dropout Case
+                    if(!empty($payment['is_canceled']) && $payment['is_canceled']) {
+                        continue;
+                    }
+                    
                     $Payment = new Payment($payment);
                     $amount = $Payment->getAmount();
                     if(!$isPdc) {
@@ -94,8 +99,7 @@ class ReconcileController extends BaseController
                             $reco_data['pending']['amount'] += $Payment->getAmount();
                             $reco_data['pending']['count'] += 1;
                         }
-                    }
-                    if ($isPdc) {
+                    } else {
                         $reco_data['all']['pdc_count'] += 1;
                         $reco_data['all']['pdc_amount'] += $amount;
                     }
