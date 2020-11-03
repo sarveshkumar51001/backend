@@ -59,7 +59,7 @@
                                     <div class="col-md-12">
                                         <div class="callout callout-info b-t-1 b-r-1 b-b-1" style="margin-bottom:.4rem !important;text-align: center;">
                                             <small class="text-muted">TOTAL TRANSACTION AMOUNT</small><br>
-                                            <strong class="h5">₹{{$reco_data['total']['amount']}}</strong>
+                                            <strong class="h5">₹{{amount_inr_format($reco_data['total']['amount'])}}</strong>
                                         </div>
                                     </div>
                                 </div>
@@ -67,13 +67,13 @@
                                     <div class="col-md-6" style="padding-right: 0px;">
                                         <div class="callout callout-info b-t-1 b-r-1 b-b-1" style="margin-top:.2rem; text-align: center;">
                                             <small class="text-muted">COLLECTED</small><br>
-                                            <strong class="h5">₹{{$reco_data['all']['amount']}}</strong>
+                                            <strong class="h5">₹{{amount_inr_format($reco_data['all']['amount'])}}</strong>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="callout callout-info b-t-1 b-r-1 b-b-1" style="margin-top:.2rem; text-align: center;">
                                             <small class="text-muted">TO BE COLLECTED</small><br>
-                                            @if(!empty($reco_data['all']['pdc_amount']))<strong class="h5">{{$reco_data['all']['pdc_amount']}}</strong> @else 0 @endif
+                                            @if(!empty($reco_data['all']['pdc_amount']))<strong class="h5">{{amount_inr_format($reco_data['all']['pdc_amount'])}}</strong> @else 0 @endif
                                         </div>
                                     </div>
                                 </div>
