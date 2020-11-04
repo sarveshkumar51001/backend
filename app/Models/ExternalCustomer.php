@@ -20,4 +20,7 @@ class ExternalCustomer extends Base
     const SECTION = "section";
     const SCHOOL = "school_name";
     const LOCATION = "school_location";
+
+    const VALEDRA_CLASS_LIST = ["Valedra", "valedra", "VALEDRA"];
+    const VALEDRA_SECTION_LIST = ["Valedra", "valedra", "VALEDRA"];
 }

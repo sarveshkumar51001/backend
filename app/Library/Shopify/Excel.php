@@ -186,50 +186,53 @@ class Excel
 		}
 
 		$this->FormatInstallments();
-
-		$this->populateEnrollmentIDForExternals();
 	}
 
 	/**
 	 * Prepare the enrollmentID as per required format for external user
 	 * HEY20-00002, REY20-000001, VAL20-000001
 	 */
-	private function populateEnrollmentIDForExternals()
-    {
-		foreach($this->formattedData as &$data) {
+	public static function populateEnrollmentIDForExternals(Array $data) {
 
-			//Checking if external/internal
-			if( strtolower($data['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER) {
+		//Checking if external/internal
+		if( (strtolower($data['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER)  && empty($data['school_enrollment_no'])) {
 
-                // Check the "email_id" or "phone number" are present in "external_customers" collection
-                $ORM = ExternalCustomer::select();
-                if (!empty($data['mobile_number'])) {
-                    $ORM->where(ExternalCustomer::PHONE, $data['mobile_number']);
-                }
+			// Check the "email_id" or "phone number" are present in "external_customers" collection
+			$ORM = ExternalCustomer::select();
+			if (!empty($data['mobile_number'])) {
 
-                if (!empty($data['email_id'])) {
-                    if (!empty($data['mobile_number'])) {
-                        $ORM->orWhere(ExternalCustomer::EMAIL, $data['email_id']);
-                    } else {
-                        $ORM->where(ExternalCustomer::EMAIL, $data['email_id']);
-                    }
-                }
+				$ORM->where(ExternalCustomer::PHONE, $data['mobile_number']);
+			}
 
-				// Check the "email_id" or "phone number" are present in "external_customers" collection
-				$customer = $ORM->first();
+			if (!empty($data['email_id'])) {
 
-				// If not present in collection then create new external customer ID
-				if(!$customer instanceof ExternalCustomer)
-				{
-					// Assigning external enrollment Id for new welcome external customer.
-					$data['school_enrollment_no'] = $this->createExternalEnrollmentID($data['delivery_institution'], $data['date_of_enrollment']);
-				}
-				else
-				{
-                    // Otherwise we have customer present in collection
-                    $data['school_enrollment_no'] = $customer['school_enrollment_no'];
+				if (!empty($data['mobile_number'])) {
+
+					$ORM->orWhere(ExternalCustomer::EMAIL, $data['email_id']);
+				} else {
+
+					$ORM->where(ExternalCustomer::EMAIL, $data['email_id']);
 				}
 			}
+
+			// Check the "email_id" or "phone number" are present in "external_customers" collection
+			$customer = $ORM->first();
+
+			// If not present in collection then create new external customer ID
+			if(!$customer instanceof ExternalCustomer) {
+
+				// Assigning external enrollment Id for new welcome external customer.
+				$data['school_enrollment_no'] = self::createExternalEnrollmentID($data['delivery_institution'], $data['date_of_enrollment']);
+				dd($data['school_enrollment_no']);
+			}
+			else {
+
+				// Otherwise we have customer present in collection
+				$data['school_enrollment_no'] = $customer['school_enrollment_no'];
+			}
+
+			// Insert in the external_customers collection
+			upsertExternalCustomer($data);
 		}
 	}
 
@@ -297,7 +300,8 @@ class Excel
 	 * Creating external enrollment Id for new welcome external cutomer.
 	 */
 	public static function createExternalEnrollmentID($delivery_institution, $date_of_enrollment) {
-		$Id = ExternalCustomer::where('source_code', $delivery_institution)->count();
+
+		$Id = (int)substr((ExternalCustomer::where('source_code', $delivery_institution)->orderBy('_id', 'desc')->first())[ExternalCustomer::ENROLLMENT_NO], -5);
 
 		if(strtolower($delivery_institution) == 'h&r') {
 			return 'HEY'.substr($date_of_enrollment, -2).'-'.str_pad(++$Id, 5, '0', STR_PAD_LEFT);

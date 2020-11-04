@@ -3,6 +3,7 @@ namespace App\Library\Shopify;
 
 use App\Models\ShopifyExcelUpload;
 use App\Models\Student;
+use App\Models\ExternalCustomer;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -99,47 +100,52 @@ class ExcelValidator
         $activity_id = $row['shopify_activity_id'];
         $std_enroll_no = $row['school_enrollment_no'];
 
-        $DatabaseRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)->where('shopify_activity_id', $activity_id)
-            ->where('school_enrollment_no', $std_enroll_no)
-            ->where('is_canceled', '<>', true)
-            ->first();
+        if(!empty($std_enroll_no)) {
+            $DatabaseRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)->where('shopify_activity_id', $activity_id)
+                ->where('school_enrollment_no', $std_enroll_no)
+                ->where('is_canceled', '<>', true)
+                ->first();
 
-        if (! empty($DatabaseRow)) {
-            $is_duplicate = true;
-            $fields_updated = [];
+            if (! empty($DatabaseRow)) {
+                $is_duplicate = true;
+                $fields_updated = [];
 
-            $except_payment_and_metadata = ShopifyExcelUpload::METADATA_FIELDS;
-            array_push($except_payment_and_metadata, 'payments');
+                $except_payment_and_metadata = ShopifyExcelUpload::METADATA_FIELDS;
+                array_push($except_payment_and_metadata, 'payments');
 
-            foreach (Arr::except($row, $except_payment_and_metadata) as $index => $value) {
-                if ($value != $DatabaseRow[$index]) {
-                    $fields_updated[] = $index;
+                foreach (Arr::except($row, $except_payment_and_metadata) as $index => $value) {
+                    if ($value != $DatabaseRow[$index]) {
+                        $fields_updated[] = $index;
+                    }
                 }
-            }
 
-            if (! empty($fields_updated)) {
-                $this->errors['rows'][$this->row_no][] = sprintf(Errors::FIELD_UPDATED_ERROR, implode($fields_updated, ","));
-            }
+                if (! empty($fields_updated)) {
+                    $this->errors['rows'][$this->row_no][] = sprintf(Errors::FIELD_UPDATED_ERROR, implode($fields_updated, ","));
+                }
 
-            // Existing payments array
-            $existingpayments = $DatabaseRow["payments"];
+                // Existing payments array
+                $existingpayments = $DatabaseRow["payments"];
 
-            foreach ($row["payments"] as $payment_index => $payment) {
+                foreach ($row["payments"] as $payment_index => $payment) {
 
-                // Checking if installment already exists or not.
-                // This happens when user increases number of installments
-                if(!empty($existingpayments[$payment_index])) {
-                    $payment_fields = array_merge(ShopifyExcelUpload::CHEQUE_DD_FIELDS,
-                        ShopifyExcelUpload::ONLINE_FIELDS,
-                        ['mode_of_payment']
-                    );
-                    if (array_diff_assoc(Arr::only($existingpayments[$payment_index], $payment_fields), Arr::only($payment, $payment_fields))) {
-                        $is_duplicate = false;
-                        if ($existingpayments[$payment_index]['processed'] == 'Yes') {
-                            $this->errors['rows'][$this->row_no][] = sprintf(Errors::PROCESSED_INSTALLMENT_ERROR, $payment_index + 1);
+                    // Checking if installment already exists or not.
+                    // This happens when user increases number of installments
+                    if(!empty($existingpayments[$payment_index])) {
+                        $payment_fields = array_merge(ShopifyExcelUpload::CHEQUE_DD_FIELDS,
+                            ShopifyExcelUpload::ONLINE_FIELDS,
+                            ['mode_of_payment']
+                        );
+                        if (array_diff_assoc(Arr::only($existingpayments[$payment_index], $payment_fields), Arr::only($payment, $payment_fields))) {
+                            $is_duplicate = false;
+                            if ($existingpayments[$payment_index]['processed'] == 'Yes') {
+                                $this->errors['rows'][$this->row_no][] = sprintf(Errors::PROCESSED_INSTALLMENT_ERROR, $payment_index + 1);
+                            }
                         }
                     }
                 }
+            }
+            else{
+                $this->ValidateExternalEnrollmentID($row);
             }
         }
 
@@ -150,8 +156,39 @@ class ExcelValidator
         return $is_duplicate;
     }
 
-    private function ValidateData(array $data)
-    {
+    /*
+     *  Validate the school_enrollment_no for external customer 
+     *  who fill the school_enrollment_no in excel sheet for external order.
+     */
+    public function ValidateExternalEnrollmentID(array $row){
+
+        $ext_enroll_no = $row['school_enrollment_no'];
+
+        if(strtolower($row['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER  && !empty($ext_enroll_no)) {
+
+            $ORM = ExternalCustomer::select()->where(ExternalCustomer::ENROLLMENT_NO, $ext_enroll_no);
+            
+            // Check the "email_id" or "phone number" are present in "external_customers" collection
+            if (!empty($row['mobile_number'])) {
+                $ORM->where(ExternalCustomer::PHONE, $row['mobile_number']);
+            }
+
+            if (!empty($row['email_id'])) {
+                if (!empty($row['mobile_number'])) {
+                    $ORM->orWhere(ExternalCustomer::EMAIL, $row['email_id']);
+                } else {
+                    $ORM->where(ExternalCustomer::EMAIL, $row['email_id']);
+                }
+            }
+            $ExternalEnrollmentID = $ORM->count();
+
+            if($ExternalEnrollmentID != 1) {
+                $this->errors['rows'][$this->row_no][] = Errors::ENROLLMENT_ID_ERROR;
+            }
+        }
+    }
+
+    private function ValidateData(array $data) {
 
         $rules = [
             // Activity Details
@@ -179,10 +216,10 @@ class ExcelValidator
             ],
             "class" => [
                 "required",
-                Rule::in(array_merge(Student::CLASS_LIST,Student::HIGHER_CLASS_LIST,Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST,Student::HAYDEN_REYNOTT_CLASS_LIST))],
+                Rule::in(array_merge(ExternalCustomer::VALEDRA_CLASS_LIST, Student::CLASS_LIST,Student::HIGHER_CLASS_LIST,Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST,Student::HAYDEN_REYNOTT_CLASS_LIST, ExternalCustomer::VALEDRA_C))],
 
             "section" => ["required",
-                Rule::in(array_merge(Student::SECTION_LIST,Student::HIGHER_SECTION_LIST,Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST,[ShopifyExcelUpload::HAYDEN_REYNOTT]))],
+                Rule::in(array_merge(ExternalCustomer::VALEDRA_SECTION_LIST, Student::SECTION_LIST,Student::HIGHER_SECTION_LIST,Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST,[ShopifyExcelUpload::HAYDEN_REYNOTT]))],
 
             // Parent Details
             "parent_first_name" => "required",
@@ -284,22 +321,25 @@ class ExcelValidator
             $activity_id = $row['shopify_activity_id'];
             $std_enroll_no = $row['school_enrollment_no'];
 
-            $DatabaseRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)->where('shopify_activity_id', $activity_id)
+
+            if(!empty($std_enroll_no)) {
+                $DatabaseRow = ShopifyExcelUpload::where('date_of_enrollment', $date_enroll)->where('shopify_activity_id', $activity_id)
                 ->where('school_enrollment_no', $std_enroll_no)
                 ->where('is_canceled', '<>', true)
                 ->first();
 
-            if (! empty($DatabaseRow)) {
-                foreach ($DatabaseRow['payments'] as $payment) {
-                    $paymentMode = strtolower($payment["mode_of_payment"]);
-                    // Checking whether the payment has any payment mode //
-                    if (! empty($paymentMode)) {
-                        if ($paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
-                            $PreviousCashTotal += $payment["amount"];
-                        } elseif ($paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
-                            $PreviousChequeTotal += $payment["amount"];
-                        } elseif ($paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM])) {
-                            $PreviousOnlineTotal += $payment["amount"];
+                if (! empty($DatabaseRow)) {
+                    foreach ($DatabaseRow['payments'] as $payment) {
+                        $paymentMode = strtolower($payment["mode_of_payment"]);
+                        // Checking whether the payment has any payment mode //
+                        if (! empty($paymentMode)) {
+                            if ($paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CASH])) {
+                                $PreviousCashTotal += $payment["amount"];
+                            } elseif ($paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_DD])) {
+                                $PreviousChequeTotal += $payment["amount"];
+                            } elseif ($paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_ONLINE]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_NEFT]) || $paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_PAYTM])) {
+                                $PreviousOnlineTotal += $payment["amount"];
+                            }
                         }
                     }
                 }
@@ -338,10 +378,10 @@ class ExcelValidator
             /**
              * @todo To be removed. It is a redundant check as payment array cannot be created without amount.
              */
-//            if (empty($payment['amount'])) {
-//                $this->errors['rows'][$this->row_no][] = sprintf(Errors::EMPTY_AMOUNT_ERROR, $payment_index + 1);
-//                continue;
-//            }
+            //            if (empty($payment['amount'])) {
+            //                $this->errors['rows'][$this->row_no][] = sprintf(Errors::EMPTY_AMOUNT_ERROR, $payment_index + 1);
+            //                continue;
+            //            }
 
             $mode = strtolower($payment['mode_of_payment']);
             $amount += $payment['amount'];
