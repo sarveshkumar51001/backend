@@ -216,7 +216,7 @@ class ExcelValidator
             ],
             "class" => [
                 "required",
-                Rule::in(array_merge(ExternalCustomer::VALEDRA_CLASS_LIST, Student::CLASS_LIST,Student::HIGHER_CLASS_LIST,Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST,Student::HAYDEN_REYNOTT_CLASS_LIST, ExternalCustomer::VALEDRA_C))],
+                Rule::in(array_merge(ExternalCustomer::VALEDRA_CLASS_LIST, Student::CLASS_LIST,Student::HIGHER_CLASS_LIST,Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST,Student::HAYDEN_REYNOTT_CLASS_LIST))],
 
             "section" => ["required",
                 Rule::in(array_merge(ExternalCustomer::VALEDRA_SECTION_LIST, Student::SECTION_LIST,Student::HIGHER_SECTION_LIST,Student::REYNOTT_SECTION_LIST,Student::REYNOTT_DROPPER_SECTION_LIST,[ShopifyExcelUpload::HAYDEN_REYNOTT]))],
