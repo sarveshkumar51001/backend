@@ -29,9 +29,9 @@ class OrderUpdate
 
     private static function add_notes_to_shopify_upload($data) {
         // Fetch the document associated with the order id, retrieved from the refund webhook;
-        $document = ShopifyExcelUpload::where('order_id', $data['id'])->firstOrFail();
+        $document = ShopifyExcelUpload::where('order_id', $data['id'])->first();
 
-        if(!empty($data['note'])) {
+        if(!empty($document) && !empty($data['note'])) {
             $order_notes = $document['order_notes'] ?? [];
             $order_notes[] = [
                 "type" => "Note",
