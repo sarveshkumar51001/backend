@@ -209,11 +209,11 @@ class ExcelValidator
             "student_school_location" => "required|string",
             "student_first_name" => "required",
             "activity" => "required",
-            "school_enrollment_no" => "required|string|min:4",/* [
+            "school_enrollment_no" => [
                 Rule::requiredIf(strtolower($data['external_internal']) == ShopifyExcelUpload::INTERNAL_ORDER),
                 "string",
                 "min:4"
-            ], */
+            ],
             "class" => [
                 "required",
                 Rule::in(array_merge(ExternalCustomer::VALEDRA_CLASS_LIST, Student::CLASS_LIST,Student::HIGHER_CLASS_LIST,Student::REYNOTT_CLASS_LIST,Student::REYNOTT_DROPPER_CLASS_LIST,Student::HAYDEN_REYNOTT_CLASS_LIST))],
