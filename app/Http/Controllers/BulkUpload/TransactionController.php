@@ -109,13 +109,6 @@ class TransactionController extends BaseController
 
                 $Payment = new Payment(head($Order->payments) ,0);
 
-                $isPdc = ($Order['payments'][0]['is_pdc_payment'] == true && !empty($Order['payments'][0]['chequedd_date']));
-
-                // If include unpaid installment toggle is OFF and payment is PDC then skip the payment
-                if($isPdc && $exclude_unpaid) {
-                    continue;
-                }
-
                 if($isOnlyPending && isset($Order['payments'][0]['reconciliation']['settlement_status'])) {
                     continue;
                 }
@@ -155,7 +148,7 @@ class TransactionController extends BaseController
 
                     $Payment = new Payment($payment, $index);
 
-                    $isPdc = ($payment['is_pdc_payment'] == true && !empty($payment['chequedd_date']));
+                    $isPdc = (!empty($payment['is_pdc_payment']) && $payment['is_pdc_payment'] && !empty($payment['chequedd_date']));
 
                     // If include unpaid installment toggle is OFF and payment is PDC then skip the payment
                     if($isPdc && $exclude_unpaid) {
