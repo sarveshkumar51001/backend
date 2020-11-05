@@ -11,7 +11,7 @@ class Errors
 
     const DUPLICATE_ROW_ERROR = "This order has already been processed";
 
-    const ENROLLMENT_ID_ERROR = "Enrollment ID is either incorrect or not available[Leave empty in case of external].";
+    const ENROLLMENT_ID_ERROR = "Enrollment ID is either incorrect or not available.";
 
     const CONTACT_DETAILS_ERROR = "Either Email or Mobile Number is mandatory.";
 

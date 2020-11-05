@@ -192,7 +192,7 @@ class Excel
 	 * Prepare the enrollmentID as per required format for external user
 	 * HEY20-00002, REY20-000001, VAL20-000001
 	 */
-	public static function populateEnrollmentIDForExternals(Array $data) {
+	public static function populateEnrollmentIDForExternals(Array &$data) {
 
 		//Checking if external/internal
 		if( (strtolower($data['external_internal']) == ShopifyExcelUpload::EXTERNAL_ORDER)  && empty($data['school_enrollment_no'])) {
@@ -223,7 +223,6 @@ class Excel
 
 				// Assigning external enrollment Id for new welcome external customer.
 				$data['school_enrollment_no'] = self::createExternalEnrollmentID($data['delivery_institution'], $data['date_of_enrollment']);
-				dd($data['school_enrollment_no']);
 			}
 			else {
 
@@ -232,7 +231,7 @@ class Excel
 			}
 
 			// Insert in the external_customers collection
-			upsertExternalCustomer($data);
+			self::upsertExternalCustomer($data);
 		}
 	}
 
