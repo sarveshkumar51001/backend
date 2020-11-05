@@ -186,11 +186,6 @@ class Excel
 		}
 
 		$this->FormatInstallments();
-<<<<<<< HEAD
-=======
-
-		//$this->populateEnrollmentIDForExternals();
->>>>>>> master
 	}
 
 	/**
