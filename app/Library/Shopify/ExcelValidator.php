@@ -75,6 +75,7 @@ class ExcelValidator
                 continue;
             }
 
+            $this->ValidationChequeDDDate($data);
             $this->ValidateInternalExternalOrderType($data);
             $this->ValidateHigherEducationData($data);
             $this->ValidatePaymentDetails($data);
@@ -90,6 +91,27 @@ class ExcelValidator
         }
 
         return $this->errors;
+    }
+
+    public function ValidationChequeDDDate(array $data) {
+        foreach ($data['payments'] as $payment) {
+            
+            $paymentMode = strtolower($payment["mode_of_payment"]);
+            $paymentChequeDDDate = strtotime($payment['chequedd_date']);
+            $currentDate = strtotime(Carbon::now()->format('d/m/Y'));
+
+            if (! empty($paymentMode)) {
+                if ($paymentMode == strtolower(ShopifyExcelUpload::$modesTitle[ShopifyExcelUpload::MODE_CHEQUE])) {
+                    if($paymentChequeDDDate > ($currentDate + strtotime('+90 days'))) {
+                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::CHEQUE_DD_DATE_ERROR, $paymentMode);
+                    }
+                } else {
+                    if($paymentChequeDDDate > $currentDate) {
+                        $this->errors['rows'][$this->row_no][] = sprintf(Errors::OTHER_THAN_CHEQUE_DD_DATE_ERROR, $paymentMode);
+                    }
+                }
+            }
+        }
     }
 
     public function ValidateDuplicateRow(array $row)

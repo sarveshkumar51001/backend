@@ -53,6 +53,10 @@ class Errors
 
     const INVALID_MODE_ERROR = "Invalid mode of payment - %s for payment %s ";
 
+    const CHEQUE_DD_DATE_ERROR = "For %s Payment Mode, Cheque_dd_date should be valid till further 90 Days.";
+
+    const OTHER_THAN_CHEQUE_DD_DATE_ERROR = "For %s Payment Mode, Cheque_dd_date should not be future date.";
+
     const EXPECTED_DATE_AMOUNT_ERROR = "Expected Amount and Expected date of collection required for payment - %s.";
 
     const FUTURE_PAYMENT_CHEQUE_DETAILS_ERROR = "Future Installments with no payment mode cannot have Cheque/DD/Online details";
