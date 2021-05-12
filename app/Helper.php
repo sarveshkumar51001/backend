@@ -286,3 +286,18 @@ function export(array $columns, array $rows, string $filename) {
 
     exit(0);
 }
+
+function get_color_class($value) {
+    $value = strtoupper($value);
+    if (in_array($value, ['SUCCESS', 'SETTLED', 'PAID', 'PARTLY_PAID'])) {
+        $class = 'badge badge-success';
+    } else if(in_array($value, ['FAILED', 'FAILURE', 'CANCELED', 'CANCEL'])) {
+        $class = 'badge badge-danger';
+    } else if(in_array($value, ['PENDING', 'DUE', 'ACCEPTED'])) {
+        $class = 'badge badge-warning';
+    } else {
+        $class = 'badge badge-info';
+    }
+
+    return $class;
+}
