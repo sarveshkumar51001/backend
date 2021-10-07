@@ -59,9 +59,12 @@ class HandleWebhookDataMiddleware
 
         $event = sprintf("webhook.%s.%s", $source, $name);
 
+        $body = $request->all();
+        $body['submission_code'] = strtoupper(uniqid());
+
         $data = [
             'headers' => $request->headers->all(),
-            'body' => $request->all(),
+            'body' => $body,
             'query' => $request->query->all(),
             'cookies' => $request->cookies->all(),
             'attributes' => $request->attributes->all(),
