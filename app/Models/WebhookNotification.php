@@ -20,6 +20,8 @@ class WebhookNotification extends Base
     ];
     public static $sending_data = [
         'support@valedra.com' => "Valedra",
+        'admissions@hayrey.com' => "H&R Admissions",
+        'contact@reynott.com' => 'Reynott Contact',
         'admissions@academy.apeejay.edu' => "Appejay",
     ];
 
